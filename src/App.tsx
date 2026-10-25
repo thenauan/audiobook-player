@@ -33,6 +33,7 @@ import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
+import { installTouchMenus } from './components/touchMenu';
 import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo } from './components/ZoomTransitionLayer';
 const loadImageCropperSquare = () => import('./ImageCropperSquare');
 const loadHelpCenterView = () => import('./views/HelpCenterView');
@@ -172,15 +173,15 @@ const transicaoConteudo: any = {
   get escondido() {
     if (!isMobileNav()) return { opacity: 0, scale: 0.985, y: 8, x: 0, transformOrigin: 'center top' };
     // "relative": sem isso o zIndex da tela que entra não vale e a que sai (absoluta) fica por cima dela
-    if (navDirection === 'push') return { x: '100%', opacity: 1, scale: 1, y: 0, zIndex: 2, position: 'relative', filter: 'brightness(1)' };
-    if (navDirection === 'instant') return { opacity: 1, x: 0, scale: 1, y: 0, zIndex: 1, filter: 'brightness(1)' };
+    if (navDirection === 'push') return { x: '100%', opacity: 1, scale: 1, y: 0, zIndex: 2, position: 'relative' };
+    if (navDirection === 'instant') return { opacity: 1, x: 0, scale: 1, y: 0, zIndex: 1 };
     if (navDirection === 'popSwipe') {
       // A tela anterior já estaria parcialmente revelada pelo dedo: começa proporcionalmente mais perto
       const w = swipeAreaWidth || window.innerWidth;
-      return { x: -0.3 * w + swipeOffsetPx * 0.3, opacity: 0.4, scale: 1, y: 0, zIndex: 1, position: 'relative', filter: 'brightness(0.88)' };
+      return { x: -0.3 * w + swipeOffsetPx * 0.3, opacity: 0.4, scale: 1, y: 0, zIndex: 1, position: 'relative' };
     }
-    if (navDirection === 'pop') return { x: '-30%', opacity: 0, scale: 1, y: 0, zIndex: 1, position: 'relative', filter: 'brightness(0.82)' };
-    return { opacity: 0, x: 0, scale: 1, y: 0, zIndex: 1, filter: 'brightness(1)' };
+    if (navDirection === 'pop') return { x: '-30%', opacity: 0, scale: 1, y: 0, zIndex: 1, position: 'relative' };
+    return { opacity: 0, x: 0, scale: 1, y: 0, zIndex: 1 };
   },
   get visivel() {
     if (!isMobileNav()) {
@@ -189,21 +190,22 @@ const transicaoConteudo: any = {
         transition: { type: 'spring', stiffness: 520, damping: 38, mass: 0.55, opacity: { duration: 0.13, ease: 'easeOut' } },
       };
     }
-    if (navDirection === 'tab') return { opacity: 1, x: 0, scale: 1, y: 0, filter: 'brightness(1)', transition: { duration: 0.18, ease: 'easeOut' } };
-    if (navDirection === 'instant') return { opacity: 1, x: 0, scale: 1, y: 0, filter: 'brightness(1)', transition: { duration: 0 } };
-    return { opacity: 1, x: 0, scale: 1, y: 0, filter: 'brightness(1)', transition: { x: IOS_NAV, filter: { duration: 0.35 }, opacity: { duration: 0.3, ease: 'easeOut' } } };
+    if (navDirection === 'tab') return { opacity: 1, x: 0, scale: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } };
+    if (navDirection === 'instant') return { opacity: 1, x: 0, scale: 1, y: 0, transition: { duration: 0 } };
+    return { opacity: 1, x: 0, scale: 1, y: 0, transition: { x: IOS_NAV, opacity: { duration: 0.3, ease: 'easeOut' } } };
   },
   get saindo() {
     if (!isMobileNav()) return { opacity: 0, scale: 0.99, y: -4, transition: { duration: 0.08, ease: [0.32, 0, 0.67, 0] } };
-    if (navDirection === 'push') return { ...exitOverlay(), x: '-30%', opacity: 0, zIndex: 1, filter: 'brightness(0.82)', transition: { ...OVERLAY_T, x: IOS_NAV, filter: { duration: 0.35 }, opacity: { duration: 0.22, ease: 'easeOut' } } };
+    if (navDirection === 'push') return { ...exitOverlay(), x: '-30%', opacity: 0, zIndex: 1, transition: { ...OVERLAY_T, x: IOS_NAV, opacity: { duration: 0.22, ease: 'easeOut' } } };
     if (navDirection === 'pop') return { ...exitOverlay(), x: '100%', opacity: 0, zIndex: 2, transition: { ...OVERLAY_T, x: IOS_NAV, opacity: { duration: 0.3, ease: 'easeIn' } } };
     if (navDirection === 'popSwipe') {
       // Continua de onde o dedo soltou até sair pela direita
       const w = swipeAreaWidth || window.innerWidth;
       return { ...exitOverlay(), x: [swipeOffsetPx, w], opacity: 0, zIndex: 2, transition: { ...OVERLAY_T, x: { type: 'spring', stiffness: 380, damping: 40, mass: 0.7 }, opacity: { duration: 0.25, ease: 'easeIn' } } };
     }
-    if (navDirection === 'instant') return { opacity: 0, transition: { duration: 0 } };
-    return { opacity: 0, transition: { duration: 0.12, ease: 'easeIn' } };
+    if (navDirection === 'instant') return { ...exitOverlay(), opacity: 0, transition: { ...OVERLAY_T, opacity: { duration: 0 } } };
+    // Troca de aba / volta para a capa: a tela que sai sai do fluxo na hora (a nova não é empurrada para baixo)
+    return { ...exitOverlay(), opacity: 0, transition: { ...OVERLAY_T, opacity: { duration: 0.12, ease: 'easeIn' } } };
   },
 };
 
@@ -3905,11 +3907,71 @@ export default function App() {
     };
   };
 
+  // Opções de ordenação (pop-up global e painel do cabeçalho no celular)
+  const renderSortOptions = (onPicked?: () => void) => (
+            <div className="space-y-0.5">
+              {[
+                { id: 'name-asc', label: t('sort_name_asc'), icon: <ArrowDownAZ size={15} /> },
+                { id: 'name-desc', label: t('sort_name_desc'), icon: <ArrowUpZA size={15} /> },
+                { id: 'year-desc', label: t('sort_year_desc'), icon: <Calendar size={15} /> },
+                { id: 'year-asc', label: t('sort_year_asc'), icon: <CalendarClock size={15} /> },
+                { id: 'duration-desc', label: t('sort_duration_desc'), icon: <Clock size={15} /> },
+                { id: 'duration-asc', label: t('sort_duration_asc'), icon: <Timer size={15} /> },
+              ].map(opt => {
+                const isSelected = sortBy === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => { handleSelectSort(opt.id as SortOption); onPicked?.(); }}
+                    className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group ${
+                      isSelected
+                        ? 'hover:bg-winblue/25 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)]'
+                        : 'hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+                    }`}
+                  >
+                    {isSelected && (
+                      <motion.div
+                        layoutId="sort-active-pill"
+                        className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
+                        transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
+                      />
+                    )}
+                    <div className={`relative z-10 flex items-center gap-3 transition-colors ${isSelected ? 'text-winblue font-bold' : 'text-[var(--text-main)] group-hover:text-white'}`}>
+                      <div className={isSelected ? 'text-winblue' : 'text-[var(--text-muted)] group-hover:text-white transition-colors'}>
+                        {opt.icon}
+                      </div>
+                      <span>{opt.label}</span>
+                    </div>
+                    {isSelected && (
+                      <motion.div
+                        layoutId="sort-active-check"
+                        className="relative z-10 text-winblue shrink-0"
+                        transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
+                      >
+                        <BsCheck2 size={16} />
+                      </motion.div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+  );
+
   const renderMobileHeaderActions = () => {
     const id = activeScreen.id;
+    // Ordenação como painel do próprio pop-up do cabeçalho (nasce da pílula; vinda das opções, termina em "Mais opções")
     const sortAction: MobileHeaderAction = {
       id: 'sort', icon: <ArrowUpDown size={14} />, label: t('sort_by'),
-      onClick: (anchor) => { closeAllPopups(); clearButtonCoverAnchorCache(anchor); setSortBtnAnchor(anchor); setShowSortMenu(true); },
+      panelWidth: 228,
+      panel: (
+        <div className="flex flex-col p-1.5 pb-0 text-left rtl:text-right">
+          <div className="px-3 pt-2 pb-1.5">
+            <h3 className="text-sm font-bold text-[var(--text-main)]">{t('sort_by')}</h3>
+          </div>
+          {renderSortOptions(() => setTimeout(() => window.dispatchEvent(new Event('close-all-popups')), 250))}
+          <div className="h-1.5" />
+        </div>
+      ),
     };
 
     if (id === 'book-detail') {
@@ -9426,6 +9488,9 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
+  // Pop-ups no toque: destaque na opção tocada e escolha por arrasto (solta para escolher)
+  useEffect(() => installTouchMenus(), []);
+
   // Arrastar da borda esquerda para o centro volta para a tela anterior (a tela acompanha o dedo)
   // Depois do gesto da borda, a área das telas volta ao lugar no mesmo quadro em que a troca começa
   const pendingSwipeResetRef = useRef<HTMLElement | null>(null);
@@ -14764,52 +14829,7 @@ export default function App() {
               <h3 className="text-sm font-bold text-[var(--text-main)]">{t('sort_by')}</h3>
             </div>
 
-            <div className="space-y-0.5">
-              {[
-                { id: 'name-asc', label: t('sort_name_asc'), icon: <ArrowDownAZ size={15} /> },
-                { id: 'name-desc', label: t('sort_name_desc'), icon: <ArrowUpZA size={15} /> },
-                { id: 'year-desc', label: t('sort_year_desc'), icon: <Calendar size={15} /> },
-                { id: 'year-asc', label: t('sort_year_asc'), icon: <CalendarClock size={15} /> },
-                { id: 'duration-desc', label: t('sort_duration_desc'), icon: <Clock size={15} /> },
-                { id: 'duration-asc', label: t('sort_duration_asc'), icon: <Timer size={15} /> },
-              ].map(opt => {
-                const isSelected = sortBy === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    onClick={() => handleSelectSort(opt.id as SortOption)}
-                    className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group ${
-                      isSelected
-                        ? 'hover:bg-winblue/25 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)]'
-                        : 'hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
-                    }`}
-                  >
-                    {isSelected && (
-                      <motion.div
-                        layoutId="sort-active-pill"
-                        className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
-                        transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
-                      />
-                    )}
-                    <div className={`relative z-10 flex items-center gap-3 transition-colors ${isSelected ? 'text-winblue font-bold' : 'text-[var(--text-main)] group-hover:text-white'}`}>
-                      <div className={isSelected ? 'text-winblue' : 'text-[var(--text-muted)] group-hover:text-white transition-colors'}>
-                        {opt.icon}
-                      </div>
-                      <span>{opt.label}</span>
-                    </div>
-                    {isSelected && (
-                      <motion.div
-                        layoutId="sort-active-check"
-                        className="relative z-10 text-winblue shrink-0"
-                        transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
-                      >
-                        <BsCheck2 size={16} />
-                      </motion.div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+            {renderSortOptions()}
           </MorphPopup>
         )}
       </AnimatePresence>

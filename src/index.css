@@ -767,6 +767,26 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
     min-height: 44px;
     border-radius: 20px !important;
   }
+  /* Opção tocada (ou sob o dedo ao arrastar): o mesmo destaque do "passar o mouse" no computador */
+  [data-popup-content] [data-touch-active] {
+    background-color: rgb(255 255 255 / 0.15) !important;
+    border-color: rgb(255 255 255 / 0.2) !important;
+    box-shadow: 0 0 12px rgb(255 255 255 / 0.15) !important;
+    color: #fff;
+    transform: scale(1.02);
+  }
+  html:not(.dark) [data-popup-content] [data-touch-active] {
+    background-color: rgb(100 116 139 / 0.18) !important;
+    border-color: rgb(100 116 139 / 0.25) !important;
+    color: inherit;
+  }
+  [data-popup-content] [data-touch-active].text-red-500 {
+    background-color: rgb(239 68 68 / 0.15) !important;
+    border-color: rgb(239 68 68 / 0.3) !important;
+    box-shadow: 0 0 12px rgb(239 68 68 / 0.2) !important;
+    color: rgb(248 113 113);
+  }
+  [data-popup-content] [data-touch-active] .group-hover\:text-white { color: inherit; }
   /* Pop-ups mais largos (as opções não quebram linha) e com cantos bem arredondados, como no iOS */
   [data-popup-content="true"]:is(.w-44, .w-52, .w-56, .w-60, .w-64) {
     width: min(290px, calc(100vw - 32px)) !important;
@@ -1314,4 +1334,13 @@ html.standalone body,
 html.standalone #root {
   height: 100dvh;
   max-height: 100dvh;
+}
+
+/* Barra de abas e miniplayer em camadas próprias, acima das telas: não somem nem piscam durante as
+   transições entre telas (no Safari, camadas com desfoque podiam ser redesenhadas junto com a tela) */
+[data-mobile-tab-bar],
+#mini-player {
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }

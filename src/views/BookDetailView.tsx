@@ -296,8 +296,9 @@ export default function BookDetailView({
         );
         return (
           <>
-          {/* Celular deitado: capa à esquerda e, ao lado, título, autor, informações e botões (tudo visível sem cortes) */}
-          <div className="hidden land:flex land:col-start-1 land:row-start-1 land:row-span-2 flex-col w-full">
+          {/* Celular deitado: capa à esquerda e, ao lado, título, autor, informações e botões (tudo visível sem cortes).
+              Essa coluna fica parada; só a coluna da sinopse e dos capítulos rola */}
+          <div className="hidden land:flex land:col-start-1 land:row-start-1 land:row-span-2 land:sticky land:top-0 land:self-start land:z-[1] flex-col w-full">
             {/* Capa e, ao lado, título/autor/dados; botões embaixo — tudo visível acima da barra de abas */}
             <div className="flex items-center gap-4 w-full">
               <img

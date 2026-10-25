@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MoreHorizontal, Trash2, X, ChevronLeft } from 'lucide-react';
+import { MoreHorizontal, Trash2, X } from 'lucide-react';
 import { MenuOptionItem, MorphPopup, PopupMorphContainer, morphTriggerAnimate } from './Popovers';
 import { getBackdropProps } from './popupUtils';
 import { MobileConfirmCard } from './MobileConfirm';
@@ -140,8 +140,11 @@ export function MobileHeaderActions({
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<string>('menu');
+  // O painel aberto veio da lista de opções (então termina com "Mais opções", que volta para ela)
+  const [viewFromMenu, setViewFromMenu] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
-  const close = () => { setOpen(false); setView('menu'); };
+  const pillRef = useRef<HTMLDivElement>(null);
+  const close = () => { setOpen(false); setView('menu'); setViewFromMenu(false); };
   useCloseOnGlobalEvent(open, close);
 
   const menuItems = (menu || []).filter(Boolean);
@@ -152,6 +155,26 @@ export function MobileHeaderActions({
   const viewAction = items.find(a => a.id === view);
   const [confirmAction, setConfirmAction] = useState<MobileHeaderAction | null>(null);
   useCloseOnGlobalEvent(Boolean(confirmAction), () => setConfirmAction(null));
+
+  // Executa uma ação; "fromMenu": escolhida na lista de opções
+  const runAction = (action: MobileHeaderAction, fromMenu: boolean) => {
+    if (action.confirm) {
+      close();
+      setConfirmAction(action);
+      return;
+    }
+    if (action.panel) {
+      if (!fromMenu) window.dispatchEvent(new Event('close-all-popups'));
+      setView(action.id);
+      setViewFromMenu(fromMenu);
+      setOpen(true);
+      return;
+    }
+    // Pop-ups globais nascem da pílula inteira (ou do botão, quando sozinho)
+    const anchor = (asPill ? pillRef.current : btnRef.current) as HTMLElement | null;
+    close();
+    if (anchor) action.onClick?.(anchor);
+  };
 
   const dotsButton = (
     <motion.button
@@ -164,6 +187,7 @@ export function MobileHeaderActions({
         e.stopPropagation();
         window.dispatchEvent(new Event('close-all-popups'));
         setView('menu');
+        setViewFromMenu(false);
         setOpen(true);
       }}
       className={asPill ? pillBtn : circleBtn}
@@ -177,9 +201,17 @@ export function MobileHeaderActions({
       {quick && !asPill && <QuickActionButton action={quick} />}
       {items.length > 0 && (
         <div className={`relative h-11 shrink-0 ${asPill ? 'w-[88px]' : 'w-11'} ${open ? 'z-50' : 'z-10'}`}>
-          {asPill ? (
-            <motion.div animate={morphTriggerAnimate(open)} className={pillShell}>
-              <QuickActionButton action={quick!} inPill />
+          {asPill && quick ? (
+            <motion.div ref={pillRef} animate={morphTriggerAnimate(open)} className={pillShell}>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                aria-label={quick.label}
+                title={quick.label}
+                onClick={(e) => { e.stopPropagation(); runAction(quick, false); }}
+                className={`${pillBtn} ${quick.active ? 'text-winblue' : ''} ${quick.danger ? 'text-red-500' : ''}`}
+              >
+                {quick.icon}
+              </motion.button>
               {dotsButton}
             </motion.div>
           ) : dotsButton}
@@ -206,20 +238,7 @@ export function MobileHeaderActions({
                           icon={action.icon}
                           danger={action.danger}
                           immediate={Boolean(action.confirm || action.panel)}
-                          onClick={() => {
-                            if (action.confirm) {
-                              close();
-                              setConfirmAction(action);
-                              return;
-                            }
-                            if (action.panel) {
-                              setView(action.id);
-                              return;
-                            }
-                            const anchor = btnRef.current;
-                            close();
-                            if (anchor) action.onClick?.(anchor);
-                          }}
+                          onClick={() => runAction(action, true)}
                         >
                           <span>{action.label}</span>
                         </MenuOptionItem>
@@ -229,17 +248,15 @@ export function MobileHeaderActions({
                     <ConfirmView action={viewAction} onCancel={() => setView('menu')} />
                   ) : (
                     <div className="flex flex-col">
-                      <div className="px-2 pt-2">
-                        <motion.button
-                          whileTap={{ scale: 0.95 }}
-                          onClick={(e) => { e.stopPropagation(); setView('menu'); }}
-                          className="h-7 px-2.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 flex items-center gap-1.5 text-[var(--text-main)] text-xs font-semibold"
-                        >
-                          <ChevronLeft size={14} className="rtl:rotate-180" />
-                          <span>{t('more_options')}</span>
-                        </motion.button>
-                      </div>
                       {viewAction.panel}
+                      {/* Aberto a partir das opções: a última opção volta para elas */}
+                      {viewFromMenu && (
+                        <div className="px-1.5 pb-1.5 -mt-1">
+                          <MenuOptionItem immediate icon={<MoreHorizontal size={14} />} onClick={() => setView('menu')}>
+                            <span>{t('more_options')}</span>
+                          </MenuOptionItem>
+                        </div>
+                      )}
                     </div>
                   )}
                 </PopupMorphContainer>
