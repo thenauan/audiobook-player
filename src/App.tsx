@@ -9466,7 +9466,11 @@ export default function App() {
 
   return (
     <I18nContext.Provider value={{ language: resolvedLanguage, appLanguage, setAppLanguage, t }}>
-      <CollectionsContext.Provider value={{ collections, onToggleItemInCollection: handleToggleItemInCollection }}>
+      <CollectionsContext.Provider value={{
+        collections,
+        onToggleItemInCollection: handleToggleItemInCollection,
+        onCreateCollection: handleStartCreateCollection,
+      }}>
         <div className="app-shell flex h-[100dvh] w-screen bg-mica text-main font-fluent select-none overflow-hidden transition-colors duration-500 relative pl-0 md:pl-[272px] rtl:md:pl-0 rtl:md:pr-[272px]" style={appStyle}>
 
       

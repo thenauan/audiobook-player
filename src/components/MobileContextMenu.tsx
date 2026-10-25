@@ -206,7 +206,7 @@ export function MobileContextMenu({
     const maxX = vw - margin - safe.right;
     const minY = margin + safe.top;
     const maxY = vh - margin - safe.bottom;
-    const menuW = Math.min(Math.max(targetWidth, 250), maxX - minX);
+    const menuW = Math.min(Math.max(targetWidth, 290), maxX - minX);
     const menuH = measuredMenuH ?? (isSideLayout ? Math.min(estimatedMenuHeight, 290) : Math.max(estimatedMenuHeight, 290));
     let shiftX = 0;
     if (r.left < minX) shiftX = minX - r.left;

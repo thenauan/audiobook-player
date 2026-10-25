@@ -765,6 +765,14 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   [data-popup-content] button.group.w-full {
     font-size: 15px !important;
     min-height: 44px;
+    border-radius: 20px !important;
+  }
+  /* Pop-ups mais largos (as opções não quebram linha) e com cantos bem arredondados, como no iOS */
+  [data-popup-content="true"]:is(.w-44, .w-52, .w-56, .w-60, .w-64) {
+    width: min(290px, calc(100vw - 32px)) !important;
+  }
+  [data-popup-content="true"]:is(.rounded-\[20px\], .rounded-\[24px\], .rounded-\[28px\]):not([data-mobile-confirm]) {
+    border-radius: 30px !important;
   }
   [data-popup-content] button.group.w-full svg {
     width: 17px;

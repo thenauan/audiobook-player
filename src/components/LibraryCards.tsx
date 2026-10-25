@@ -1,7 +1,7 @@
 // Extraído do App.tsx (conteúdo sem alterações)
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink } from 'lucide-react';
+import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink, ChevronRight } from 'lucide-react';
 import { 
   BsPlayFill, BsPauseFill, BsCheck2
 } from 'react-icons/bs';
@@ -236,6 +236,8 @@ export function _FavoriteChapterCard({
 export interface CollectionsContextType {
   collections: Collection[];
   onToggleItemInCollection: (collectionId: string, itemType: 'book' | 'author', itemId: string) => void;
+  // Abre a criação de uma coleção nova já com o item escolhido
+  onCreateCollection?: (initialItem: { type: 'book' | 'author'; id: string }) => void;
 }
 
 export const CollectionsContext = React.createContext<CollectionsContextType>({
@@ -591,6 +593,23 @@ export function CollectionPickerPopupContent({
 }) {
   const { t } = useI18n();
   const compact = useCompactPopups();
+  const { onCreateCollection } = useCollections();
+  // Primeira opção da lista: criar uma coleção nova já com este audiobook/autor
+  const createRow = onCreateCollection ? (
+    <PopupSelectableRow
+      key="create-collection"
+      selected={false}
+      onClick={() => onCreateCollection({ type: itemType, id: itemId })}
+      rowTitle={t('create_collection')}
+      leading={
+        <div className="w-7 h-7 rounded-lg bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
+          <Plus size={15} />
+        </div>
+      }
+      title={t('create_collection')}
+      unselectedTrailing={<ChevronRight size={14} className="rtl:rotate-180" />}
+    />
+  ) : null;
 
   // Celular: sem botão de voltar; a lista mostra até 4 coleções por vez e "Mais opções" no fim
   // (passa para as seguintes e, na última página, volta para as opções do item)
@@ -621,12 +640,13 @@ export function CollectionPickerPopupContent({
         <h3 className="px-3 pt-2 pb-1.5 text-sm font-bold text-[var(--text-main)] truncate">
           {title || t('add_to_collection')}
         </h3>
-        {collections.length === 0 && (
+        {collections.length === 0 && !createRow && (
           <div className="py-4 px-2 text-center text-xs text-[var(--text-muted)]">
             {t('no_collections_yet')}
           </div>
         )}
         <PagedMenu className="flex flex-col space-y-0.5" onBackToParent={onBack}>
+          {createRow}
           {rows}
         </PagedMenu>
       </div>
@@ -658,7 +678,8 @@ export function CollectionPickerPopupContent({
       </div>
 
       <div className="overflow-y-auto custom-scrollbar max-h-60 space-y-0.5 pr-0.5">
-        {collections.length === 0 ? (
+        {createRow}
+        {collections.length === 0 && createRow ? null : collections.length === 0 ? (
           <div className="py-5 px-2 text-center text-xs text-[var(--text-muted)]">
             {t('no_collections_yet')}
           </div>

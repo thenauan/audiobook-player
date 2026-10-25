@@ -777,10 +777,11 @@ export function PopupMorphContainer({
   originWidth?: number;
   originHeight?: number;
 }) {
-  // Celular: largura dos menus do iOS (~250pt), com texto maior e alvos de toque de 44pt
+  // Celular: menus mais largos (sem quebrar o texto das opções) e com cantos bem arredondados, como no iOS
   const compactPopup = useCompactPopups();
   if (compactPopup && typeof window !== 'undefined') {
-    targetWidth = Math.min(Math.max(targetWidth, 250), window.innerWidth - 32);
+    targetWidth = Math.min(Math.max(targetWidth, 290), window.innerWidth - 32);
+    targetRadius = Math.max(targetRadius, 30);
   }
   // Mesmo critério do MorphPopup: considera right/bottom do style (getButtonCoverPopupStyle) e o transformOrigin
   const inferredCorner = inferMorphCorner(style, className);
