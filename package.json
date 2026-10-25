@@ -1,7 +1,7 @@
 {
   "name": "audiobook-player",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reprodutor de audiobooks moderno (web/PWA) com transcrição sincronizada, coleções, fila, marcações e interface no estilo Apple para computador, celular e tablet.",
   "license": "MIT",
   "type": "module",
