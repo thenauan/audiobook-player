@@ -394,7 +394,12 @@ export function MobileMiniPlayer({
     : barCollapsed
       ? { left: `calc(${inset} + ${compact + gap}px)`, right: `calc(${inset} + ${compact + gap}px)`, bottom: barBottom }
       : { left: inset, right: inset, bottom: `calc(${barBottom} + ${size + gap}px)` };
-  const posTransition = 'left 0.32s cubic-bezier(0.22, 1, 0.36, 1), right 0.32s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.32s cubic-bezier(0.22, 1, 0.36, 1), height 0.32s cubic-bezier(0.22, 1, 0.36, 1)';
+  // Posição pelo topo, a partir da altura total da tela (no app instalado no iPhone, até a base de verdade)
+  if (placement.bottom !== undefined) {
+    placement.top = `calc(var(--screen-h) - ${placement.bottom} - ${height}px)`;
+    delete placement.bottom;
+  }
+  const posTransition = 'left 0.32s cubic-bezier(0.22, 1, 0.36, 1), right 0.32s cubic-bezier(0.22, 1, 0.36, 1), top 0.32s cubic-bezier(0.22, 1, 0.36, 1), height 0.32s cubic-bezier(0.22, 1, 0.36, 1)';
 
   const openFullscreen = () => {
     // Encolhido: o toque funciona normalmente e o miniplayer volta ao tamanho padrão em seguida

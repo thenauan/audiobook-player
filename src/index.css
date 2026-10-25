@@ -31,6 +31,9 @@
 }
 
 :root {
+  /* Altura total da tela. No app instalado (tela de início), usa a maior altura possível: o iPhone pode
+     informar uma área visível menor que a tela e deixar uma faixa vazia embaixo */
+  --screen-h: 100dvh;
   /* Margem lateral padrão do iOS: 16 pt em telas estreitas (ex.: iPhone SE) e 20 pt a partir de 390 pt
      (iPhone 12 em diante); no celular deitado, a área segura do recorte manda quando for maior */
   --page-margin: 16px;
@@ -1218,8 +1221,10 @@ body {
 }
 .app-shell {
   position: fixed;
-  inset: 0;
-  height: auto !important;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--screen-h) !important;
 }
 
 /* Toque: a barra de progresso tem área de toque maior (a linha continua fina) e a bolinha fica
@@ -1284,4 +1289,16 @@ body {
 .mobile-bleed {
   margin-left: calc(-1 * max(var(--page-margin), var(--safe-left)));
   margin-right: calc(-1 * max(var(--page-margin), var(--safe-right)));
+}
+
+/* Telas de ajuste no celular: em todos os botões, o ícone fica à esquerda e o texto à direita */
+.settings-action-panel button > svg:last-child:not(:first-child),
+.settings-action-panel label > svg:last-child:not(:first-child),
+.settings-action-panel button > :last-child:not(:first-child):is(.lucide, svg),
+.settings-action-panel button > span:last-child:has(> svg):not(:first-child) {
+  order: -1;
+}
+
+html.standalone {
+  --screen-h: 100lvh;
 }

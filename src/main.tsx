@@ -90,6 +90,12 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// App instalado (aberto pela tela de início)
+if (typeof window !== 'undefined') {
+  const standalone = (navigator as any).standalone === true || !!window.matchMedia?.('(display-mode: standalone)').matches;
+  if (standalone) document.documentElement.classList.add('standalone');
+}
+
 // iOS Safari só aplica o estado :active (destaque ao tocar) se houver um ouvinte de toque
 if (typeof document !== 'undefined') {
   document.addEventListener('touchstart', () => {}, { passive: true });

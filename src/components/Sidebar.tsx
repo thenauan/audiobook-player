@@ -306,8 +306,10 @@ export function MobileBottomBar({
   return (
     <div
       data-mobile-tab-bar="true"
-      className="md:hidden fixed inset-x-0 bottom-0 z-[95] pointer-events-none"
+      // Ancorada pela altura total da tela (no app instalado no iPhone, até a base de verdade)
+      className="md:hidden fixed inset-x-0 top-0 z-[95] pointer-events-none flex flex-col justify-end"
       style={{
+        height: 'var(--screen-h)',
         paddingLeft: 'var(--mobile-bar-inset)',
         paddingRight: 'var(--mobile-bar-inset)',
         paddingBottom: 'var(--mobile-bar-bottom)',
