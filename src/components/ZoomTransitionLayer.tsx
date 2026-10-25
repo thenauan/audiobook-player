@@ -101,7 +101,10 @@ export default function ZoomTransitionLayer({
 
   // Capas de destino escondidas enquanto a página volta para dentro delas
   const hiddenCardsRef = useRef<HTMLElement[]>([]);
+  // Já revelada nesta animação (não esconde de novo ao continuar acompanhando o card)
+  const cardsRevealedRef = useRef(false);
   const showHiddenCards = () => {
+    cardsRevealedRef.current = true;
     hiddenCardsRef.current.forEach(el => { el.style.opacity = ''; });
     hiddenCardsRef.current = [];
   };
@@ -187,6 +190,7 @@ export default function ZoomTransitionLayer({
       }
 
       stopAll();
+      cardsRevealedRef.current = false;
       const runId = ++runIdRef.current;
       // Mobile: parte da capa grande da página (se visível) e encolhe para dentro do card, sempre visível
       const heroEl = canUseHero(key) ? document.querySelector('[data-zoom-hero="true"]') : null;
@@ -217,7 +221,7 @@ export default function ZoomTransitionLayer({
         const els = Array.from(document.querySelectorAll<HTMLElement>(`[data-zoom-key="${key}"]`));
         if (els.length === 0) return null;
         // A capa no card só aparece quando a animação de voltar terminar de encaixar nela
-        els.forEach(el => {
+        if (!cardsRevealedRef.current) els.forEach(el => {
           if (!hiddenCardsRef.current.includes(el)) {
             el.style.opacity = '0';
             hiddenCardsRef.current.push(el);
@@ -245,8 +249,11 @@ export default function ZoomTransitionLayer({
             const target = current || r;
             const startW = heroMode && heroRect ? heroRect.width : from.width;
             const total = startW - target.width;
-            if (total > 0 && (startW - w) / total >= 0.5) {
-              fireMidway();
+            const progress = total > 0 ? (startW - w) / total : 0;
+            if (progress >= 0.5) fireMidway();
+            // A capa volta a aparecer no card quando a animação está 90% concluída
+            if (progress >= 0.9) {
+              showHiddenCards();
               unsubscribeProgress?.();
             }
           });

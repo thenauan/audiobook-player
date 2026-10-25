@@ -721,8 +721,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
 
           <div className="space-y-2.5">
-            {/* 1. Pasta da biblioteca */}
-            <div data-setting-action="settings_lib_folder" data-setting-title={t('settings_lib_folder')} data-setting-subtitle={t('settings_lib_folder_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
+            {/* 1. Pasta da biblioteca — só no computador: navegadores de celular/tablet (iPhone, iPad e Android)
+                não deixam o app escolher nem lembrar uma pasta do aparelho */}
+            <div data-setting-action="settings_lib_folder" data-setting-title={t('settings_lib_folder')} data-setting-subtitle={t('settings_lib_folder_sub')} onClick={handleSettingRowClick} className="max-md:hidden [@media(pointer:coarse)]:hidden settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <FolderOpen size={20} />
                 </div>
@@ -1135,8 +1136,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="space-y-6">
             <div className="space-y-2.5">
-              {/* Pasta de dados */}
-              <div data-setting-action="settings_data_folder" data-setting-title={t('settings_data_folder')} data-setting-subtitle={t('settings_data_folder_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
+              {/* Pasta de dados — só no computador (no celular/tablet os dados ficam dentro do próprio navegador) */}
+              <div data-setting-action="settings_data_folder" data-setting-title={t('settings_data_folder')} data-setting-subtitle={t('settings_data_folder_sub')} onClick={handleSettingRowClick} className="max-md:hidden [@media(pointer:coarse)]:hidden settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                     <Database size={20} />
                   </div>
