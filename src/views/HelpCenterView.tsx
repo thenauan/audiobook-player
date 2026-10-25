@@ -133,7 +133,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
       {/* SCREEN: HELP (TEMAS PRINCIPAIS) */}
       {activeScreen.id === 'help' && (
         <motion.div key={activeScreen.id} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="w-full flex flex-col">
-          <h1 className="text-4xl md:text-5xl font-semibold text-[var(--text-main)] capitalize mb-12 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-semibold text-[var(--text-main)] capitalize mb-12 max-md:mb-0 tracking-tight">
             {t('nav_help')}
           </h1>
           <div className="space-y-4">
@@ -175,7 +175,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
 
         return (
           <motion.div key={activeScreen.id} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="w-full flex flex-col">
-            <div className="mb-8">
+            <div className="mb-8 max-md:mb-0">
               <h1 className="text-4xl md:text-5xl font-semibold text-[var(--text-main)] tracking-tight">
                 {currentTheme.title}
               </h1>
@@ -238,7 +238,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
         return (
           <motion.div key={activeScreen.id} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="w-full flex flex-col">
             {/* Cabeçalho do Artigo */}
-            <div className="mb-8">
+            <div className="mb-8 max-md:mb-0">
               <h1 className="text-4xl md:text-5xl font-semibold text-[var(--text-main)] tracking-tight">
                 {article.title}
               </h1>
@@ -369,7 +369,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
       {/* SCREEN: HELP - ATALHOS */}
       {(activeScreen.id === 'help-atalhos' || activeScreen.id === 'settings-atalhos') && (
         <motion.div key={activeScreen.id} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="w-full flex flex-col max-w-4xl">
-          <div className="mb-8">
+          <div className="mb-8 max-md:mb-0">
             <h1 className="text-4xl md:text-5xl font-semibold text-[var(--text-main)] tracking-tight">
               {t('keyboard_shortcuts')}
             </h1>
