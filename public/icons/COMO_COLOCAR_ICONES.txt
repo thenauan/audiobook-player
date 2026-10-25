@@ -12,7 +12,7 @@ NOMES DOS ARQUIVOS ACEITOS:
    - audiobook-player.png  (ou audiobook-player.svg)
 
 2. Ícone do Conversor de Ebooks em Audiobooks (aba "Outros apps"):
-   - audiobook-generator.png  (ou audiobook-generator.svg)
+   - audiobook-generator.png
 
 3. Ícone do Gerador de Textos para Audiobook Players (aba "Outros apps"):
    - audiobook-text-generator.png  (ou audiobook-text-generator.svg)

@@ -1356,3 +1356,28 @@ html.standalone #root {
   [data-popup-content="true"].w-80 { width: min(24rem, calc(100vw - 32px)) !important; }
   [data-popup-content="true"].w-96 { width: min(28.8rem, calc(100vw - 32px)) !important; }
 }
+
+/* ==========================================================================
+   BORDAS DAS ÁREAS COM ROLAGEM (sem "linha seca")
+   O conteúdo se dissolve na borda em que ainda há o que rolar (atributos definidos em
+   scrollFade.ts). As faixas crescem/somem suavemente ao começar ou terminar a rolagem.
+   ========================================================================== */
+@property --fade-top { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --fade-bottom { syntax: '<length>'; inherits: false; initial-value: 0px; }
+
+:is([data-scroll-fade], .fullscreen-transcript, [data-popup-content="true"].overflow-y-auto, [data-popup-content="true"] .overflow-y-auto, [data-mobile-sheet] .overflow-y-auto, [data-mobile-confirm] .overflow-y-auto) {
+  --fade-size: 22px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  transition: --fade-top 0.22s ease, --fade-bottom 0.22s ease;
+}
+:is([data-scroll-fade], .fullscreen-transcript, [data-popup-content="true"].overflow-y-auto, [data-popup-content="true"] .overflow-y-auto, [data-mobile-sheet] .overflow-y-auto, [data-mobile-confirm] .overflow-y-auto)[data-fade-top] {
+  --fade-top: var(--fade-size);
+}
+:is([data-scroll-fade], .fullscreen-transcript, [data-popup-content="true"].overflow-y-auto, [data-popup-content="true"] .overflow-y-auto, [data-mobile-sheet] .overflow-y-auto, [data-mobile-confirm] .overflow-y-auto)[data-fade-bottom] {
+  --fade-bottom: var(--fade-size);
+}
+/* Letra do player em tela cheia e folhas: transição mais longa, como no Apple Music */
+.fullscreen-transcript { --fade-size: 64px; }
+[data-mobile-sheet] .overflow-y-auto { --fade-size: 32px; }
+[data-scroll-fade="search"] { --fade-size: 28px; }

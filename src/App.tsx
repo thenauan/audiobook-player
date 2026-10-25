@@ -34,6 +34,7 @@ import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } 
 import { MobileConfirmCard } from './components/MobileConfirm';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
 import { installTouchMenus } from './components/touchMenu';
+import { installScrollFades } from './components/scrollFade';
 import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo } from './components/ZoomTransitionLayer';
 const loadImageCropperSquare = () => import('./ImageCropperSquare');
 const loadHelpCenterView = () => import('./views/HelpCenterView');
@@ -9498,6 +9499,8 @@ export default function App() {
 
   // Pop-ups no toque: destaque na opção tocada e escolha por arrasto (solta para escolher)
   useEffect(() => installTouchMenus(), []);
+  // Áreas com rolagem: bordas que se dissolvem (sem corte seco)
+  useEffect(() => installScrollFades(), []);
 
   // Arrastar da borda esquerda para o centro volta para a tela anterior (a tela acompanha o dedo)
   // Depois do gesto da borda, a área das telas volta ao lugar no mesmo quadro em que a troca começa
@@ -9988,6 +9991,7 @@ export default function App() {
     setSearchCollectionTarget(null);
                                     }
                                   }}
+                                  data-scroll-fade={isMobile ? undefined : 'search'}
                                   className={isMobile ? "space-y-2" : "space-y-2 flex-1 overflow-y-auto custom-scrollbar p-3 pb-6"}
                                 >
                                   {renderSearchResultsList()}

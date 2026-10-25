@@ -1,5 +1,5 @@
 // Service Worker for Audiobook Player PWA
-const CACHE_NAME = 'audiobook-player-v4';
+const CACHE_NAME = 'audiobook-player-v5';
 // Caminhos relativos à pasta do service worker (funciona também numa subpasta, como no GitHub Pages)
 const ASSETS_TO_CACHE = [
   './',
