@@ -152,7 +152,11 @@ const IOS_NAV = { type: 'spring', stiffness: 300, damping: 34, mass: 0.9, restDe
 // (senão ela "pula" para o próprio topo e os itens piscam/se sobrepõem durante a animação).
 let exitScrollTop = 0;
 let exitTopPx: number | null = null;
+// Durante a troca de telas, a barra de abas e o miniplayer ficam parados: as rolagens feitas pelo app
+// (voltar ao topo, restaurar a posição da tela anterior) não recolhem nem expandem a barra
+let navBarFreezeUntil = 0;
 function captureExitScroll(el: HTMLElement | null) {
+  navBarFreezeUntil = Date.now() + 900;
   exitScrollTop = el?.scrollTop || 0;
   exitTopPx = null;
   if (!el) return;
@@ -4242,8 +4246,8 @@ export default function App() {
   useEffect(() => {
     setHeaderBlurProgress(0);
     setIsTitleScrolledPast(false);
-    tabBarStore.set(false);
-    lastScrollTopRef.current = 0;
+    // A barra de abas mantém o estado ao trocar de tela (não se rearranja junto com a transição)
+    lastScrollTopRef.current = mainScrollRef.current?.scrollTop || 0;
     const container = mainScrollRef.current;
     if (!container) return;
 
@@ -4254,9 +4258,13 @@ export default function App() {
       // Mobile: rolar para baixo recolhe a barra de abas; rolar para cima (ou voltar ao topo) expande
       const lastSt = lastScrollTopRef.current;
       lastScrollTopRef.current = st;
-      if (st < 24) tabBarStore.set(false);
-      else if (st > lastSt + 6) tabBarStore.set(true);
-      else if (st < lastSt - 10) tabBarStore.set(false);
+      // Só a rolagem do usuário mexe na barra (não as do app durante a troca de telas, nem saltos)
+      const frozen = Date.now() < navBarFreezeUntil || Math.abs(st - lastSt) > 240;
+      if (!frozen) {
+        if (st < 24) tabBarStore.set(false);
+        else if (st > lastSt + 6) tabBarStore.set(true);
+        else if (st < lastSt - 10) tabBarStore.set(false);
+      }
       // O desfoque surge desde o primeiro pixel e atinge a intensidade total aos 28px, como no iOS
       setHeaderBlurProgress(st);
       if (st <= 6) {
