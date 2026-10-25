@@ -1,7 +1,7 @@
 // Extraído do App.tsx (conteúdo sem alterações)
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink, ChevronRight } from 'lucide-react';
+import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink } from 'lucide-react';
 import { 
   BsPlayFill, BsPauseFill, BsCheck2
 } from 'react-icons/bs';
@@ -596,19 +596,13 @@ export function CollectionPickerPopupContent({
   const { onCreateCollection } = useCollections();
   // Primeira opção da lista: criar uma coleção nova já com este audiobook/autor
   const createRow = onCreateCollection ? (
-    <PopupSelectableRow
+    <MenuOptionItem
       key="create-collection"
-      selected={false}
+      icon={<FolderPlus size={14} />}
       onClick={() => onCreateCollection({ type: itemType, id: itemId })}
-      rowTitle={t('create_collection')}
-      leading={
-        <div className="w-7 h-7 rounded-lg bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-          <Plus size={15} />
-        </div>
-      }
-      title={t('create_collection')}
-      unselectedTrailing={<ChevronRight size={14} className="rtl:rotate-180" />}
-    />
+    >
+      <span>{t('create_collection')}</span>
+    </MenuOptionItem>
   ) : null;
 
   // Celular: sem botão de voltar; a lista mostra até 4 coleções por vez e "Mais opções" no fim

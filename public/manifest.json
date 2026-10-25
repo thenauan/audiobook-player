@@ -1,6 +1,6 @@
 {
   "name": "Audiobook Player",
-  "short_name": "AudioPlayer",
+  "short_name": "AudiobookPlayer",
   "description": "Reprodutor moderno de audiobooks com transcrições, coleções e equalização inteligente",
   "start_url": "./",
   "display": "standalone",

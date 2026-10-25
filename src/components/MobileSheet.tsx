@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useDragControls, type PanInfo } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
@@ -71,6 +71,66 @@ export function MobileSheet({
     if (info.offset.y > 120 || info.velocity.y > 600) onClose();
   };
 
+  // Arrastar para baixo em qualquer parte da folha (com a lista no topo) também fecha,
+  // como no player em tela cheia: a folha acompanha o dedo e volta ao lugar se não passar do limite
+  const sheetRef = useRef<HTMLDivElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const cleanupPullRef = useRef<(() => void) | null>(null);
+  const contentRef = useCallback((content: HTMLDivElement | null) => {
+    cleanupPullRef.current?.();
+    cleanupPullRef.current = null;
+    if (!content) return;
+    let start: { y: number; x: number; t: number } | null = null;
+    let pulling = false;
+    let dy = 0;
+    const setPull = (px: number, animated: boolean) => {
+      const sheet = sheetRef.current;
+      if (!sheet) return;
+      sheet.style.transition = animated ? 'translate 0.32s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.25s' : 'bottom 0.25s';
+      sheet.style.translate = px ? `0 ${px}px` : '';
+    };
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1 || window.matchMedia?.('(min-width: 1024px)').matches) { start = null; return; }
+      start = { y: e.touches[0].clientY, x: e.touches[0].clientX, t: performance.now() };
+      pulling = false;
+      dy = 0;
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!start) return;
+      dy = e.touches[0].clientY - start.y;
+      const dx = e.touches[0].clientX - start.x;
+      if (!pulling) {
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) { start = null; return; }
+        if (content.scrollTop > 0 || dy < 8) { if (dy < -8) start = null; return; }
+        if ((e.target as HTMLElement)?.closest?.('input[type="range"], [data-no-sheet-drag]')) { start = null; return; }
+        pulling = true;
+        start = { ...start, y: e.touches[0].clientY, t: performance.now() };
+        dy = 0;
+      }
+      if (e.cancelable) e.preventDefault();
+      setPull(Math.max(0, dy), false);
+    };
+    const onEnd = () => {
+      if (!start || !pulling) { start = null; return; }
+      const v = dy / Math.max(1, performance.now() - start.t);
+      start = null;
+      pulling = false;
+      if (dy > 120 || (dy > 30 && v > 0.6)) onCloseRef.current();
+      else setPull(0, true);
+    };
+    content.addEventListener('touchstart', onStart, { passive: true });
+    content.addEventListener('touchmove', onMove, { passive: false });
+    content.addEventListener('touchend', onEnd, { passive: true });
+    content.addEventListener('touchcancel', onEnd, { passive: true });
+    cleanupPullRef.current = () => {
+      content.removeEventListener('touchstart', onStart);
+      content.removeEventListener('touchmove', onMove);
+      content.removeEventListener('touchend', onEnd);
+      content.removeEventListener('touchcancel', onEnd);
+    };
+  }, []);
+
   if (typeof document === 'undefined') return null;
   return createPortal(
     <AnimatePresence>
@@ -88,6 +148,7 @@ export function MobileSheet({
           />
           <motion.div
             key="sheet"
+            ref={sheetRef}
             data-mobile-sheet="true"
             role="dialog"
             aria-modal="true"
@@ -131,7 +192,7 @@ export function MobileSheet({
                 </div>
               </div>
             </div>
-            <div className={`flex-1 min-h-0 overflow-y-auto overscroll-contain px-[var(--page-margin)] ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}>
+            <div ref={contentRef} className={`flex-1 min-h-0 overflow-y-auto overscroll-contain px-[var(--page-margin)] ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}>
               {children}
             </div>
             {footer && (

@@ -99,7 +99,15 @@ export default function ZoomTransitionLayer({
   const onCloseMidwayRef = useRef(onCloseMidway);
   onCloseMidwayRef.current = onCloseMidway;
 
+  // Capas de destino escondidas enquanto a página volta para dentro delas
+  const hiddenCardsRef = useRef<HTMLElement[]>([]);
+  const showHiddenCards = () => {
+    hiddenCardsRef.current.forEach(el => { el.style.opacity = ''; });
+    hiddenCardsRef.current = [];
+  };
+
   const stopAll = () => {
+    showHiddenCards();
     controlsRef.current.forEach(c => c.stop());
     controlsRef.current = [];
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
@@ -208,6 +216,13 @@ export default function ZoomTransitionLayer({
       const measure = (): ZoomRect | null => {
         const els = Array.from(document.querySelectorAll<HTMLElement>(`[data-zoom-key="${key}"]`));
         if (els.length === 0) return null;
+        // A capa no card só aparece quando a animação de voltar terminar de encaixar nela
+        els.forEach(el => {
+          if (!hiddenCardsRef.current.includes(el)) {
+            el.style.opacity = '0';
+            hiddenCardsRef.current.push(el);
+          }
+        });
         if (!restoredScroll) {
           restoredScroll = true;
           const sc = getScrollRef.current();
@@ -264,6 +279,7 @@ export default function ZoomTransitionLayer({
           // O card não apareceu (ex.: item removido): apenas dissolve a camada, sem "voltar para o ícone"
           rafRef.current = null;
           fireMidway();
+          showHiddenCards();
           finish(runId, 0.18);
           return;
         }
@@ -272,6 +288,7 @@ export default function ZoomTransitionLayer({
           unsubscribeProgress?.();
           if (runIdRef.current !== runId) return;
           fireMidway();
+          showHiddenCards();
           finish(runId, 0.14);
         });
       };

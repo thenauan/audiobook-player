@@ -25,6 +25,9 @@ export interface MobileHeaderAction {
 }
 
 const circleBtn = "w-11 h-11 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl text-[var(--text-main)] backdrop-blur-3xl transition-all";
+// Com dois botões, eles viram uma pílula só (como nos apps do iOS)
+const pillShell = "flex items-center h-11 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl backdrop-blur-3xl";
+const pillBtn = "w-11 h-11 flex items-center justify-center rounded-full text-[var(--text-main)] transition-colors";
 
 function ConfirmView({ action, onCancel }: { action: MobileHeaderAction; onCancel: () => void }) {
   const { t } = useI18n();
@@ -67,7 +70,7 @@ function useCloseOnGlobalEvent(open: boolean, close: () => void) {
 }
 
 // Ação rápida: executa, confirma ou abre painel a partir do próprio botão
-function QuickActionButton({ action }: { action: MobileHeaderAction }) {
+function QuickActionButton({ action, inPill = false }: { action: MobileHeaderAction; inPill?: boolean }) {
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   useCloseOnGlobalEvent(open, () => setOpen(false));
@@ -94,7 +97,7 @@ function QuickActionButton({ action }: { action: MobileHeaderAction }) {
             action.onClick?.(btnRef.current);
           }
         }}
-        className={`${circleBtn} ${action.active ? 'text-winblue border-winblue/40 bg-winblue/15' : ''} ${action.danger ? 'text-red-500 border-red-500/20' : ''}`}
+        className={`${inPill ? pillBtn : circleBtn} ${action.active ? 'text-winblue border-winblue/40 bg-winblue/15' : ''} ${action.danger ? 'text-red-500 border-red-500/20' : ''}`}
       >
         {action.icon}
       </motion.button>
@@ -141,32 +144,45 @@ export function MobileHeaderActions({
   const close = () => { setOpen(false); setView('menu'); };
   useCloseOnGlobalEvent(open, close);
 
-  const items = (menu || []).filter(Boolean);
+  const menuItems = (menu || []).filter(Boolean);
+  const asPill = Boolean(quick) && menuItems.length > 0;
+  // Na pílula, o pop-up cobre os dois botões e também lista a ação da esquerda
+  const items = asPill && quick ? [quick, ...menuItems] : menuItems;
+  const triggerWidth = asPill ? 88 : 44;
   const viewAction = items.find(a => a.id === view);
   const [confirmAction, setConfirmAction] = useState<MobileHeaderAction | null>(null);
   useCloseOnGlobalEvent(Boolean(confirmAction), () => setConfirmAction(null));
 
+  const dotsButton = (
+    <motion.button
+      ref={btnRef}
+      whileTap={{ scale: 0.9 }}
+      animate={asPill ? undefined : morphTriggerAnimate(open)}
+      aria-label={t('more_options')}
+      title={t('more_options')}
+      onClick={(e) => {
+        e.stopPropagation();
+        window.dispatchEvent(new Event('close-all-popups'));
+        setView('menu');
+        setOpen(true);
+      }}
+      className={asPill ? pillBtn : circleBtn}
+    >
+      <MoreHorizontal size={19} />
+    </motion.button>
+  );
+
   return (
     <div className="flex items-center gap-2.5">
-      {quick && <QuickActionButton action={quick} />}
+      {quick && !asPill && <QuickActionButton action={quick} />}
       {items.length > 0 && (
-        <div className={`relative w-11 h-11 shrink-0 ${open ? 'z-50' : 'z-10'}`}>
-          <motion.button
-            ref={btnRef}
-            whileTap={{ scale: 0.9 }}
-            animate={morphTriggerAnimate(open)}
-            aria-label={t('more_options')}
-            title={t('more_options')}
-            onClick={(e) => {
-              e.stopPropagation();
-              window.dispatchEvent(new Event('close-all-popups'));
-              setView('menu');
-              setOpen(true);
-            }}
-            className={circleBtn}
-          >
-            <MoreHorizontal size={19} />
-          </motion.button>
+        <div className={`relative h-11 shrink-0 ${asPill ? 'w-[88px]' : 'w-11'} ${open ? 'z-50' : 'z-10'}`}>
+          {asPill ? (
+            <motion.div animate={morphTriggerAnimate(open)} className={pillShell}>
+              <QuickActionButton action={quick!} inPill />
+              {dotsButton}
+            </motion.div>
+          ) : dotsButton}
           <AnimatePresence>
             {open && (
               <>
@@ -177,7 +193,7 @@ export function MobileHeaderActions({
                   direction={view === 'menu' ? -1 : 1}
                   targetWidth={view === 'menu' ? 220 : (viewAction?.panelWidth || 300)}
                   targetRadius={view === 'menu' ? 20 : 24}
-                  originWidth={44}
+                  originWidth={triggerWidth}
                   originHeight={44}
                   style={{ transformOrigin: 'top right' }}
                   className="absolute top-0 right-0 z-50 max-w-[calc(100vw-32px)]"
