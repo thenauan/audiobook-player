@@ -28,7 +28,7 @@ import FullscreenPlayer from './components/FullscreenPlayer';
 import BookDetailView from './views/BookDetailView';
 import { useIsMobile, useIsTouchDevice, useIsCompactPlayer, useIsLandscapePhone } from './components/MobileContextMenu';
 import { MobileSheet } from './components/MobileSheet';
-import { HAS_LOCAL_SERVER } from './localServer';
+import { desktop, IS_INSTALLED_APP } from './desktopBridge';
 import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
@@ -1544,22 +1544,16 @@ export default function App() {
         storedAudioBlobKeysRef.current.add(bookId);
         await storeAudioBlob(bookId, file);
 
-        // Salva cópia física do audiobook na pasta da biblioteca do app no disco (ex: C:\Audiobooks)
+        // App instalado: salva uma cópia do audiobook na pasta da biblioteca no disco.
+        // No site, o áudio fica só guardado no navegador (acima), sem servidor.
         let realDiskPath = `${libraryFolder}\\${file.name}`;
-        try {
-          if (!HAS_LOCAL_SERVER) throw new Error('no-local-server');
-          const saveRes = await fetch(`/api/save-audiobook?filename=${encodeURIComponent(file.name)}&folder=${encodeURIComponent(libraryFolder)}`, {
-            method: 'POST',
-            body: file
-          });
-          if (saveRes.ok) {
-            const data = await saveRes.json();
-            if (data.filePath) {
-              realDiskPath = data.filePath;
-            }
+        if (desktop?.saveAudiobook) {
+          try {
+            const saved = await desktop.saveAudiobook(file.name, libraryFolder, await file.arrayBuffer());
+            if (saved) realDiskPath = saved;
+          } catch (e) {
+            console.warn('Não foi possível salvar cópia física no disco:', e);
           }
-        } catch (e) {
-          console.warn('Não foi possível salvar cópia física no disco:', e);
         }
 
         const metaTranscript = Array.isArray(meta.transcript) ? meta.transcript : [];
@@ -1785,31 +1779,16 @@ export default function App() {
   const [dataFolder, setDataFolder] = useState<string>(() => localStorage.getItem('app_data_folder') || '%APPDATA%\\AudiobookPlayer');
   const [isSyncingLibrary, setIsSyncingLibrary] = useState<boolean>(false);
 
-  const handleSelectFolder = async (onSelect: (folderPath: string) => void, initialFolder: string) => {
+  const handleSelectFolder = async (onSelect: (folderPath: string) => void, _initialFolder: string) => {
     // Celular/tablet ou site publicado: abre na hora (no mesmo toque) o seletor do aparelho.
     // Pastas inteiras só podem ser escolhidas no computador; no celular, escolhem-se os arquivos.
     const isTouch = !!window.matchMedia?.('(pointer: coarse)').matches;
-    if (!(window as any).electron?.selectFolder && (isTouch || !HAS_LOCAL_SERVER)) {
-      (isTouch ? fileInputRef.current : (folderInputRef.current || fileInputRef.current))?.click();
+    if (desktop?.selectFolder) {
+      const folder = await desktop.selectFolder();
+      if (folder) onSelect(folder);
       return;
     }
-    if ((window as any).electron?.selectFolder) {
-      (window as any).electron.selectFolder().then((folder: string) => {
-        if (folder) onSelect(folder);
-      });
-      return;
-    }
-    try {
-      if (!HAS_LOCAL_SERVER) throw new Error('no-local-server');
-      const res = await fetch(`/api/select-folder?path=${encodeURIComponent(initialFolder)}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.ok && !data.canceled && data.path) {
-          onSelect(data.path);
-        }
-        return;
-      }
-    } catch {}
+    (isTouch ? fileInputRef.current : (folderInputRef.current || fileInputRef.current))?.click();
   };
 
   const handleSyncLibraryNow = async (targetFolder?: string, silentIfEmpty = false) => {
@@ -1817,11 +1796,10 @@ export default function App() {
     setIsSyncingLibrary(true);
     const folder = targetFolder || libraryFolder;
     try {
-      if (!HAS_LOCAL_SERVER) throw new Error('no-local-server');
-      const res = await fetch(`/api/scan-library-folder?folder=${encodeURIComponent(folder)}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.ok && data.files && data.files.length > 0) {
+      if (!desktop?.scanLibraryFolder) throw new Error('not-installed');
+      const data = await desktop.scanLibraryFolder(folder);
+      if (data) {
+        if (data.files && data.files.length > 0) {
           const newEntries = data.files.filter((item: any) => {
             const nameLower = extractNormalizedFileName(item.name);
             const stemLower = normalizeBookCompareStr(item.name.replace(/\.[^/.]+$/, ''));
@@ -1839,9 +1817,9 @@ export default function App() {
             const loadedFiles: File[] = [];
             for (const item of newEntries) {
               try {
-                const fileRes = await fetch(`/api/get-audio-file?path=${encodeURIComponent(item.path)}`);
-                if (fileRes.ok) {
-                  const blob = await fileRes.blob();
+                const bytes = await desktop.readAudioFile(item.path);
+                if (bytes) {
+                  const blob = new Blob([bytes as BlobPart]);
                   const ext = item.name.substring(item.name.lastIndexOf('.')).toLowerCase();
                   const mimeType = ext === '.mp3' ? 'audio/mpeg' : ext === '.m4b' || ext === '.m4a' || ext === '.mp4' ? 'audio/mp4' : ext === '.ogg' ? 'audio/ogg' : ext === '.wav' ? 'audio/wav' : ext === '.flac' ? 'audio/flac' : 'audio/*';
                   const file = new File([blob], item.name, { type: mimeType });
@@ -2254,14 +2232,6 @@ export default function App() {
         return;
       } catch {}
     }
-    try {
-      if (!HAS_LOCAL_SERVER) throw new Error('no-local-server');
-      const res = await fetch(`/api/open-external?url=${encodeURIComponent(url)}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.ok) return;
-      }
-    } catch {}
     window.open(url, '_blank', 'noopener,noreferrer');
   }, []);
 
@@ -3454,7 +3424,7 @@ export default function App() {
                                                           {bookStoragePath}
                                                         </p>
                                                       </div>
-                                                      {HAS_LOCAL_SERVER && (<motion.button
+                                                      {IS_INSTALLED_APP && (<motion.button
                                                         whileHover={{ scale: 1.05 }}
                                                         whileTap={{ scale: 0.95 }}
                                                         onClick={(e) => {
@@ -4789,27 +4759,18 @@ export default function App() {
       const blob = await getAudioBlob(book.id);
       if (blob) {
         const fileName = book.fileName || `${book.title}.mp3`;
-        if (!HAS_LOCAL_SERVER) throw new Error('no-local-server');
-          const saveRes = await fetch(`/api/save-audiobook?filename=${encodeURIComponent(fileName)}&folder=${encodeURIComponent(libraryFolder)}`, {
-          method: 'POST',
-          body: blob
-        });
-        if (saveRes.ok) {
-          const data = await saveRes.json();
-          if (data.filePath) {
-            bookStoragePath = data.filePath;
-            if (book.filePath !== bookStoragePath) {
-              setBooks(prev => prev.map(b => b.id === book.id ? { ...b, filePath: bookStoragePath } : b));
-            }
+        if (!desktop?.saveAudiobook) throw new Error('not-installed');
+        const saved = await desktop.saveAudiobook(fileName, libraryFolder, await blob.arrayBuffer());
+        if (saved) {
+          bookStoragePath = saved;
+          if (book.filePath !== bookStoragePath) {
+            setBooks(prev => prev.map(b => b.id === book.id ? { ...b, filePath: bookStoragePath } : b));
           }
         }
       }
     } catch {}
 
-    // Abre a pasta no Explorador de Arquivos do Windows (com o arquivo selecionado, sem dar play no áudio)
-    try {
-      if (HAS_LOCAL_SERVER) fetch(`/api/open-folder?path=${encodeURIComponent(bookStoragePath)}`).catch(() => {});
-    } catch {}
+    // Abre a pasta no gerenciador de arquivos do sistema (só no app instalado)
     if ((window as any).electron?.openPath) {
       try { (window as any).electron.openPath(bookStoragePath); } catch {}
     }
@@ -4818,9 +4779,6 @@ export default function App() {
   };
 
   const handleOpenDataFolder = () => {
-    try {
-      if (HAS_LOCAL_SERVER) fetch(`/api/open-folder?path=${encodeURIComponent(dataFolder)}`).catch(() => {});
-    } catch {}
     if ((window as any).electron?.openPath) {
       try {
         (window as any).electron.openPath(dataFolder);
@@ -10815,7 +10773,7 @@ export default function App() {
                               >
                                 <Upload size={13} />
                               </motion.button>
-                              {HAS_LOCAL_SERVER && activeScreen.id.startsWith('library') && (
+                              {IS_INSTALLED_APP && activeScreen.id.startsWith('library') && (
                                 <motion.button
                                   whileHover={{ scale: 1.12 }}
                                   whileTap={{ scale: 0.92 }}
@@ -11683,7 +11641,7 @@ export default function App() {
                     {t('empty_home_desc')}
                   </p>
                   <div className="flex flex-wrap items-center justify-center gap-3">
-                    {HAS_LOCAL_SERVER && (<motion.button
+                    {IS_INSTALLED_APP && (<motion.button
                       whileHover={{ scale: 1.06 }}
                       whileTap={{ scale: 0.94 }}
                       onClick={() => handleSyncLibraryNow()}

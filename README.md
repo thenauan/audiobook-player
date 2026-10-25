@@ -41,8 +41,10 @@ Requer [Node.js](https://nodejs.org/) 20 ou mais recente.
 
 ```bash
 npm install
-npm run dev        # abre no navegador (no Windows, também dá para usar iniciar.bat)
+npm run dev        # só para desenvolver o código (pré-visualização com recarga automática)
 ```
+
+> O app não depende de nenhum servidor: o site roda inteiro no navegador (os áudios ficam guardados no próprio navegador) e só o **app instalado** acessa pastas do computador, como a pasta da biblioteca.
 
 | Comando | O que faz |
 | --- | --- |

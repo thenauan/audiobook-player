@@ -79,6 +79,50 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('close-app', () => app.quit());
 
+  // ----- Biblioteca no disco (só no app instalado; o site nunca acessa arquivos sem o usuário escolher) -----
+  const AUDIO_EXTS = new Set(['.mp3', '.m4a', '.m4b', '.mp4', '.aac', '.wav', '.flac', '.ogg', '.opus', '.wma', '.webm']);
+  const isAudio = (file) => AUDIO_EXTS.has(path.extname(String(file)).toLowerCase());
+  // Pasta padrão quando o caminho salvo não existe neste computador: Música\Audiobooks
+  const resolveFolder = (folder) => {
+    const f = String(folder || '');
+    if (f && path.isAbsolute(f)) return f;
+    return path.join(app.getPath('music'), 'Audiobooks');
+  };
+  // Salva uma cópia do audiobook na pasta da biblioteca e devolve o caminho
+  ipcMain.handle('save-audiobook', async (_e, fileName, folder, data) => {
+    const dir = resolveFolder(folder);
+    const name = path.basename(String(fileName || 'audiobook.mp3'));
+    if (!isAudio(name)) return '';
+    await fs.promises.mkdir(dir, { recursive: true });
+    const target = path.join(dir, name);
+    await fs.promises.writeFile(target, Buffer.from(data));
+    return target;
+  });
+  // Lista os arquivos de áudio da pasta da biblioteca (inclui subpastas)
+  ipcMain.handle('scan-library-folder', async (_e, folder) => {
+    const dir = resolveFolder(folder);
+    const out = [];
+    const walk = async (d) => {
+      let entries = [];
+      try { entries = await fs.promises.readdir(d, { withFileTypes: true }); } catch { return; }
+      for (const entry of entries) {
+        const full = path.join(d, entry.name);
+        if (entry.isDirectory()) await walk(full);
+        else if (entry.isFile() && isAudio(entry.name)) {
+          try { out.push({ name: entry.name, path: full, size: (await fs.promises.stat(full)).size }); } catch {}
+        }
+      }
+    };
+    if (fs.existsSync(dir)) await walk(dir);
+    return { folder: dir, exists: fs.existsSync(dir), files: out };
+  });
+  // Lê um arquivo de áudio da biblioteca (só arquivos de áudio)
+  ipcMain.handle('read-audio-file', async (_e, filePath) => {
+    const target = String(filePath || '');
+    if (!isAudio(target) || !fs.existsSync(target)) return null;
+    return fs.promises.readFile(target);
+  });
+
   if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
   createWindow();
   app.on('activate', () => {

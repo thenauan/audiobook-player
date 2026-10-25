@@ -11,5 +11,8 @@ contextBridge.exposeInMainWorld('electron', {
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   openPath: (target) => ipcRenderer.invoke('open-path', target),
   selectFolder: () => ipcRenderer.invoke('select-folder'),
+  saveAudiobook: (fileName, folder, data) => ipcRenderer.invoke('save-audiobook', fileName, folder, data),
+  scanLibraryFolder: (folder) => ipcRenderer.invoke('scan-library-folder', folder),
+  readAudioFile: (filePath) => ipcRenderer.invoke('read-audio-file', filePath),
   closeApp: () => ipcRenderer.invoke('close-app'),
 });
