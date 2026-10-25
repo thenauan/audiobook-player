@@ -10079,10 +10079,13 @@ export default function App() {
                                   closeAllPopups();
                                   setShowDeleteSelectionConfirm(true);
                                 }}
-                                className="px-3.5 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs"
+                                // Celular: só o ícone (botão redondo); computador: ícone e texto
+                                aria-label={`${t('delete')}${currentSelectionCount > 0 ? ` (${currentSelectionCount})` : ''}`}
+                                title={`${t('delete')}${currentSelectionCount > 0 ? ` (${currentSelectionCount})` : ''}`}
+                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs"
                               >
-                                <Trash2 size={13} />
-                                {t('delete')} {currentSelectionCount > 0 ? `(${currentSelectionCount})` : ''}
+                                <Trash2 size={13} className="max-md:w-5 max-md:h-5" />
+                                <span className="max-md:hidden">{t('delete')} {currentSelectionCount > 0 ? `(${currentSelectionCount})` : ''}</span>
                               </motion.button>
 
                               <AnimatePresence>
@@ -10496,10 +10499,12 @@ export default function App() {
                           setSelectedLanguages([]);
                           setSelectedCollectionIds([]);
                         }}
-                        className="px-3.5 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
+                        aria-label={t('cancel')}
+                        title={t('cancel')}
+                        className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
                       >
-                        <X size={13} />
-                        {t('cancel')}
+                        <X size={13} className="max-md:w-5 max-md:h-5" />
+                        <span className="max-md:hidden">{t('cancel')}</span>
                       </motion.button>
                     </motion.div>
                   ) : (
