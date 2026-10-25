@@ -1,0 +1,22 @@
+# Dependências e build
+node_modules/
+dist/
+release/
+
+# Arquivos gerados pelo TypeScript/Vite
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# Logs e ambiente
+*.log
+npm-debug.log*
+.env
+.env.*
+
+# Sistema e editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

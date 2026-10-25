@@ -1,0 +1,22 @@
+===========================================================================
+PASTA DE ÍCONES DO APP E DOS OUTROS APPS (public/icons)
+===========================================================================
+
+Coloque aqui os ícones quadrados (1:1) deste aplicativo e dos outros apps.
+O aplicativo procura automaticamente por arquivos .png primeiro e, caso não
+existam, utiliza os arquivos .svg correspondentes desta pasta.
+
+NOMES DOS ARQUIVOS ACEITOS:
+
+1. Ícone deste app (Audiobook Player - exibido na tela de Boas-vindas):
+   - audiobook-player.png  (ou audiobook-player.svg)
+
+2. Ícone do Conversor de Ebooks em Audiobooks (aba "Outros apps"):
+   - audiobook-generator.png  (ou audiobook-generator.svg)
+
+3. Ícone do Gerador de Textos para Audiobook Players (aba "Outros apps"):
+   - audiobook-text-generator.png  (ou audiobook-text-generator.svg)
+
+Dica: Para substituir qualquer ícone, basta salvar sua imagem .png ou .svg
+nesta pasta ("public/icons/") com o respectivo nome acima.
+

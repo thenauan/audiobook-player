@@ -1,0 +1,41 @@
+# Gera os instaladores (Windows, macOS e Linux) e publica num Release do GitHub.
+# Para lançar uma versão: atualize "version" no package.json e envie uma tag, ex.:
+#   git tag v1.0.0 && git push origin v1.0.0
+name: Instaladores (Release)
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: --win
+          - os: macos-latest
+            target: --mac
+          - os: ubuntu-latest
+            target: --linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Empacotar e publicar no Release
+        run: npx electron-builder ${{ matrix.target }} --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Sem certificado de assinatura: os instaladores saem sem assinatura digital
+          CSC_IDENTITY_AUTO_DISCOVERY: false

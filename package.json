@@ -1,0 +1,140 @@
+{
+  "name": "audiobook-player",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Reprodutor de audiobooks moderno (web/PWA) com transcrição sincronizada, coleções, fila, marcações e interface no estilo Apple para computador, celular e tablet.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "desktop": "npm run build && electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.6",
+    "@types/colorthief": "^2.6.1",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "clsx": "^2.1.1",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "happy-dom": "^15.11.7",
+    "lucide-react": "^0.475.0",
+    "motion": "^12.4.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0",
+    "tailwind-merge": "^3.0.1",
+    "tailwindcss": "^4.0.6",
+    "typescript": "~5.7.2",
+    "vite": "^6.1.0",
+    "vitest": "^5.0.5"
+  },
+  "productName": "Audiobook Player",
+  "author": {
+    "name": "Nauan",
+    "url": "https://github.com/thenauan"
+  },
+  "homepage": "https://thenauan.github.io/audiobook-player/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thenauan/audiobook-player.git"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "io.github.thenauan.audiobookplayer",
+    "productName": "Audiobook Player",
+    "copyright": "Copyright © 2026 Nauan",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    },
+    "artifactName": "Audiobook-Player-${version}-${os}-${arch}.${ext}",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Audiobook Player",
+      "runAfterFinish": true,
+      "multiLanguageInstaller": true,
+      "displayLanguageSelector": true,
+      "installerLanguages": [
+        "pt_BR",
+        "en_US",
+        "es_ES",
+        "ru_RU",
+        "ar_SA"
+      ],
+      "language": "1046",
+      "include": "build/installer.nsh",
+      "uninstallDisplayName": "Audiobook Player",
+      "deleteAppDataOnUninstall": false
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.entertainment"
+    },
+    "dmg": {
+      "title": "Audiobook Player ${version}"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png",
+      "category": "Audio",
+      "maintainer": "Nauan <https://github.com/thenauan>",
+      "synopsis": "Reprodutor de audiobooks",
+      "desktop": {
+        "Name": "Audiobook Player",
+        "Comment": "Reprodutor de audiobooks"
+      }
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "thenauan",
+      "repo": "audiobook-player",
+      "releaseType": "release"
+    }
+  }
+}
