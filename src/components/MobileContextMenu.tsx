@@ -134,7 +134,7 @@ type Rect = { left: number; top: number; width: number; height: number; bottom: 
 export function getSafeInsets(): { top: number; right: number; bottom: number; left: number } {
   if (typeof document === 'undefined') return { top: 0, right: 0, bottom: 0, left: 0 };
   const probe = document.createElement('div');
-  probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) var(--safe-right) env(safe-area-inset-bottom) var(--safe-left);';
+  probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none;padding:var(--safe-top) var(--safe-right) env(safe-area-inset-bottom) var(--safe-left);';
   document.body.appendChild(probe);
   const cs = getComputedStyle(probe);
   const out = {

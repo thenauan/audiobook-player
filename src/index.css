@@ -31,6 +31,9 @@
 }
 
 :root {
+  /* Margem lateral padrão do iOS: 16 pt em telas estreitas (ex.: iPhone SE) e 20 pt a partir de 390 pt
+     (iPhone 12 em diante); no celular deitado, a área segura do recorte manda quando for maior */
+  --page-margin: 16px;
   /* Áreas seguras laterais (recortes da tela). Em celulares deitados com proporção de aparelhos com
      notch/Dynamic Island, uma margem mínima do lado do recorte é garantida mesmo quando o navegador
      não informa a área segura (data-notch, definido em main.tsx) */
@@ -38,18 +41,21 @@
   --safe-right: env(safe-area-inset-right, 0px);
   /* Mobile: barra de abas e miniplayer centralizados com largura máxima (tablets não esticam);
      a margem lateral é a mesma do conteúdo e respeita os recortes da tela (celular deitado) */
-  --mobile-bar-inset: max(16px, calc((100vw - 560px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)));
+  --mobile-bar-inset: max(var(--page-margin), calc((100vw - 560px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)));
   /* Distância da barra até a base: fica logo acima do indicador de início, como no iOS 26 */
   --mobile-bar-bottom: max(12px, calc(env(safe-area-inset-bottom) - 12px));
-  /* Topo do cabeçalho: respeita a barra de status do iPhone quando instalado como app (viewport-fit=cover) */
-  --app-header-top: max(20px, calc(env(safe-area-inset-top) + 8px));
+  /* Área segura do topo. No Safari do iPhone (fora do app instalado), o sistema desfoca a faixa da barra
+     de status por cima da página sem informá-la: main.tsx define --ios-status-bar nesse caso */
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--ios-status-bar, 0px));
+  /* Topo do cabeçalho: abaixo da barra de status (e do desfoque do sistema) com uma folga */
+  --app-header-top: max(20px, calc(var(--safe-top) + 12px));
   --font-scale: 0.85;
 }
 
 /* Barra e miniplayer lado a lado (celular deitado, iPad mini em pé, dobráveis abertos) */
 @media (min-width: 640px) {
   :root {
-    --mobile-bar-inset: max(16px, calc((100vw - 960px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)));
+    --mobile-bar-inset: max(var(--page-margin), calc((100vw - 960px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)));
   }
 }
 
@@ -507,7 +513,7 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   top: 0;
   left: 0;
   right: 0;
-  height: calc(108px + env(safe-area-inset-top));
+  height: calc(108px + var(--safe-top));
   pointer-events: none;
   z-index: 20;
 }
@@ -605,8 +611,8 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
     /* Sem "snap": quando a lista da seção muda (itens saindo/entrando), o encaixe fazia a linha
        pular sozinha para o fim. Rolagem livre com inércia, sem ancoragem */
     overflow-anchor: none;
-    margin-inline: -16px;
-    padding-inline: 16px;
+    margin-inline: calc(-1 * var(--page-margin));
+    padding-inline: var(--page-margin);
     padding-bottom: 4px;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
@@ -1010,8 +1016,8 @@ html.is-rotating body {
 @media (max-width: 1023px) {
   .app-scroll,
   [data-app-header] {
-    padding-left: max(16px, var(--safe-left)) !important;
-    padding-right: max(16px, var(--safe-right)) !important;
+    padding-left: max(var(--page-margin), var(--safe-left)) !important;
+    padding-right: max(var(--page-margin), var(--safe-right)) !important;
   }
 }
 
@@ -1035,21 +1041,21 @@ html.is-rotating body {
    indicador de início/barra de navegação embaixo e recortes laterais
    ========================================================================== */
 .safe-area-pad {
-  padding-top: env(safe-area-inset-top);
+  padding-top: var(--safe-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
 }
 @media (max-width: 1023px) {
   .fs-safe {
-    padding-left: max(16px, var(--safe-left)) !important;
-    padding-right: max(16px, var(--safe-right)) !important;
+    padding-left: max(var(--page-margin), var(--safe-left)) !important;
+    padding-right: max(var(--page-margin), var(--safe-right)) !important;
   }
 }
 @media (min-width: 1024px) {
   /* Tablets deitados (menu lateral): menu, miniplayer e player longe das barras do sistema */
   .sidebar-safe {
-    top: max(16px, calc(env(safe-area-inset-top) + 8px)) !important;
+    top: max(16px, calc(var(--safe-top) + 8px)) !important;
     bottom: max(16px, env(safe-area-inset-bottom)) !important;
   }
   html:not([dir="rtl"]) .sidebar-safe {
@@ -1089,7 +1095,7 @@ html.is-rotating body {
   transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1), border-radius 0.42s cubic-bezier(0.32, 0.72, 0, 1), filter 0.42s ease;
 }
 html.sheet-open .app-shell {
-  transform: translateY(calc(env(safe-area-inset-top) + 2px)) scale(0.93);
+  transform: translateY(calc(var(--safe-top) + 2px)) scale(0.93);
   border-radius: 24px;
   filter: brightness(0.72);
 }
@@ -1152,7 +1158,7 @@ body {
 /* Barra de pesquisa do cabeçalho: nunca sob o recorte da tela (notch/Dynamic Island no celular deitado) */
 @media (max-width: 1023px) {
   [data-search-bar] {
-    width: calc(100vw - 2 * max(16px, var(--safe-left), var(--safe-right))) !important;
+    width: calc(100vw - 2 * max(var(--page-margin), var(--safe-left), var(--safe-right))) !important;
   }
 }
 
@@ -1251,4 +1257,31 @@ body {
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
+}
+
+
+/* Player em tela cheia: com um pop-up aberto no cabeçalho, ele fica acima da capa e dos controles */
+[data-fullscreen-player] [data-app-header]:has([data-popup-content]) {
+  z-index: 60;
+}
+
+
+/* Safari do iPhone em pé: reserva a faixa da barra de status (desfocada pelo sistema) */
+@media (orientation: portrait) {
+  html.ios-safari {
+    --ios-status-bar: 48px;
+  }
+}
+
+
+@media (min-width: 390px) and (max-width: 1023px) {
+  :root {
+    --page-margin: 20px;
+  }
+}
+
+/* Capa/foto de ponta a ponta no topo das páginas: anula exatamente a margem lateral da tela */
+.mobile-bleed {
+  margin-left: calc(-1 * max(var(--page-margin), var(--safe-left)));
+  margin-right: calc(-1 * max(var(--page-margin), var(--safe-right)));
 }

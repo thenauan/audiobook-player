@@ -42,7 +42,7 @@ export function MobileConfirmCard({
           left: 'max(12px, var(--safe-left))',
           right: 'max(12px, var(--safe-right))',
           bottom: 'max(12px, env(safe-area-inset-bottom))',
-          maxHeight: 'calc(100dvh - env(safe-area-inset-top) - 40px)',
+          maxHeight: 'calc(100dvh - var(--safe-top) - 40px)',
         }}
       >
         <div className="max-h-[inherit] overflow-y-auto px-2 pt-4 pb-3">{children}</div>

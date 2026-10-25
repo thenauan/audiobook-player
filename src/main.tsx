@@ -74,6 +74,22 @@ if (typeof window !== 'undefined') {
   screen.orientation?.addEventListener?.('change', updateNotchSide);
 }
 
+// iPhone/iPad no Safari (não instalado): a barra de status fica sobre a página com um desfoque do sistema,
+// mas a área segura do topo vem zerada. Reserva essa faixa para o cabeçalho não ficar por baixo dela.
+if (typeof window !== 'undefined') {
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const isStandalone = (navigator as any).standalone === true || !!window.matchMedia?.('(display-mode: standalone)').matches;
+  if (isIOS && !isStandalone) {
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;top:0;visibility:hidden;padding-top:env(safe-area-inset-top);';
+    document.documentElement.appendChild(probe);
+    const top = parseFloat(getComputedStyle(probe).paddingTop) || 0;
+    probe.remove();
+    if (top < 20) document.documentElement.classList.add('ios-safari');
+  }
+}
+
 // iOS Safari só aplica o estado :active (destaque ao tocar) se houver um ouvinte de toque
 if (typeof document !== 'undefined') {
   document.addEventListener('touchstart', () => {}, { passive: true });

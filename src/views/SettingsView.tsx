@@ -653,7 +653,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 5. Idioma */}
-            <div onClick={handleSettingRowClick} className={`${HAS_LOCAL_SERVER ? 'max-md:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
+            <div onClick={handleSettingRowClick} className={`${HAS_LOCAL_SERVER ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Globe size={20} />
@@ -737,7 +737,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 2. Detectar novos arquivos */}
-            <div onClick={handleSettingRowClick} className={`${HAS_LOCAL_SERVER ? 'max-md:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4`}>
+            <div onClick={handleSettingRowClick} className={`${HAS_LOCAL_SERVER ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4`}>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <RefreshCw size={20} />
@@ -789,7 +789,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 3. Verificar biblioteca ao iniciar */}
-            <div onClick={handleSettingRowClick} className={`${HAS_LOCAL_SERVER ? 'max-md:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
+            <div onClick={handleSettingRowClick} className={`${HAS_LOCAL_SERVER ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Clock size={20} />
@@ -1108,7 +1108,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
 
                 {/* Novo audiobook adicionado */}
-                <div onClick={handleSettingRowClick} className={`${HAS_LOCAL_SERVER ? 'max-md:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
+                <div onClick={handleSettingRowClick} className={`${HAS_LOCAL_SERVER ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                       <ListPlus size={20} />

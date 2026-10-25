@@ -106,14 +106,14 @@ export function MobileSheet({
               ? "fixed z-[9001] left-1/2 top-1/2 w-[560px] max-w-[calc(100vw-48px)] max-h-[86vh] -ml-[280px] flex flex-col rounded-[32px] bg-[var(--bg-sheet)] border border-[var(--button-secondary-bg)] shadow-2xl overflow-hidden text-[var(--text-main)]"
               : "fixed inset-x-0 z-[9001] flex flex-col rounded-t-[38px] bg-[var(--bg-sheet)] shadow-[0_-12px_40px_-12px_rgba(0,0,0,0.45)] overflow-hidden text-[var(--text-main)]"}
             style={isDesktop ? { translate: '0 -50%' } : {
-              top: 'calc(env(safe-area-inset-top) + 12px)',
+              top: 'calc(var(--safe-top) + 12px)',
               bottom: keyboard,
               transition: 'bottom 0.25s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           >
             {/* Topo arrastável: grabber, fechar e título */}
             <div
-              className="shrink-0 touch-none select-none pt-2 pb-3 px-4 cursor-grab"
+              className="shrink-0 touch-none select-none pt-2 pb-3 px-[var(--page-margin)] cursor-grab"
               onPointerDown={(e) => dragControls.start(e)}
             >
               <div className="relative mt-1.5 flex items-center justify-center min-h-11">
@@ -131,11 +131,11 @@ export function MobileSheet({
                 </div>
               </div>
             </div>
-            <div className={`flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overscroll-contain px-[var(--page-margin)] ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}>
               {children}
             </div>
             {footer && (
-              <div className="shrink-0 px-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">
+              <div className="shrink-0 px-[var(--page-margin)] pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">
                 {footer}
               </div>
             )}

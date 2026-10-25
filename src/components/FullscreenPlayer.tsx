@@ -270,7 +270,7 @@ export default function FullscreenPlayer({
       transition={{ clipPath: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 }, opacity: { duration: 0.12, ease: "easeOut" } }}
       style={{ willChange: 'clip-path, opacity' }}
       onAnimationComplete={() => setIsIntroDone(true)}
-      className="fixed inset-0 z-[200] px-4 sm:px-8 md:px-10 pt-[max(24px,calc(env(safe-area-inset-top)+8px))] pb-[max(24px,env(safe-area-inset-bottom))] max-md:pt-[var(--app-header-top)] max-md:pb-[max(16px,env(safe-area-inset-bottom))] fs-safe flex flex-col justify-between overflow-hidden text-[var(--text-main)] transform-gpu"
+      className="fixed inset-0 z-[200] px-4 sm:px-8 md:px-10 pt-[max(24px,calc(var(--safe-top)+8px))] pb-[max(24px,env(safe-area-inset-bottom))] max-md:pt-[var(--app-header-top)] max-md:pb-[max(16px,env(safe-area-inset-bottom))] fs-safe flex flex-col justify-between overflow-hidden text-[var(--text-main)] transform-gpu"
     >
       {/* Fundo Animado com Blur dinâmico se movendo e mudando de cores (tons da capa + luz e escuridão no escuro / fusão com branco no claro) */}
       <motion.div

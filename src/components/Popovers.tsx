@@ -675,30 +675,31 @@ export function emitZoomOrigin(el: Element | null | undefined, image?: string, r
   }));
 }
 
+// Troca de conteúdo como nos menus do iOS: o pop-up se reforma (tamanho com mola) enquanto o conteúdo
+// antigo se dissolve com leve desfoque e o novo surge do mesmo jeito, sem deslizar para os lados
 export const popupMorphContentVariants = {
-  enter: (custom: any) => {
-    const dir = typeof custom === 'number' ? custom : (custom?.dir ?? 1);
-    return {
-      opacity: 0,
-      scale: 0.98,
-      x: dir > 0 ? 8 : -8,
-      position: 'relative' as const,
-    };
-  },
+  enter: (_custom: any) => ({
+    opacity: 0,
+    scale: 0.96,
+    x: 0,
+    filter: 'blur(6px)',
+    position: 'relative' as const,
+  }),
   center: {
     opacity: 1,
     scale: 1,
     x: 0,
+    filter: 'blur(0px)',
     position: 'relative' as const,
   },
   exit: (custom: any) => {
-    const dir = typeof custom === 'number' ? custom : (custom?.dir ?? 1);
     const openUp = typeof custom === 'object' ? Boolean(custom?.openUp) : false;
     const alignRight = typeof custom === 'object' ? Boolean(custom?.alignRight) : false;
     return {
       opacity: 0,
-      scale: 0.98,
-      x: dir > 0 ? -8 : 8,
+      scale: 1.03,
+      x: 0,
+      filter: 'blur(6px)',
       position: 'absolute' as const,
       ...(openUp ? { bottom: 0 } : { top: 0 }),
       ...(alignRight ? { right: 0 } : { left: 0 }),
@@ -811,7 +812,7 @@ export function PopupMorphContainer({
       const timer = setTimeout(() => {
         isKeyMorphingRef.current = false;
         setIsKeyMorphing(false);
-      }, 380);
+      }, 560);
       return () => clearTimeout(timer);
     }
   }, [activeKey]);
@@ -868,10 +869,10 @@ export function PopupMorphContainer({
         animate={{ ...MORPH_CONTENT_MOTION.animate, width: targetWidth, height: animatedHeight }}
         transition={{
           ...MORPH_CONTENT_MOTION.transition,
-          width: enableWidthSpring ? MORPH_SPRING : { duration: 0 },
+          width: enableWidthSpring ? MORPH_BOUNCE_SPRING : { duration: 0 },
           height:
             !justChangedKey && isKeyMorphing
-              ? MORPH_SPRING
+              ? MORPH_BOUNCE_SPRING
               : { duration: 0 },
         }}
         className="relative z-10 overflow-hidden will-change-[width,height]"
@@ -884,8 +885,9 @@ export function PopupMorphContainer({
             animate="center"
             exit="exit"
             transition={{
-              opacity: { duration: 0.14, ease: [0.25, 0.1, 0.25, 1] },
-              scale: MORPH_SPRING,
+              opacity: { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] },
+              filter: { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] },
+              scale: MORPH_BOUNCE_SPRING,
               x: MORPH_SPRING,
             }}
             className="w-full"

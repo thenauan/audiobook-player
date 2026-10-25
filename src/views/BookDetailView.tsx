@@ -321,7 +321,7 @@ export default function BookDetailView({
             </div>
             {heroButtons}
           </div>
-          <div className="md:hidden land:hidden relative -mx-4 -mt-[calc(var(--app-header-top)+76px)]">
+          <div className="md:hidden land:hidden relative mobile-bleed -mt-[calc(var(--app-header-top)+76px)]">
             <div data-zoom-hero="true" className="relative w-full overflow-hidden" style={{ height: 'min(150vw, 74dvh)' }}>
               <img
                 src={heroCover}
