@@ -23,8 +23,8 @@ Baixe o instalador do seu sistema na página de [Releases](https://github.com/th
 | Sistema | Arquivo | Como instalar |
 | --- | --- | --- |
 | 🪟 **Windows** | `Audiobook-Player-…-win-x64.exe` | Abra o instalador, escolha o idioma e a pasta. Ele cria o atalho na área de trabalho e no menu Iniciar e pode abrir o app ao concluir. |
-| 🍎 **macOS** | `Audiobook-Player-…-mac-arm64.dmg` (Apple Silicon) ou `…-mac-x64.dmg` (Intel) | Abra o `.dmg` e arraste o app para **Aplicativos**. |
-| 🐧 **Linux** | `…-linux-x86_64.AppImage` ou `…-linux-amd64.deb` | AppImage: dê permissão de execução e abra. `.deb`: `sudo apt install ./arquivo.deb`. |
+| 🍎 **macOS** | `Audiobook-Player-…-mac-universal.dmg` (Apple Silicon e Intel) | Abra o `.dmg` e arraste o app para **Aplicativos**. |
+| 🐧 **Linux** | `Audiobook-Player-…-linux-x86_64.AppImage` | Dê permissão de execução (`chmod +x`) e abra — funciona em qualquer distribuição. |
 
 > ⚠️ Os instaladores ainda não têm assinatura digital. No Windows, se aparecer o aviso do SmartScreen, clique em **Mais informações → Executar assim mesmo**. No macOS, na primeira vez clique com o botão direito no app e escolha **Abrir** (ou, no Terminal: `xattr -cr "/Applications/Audiobook Player.app"`).
 

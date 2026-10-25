@@ -98,15 +98,15 @@
       "language": "1046",
       "include": "build/installer.nsh",
       "uninstallDisplayName": "Audiobook Player",
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "differentialPackage": false
     },
     "mac": {
       "target": [
         {
           "target": "dmg",
           "arch": [
-            "x64",
-            "arm64"
+            "universal"
           ]
         }
       ],
@@ -114,12 +114,12 @@
       "category": "public.app-category.entertainment"
     },
     "dmg": {
-      "title": "Audiobook Player ${version}"
+      "title": "Audiobook Player ${version}",
+      "writeUpdateInfo": false
     },
     "linux": {
       "target": [
-        "AppImage",
-        "deb"
+        "AppImage"
       ],
       "icon": "build/icon.png",
       "category": "Audio",
@@ -134,7 +134,8 @@
       "provider": "github",
       "owner": "thenauan",
       "repo": "audiobook-player",
-      "releaseType": "release"
+      "releaseType": "release",
+      "publishAutoUpdate": false
     }
   }
 }

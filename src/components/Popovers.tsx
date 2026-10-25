@@ -782,6 +782,9 @@ export function PopupMorphContainer({
   if (compactPopup && typeof window !== 'undefined') {
     targetWidth = Math.min(Math.max(targetWidth, 290), window.innerWidth - 32);
     targetRadius = Math.max(targetRadius, 30);
+  } else if (typeof window !== 'undefined') {
+    // Computador: 20% mais largos, para os textos das opções não quebrarem linha
+    targetWidth = Math.min(Math.round(targetWidth * 1.2), window.innerWidth - 32);
   }
   // Mesmo critério do MorphPopup: considera right/bottom do style (getButtonCoverPopupStyle) e o transformOrigin
   const inferredCorner = inferMorphCorner(style, className);
@@ -1251,6 +1254,10 @@ export function getButtonCoverPopupStyle(
   preferredAlign: 'auto' | 'left' | 'right' = 'auto',
   fixedOpenUp?: boolean
 ): React.CSSProperties {
+  // Computador: os pop-ups são 20% mais largos (mesma conta do CSS e do PopupMorphContainer)
+  if (typeof window !== 'undefined' && !window.matchMedia?.('(max-width: 1023px)').matches) {
+    width = Math.round(width * 1.2);
+  }
   if (!triggerEl || typeof window === 'undefined') {
     return { position: 'fixed', zIndex: 9999, width: `${width}px` };
   }

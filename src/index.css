@@ -1344,3 +1344,15 @@ html.standalone #root {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
+
+/* Computador: pop-ups 20% mais largos (os textos das opções não quebram linha) */
+@media (min-width: 1024px) {
+  [data-popup-content="true"].w-44 { width: min(13.2rem, calc(100vw - 32px)) !important; }
+  [data-popup-content="true"].w-52 { width: min(15.6rem, calc(100vw - 32px)) !important; }
+  [data-popup-content="true"].w-56 { width: min(16.8rem, calc(100vw - 32px)) !important; }
+  [data-popup-content="true"].w-60 { width: min(18rem, calc(100vw - 32px)) !important; }
+  [data-popup-content="true"].w-64 { width: min(19.2rem, calc(100vw - 32px)) !important; }
+  [data-popup-content="true"].w-72 { width: min(21.6rem, calc(100vw - 32px)) !important; }
+  [data-popup-content="true"].w-80 { width: min(24rem, calc(100vw - 32px)) !important; }
+  [data-popup-content="true"].w-96 { width: min(28.8rem, calc(100vw - 32px)) !important; }
+}

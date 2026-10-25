@@ -105,7 +105,12 @@ export default function ZoomTransitionLayer({
   const cardsRevealedRef = useRef(false);
   const showHiddenCards = () => {
     cardsRevealedRef.current = true;
-    hiddenCardsRef.current.forEach(el => { el.style.opacity = ''; });
+    // A capa surge no card com um fade-in suave
+    hiddenCardsRef.current.forEach(el => {
+      el.style.transition = 'opacity 0.2s ease-out';
+      el.style.opacity = '';
+      setTimeout(() => { if (!el.style.opacity) el.style.transition = ''; }, 260);
+    });
     hiddenCardsRef.current = [];
   };
 
@@ -223,6 +228,7 @@ export default function ZoomTransitionLayer({
         // A capa no card só aparece quando a animação de voltar terminar de encaixar nela
         if (!cardsRevealedRef.current) els.forEach(el => {
           if (!hiddenCardsRef.current.includes(el)) {
+            el.style.transition = 'none';
             el.style.opacity = '0';
             hiddenCardsRef.current.push(el);
           }
@@ -251,8 +257,8 @@ export default function ZoomTransitionLayer({
             const total = startW - target.width;
             const progress = total > 0 ? (startW - w) / total : 0;
             if (progress >= 0.5) fireMidway();
-            // A capa volta a aparecer no card quando a animação está 90% concluída
-            if (progress >= 0.9) {
+            // A capa volta a aparecer no card quando a animação está 95% concluída
+            if (progress >= 0.95) {
               showHiddenCards();
               unsubscribeProgress?.();
             }
