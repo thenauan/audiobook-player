@@ -323,6 +323,9 @@ export default function App() {
   });
 
   const audioContextRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+  const volumeRef = useRef(1);
+  const isMutedRef = useRef(false);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const voiceFilterNodeRef = useRef<BiquadFilterNode | null>(null);
   const voiceHighpassNodeRef = useRef<BiquadFilterNode | null>(null);
@@ -651,6 +654,14 @@ export default function App() {
     }
   };
 
+  // iPhone/iPad (Safari 17+): sessão de áudio do tipo "reprodução", que continua tocando em segundo plano
+  useEffect(() => {
+    try {
+      const session = (navigator as any).audioSession;
+      if (session && session.type !== 'playback') session.type = 'playback';
+    } catch {}
+  }, []);
+
   // Web Audio API Setup
   const setupWebAudioGraph = useCallback(() => {
     if (!audioRef.current || audioContextRef.current) return;
@@ -687,11 +698,19 @@ export default function App() {
       compressor.release.value = 0.25;
       compressorNodeRef.current = compressor;
 
-      // Encadeamento: source -> highpass -> voiceFilter -> compressor -> destination
+      // Volume do app (no iPhone/iPad o volume do elemento <audio> não pode ser alterado por código)
+      const gain = ctx.createGain();
+      gain.gain.value = isMutedRef.current ? 0 : Math.max(0, Math.min(1, volumeRef.current));
+      gainNodeRef.current = gain;
+      // O volume passa a ser controlado só pelo processamento (evita aplicar duas vezes)
+      audioRef.current.volume = 1;
+
+      // Encadeamento: source -> highpass -> voiceFilter -> compressor -> volume -> destination
       source.connect(highpass);
       highpass.connect(voiceFilter);
       voiceFilter.connect(compressor);
-      compressor.connect(ctx.destination);
+      compressor.connect(gain);
+      gain.connect(ctx.destination);
     } catch (err) {
       console.warn('Web Audio API setup note:', err);
     }
@@ -916,6 +935,8 @@ export default function App() {
     }
   }, []);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  // Seleção de uma pasta inteira (navegadores de computador); no celular, abre o seletor de arquivos
+  const folderInputRef = React.useRef<HTMLInputElement>(null);
   const mainScrollRef = useRef<HTMLDivElement>(null);
   // Cor do menu lateral "congelada" enquanto a página se recolhe para dentro do card ao voltar;
   // volta ao padrão no instante em que a animação termina
@@ -1687,6 +1708,13 @@ export default function App() {
   const [isSyncingLibrary, setIsSyncingLibrary] = useState<boolean>(false);
 
   const handleSelectFolder = async (onSelect: (folderPath: string) => void, initialFolder: string) => {
+    // Celular/tablet ou site publicado: abre na hora (no mesmo toque) o seletor do aparelho.
+    // Pastas inteiras só podem ser escolhidas no computador; no celular, escolhem-se os arquivos.
+    const isTouch = !!window.matchMedia?.('(pointer: coarse)').matches;
+    if (!(window as any).electron?.selectFolder && (isTouch || !HAS_LOCAL_SERVER)) {
+      (isTouch ? fileInputRef.current : (folderInputRef.current || fileInputRef.current))?.click();
+      return;
+    }
     if ((window as any).electron?.selectFolder) {
       (window as any).electron.selectFolder().then((folder: string) => {
         if (folder) onSelect(folder);
@@ -3541,7 +3569,8 @@ export default function App() {
     | { kind: 'collection-picker'; itemType: 'book' | 'author'; itemId: string }
     | { kind: 'collection-add-items'; collectionId: string }
     | { kind: 'bookmarks'; bookId: string; chapterId: any }
-    | { kind: 'share-lyrics'; bookId: string };
+    | { kind: 'share-lyrics'; bookId: string }
+    | { kind: 'collection-form-items'; mode: 'authors' | 'books' };
   const [mobileSheet, setMobileSheet] = useState<MobileSheetState | null>(null);
   // Confirmação no celular (cartão na base da tela)
   const [mobileConfirm, setMobileConfirm] = useState<{
@@ -3693,6 +3722,33 @@ export default function App() {
               selectedBookIds={col.bookIds}
               onToggleAuthor={(itemId) => handleToggleItemInCollection(col.id, 'author', itemId)}
               onToggleBook={(itemId) => handleToggleItemInCollection(col.id, 'book', itemId)}
+            />
+          </div>
+        ),
+      };
+    }
+    if (mobileSheet.kind === 'collection-form-items') {
+      const mode = mobileSheet.mode;
+      return {
+        title: mode === 'authors' ? t('authors') : t('audiobooks_label'),
+        body: (
+          <div className="pt-1">
+            <CollectionItemsPickerContent
+              asScreen
+              mode={mode}
+              authors={authors}
+              books={books}
+              selectedAuthorIds={colSelectedAuthorIds}
+              selectedBookIds={colSelectedBookIds}
+              onToggleAuthor={(id) => setColSelectedAuthorIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])}
+              onToggleBook={(id) => {
+                const adding = !colSelectedBookIds.includes(id);
+                setColSelectedBookIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+                if (adding) {
+                  const authorId = findAuthorIdForBook(id);
+                  if (authorId) setColSelectedAuthorIds(prev => prev.includes(authorId) ? prev : [...prev, authorId]);
+                }
+              }}
             />
           </div>
         ),
@@ -4775,24 +4831,46 @@ export default function App() {
     }
 
     const coverUrl = currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author);
-    const artworkList = [
-      { src: coverUrl, sizes: '96x96', type: 'image/png' },
-      { src: coverUrl, sizes: '128x128', type: 'image/png' },
-      { src: coverUrl, sizes: '192x192', type: 'image/png' },
-      { src: coverUrl, sizes: '256x256', type: 'image/png' },
-      { src: coverUrl, sizes: '512x512', type: 'image/png' }
-    ];
-
-    try {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentBook.title || 'Audiobook',
-        artist: currentBook.author || 'Autor Desconhecido',
-        album: currentChapter?.title || currentBook.category || 'Audiobook Player',
-        artwork: artworkList
-      });
-    } catch (e) {
-      console.warn('Erro ao configurar MediaMetadata:', e);
-    }
+    const setMetadata = (art: { src: string; type: string }[]) => {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: currentBook.title || 'Audiobook',
+          artist: currentBook.author || 'Autor Desconhecido',
+          album: currentChapter?.title || currentBook.category || 'Audiobook Player',
+          artwork: art.flatMap(a => ['256x256', '512x512'].map(sizes => ({ src: a.src, sizes, type: a.type }))),
+        });
+      } catch (e) {
+        console.warn('Erro ao configurar MediaMetadata:', e);
+      }
+    };
+    // Primeiro com a capa original; em seguida, com uma versão quadrada em PNG (o iOS e o Android não
+    // exibem capas em SVG nem fora do formato quadrado)
+    setMetadata([{ src: coverUrl, type: coverUrl.startsWith('data:image/svg') ? 'image/svg+xml' : 'image/png' }]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const img = new Image();
+        if (!coverUrl.startsWith('data:') && !coverUrl.startsWith('blob:')) img.crossOrigin = 'anonymous';
+        await new Promise<void>((resolve, reject) => { img.onload = () => resolve(); img.onerror = () => reject(); img.src = coverUrl; });
+        const size = 512;
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        const ctx = canvas.getContext('2d')!;
+        // Fundo: a própria capa ampliada e escurecida; por cima, a capa inteira centralizada
+        ctx.drawImage(img, -size * 0.25, -size * 0.25, size * 1.5, size * 1.5 * (img.height / img.width || 1.6));
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillRect(0, 0, size, size);
+        const h = size * 0.92;
+        const w = h * ((img.width / img.height) || 0.625);
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        const png = canvas.toDataURL('image/png');
+        if (!cancelled) setMetadata([{ src: png, type: 'image/png' }]);
+      } catch {
+        // Sem a capa (imagem de outro site sem permissão): usa o ícone do app
+        if (!cancelled) setMetadata([{ src: `${import.meta.env.BASE_URL}icons/icon-512.png`, type: 'image/png' }]);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [currentBook?.id, currentBook?.title, currentBook?.author, currentBook?.cover, currentChapter?.title]);
 
   // Sincronização do estado de reprodução na Media Session
@@ -5081,9 +5159,16 @@ export default function App() {
 
   // Sincronização de Volume e Mudo
   useEffect(() => {
+    volumeRef.current = volume;
+    isMutedRef.current = isMuted;
+    const level = isMuted ? 0 : Math.max(0, Math.min(1, volume));
+    // Com o processamento de áudio ativo, o volume é aplicado nele (funciona também no iPhone)
+    if (gainNodeRef.current && audioContextRef.current) {
+      gainNodeRef.current.gain.setTargetAtTime(level, audioContextRef.current.currentTime, 0.02);
+    }
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = isMuted ? 0 : Math.max(0, Math.min(1, volume));
+    audio.volume = gainNodeRef.current ? 1 : level;
     audio.muted = isMuted;
   }, [volume, isMuted]);
 
@@ -5167,22 +5252,26 @@ export default function App() {
   }, [isPlaying, currentBook?.id, savePlaybackPosition]);
 
   useEffect(() => {
+    // Só salva a posição: sair do app (ou trocar de app no celular) não interrompe o áudio
     const handleUnload = () => {
       if (audioRef.current && currentBook?.id && currentBook.id !== EMPTY_BOOK.id) {
         savePlaybackPosition(audioRef.current.currentTime, currentBook.id, true);
       }
-      audioUrlsRef.current.forEach(url => {
-        if (url && url.startsWith('blob:')) {
-          try { URL.revokeObjectURL(url); } catch {}
-        }
-      });
-      audioUrlsRef.current.clear();
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') handleUnload();
+      // Ao voltar, retoma o processamento de áudio se o sistema o suspendeu
+      else if (audioContextRef.current?.state === 'suspended' && audioRef.current && !audioRef.current.paused) {
+        audioContextRef.current.resume().catch(() => {});
+      }
     };
     window.addEventListener('beforeunload', handleUnload);
     window.addEventListener('pagehide', handleUnload);
+    document.addEventListener('visibilitychange', handleVisibility);
     return () => {
       window.removeEventListener('beforeunload', handleUnload);
       window.removeEventListener('pagehide', handleUnload);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [currentBook?.id, savePlaybackPosition]);
 
@@ -9344,6 +9433,32 @@ export default function App() {
 
       
       {/* Toast de Notificação */}
+      {/* Seletores de arquivos: sempre presentes e "visíveis" para o navegador (no iPhone, um campo dentro
+          de uma área oculta não abre o seletor), mas fora da vista */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="audio/*,.mp3,.m4a,.m4b,.mp4,.aac,.ogg,.wav,.flac,.opus,.wma"
+        multiple
+        aria-hidden="true"
+        tabIndex={-1}
+        style={{ position: 'fixed', left: 0, top: 0, width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
+        onChange={handleFileUpload}
+      />
+      <input
+        type="file"
+        ref={folderInputRef}
+        multiple
+        aria-hidden="true"
+        tabIndex={-1}
+        style={{ position: 'fixed', left: 0, top: 0, width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
+        {...({ webkitdirectory: '', directory: '' } as any)}
+        onChange={async (e) => {
+          if (e.target.files && e.target.files.length > 0) await processAudioFiles(e.target.files);
+          e.target.value = '';
+        }}
+      />
+
       <AnimatePresence>
         {notification && (
           <motion.div 
@@ -10509,14 +10624,7 @@ export default function App() {
                         </>
                       ) : (activeScreen.id.startsWith('library') || activeScreen.id.startsWith('home-') || activeScreen.id === 'history') && (
                         <>
-                          <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            accept="audio/*,.mp3,.m4a,.m4b,.mp4,.aac,.ogg,.wav,.flac,.opus,.wma" 
-                            multiple 
-                            className="hidden" 
-                            onChange={handleFileUpload} 
-                          />
+                          
                           {books.length > 0 && (
                             <>
                               <motion.button 
@@ -13077,6 +13185,8 @@ export default function App() {
                       animate={morphTriggerAnimate(showAddAuthorPopup)}
                       onClick={(e) => {
                         e.stopPropagation();
+                        // Celular/tablet: a lista abre numa folha em tela cheia (não num pop-up pequeno)
+                        if (useFullScreenSheets) { openMobileSheet({ kind: 'collection-form-items', mode: 'authors' }); return; }
                         setShowAddBookPopup(false);
                         setColPickerAnchor(e.currentTarget);
                         setShowAddAuthorPopup(!showAddAuthorPopup);
@@ -13177,6 +13287,7 @@ export default function App() {
                       animate={morphTriggerAnimate(showAddBookPopup)}
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (useFullScreenSheets) { openMobileSheet({ kind: 'collection-form-items', mode: 'books' }); return; }
                         setShowAddAuthorPopup(false);
                         setColPickerAnchor(e.currentTarget);
                         setShowAddBookPopup(!showAddBookPopup);

@@ -470,7 +470,8 @@ export default function FullscreenPlayer({
           <div className="fs-body flex flex-col items-center justify-between h-full min-h-0 w-full">
             <div className="fs-top md:contents">
             {/* Capa do Audiobook com tamanho ampliado e proporções refinadas */}
-            <motion.img 
+            <div className="fs-cover-box md:contents">
+              <motion.img 
               layoutId="player-cover"
               transition={{ type: "spring", stiffness: 460, damping: 44, mass: 0.6 }}
               style={{ borderRadius: 24 }}
@@ -485,6 +486,7 @@ export default function FullscreenPlayer({
               }}
               className="fs-cover shadow-2xl object-cover ring-1 ring-black/10 dark:ring-white/20 shrink-0 z-10 cursor-pointer hover:opacity-90 transition-opacity aspect-[1/1.6] h-[calc(100dvh-310px)] max-h-[52dvh] min-h-[160px] [@media(max-height:520px)]:h-[calc(100dvh-120px)] [@media(max-height:520px)]:max-h-none [@media(max-height:520px)]:min-h-0 transform-gpu"
             />
+            </div>
             
               {/* Informações da Faixa: Capítulo, Livro e Autor */}
               <div 
@@ -553,7 +555,7 @@ export default function FullscreenPlayer({
                 {/* Barra de Progresso com grupo para hover da bolinha */}
                 <motion.div layoutId="player-progress" transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} className="w-full flex items-center gap-2.5 group mb-3.5">
                   <span className="text-[10px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 text-right shrink-0">{formatTime(chapterElapsed)}</span>
-                  <div className="relative flex-1 flex items-center h-5">
+                  <div className="relative flex-1 flex items-center h-5 [@media(pointer:coarse)]:h-7">
                     <input 
                       type="range"
                       min={0}

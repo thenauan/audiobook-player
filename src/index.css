@@ -39,8 +39,8 @@
   /* Mobile: barra de abas e miniplayer centralizados com largura máxima (tablets não esticam);
      a margem lateral é a mesma do conteúdo e respeita os recortes da tela (celular deitado) */
   --mobile-bar-inset: max(16px, calc((100vw - 560px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)));
-  /* Distância da barra até a base: fica sobre a área do indicador de início, como no iOS 26 */
-  --mobile-bar-bottom: max(14px, calc(env(safe-area-inset-bottom) - 6px));
+  /* Distância da barra até a base: fica logo acima do indicador de início, como no iOS 26 */
+  --mobile-bar-bottom: max(12px, calc(env(safe-area-inset-bottom) - 12px));
   /* Topo do cabeçalho: respeita a barra de status do iPhone quando instalado como app (viewport-fit=cover) */
   --app-header-top: max(20px, calc(env(safe-area-inset-top) + 8px));
   --font-scale: 0.85;
@@ -850,19 +850,36 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
    Dobráveis abertos: capa/título em cima, controles embaixo.
    ========================================================================== */
 @media (max-width: 1023px) {
+  /* Em pé: a capa ocupa todo o espaço livre entre o cabeçalho e as informações (sem invadir nada),
+     ajustando-se ao tamanho e à proporção da tela; os controles ficam junto da margem inferior */
   .fs-body {
-    justify-content: center !important;
+    justify-content: flex-start !important;
   }
   .fs-top {
+    flex: 1 1 auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
   }
+  .fs-cover-box {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    container-type: size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .fs-cover {
-    height: clamp(140px, calc(100dvh - 440px - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 50dvh) !important;
+    height: min(100cqh, calc(100cqw * 1.6)) !important;
+    width: auto !important;
     max-height: none !important;
     min-height: 0 !important;
+  }
+  .fs-controls {
+    margin-top: auto;
   }
   .fs-info {
     margin-top: 22px;
@@ -879,8 +896,9 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
 }
 
 @media (max-width: 1023px) and (orientation: landscape) and (max-height: 600px) {
+  /* Ocupa toda a largura: capa alinhada ao botão de minimizar e player ao botão de texto */
   .fs-column {
-    max-width: 52rem !important;
+    max-width: none !important;
   }
   .fs-body {
     display: grid !important;
@@ -892,27 +910,29 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   .fs-top {
     display: contents;
   }
-  .fs-cover {
+  .fs-cover-box {
     grid-column: 1;
     grid-row: 1 / span 4;
-    justify-self: center;
-    height: calc(100dvh - 110px - env(safe-area-inset-bottom)) !important;
+    align-self: stretch;
+    justify-content: flex-start;
+    height: 100%;
   }
   /* Player centralizado na metade direita, com largura limitada (alinhado como a capa à esquerda) */
   .fs-info {
     grid-column: 2;
     grid-row: 2;
     margin: 0 0 6px !important;
-    justify-self: center;
+    justify-self: end;
     width: 100%;
-    max-width: 22rem;
+    max-width: 24rem;
   }
   .fs-controls {
     grid-column: 2;
     grid-row: 3;
-    justify-self: center;
+    justify-self: end;
     width: 100%;
-    max-width: 22rem;
+    max-width: 24rem;
+    margin-top: 0;
   }
   .fs-column {
     width: 100% !important;
@@ -933,12 +953,10 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
     justify-content: center;
     min-height: 0;
   }
-  .fs-cover {
-    height: calc(50dvh - 170px) !important;
-  }
   .fs-controls {
     flex: 1 1 50%;
     justify-content: center;
+    margin-top: 0;
   }
   /* Letra aberta: só na metade de cima; capa pequena, dados e controles juntos na de baixo */
   .fs-fold-lyrics {
@@ -957,6 +975,11 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
     flex-direction: row;
     gap: 16px;
     justify-content: center;
+  }
+  .fs-fold-lyrics .fs-cover-box {
+    flex: 0 0 auto;
+    width: auto;
+    height: 80px;
   }
   .fs-fold-lyrics .fs-cover {
     height: 80px !important;
@@ -1162,4 +1185,70 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Celular deitado: folhas (adicionar à coleção, marcações…) centralizadas, longe do notch/Dynamic Island */
+@media (max-width: 1023px) and (orientation: landscape) and (max-height: 600px) {
+  [data-mobile-sheet] {
+    left: max(16px, calc(var(--safe-left) + 8px), calc((100vw - 640px) / 2)) !important;
+    right: max(16px, calc(var(--safe-right) + 8px), calc((100vw - 640px) / 2)) !important;
+  }
+}
+
+
+/* App instalado (tela de início do iPhone/Android): a página ocupa a tela inteira, sem faixa
+   vazia embaixo, e o fundo do sistema tem a mesma cor do app */
+html,
+body,
+#root {
+  height: 100%;
+  min-height: 100%;
+}
+html {
+  background-color: var(--bg-mica);
+}
+body {
+  overflow: hidden;
+}
+.app-shell {
+  position: fixed;
+  inset: 0;
+  height: auto !important;
+}
+
+/* Toque: a barra de progresso tem área de toque maior (a linha continua fina) e a bolinha fica
+   sempre visível, para tocar e arrastar */
+@media (pointer: coarse) {
+  input[type="range"].apple-slider {
+    height: 28px;
+    background-size: 100% 4px !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    touch-action: none;
+  }
+  input[type="range"].apple-slider::-webkit-slider-runnable-track {
+    height: 28px;
+  }
+  input[type="range"].apple-slider::-webkit-slider-thumb {
+    opacity: 1;
+    width: 14px;
+    height: 14px;
+    margin-top: 7px;
+  }
+  input[type="range"].apple-slider:active::-webkit-slider-thumb {
+    transform: scale(1.35);
+  }
+  input[type="range"].apple-slider::-moz-range-thumb {
+    opacity: 1;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Player em tela cheia: o cabeçalho já está dentro das margens do player (sem margem dobrada) */
+@media (max-width: 1023px) {
+  [data-fullscreen-player] [data-app-header] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
 }
