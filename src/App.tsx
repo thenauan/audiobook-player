@@ -63,7 +63,6 @@ import {
   getSystemLanguage,
   getTranslation,
   I18nContext,
-  useI18n,
 } from './translations';
 import { Text, Headphones, ExternalLink, Share, Download, Quote, Play, Pause, ListPlus, FileText, FilePlus2, Info, MoreHorizontal, Edit3, Maximize2, Upload, ArrowDownAZ, ArrowUpZA, Calendar, CalendarClock, Clock, Timer, BookOpen, User, Gauge, FolderOpen, ChevronRight, ChevronDown, Check, Database, FileAudio, HardDrive, Star, StarOff, Palette, Type, RotateCcw, Bell, RefreshCw, Bookmark, ArrowUpDown, Code2, Globe, Turtle, Rabbit, Clock3, Clock6, Clock9, Clock12, Dog, Bird, FolderPlus, Plus, Sun, Laptop, Monitor, Hand, ALargeSmall } from 'lucide-react';
 import { normalizeSearchStr, toPhoneticSearchStr, evaluateSearchTermMatch, matchesNationality } from './components/searchScoring';
@@ -3359,7 +3358,7 @@ export default function App() {
 
   // ===== Ajustes iniciais no celular: um tema por vez (como as opções dos ajustes), com voltar e prosseguir =====
   const [onboardingPage, setOnboardingPage] = useState(0);
-  const renderMobileOnboardingSettings = () => {
+  const renderOnboardingSettings = () => {
     type OnbOption = { value: any; label: string; description?: string; icon?: React.ReactNode; colorPreview?: string };
     type OnbSetting = { id: string; title: string; subtitle: string; value: any; options: OnbOption[]; onSelect: (v: any) => void };
     const yesNo = (value: boolean, onSelect: (v: boolean) => void, id: string, title: string, subtitle: string): OnbSetting => ({
@@ -3370,21 +3369,6 @@ export default function App() {
       ],
     });
     const pages: { id: string; title: string; icon: React.ReactNode; settings: OnbSetting[] }[] = [
-      {
-        id: 'language', title: t('settings_language'), icon: <Globe size={18} />,
-        settings: [{
-          id: 'app-language', title: t('settings_language'), subtitle: t('settings_language_sub'), value: appLanguage,
-          onSelect: (v) => setAppLanguage(v),
-          options: [
-            { value: 'system', label: t('lang_system_label'), description: t('lang_system_desc', { lang: LANGUAGE_NATIVE_NAMES[getSystemLanguage()] }), icon: <Monitor size={16} /> },
-            { value: 'pt', label: 'Português', description: getLanguageDisplayName('pt', resolvedLanguage), icon: <Globe size={16} /> },
-            { value: 'en', label: 'English', description: getLanguageDisplayName('en', resolvedLanguage), icon: <Globe size={16} /> },
-            { value: 'es', label: 'Español', description: getLanguageDisplayName('es', resolvedLanguage), icon: <Globe size={16} /> },
-            { value: 'ru', label: 'Русский', description: getLanguageDisplayName('ru', resolvedLanguage), icon: <Globe size={16} /> },
-            { value: 'ar', label: 'العربية', description: getLanguageDisplayName('ar', resolvedLanguage), icon: <Globe size={16} /> },
-          ],
-        }],
-      },
       {
         id: 'appearance', title: t('settings_interface'), icon: <Palette size={18} />,
         settings: [
@@ -3443,25 +3427,19 @@ export default function App() {
       if (isLast) { setOnboardingPage(0); completeOnboarding(); return; }
       setOnboardingPage(pageIdx + 1);
     };
-    const circle = "w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-3xl border shadow-lg";
+    const prevLabel = pageIdx === 0 ? t('onb_welcome') : pages[pageIdx - 1].title;
+    const nextLabel = isLast ? t('onb_finish') : pages[pageIdx + 1].title;
+    const navBtn = "h-12 rounded-full flex items-center gap-1.5 backdrop-blur-3xl border shadow-lg text-[14px] md:text-[15px] font-semibold min-w-0 max-md:flex-1 max-md:max-w-[42%] max-md:justify-center";
     return (
       <motion.div
-        key="onboarding-settings-mobile"
+        key="onboarding-settings"
         variants={transicaoConteudo}
         initial="escondido"
         animate="visivel"
         exit="saindo"
         className="flex-1 w-full flex flex-col min-h-full"
       >
-        <div className="flex-1 w-full max-w-xl mx-auto px-4 pt-6 pb-36 flex flex-col">
-          <p className="text-xs font-semibold text-white/60 tracking-wide">
-            {t('initial_settings_title')} • {pageIdx + 1}/{pages.length}
-          </p>
-          <div className="flex items-center gap-1.5 mt-2.5">
-            {pages.map((p, i) => (
-              <span key={p.id} className={`h-1 rounded-full transition-all duration-300 ${i === pageIdx ? 'w-6 bg-winblue' : 'w-1.5 bg-white/25'}`} />
-            ))}
-          </div>
+        <div className="flex-1 w-full max-w-xl md:max-w-5xl mx-auto px-4 md:px-10 pt-8 md:pt-14 pb-36 flex flex-col">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={page.id}
@@ -3471,15 +3449,16 @@ export default function App() {
               transition={{ type: 'spring', stiffness: 460, damping: 40, mass: 0.6 }}
               className="flex flex-col"
             >
-              <h1 className="text-[34px] font-semibold text-white tracking-tight mt-5 mb-6 flex items-center gap-3">
-                <span className="w-10 h-10 rounded-full bg-winblue/20 text-winblue flex items-center justify-center shrink-0">{page.icon}</span>
+              <h1 className="text-[34px] md:text-5xl font-semibold text-white tracking-tight mb-7 md:mb-10 flex items-center gap-3 md:gap-4">
+                <span className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-winblue/20 text-winblue flex items-center justify-center shrink-0">{page.icon}</span>
                 {page.title}
               </h1>
-              <div className="flex flex-col gap-7">
+              {/* Computador: os temas lado a lado; celular: um abaixo do outro */}
+              <div className={`grid gap-7 md:gap-8 ${page.settings.length > 1 ? 'md:grid-cols-2' : 'md:grid-cols-1 md:max-w-xl'} items-start`}>
                 {page.settings.map(setting => (
                   <section key={setting.id}>
-                    <h2 className="text-[15px] font-bold text-white">{setting.title}</h2>
-                    <p className="text-[13px] text-white/65 mt-0.5 mb-3">{setting.subtitle}</p>
+                    <h2 className="text-[15px] md:text-base font-bold text-white">{setting.title}</h2>
+                    <p className="text-[13px] md:text-sm text-white/65 mt-0.5 mb-3">{setting.subtitle}</p>
                     <div className="p-1.5 rounded-[32px] bg-white/[0.07] backdrop-blur-xl border border-white/15 space-y-0.5">
                       {setting.options.map((option, idx) => {
                         const selected = setting.value === option.value;
@@ -3487,7 +3466,7 @@ export default function App() {
                           <button
                             key={idx}
                             onClick={() => setting.onSelect(option.value)}
-                            className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] border transition-colors ${selected ? 'bg-winblue/20 border-winblue/40' : 'border-transparent'}`}
+                            className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] border transition-colors ${selected ? 'bg-winblue/20 border-winblue/40' : 'border-transparent md:hover:bg-white/[0.06]'}`}
                           >
                             <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${selected ? 'bg-winblue/25 text-winblue' : 'bg-white/10 text-white/85'}`}>
                               {option.colorPreview
@@ -3510,35 +3489,29 @@ export default function App() {
           </AnimatePresence>
         </div>
 
-        {/* Voltar (seta) à esquerda; prosseguir (seta) ou concluir (✓) à direita */}
-        <div className="fixed inset-x-0 bottom-0 z-20 px-4 pb-[max(20px,env(safe-area-inset-bottom))] pt-6 bg-gradient-to-t from-black/50 to-transparent">
-          <div className="max-w-xl mx-auto flex items-center justify-between">
+        {/* Voltar (com o nome da página anterior), bolinhas das páginas e prosseguir/concluir (com o nome da próxima) */}
+        <div className="fixed inset-x-0 bottom-0 z-20 px-4 md:px-10 pb-[max(20px,env(safe-area-inset-bottom))] pt-8 bg-gradient-to-t from-black/55 to-transparent">
+          <div className="max-w-xl md:max-w-5xl mx-auto flex items-center justify-between gap-3">
             <motion.button
-              whileTap={{ scale: 0.92 }}
+              whileTap={{ scale: 0.95 }}
               onClick={goPrev}
-              aria-label={t('back')}
-              className={`${circle} bg-white/10 border-white/20 text-white`}
+              className={`${navBtn} pl-2.5 pr-4 md:pl-3 md:pr-5 bg-white/10 border-white/20 text-white`}
             >
-              <ChevronLeft size={24} className="rtl:rotate-180" />
+              <ChevronLeft size={22} className="shrink-0 rtl:rotate-180" />
+              <span className="truncate">{prevLabel}</span>
             </motion.button>
+            <div className="flex items-center gap-1.5 md:gap-2 shrink-0" aria-hidden="true">
+              {pages.map((p, i) => (
+                <span key={p.id} className={`h-2 rounded-full transition-all duration-300 ${i === pageIdx ? 'w-5 md:w-6 bg-winblue' : 'w-2 bg-white/30'}`} />
+              ))}
+            </div>
             <motion.button
-              whileTap={{ scale: 0.92 }}
+              whileTap={{ scale: 0.95 }}
               onClick={goNext}
-              aria-label={isLast ? t('finish_settings_and_go') : t('next_step')}
-              className={`${circle} bg-winblue/30 border-winblue text-winblue`}
+              className={`${navBtn} pl-4 pr-2.5 md:pl-5 md:pr-3 bg-winblue/30 border-winblue text-winblue`}
             >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={isLast ? 'done' : 'next'}
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.6 }}
-                  transition={{ duration: 0.14 }}
-                  className="flex items-center justify-center"
-                >
-                  {isLast ? <Check size={24} /> : <ChevronRight size={24} className="rtl:rotate-180" />}
-                </motion.span>
-              </AnimatePresence>
+              <span className="truncate">{nextLabel}</span>
+              {isLast ? <Check size={20} className="shrink-0" /> : <ChevronRight size={22} className="shrink-0 rtl:rotate-180" />}
             </motion.button>
           </div>
         </div>
@@ -14309,404 +14282,8 @@ export default function App() {
                       </motion.button>
                     </div>
                   </motion.div>
-                ) : isMobile ? (
-                  renderMobileOnboardingSettings()
                 ) : (
-                  <motion.div
-                    key="onboarding-settings-step"
-                    variants={transicaoConteudo}
-                    initial="escondido"
-                    animate="visivel"
-                    exit="saindo"
-                    className="w-full max-w-5xl mx-auto px-6 sm:px-10 py-8 sm:py-12 flex flex-col"
-                  >
-                    {/* Cabeçalho: Título 'Ajustes iniciais' (sem botão de voltar e sem subtítulo) e botão 'Concluir ajustes' (fundo azul com transparência/mais claro) */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                      <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
-                        {t('initial_settings_title')}
-                      </h1>
-
-                      <motion.button
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.96 }}
-                        onClick={completeOnboarding}
-                        className="h-11 px-5 rounded-full bg-winblue/25 hover:bg-winblue/35 border border-winblue backdrop-blur-3xl text-winblue font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(var(--winblue-rgb),0.25)] hover:shadow-[0_0_28px_rgba(var(--winblue-rgb),0.4)] shrink-0 self-start sm:self-center cursor-pointer"
-                      >
-                        <Check size={16} className="text-winblue" />
-                        <span>{t('finish_settings_and_go')}</span>
-                      </motion.button>
-                    </div>
-
-                    {/* Opções de Ajustes Iniciais (sem linhas ou bordas divisórias entre partes) */}
-                    <div className="space-y-1">
-                      {/* 1. Idioma */}
-                      <div className="py-4 sm:py-5 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <Globe size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_language')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_language_sub')}</span>
-                          </div>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.06 }}
-                          whileTap={{ scale: 0.94 }}
-                          animate={morphTriggerAnimate(activeSettingSelector?.id === 'app-language')}
-                          transition={{ type: "spring", stiffness: 600, damping: 30 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (activeSettingSelector?.id === 'app-language') {
-                              clearButtonCoverAnchorCache(e.currentTarget);
-                              setActiveSettingSelector(null);
-                              return;
-                            }
-                            closeAllPopups();
-                            setActiveSettingSelector({
-                              id: 'app-language',
-                              triggerEl: e.currentTarget,
-                              title: t('settings_language'),
-                              subtitle: t('settings_language_sub'),
-                              currentValue: appLanguage,
-                              options: [
-                                {
-                                  value: 'system',
-                                  label: t('lang_system_label'),
-                                  description: t('lang_system_desc', { lang: LANGUAGE_NATIVE_NAMES[getSystemLanguage()] }),
-                                  icon: <Monitor size={15} />,
-                                },
-                                { value: 'en', label: 'English', description: getLanguageDisplayName('en', resolvedLanguage), icon: <Globe size={15} /> },
-                                { value: 'es', label: 'Español', description: getLanguageDisplayName('es', resolvedLanguage), icon: <Globe size={15} /> },
-                                { value: 'pt', label: 'Português', description: getLanguageDisplayName('pt', resolvedLanguage), icon: <Globe size={15} /> },
-                                { value: 'ru', label: 'Русский', description: getLanguageDisplayName('ru', resolvedLanguage), icon: <Globe size={15} /> },
-                                { value: 'ar', label: 'العربية', description: getLanguageDisplayName('ar', resolvedLanguage), icon: <Globe size={15} /> },
-                              ],
-                              onSelect: (val) => setAppLanguage(val),
-                            });
-                          }}
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-3xl border border-white/15 hover:border-white/30 text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
-                        >
-                          <span>
-                            {appLanguage === 'system'
-                              ? `${t('lang_system_label')} (${LANGUAGE_NATIVE_NAMES[resolvedLanguage]})`
-                              : LANGUAGE_NATIVE_NAMES[appLanguage as SupportedLanguage] || appLanguage}
-                          </span>
-                          <ChevronDown size={14} className="-mr-0.5 text-white/70" />
-                        </motion.button>
-                      </div>
-
-                      {/* 2. Tema */}
-                      <div className="py-4 sm:py-5 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <Moon size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_theme')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_theme_sub')}</span>
-                          </div>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.06 }}
-                          whileTap={{ scale: 0.94 }}
-                          animate={morphTriggerAnimate(activeSettingSelector?.id === 'theme')}
-                          transition={{ type: "spring", stiffness: 600, damping: 30 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (activeSettingSelector?.id === 'theme') {
-                              clearButtonCoverAnchorCache(e.currentTarget);
-                              setActiveSettingSelector(null);
-                              return;
-                            }
-                            closeAllPopups();
-                            setActiveSettingSelector({
-                              id: 'theme',
-                              triggerEl: e.currentTarget,
-                              title: t('settings_theme'),
-                              subtitle: t('settings_theme_sub'),
-                              currentValue: themeMode,
-                              options: [
-                                { value: 'system', label: t('theme_system'), description: t('theme_system_desc'), icon: <Laptop size={15} /> },
-                                { value: 'light', label: t('theme_light'), description: t('theme_light_desc'), icon: <Sun size={15} /> },
-                                { value: 'dark', label: t('theme_dark'), description: t('theme_dark_desc'), icon: <Moon size={15} /> },
-                              ],
-                              onSelect: (val) => setThemeMode(val),
-                            });
-                          }}
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-3xl border border-white/15 hover:border-white/30 text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
-                        >
-                          <span>{themeMode === 'system' ? t('theme_system') : themeMode === 'light' ? t('theme_light') : t('theme_dark')}</span>
-                          <ChevronDown size={14} className="-mr-0.5 text-white/70" />
-                        </motion.button>
-                      </div>
-
-                      {/* 3. Cor de destaque */}
-                      <div className="py-4 sm:py-5 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <Palette size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_accent')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_accent_sub')}</span>
-                          </div>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.06 }}
-                          whileTap={{ scale: 0.94 }}
-                          animate={morphTriggerAnimate(activeSettingSelector?.id === 'accent-color')}
-                          transition={{ type: "spring", stiffness: 600, damping: 30 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (activeSettingSelector?.id === 'accent-color') {
-                              clearButtonCoverAnchorCache(e.currentTarget);
-                              setActiveSettingSelector(null);
-                              return;
-                            }
-                            closeAllPopups();
-                            setActiveSettingSelector({
-                              id: 'accent-color',
-                              triggerEl: e.currentTarget,
-                              title: t('settings_accent'),
-                              subtitle: t('settings_accent_sub'),
-                              currentValue: accentColor,
-                              options: Object.entries(ACCENT_COLORS).map(([key, item]) => ({
-                                value: key,
-                                label: t('color_' + key) || item.name,
-                                colorPreview: item.hex,
-                              })),
-                              onSelect: (val) => setAccentColor(val),
-                            });
-                          }}
-                          className="h-8 pl-3 pr-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-3xl border border-white/15 hover:border-white/30 text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
-                        >
-                          <div className="w-3.5 h-3.5 rounded-full border border-white/25 shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#0086F0' }} />
-                          <span>{t('color_' + accentColor) || ACCENT_COLORS[accentColor]?.name || 'Azul'}</span>
-                          <ChevronDown size={14} className="-mr-0.5 text-white/70" />
-                        </motion.button>
-                      </div>
-
-                      {/* 4. Tamanho da fonte */}
-                      <div className="py-4 sm:py-5 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <Type size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_font_size')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_font_size_sub')}</span>
-                          </div>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.06 }}
-                          whileTap={{ scale: 0.94 }}
-                          animate={morphTriggerAnimate(activeSettingSelector?.id === 'font-size')}
-                          transition={{ type: "spring", stiffness: 600, damping: 30 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (activeSettingSelector?.id === 'font-size') {
-                              clearButtonCoverAnchorCache(e.currentTarget);
-                              setActiveSettingSelector(null);
-                              return;
-                            }
-                            closeAllPopups();
-                            setActiveSettingSelector({
-                              id: 'font-size',
-                              triggerEl: e.currentTarget,
-                              title: t('settings_font_size'),
-                              subtitle: t('settings_font_size_sub'),
-                              currentValue: fontSize,
-                              options: [
-                                { value: 'standard', label: t('font_standard'), description: 'Padrão', icon: <Type size={14} /> },
-                                { value: 'large', label: t('font_large'), description: '+20%', icon: <ALargeSmall size={15} /> },
-                              ],
-                              onSelect: (val) => setFontSize(val),
-                            });
-                          }}
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-3xl border border-white/15 hover:border-white/30 text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
-                        >
-                          <span>{fontSize === 'large' ? t('font_large') : t('font_standard')}</span>
-                          <ChevronDown size={14} className="-mr-0.5 text-white/70" />
-                        </motion.button>
-                      </div>
-
-                      {/* 6. Pasta de audiobooks */}
-                      {HAS_LOCAL_SERVER && (<div className="py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <FolderOpen size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_lib_folder')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_lib_folder_sub')}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0 self-start sm:self-center">
-                          <div
-                            title={libraryFolder}
-                            className="h-8 px-3.5 rounded-full bg-white/10 backdrop-blur-3xl border border-white/15 text-xs text-winblue flex items-center max-w-[200px] md:max-w-xs truncate select-all"
-                          >
-                            <span className="truncate">{libraryFolder}</span>
-                          </div>
-                          <motion.button
-                            whileHover={{ scale: 1.06 }}
-                            whileTap={{ scale: 0.94 }}
-                            onClick={() => handleSyncLibraryNow()}
-                            className={`h-8 px-4 rounded-full backdrop-blur-3xl font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                              isSyncingLibrary
-                                ? 'bg-winblue/25 border border-winblue text-winblue shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)]'
-                                : 'bg-white/10 border border-white/15 text-white hover:bg-white/20 hover:border-white/30'
-                            }`}
-                            title={t('sync_now')}
-                          >
-                            <span>{t('sync_now')}</span>
-                            <RefreshCw size={14} className={isSyncingLibrary ? 'animate-spin text-winblue' : ''} />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.06 }}
-                            whileTap={{ scale: 0.94 }}
-                            onClick={handleSelectLibraryFolder}
-                            className="h-8 px-4 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-3xl border border-white/15 hover:border-white/30 text-white font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-                            title={t('select_folder')}
-                          >
-                            <span>{t('select_folder')}</span>
-                            <FolderOpen size={14} />
-                          </motion.button>
-                        </div>
-                      </div>)}
-
-                      {/* 7. Detectar novos arquivos */}
-                      {HAS_LOCAL_SERVER && (<div className="py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <RefreshCw size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_detect_files')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_detect_files_sub')}</span>
-                          </div>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.06 }}
-                          whileTap={{ scale: 0.94 }}
-                          animate={morphTriggerAnimate(activeSettingSelector?.id === 'detect-new-files')}
-                          transition={{ type: "spring", stiffness: 600, damping: 30 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (activeSettingSelector?.id === 'detect-new-files') {
-                              clearButtonCoverAnchorCache(e.currentTarget);
-                              setActiveSettingSelector(null);
-                              return;
-                            }
-                            closeAllPopups();
-                            setActiveSettingSelector({
-                              id: 'detect-new-files',
-                              triggerEl: e.currentTarget,
-                              title: t('settings_detect_files'),
-                              subtitle: t('settings_detect_files_sub'),
-                              currentValue: detectNewFiles,
-                              options: [
-                                { value: 'manual', label: t('detect_files_manual'), icon: <Hand size={15} /> },
-                                { value: 'startup', label: t('detect_files_startup'), icon: <Power size={15} /> },
-                                { value: 'folder-select', label: t('detect_files_folder_select'), icon: <FolderOpen size={15} /> },
-                              ],
-                              onSelect: (val) => setDetectNewFiles(val),
-                            });
-                          }}
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-3xl border border-white/15 hover:border-white/30 text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 self-start sm:self-center select-none cursor-pointer"
-                        >
-                          <span>
-                            {detectNewFiles === 'manual'
-                              ? t('detect_files_manual')
-                              : detectNewFiles === 'startup'
-                              ? t('detect_files_startup')
-                              : t('detect_files_folder_select')}
-                          </span>
-                          <ChevronDown size={14} className="-mr-0.5 text-white/70 shrink-0" />
-                        </motion.button>
-                      </div>)}
-
-                      {/* 8. Velocidade padrão de reprodução */}
-                      <div className="py-4 sm:py-5 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <Gauge size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_default_speed')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_default_speed_sub')}</span>
-                          </div>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.06 }}
-                          whileTap={{ scale: 0.94 }}
-                          animate={morphTriggerAnimate(activeSettingSelector?.id === 'default-speed')}
-                          transition={{ type: "spring", stiffness: 600, damping: 30 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (activeSettingSelector?.id === 'default-speed') {
-                              clearButtonCoverAnchorCache(e.currentTarget);
-                              setActiveSettingSelector(null);
-                              return;
-                            }
-                            closeAllPopups();
-                            setActiveSettingSelector({
-                              id: 'default-speed',
-                              triggerEl: e.currentTarget,
-                              title: t('settings_default_speed'),
-                              subtitle: t('settings_default_speed_sub'),
-                              currentValue: defaultPlaybackSpeed,
-                              options: [
-                                { value: 0.75, label: '0,75×', description: '0.75×', icon: <Turtle size={15} /> },
-                                { value: 1.0, label: '1,0×', description: '1.0×', icon: <Dog size={15} /> },
-                                { value: 1.25, label: '1,25×', description: '1.25×', icon: <Rabbit size={15} /> },
-                                { value: 1.5, label: '1,5×', description: '1.5×', icon: <Rabbit size={15} /> },
-                                { value: 1.75, label: '1,75×', description: '1.75×', icon: <Bird size={15} /> },
-                                { value: 2.0, label: '2,0×', description: '2.0×', icon: <Bird size={15} /> },
-                              ],
-                              onSelect: (val) => {
-                                setDefaultPlaybackSpeed(val);
-                                setPlaybackSpeed(val);
-                              },
-                            });
-                          }}
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-3xl border border-white/15 hover:border-white/30 text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
-                        >
-                          <span>{defaultPlaybackSpeed.toFixed(2).replace('.00', '').replace('.', ',')}×</span>
-                          <ChevronDown size={14} className="-mr-0.5 text-white/70" />
-                        </motion.button>
-                      </div>
-
-                      {/* 9. Continuar reprodução de onde parou */}
-                      <div className="py-4 sm:py-5 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <Play size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_resume_playback')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_resume_playback_sub')}</span>
-                          </div>
-                        </div>
-                        <SettingToggle checked={resumePlayback} onChange={setResumePlayback} />
-                      </div>
-
-                      {/* 10. Notificações */}
-                      <div className="py-4 sm:py-5 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-winblue/15 text-winblue flex items-center justify-center shrink-0">
-                            <Bell size={20} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-base text-white">{t('settings_notif_enabled')}</span>
-                            <span className="text-xs sm:text-sm text-white/65 mt-0.5">{t('settings_notif_enabled_sub')}</span>
-                          </div>
-                        </div>
-                        <SettingToggle checked={notificationsEnabled} onChange={setNotificationsEnabled} />
-                      </div>
-                    </div>
-                  </motion.div>
+                  renderOnboardingSettings()
                 )}
               </AnimatePresence>
             </div>
@@ -15174,54 +14751,6 @@ export default function App() {
         })()}
       </CollectionsContext.Provider>
     </I18nContext.Provider>
-  );
-}
-
-
-function SettingToggle({ checked, onChange }: { checked: boolean; onChange: (val: boolean) => void }) {
-  const { t } = useI18n();
-  return (
-    <div
-      onClick={(e) => {
-        e.stopPropagation();
-        window.dispatchEvent(new Event('close-all-popups'));
-        onChange(!checked);
-      }}
-      className="flex items-center gap-3 shrink-0 select-none cursor-pointer group"
-    >
-      <span
-        className={`text-xs font-semibold transition-colors duration-150 ${
-          checked ? 'text-winblue' : 'text-[var(--text-muted)]'
-        }`}
-      >
-        {checked ? t('enabled') : t('disabled')}
-      </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        className={`relative w-[48px] h-[28px] rounded-full p-[4px] transition-[background-color,border-color,box-shadow] duration-150 flex items-center border cursor-pointer ${
-          checked
-            ? 'bg-winblue/20 border-winblue/40 hover:bg-winblue/25 hover:border-winblue/55 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.2)] group-hover:bg-winblue/25 group-hover:border-winblue/55 group-hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.2)]'
-            : 'bg-card/75 backdrop-blur-3xl border-[var(--text-main)]/10 hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)] group-hover:bg-white/15 group-hover:border-white/20 group-hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
-        }`}
-      >
-        <motion.div
-          initial={false}
-          animate={{ x: checked ? 20 : 0 }}
-          transition={{ type: "spring", stiffness: 950, damping: 42, mass: 0.4 }}
-          className="w-[18px] h-[18px] shrink-0 flex items-center justify-center"
-        >
-          <div
-            className={`w-full h-full rounded-full transition-[background-color,box-shadow,scale] duration-150 group-hover:scale-115 group-active:scale-95 shadow-sm ${
-              checked
-                ? 'bg-winblue'
-                : 'bg-[var(--text-muted)]/70 dark:bg-white/70 group-hover:bg-[var(--text-main)] dark:group-hover:bg-white'
-            }`}
-          />
-        </motion.div>
-      </button>
-    </div>
   );
 }
 

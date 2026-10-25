@@ -205,6 +205,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
               <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
                 <div 
+                  data-path-pill="true"
                   title={libraryFolder}
                   className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-xs text-winblue flex items-center max-w-[200px] md:max-w-xs truncate select-all"
                 >
@@ -293,6 +294,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
                 <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
                   <div 
+                    data-path-pill="true"
                     title={dataFolderClean}
                     className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-xs text-winblue flex items-center max-w-[220px] md:max-w-xs min-w-0"
                   >

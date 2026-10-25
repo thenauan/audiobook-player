@@ -1143,3 +1143,23 @@ body {
     --safe-right: max(env(safe-area-inset-right, 0px), 44px);
   }
 }
+
+
+/* Telas de ajuste no celular: o endereço da pasta fica numa pílula alinhada como os botões */
+.settings-action-panel [data-path-pill] {
+  height: 3rem !important;
+  max-width: 100% !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 1.25rem !important;
+  font-size: 13px !important;
+  text-align: center;
+}
+.settings-action-panel [data-path-pill] > span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
