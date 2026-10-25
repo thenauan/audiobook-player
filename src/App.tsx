@@ -3439,7 +3439,7 @@ export default function App() {
         exit="saindo"
         className="flex-1 w-full flex flex-col min-h-full"
       >
-        <div className="flex-1 w-full max-w-xl md:max-w-5xl mx-auto px-4 md:px-10 pt-8 md:pt-14 pb-36 flex flex-col">
+        <div className="flex-1 w-full max-w-xl md:max-w-5xl mx-auto px-4 md:px-10 pt-8 md:pt-14 pb-36 md:pb-44 flex flex-col">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={page.id}
@@ -3453,9 +3453,10 @@ export default function App() {
                 <span className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-winblue/20 text-winblue flex items-center justify-center shrink-0">{page.icon}</span>
                 {page.title}
               </h1>
-              {/* Computador: os temas lado a lado; celular: um abaixo do outro */}
-              <div className={`grid gap-7 md:gap-8 ${page.settings.length > 1 ? 'md:grid-cols-2' : 'md:grid-cols-1 md:max-w-xl'} items-start`}>
-                {page.settings.map(setting => (
+              {/* Celular: um tema abaixo do outro. Computador: duas colunas independentes (temas alternados),
+                  cada um logo abaixo do anterior, sem buracos entre as linhas */}
+              {(() => {
+                const renderSetting = (setting: OnbSetting) => (
                   <section key={setting.id}>
                     <h2 className="text-[15px] md:text-base font-bold text-white">{setting.title}</h2>
                     <p className="text-[13px] md:text-sm text-white/65 mt-0.5 mb-3">{setting.subtitle}</p>
@@ -3463,10 +3464,13 @@ export default function App() {
                       {setting.options.map((option, idx) => {
                         const selected = setting.value === option.value;
                         return (
-                          <button
+                          <motion.button
                             key={idx}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{ type: 'spring', stiffness: 520, damping: 32, mass: 0.5 }}
                             onClick={() => setting.onSelect(option.value)}
-                            className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] border transition-colors ${selected ? 'bg-winblue/20 border-winblue/40' : 'border-transparent md:hover:bg-white/[0.06]'}`}
+                            className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] border transition-[background-color,border-color,box-shadow] duration-150 ${selected ? 'bg-winblue/20 border-winblue/40 hover:shadow-[0_0_16px_rgba(var(--winblue-rgb),0.35)]' : 'border-transparent hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_14px_rgba(255,255,255,0.15)]'}`}
                           >
                             <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${selected ? 'bg-winblue/25 text-winblue' : 'bg-white/10 text-white/85'}`}>
                               {option.colorPreview
@@ -3478,24 +3482,36 @@ export default function App() {
                               {option.description && <span className="text-xs text-white/60 truncate mt-0.5">{option.description}</span>}
                             </span>
                             {selected && <BsCheck2 size={18} className="text-winblue shrink-0" />}
-                          </button>
+                          </motion.button>
                         );
                       })}
                     </div>
                   </section>
-                ))}
-              </div>
+                );
+                const left = page.settings.filter((_, i) => i % 2 === 0);
+                const right = page.settings.filter((_, i) => i % 2 === 1);
+                return (
+                  <>
+                    <div className="flex flex-col gap-7 md:hidden">{page.settings.map(renderSetting)}</div>
+                    <div className={`hidden md:flex gap-8 items-start ${right.length === 0 ? 'max-w-xl' : ''}`}>
+                      <div className="flex-1 min-w-0 flex flex-col gap-8">{left.map(renderSetting)}</div>
+                      {right.length > 0 && <div className="flex-1 min-w-0 flex flex-col gap-8">{right.map(renderSetting)}</div>}
+                    </div>
+                  </>
+                );
+              })()}
             </motion.div>
           </AnimatePresence>
         </div>
 
         {/* Voltar (com o nome da página anterior), bolinhas das páginas e prosseguir/concluir (com o nome da próxima) */}
         <div className="fixed inset-x-0 bottom-0 z-20 px-4 md:px-10 pb-[max(20px,env(safe-area-inset-bottom))] pt-8 bg-gradient-to-t from-black/55 to-transparent">
-          <div className="max-w-xl md:max-w-5xl mx-auto flex items-center justify-between gap-3">
+          <div className="max-w-xl md:max-w-5xl mx-auto md:px-10 flex items-center justify-between gap-3">
             <motion.button
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={goPrev}
-              className={`${navBtn} pl-2.5 pr-4 md:pl-3 md:pr-5 bg-white/10 border-white/20 text-white`}
+              className={`${navBtn} pl-2.5 pr-4 md:pl-3 md:pr-5 bg-white/10 border-white/20 text-white transition-[background-color,border-color,box-shadow] hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_20px_rgba(255,255,255,0.22)]`}
             >
               <ChevronLeft size={22} className="shrink-0 rtl:rotate-180" />
               <span className="truncate">{prevLabel}</span>
@@ -3506,9 +3522,10 @@ export default function App() {
               ))}
             </div>
             <motion.button
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={goNext}
-              className={`${navBtn} pl-4 pr-2.5 md:pl-5 md:pr-3 bg-winblue/30 border-winblue text-winblue`}
+              className={`${navBtn} pl-4 pr-2.5 md:pl-5 md:pr-3 bg-winblue/30 border-winblue text-winblue transition-[background-color,box-shadow] hover:bg-winblue/40 hover:shadow-[0_0_24px_rgba(var(--winblue-rgb),0.45)]`}
             >
               <span className="truncate">{nextLabel}</span>
               {isLast ? <Check size={20} className="shrink-0" /> : <ChevronRight size={22} className="shrink-0 rtl:rotate-180" />}
