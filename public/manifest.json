@@ -1,7 +1,7 @@
 {
   "name": "Audiobook Player",
   "short_name": "AudiobookPlayer",
-  "description": "Reprodutor moderno de audiobooks com transcrições, coleções e equalização inteligente",
+  "description": "Reprodutor de audiobooks gratuito com capítulos, texto sincronizado, marcações, fila e timer. Em português, inglês, espanhol, russo e árabe.",
   "start_url": "./",
   "display": "standalone",
   "orientation": "any",
@@ -33,5 +33,6 @@
     "music"
   ],
   "scope": "./",
-  "id": "./"
+  "id": "./",
+  "lang": "pt-BR"
 }

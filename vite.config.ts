@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { exec } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
+import { seoPlugin } from './seo.config'
 
 function handleOpenFolder(req: any, res: any) {
   const reqUrl = new URL(req.url || '', 'http://localhost:5173');
@@ -280,6 +281,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     localFolderOpenerPlugin,
+    // Títulos e descrições para buscadores, com uma página por idioma
+    seoPlugin(),
   ],
   build: {
     chunkSizeWarningLimit: 600,

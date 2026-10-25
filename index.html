@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Audiobook Player</title>
+    <!--seo:start--><title>Audiobook Player</title><!--seo:end-->
     
     <!-- PWA & Mobile Meta Tags -->
     <link rel="manifest" href="./manifest.json" />
@@ -21,6 +21,7 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--seo-noscript:start--><!--seo-noscript:end-->
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
