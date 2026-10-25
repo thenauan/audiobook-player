@@ -580,6 +580,39 @@ export default function FullscreenPlayer({
                       }}
                       className="w-full apple-slider"
                     />
+                    {/* Toque: tocar ou arrastar em qualquer ponto da barra pula para aquele momento
+                        (no iPhone, a barra nativa só se move arrastando exatamente a bolinha) */}
+                    <div
+                      aria-hidden="true"
+                      data-seek-overlay="true"
+                      className="absolute inset-x-0 -top-2 -bottom-2 z-[5] touch-none [@media(pointer:fine)]:hidden"
+                      onPointerDown={(e) => {
+                        const el = e.currentTarget;
+                        el.setPointerCapture?.(e.pointerId);
+                        handleSliderPointerDown();
+                        const r = el.getBoundingClientRect();
+                        const v = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * (currentChapter.duration || 0);
+                        (el as any)._seekValue = v;
+                        handleSeek(currentChapter.startTime + v);
+                      }}
+                      onPointerMove={(e) => {
+                        const el = e.currentTarget;
+                        if (!el.hasPointerCapture?.(e.pointerId)) return;
+                        const r = el.getBoundingClientRect();
+                        const v = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * (currentChapter.duration || 0);
+                        (el as any)._seekValue = v;
+                        handleSeek(currentChapter.startTime + v);
+                      }}
+                      onPointerUp={(e) => {
+                        const el = e.currentTarget;
+                        el.releasePointerCapture?.(e.pointerId);
+                        handleSliderPointerUp(Number((el as any)._seekValue ?? chapterElapsed));
+                      }}
+                      onPointerCancel={(e) => {
+                        const el = e.currentTarget;
+                        handleSliderPointerUp(Number((el as any)._seekValue ?? chapterElapsed));
+                      }}
+                    />
                     {renderPlaybackReturnButton(true)}
                   </div>
                   <span className="text-[10px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 shrink-0">-{formatTime(chapterRemaining)}</span>

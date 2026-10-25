@@ -490,9 +490,9 @@ export function PagedMenu({
   return (
     <motion.div
       key={`page-${current}`}
-      initial={{ opacity: 0, x: 10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, scale: 0.95, filter: 'blur(6px)' }}
+      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+      transition={{ opacity: { duration: 0.2 }, filter: { duration: 0.22 }, scale: MORPH_BOUNCE_SPRING }}
     >
       <div className={className}>
         {pages[current]}
@@ -515,10 +515,11 @@ export function PagedMenu({
 // ===== Morph "botão → pop-up" (estilo Apple) =====
 // O pop-up nasce exatamente no retângulo do botão que o abriu (mesmo canto ancorado) e se expande
 // até o tamanho final via clip-path; ao fechar, encolhe de volta para o botão. Sem distorcer o conteúdo.
-export const MORPH_SPRING = { type: "spring" as const, stiffness: 520, damping: 42, mass: 0.55 };
-// Mola com leve ultrapassagem (~2%), como a expansão dos menus do iOS
-export const MORPH_BOUNCE_SPRING = { type: "spring" as const, stiffness: 420, damping: 26, mass: 0.6 };
-const MORPH_EXIT_SPRING = { type: "spring" as const, stiffness: 700, damping: 52, mass: 0.5 };
+// Molas dos menus no estilo do iOS 26: o botão "se estica" até virar o menu com uma leve ultrapassagem
+// (efeito líquido) e, ao fechar, o menu se recolhe de volta para dentro do botão
+export const MORPH_SPRING = { type: "spring" as const, stiffness: 170, damping: 21, mass: 1 };
+export const MORPH_BOUNCE_SPRING = { type: "spring" as const, stiffness: 190, damping: 17, mass: 1 };
+const MORPH_EXIT_SPRING = { type: "spring" as const, stiffness: 260, damping: 30, mass: 0.9 };
 // Margem negativa para não cortar a sombra do pop-up depois de aberto
 export const MORPH_EXPANDED_CLIP = 'inset(calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) round 100px)';
 
@@ -570,48 +571,49 @@ export function getButtonMorphMotion(opts: {
   const collapsed = getButtonMorphClip(opts.originWidth, opts.originHeight, opts.alignRight, opts.openUp, opts.originRadius, opts.originOffsetX);
   return {
     // A forma (clip) cresce a partir do botão; a escala com mola dá o leve "overshoot" elástico do iOS
-    initial: { clipPath: collapsed, scale: 0.9, opacity: 0 },
+    initial: { clipPath: collapsed, scale: 0.86, opacity: 0 },
     animate: { clipPath: MORPH_EXPANDED_CLIP, scale: 1, opacity: 1 },
     exit: {
       clipPath: collapsed,
-      scale: 0.94,
+      scale: 0.9,
       opacity: 0,
       transition: {
         clipPath: MORPH_EXIT_SPRING,
         scale: MORPH_EXIT_SPRING,
-        opacity: { duration: 0.1, delay: 0.1 },
+        opacity: { duration: 0.12, delay: 0.16 },
       },
     },
     transition: {
       clipPath: MORPH_SPRING,
       scale: MORPH_BOUNCE_SPRING,
-      opacity: { duration: 0.06, ease: "easeOut" as const },
+      opacity: { duration: 0.12, ease: "easeOut" as const },
     },
   };
 }
 
 // Conteúdo do pop-up: surge do desfoque com um leve zoom (e some desfocando antes da forma encolher)
 export const MORPH_CONTENT_MOTION = {
-  initial: { opacity: 0, scale: 0.94, filter: 'blur(8px)' },
+  initial: { opacity: 0, scale: 0.9, filter: 'blur(10px)' },
   animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
   exit: {
     opacity: 0,
-    scale: 0.96,
-    filter: 'blur(6px)',
-    transition: { duration: 0.1, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
+    scale: 0.92,
+    filter: 'blur(8px)',
+    transition: { duration: 0.14, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
   },
   transition: {
-    opacity: { duration: 0.18, delay: 0.03, ease: "easeOut" as const },
-    filter: { duration: 0.22, delay: 0.02, ease: "easeOut" as const },
+    opacity: { duration: 0.22, delay: 0.06, ease: "easeOut" as const },
+    filter: { duration: 0.28, delay: 0.04, ease: "easeOut" as const },
     scale: MORPH_BOUNCE_SPRING,
   },
 };
 
 // Variante de animação do botão gatilho: some quando o pop-up assume o lugar dele e volta quando o pop-up encolhe
+// O botão cresce um pouco enquanto se funde no menu que nasce dele; ao fechar, ressurge do menu recolhido
 export function morphTriggerAnimate(isOpen: boolean) {
   return isOpen
-    ? { opacity: 0, scale: 1, pointerEvents: 'none' as const, transition: { duration: 0.06 } }
-    : { opacity: 1, scale: 1, pointerEvents: 'auto' as const, transition: { opacity: { duration: 0.1, delay: 0.12 }, scale: { duration: 0 } } };
+    ? { opacity: 0, scale: 1.12, pointerEvents: 'none' as const, transition: { opacity: { duration: 0.14 }, scale: MORPH_SPRING } }
+    : { opacity: 1, scale: 1, pointerEvents: 'auto' as const, transition: { opacity: { duration: 0.14, delay: 0.2 }, scale: { type: 'spring' as const, stiffness: 420, damping: 26, delay: 0.18 } } };
 }
 
 type MorphPopupProps = Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'exit' | 'transition'> & {

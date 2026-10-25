@@ -1299,6 +1299,11 @@ body {
   order: -1;
 }
 
-html.standalone {
-  --screen-h: 100lvh;
+/* App instalado no iPhone: contorno do bug do iOS 26 (WebKit 301994) em que a área do app termina antes
+   da base da tela — a página e seus contêineres usam a altura dinâmica da tela */
+html.standalone,
+html.standalone body,
+html.standalone #root {
+  height: 100dvh;
+  max-height: 100dvh;
 }
