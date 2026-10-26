@@ -16,7 +16,11 @@
     <filter id="glyphGlow" filterUnits="userSpaceOnUse" x="-100" y="-100" width="712" height="712">
       <feGaussianBlur in="SourceGraphic" stdDeviation="1.1" result="b"/>
       <feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.75 0" result="g"/>
-      <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+      <!-- Sombra de fundo do símbolo -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.15" result="sb"/>
+      <feOffset in="sb" dy="0.6" result="so"/>
+      <feColorMatrix in="so" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.85 0" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
   <g clip-path="url(#shape)">
@@ -29,7 +33,7 @@
     <rect width="512" height="512" fill="#000000" opacity="0.28"/>
     <rect width="512" height="512" fill="url(#sheen)"/>
     <circle cx="256" cy="256" r="190" fill="url(#glow)"/>
-    <g transform="translate(102 116) scale(11.667)" fill="none" stroke="#ffffff" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" filter="url(#glyphGlow)">
+    <g transform="translate(63.5 81) scale(14.583)" fill="none" stroke="#ffffff" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" filter="url(#glyphGlow)">
     <path d="M3.2 11.4v4.4"/>
     <path d="M6.6 8.8v9.6"/>
     <path d="M10.0 6.0v15.2"/>
