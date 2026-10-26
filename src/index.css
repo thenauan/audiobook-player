@@ -666,13 +666,8 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
     display: none;
   }
 
-  /* Subtítulo das seções mais perto do conteúdo abaixo (16px -> 8px) */
-  main .flex.items-center.justify-between.mb-4:has(> h2, > h3) {
-    margin-bottom: 0.5rem !important;
-  }
-  /* Botão "Ver tudo" das seções mais baixo (32px -> 26px), para caber no espaço menor */
-  main .flex.items-center.justify-between:has(> h2, > h3) > button.h-8 {
-    height: 26px !important;
+  /* Botão "Ver tudo" das seções mais compacto no celular */
+  main .flex.items-center.justify-between:has(> h2.text-xl.font-bold, > h3.text-lg.font-bold) button.h-8:not(.w-8) {
     padding-left: 0.625rem !important;
     padding-right: 0.5rem !important;
   }
@@ -1194,9 +1189,10 @@ body {
 }
 
 
-/* Celular deitado: a confirmação fica só no canto inferior direito, com a largura que tem em pé */
+/* Celular deitado: a confirmação (e os pop-ups do player) ficam só no canto inferior direito */
 @media (max-width: 1023px) and (orientation: landscape) and (max-height: 600px) {
-  [data-mobile-confirm] {
+  [data-mobile-confirm],
+  [data-player-sheet] {
     left: auto !important;
     width: min(380px, calc(100vw - 24px)) !important;
     right: var(--mobile-bar-inset) !important;
@@ -1398,3 +1394,38 @@ html.standalone #root {
 .fullscreen-transcript { --fade-size: 64px; }
 [data-mobile-sheet] .overflow-y-auto { --fade-size: 32px; }
 [data-scroll-fade="search"] { --fade-size: 28px; }
+
+/* ==========================================================================
+   SUBTÍTULOS DAS SEÇÕES: mesma altura e mesmo espaço até o conteúdo em todas as telas,
+   com ou sem botão ("Ver tudo", limpar, adicionar). Computador: 32px e 16px; celular: 26px e 8px.
+   ========================================================================== */
+:root {
+  --section-head-h: 2rem;
+  --section-gap: 1rem;
+}
+@media (max-width: 1023px) {
+  :root {
+    --section-head-h: 26px;
+    --section-gap: 0.5rem;
+  }
+}
+/* Linha de subtítulo com botão(ões) */
+main .flex.items-center.justify-between:has(> h2.text-xl.font-bold, > h3.text-lg.font-bold) {
+  min-height: var(--section-head-h) !important;
+  margin-bottom: var(--section-gap) !important;
+}
+/* Subtítulo sozinho (sem linha de botões) */
+main :is(h2.text-xl.font-bold, h3.text-lg.font-bold):not(.justify-between > *):not([data-app-header] *) {
+  min-height: var(--section-head-h);
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--section-gap) !important;
+}
+/* Botões da linha do subtítulo com a mesma altura da linha (pílulas e botões redondos) */
+main .flex.items-center.justify-between:has(> h2.text-xl.font-bold, > h3.text-lg.font-bold) button.h-8:not(.w-8) {
+  height: var(--section-head-h) !important;
+}
+main .flex.items-center.justify-between:has(> h2.text-xl.font-bold, > h3.text-lg.font-bold) :is(button.w-11.h-11, div.w-11.h-11, button.w-8.h-8) {
+  width: var(--section-head-h) !important;
+  height: var(--section-head-h) !important;
+}

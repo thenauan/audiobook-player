@@ -29,6 +29,7 @@ import BookDetailView from './views/BookDetailView';
 import { useIsMobile, useIsTouchDevice, useIsCompactPlayer, useIsLandscapePhone } from './components/MobileContextMenu';
 import { MobileSheet } from './components/MobileSheet';
 import { desktop, IS_INSTALLED_APP } from './desktopBridge';
+import { PlayerPopup } from './components/PlayerPopup';
 import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
@@ -7274,7 +7275,7 @@ export default function App() {
                 className="fixed inset-0 z-40 cursor-default" 
                 {...getBackdropProps(() => setShowCommentsPopover(false))}
               />
-              <MorphPopup originWidth={36} originHeight={36} 
+              <PlayerPopup originWidth={36} originHeight={36} 
                 key="menu-fs-comments"
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
@@ -7286,7 +7287,7 @@ export default function App() {
                 <div className="relative z-10 flex flex-col min-h-0 overflow-hidden">
                   {renderCommentsContent(currentBook, currentChapter, true)}
                 </div>
-              </MorphPopup>
+              </PlayerPopup>
             </>
           )}
         </AnimatePresence>
@@ -7318,7 +7319,7 @@ export default function App() {
                 className="fixed inset-0 z-40 cursor-default" 
                 {...getBackdropProps(() => setShowSpeedMenu(false))}
               />
-              <MorphPopup originWidth={36} originHeight={36} 
+              <PlayerPopup originWidth={36} originHeight={36} 
                 key="menu-fs-speed"
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
@@ -7371,7 +7372,7 @@ export default function App() {
                     );
                   })}</PagedMenu>
                 </div>
-              </MorphPopup>
+              </PlayerPopup>
             </>
           )}
         </AnimatePresence>
@@ -7410,7 +7411,7 @@ export default function App() {
                 className="fixed inset-0 z-40 cursor-default" 
                 {...getBackdropProps(() => setShowSleepTimerMenu(false))}
               />
-              <MorphPopup originWidth={36} originHeight={36} 
+              <PlayerPopup originWidth={36} originHeight={36} 
                 key="menu-fs-sleep"
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
@@ -7527,7 +7528,7 @@ export default function App() {
                     )}
                   </SmoothSubMorph>
                 </div>
-              </MorphPopup>
+              </PlayerPopup>
             </>
           )}
         </AnimatePresence>
@@ -7608,7 +7609,7 @@ export default function App() {
                 className="fixed inset-0 z-40 cursor-default" 
                 {...getBackdropProps(() => setShowQueuePopup(false))}
               />
-              <MorphPopup originWidth={36} originHeight={36} 
+              <PlayerPopup originWidth={36} originHeight={36} 
                 key="menu-fs-queue"
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
@@ -7718,7 +7719,7 @@ export default function App() {
                     </Reorder.Group>
                   </div>
                 </div>
-              </MorphPopup>
+              </PlayerPopup>
             </>
           )}
         </AnimatePresence>
@@ -7760,7 +7761,7 @@ export default function App() {
                 className="fixed inset-0 z-40 cursor-default" 
                 {...getBackdropProps(() => setShowVolumePopup(false))}
               />
-              <MorphPopup originWidth={36} originHeight={36} 
+              <PlayerPopup originWidth={36} originHeight={36} 
                 key="menu-fs-vol"
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
@@ -7803,7 +7804,7 @@ export default function App() {
                     </span>
                   </div>
                 </div>
-              </MorphPopup>
+              </PlayerPopup>
             </>
           )}
         </AnimatePresence>
@@ -7878,7 +7879,7 @@ export default function App() {
                 className="fixed inset-0 z-40 cursor-default" 
                 {...getBackdropProps(() => setShowAddTextPopup(false))}
               />
-              <MorphPopup originWidth={36} originHeight={36} 
+              <PlayerPopup originWidth={36} originHeight={36} 
                 key="menu-fs-add-text"
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
@@ -7918,7 +7919,7 @@ export default function App() {
                     </button>
                   </div>
                 </div>
-              </MorphPopup>
+              </PlayerPopup>
             </>
           )}
         </AnimatePresence>
@@ -7974,7 +7975,7 @@ export default function App() {
                     setMiniCommentsBtnAnchor(null);
                   })}
                 />
-                <MorphPopup anchor={miniCommentsBtnAnchor || miniCommentsBtnRef.current} 
+                <PlayerPopup anchor={miniCommentsBtnAnchor || miniCommentsBtnRef.current} 
                   key="menu-mini-comments"
                   data-popup-content="true"
                   style={getButtonCoverPopupStyle(
@@ -7989,7 +7990,7 @@ export default function App() {
                   <div className="relative z-10 flex flex-col min-h-0 overflow-hidden">
                     {renderCommentsContent(currentBook, currentChapter, true)}
                   </div>
-                </MorphPopup>
+                </PlayerPopup>
               </>
             )}
           </AnimatePresence>,
@@ -8032,7 +8033,7 @@ export default function App() {
                     setMiniSpeedBtnAnchor(null);
                   })}
                 />
-                <MorphPopup anchor={miniSpeedBtnAnchor || miniSpeedBtnRef.current} 
+                <PlayerPopup anchor={miniSpeedBtnAnchor || miniSpeedBtnRef.current} 
                   key="menu-mini-speed"
                   data-popup-content="true"
                   style={getButtonCoverPopupStyle(miniSpeedBtnAnchor || miniSpeedBtnRef.current, 180, 224, 'right')}
@@ -8083,7 +8084,7 @@ export default function App() {
                       );
                     })}</PagedMenu>
                   </div>
-                </MorphPopup>
+                </PlayerPopup>
               </>
             )}
           </AnimatePresence>,
@@ -8133,7 +8134,7 @@ export default function App() {
                     setMiniSleepBtnAnchor(null);
                   })}
                 />
-                <MorphPopup anchor={miniSleepBtnAnchor || miniSleepBtnRef.current} 
+                <PlayerPopup anchor={miniSleepBtnAnchor || miniSleepBtnRef.current} 
                   key="menu-mini-sleep"
                   data-popup-content="true"
                   style={getButtonCoverPopupStyle(miniSleepBtnAnchor || miniSleepBtnRef.current, 205, 256, 'right')}
@@ -8253,7 +8254,7 @@ export default function App() {
                       )}
                     </SmoothSubMorph>
                   </div>
-                </MorphPopup>
+                </PlayerPopup>
               </>
             )}
           </AnimatePresence>,
@@ -8345,7 +8346,7 @@ export default function App() {
                     setMiniQueueBtnAnchor(null);
                   })}
                 />
-                <MorphPopup anchor={miniQueueBtnAnchor || miniQueueBtnRef.current} 
+                <PlayerPopup anchor={miniQueueBtnAnchor || miniQueueBtnRef.current} 
                   key="menu-mini-queue"
                   data-popup-content="true"
                   style={getButtonCoverPopupStyle(
@@ -8458,7 +8459,7 @@ export default function App() {
                       </Reorder.Group>
                     </div>
                   </div>
-                </MorphPopup>
+                </PlayerPopup>
               </>
             )}
           </AnimatePresence>,
@@ -8510,7 +8511,7 @@ export default function App() {
                     setMiniVolumeBtnAnchor(null);
                   })}
                 />
-                <MorphPopup anchor={miniVolumeBtnAnchor || miniVolumeBtnRef.current} 
+                <PlayerPopup anchor={miniVolumeBtnAnchor || miniVolumeBtnRef.current} 
                   key="menu-mini-volume"
                   data-popup-content="true"
                   style={getButtonCoverPopupStyle(miniVolumeBtnAnchor || miniVolumeBtnRef.current, 205, 100, 'right')}
@@ -8551,7 +8552,7 @@ export default function App() {
                       </span>
                     </div>
                   </div>
-                </MorphPopup>
+                </PlayerPopup>
               </>
             )}
           </AnimatePresence>,
