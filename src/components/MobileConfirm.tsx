@@ -37,11 +37,13 @@ export function MobileConfirmCard({
         exit={{ y: '110%' }}
         transition={{ type: 'spring', stiffness: 440, damping: 40, mass: 0.7 }}
         onClick={(e) => e.stopPropagation()}
-        className="fixed z-[9501] rounded-[36px] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] shadow-2xl text-[var(--text-main)] overflow-hidden"
+        className="fixed z-[9501] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] shadow-2xl text-[var(--text-main)] overflow-hidden"
+        // Na base do app, alinhado às bordas da barra de abas e do miniplayer; cantos concêntricos com a tela
         style={{
-          left: 'max(12px, var(--safe-left))',
-          right: 'max(12px, var(--safe-right))',
-          bottom: 'max(12px, env(safe-area-inset-bottom))',
+          left: 'var(--mobile-bar-inset)',
+          right: 'var(--mobile-bar-inset)',
+          bottom: 'var(--mobile-bar-bottom)',
+          borderRadius: 'var(--bottom-card-radius)',
           maxHeight: 'calc(100dvh - var(--safe-top) - 40px)',
         }}
       >

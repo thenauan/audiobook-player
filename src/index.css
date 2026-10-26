@@ -44,9 +44,15 @@
   --safe-right: env(safe-area-inset-right, 0px);
   /* Mobile: barra de abas e miniplayer centralizados com largura máxima (tablets não esticam);
      a margem lateral é a mesma do conteúdo e respeita os recortes da tela (celular deitado) */
-  --mobile-bar-inset: max(var(--page-margin), calc((100vw - 560px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)));
+  /* Raio dos cantos da tela do iPhone (~55pt nos aparelhos com indicador de início; 0 nos demais), estimado
+     pela área segura inferior (34pt -> 55pt). Os itens da base ficam a (raio da tela - raio do item) das
+     bordas, para que os cantos deles acompanhem a curvatura da tela (cantos concêntricos, como no iOS 26) */
+  --screen-corner: min(55px, calc(env(safe-area-inset-bottom, 0px) * 1.62));
+  --mobile-bar-inset: max(var(--page-margin), calc((100vw - 560px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)), calc(var(--screen-corner) - 31px));
   /* Distância da barra até a base: fica logo acima do indicador de início, como no iOS 26 */
-  --mobile-bar-bottom: max(12px, calc(env(safe-area-inset-bottom) - 12px));
+  --mobile-bar-bottom: max(12px, calc(env(safe-area-inset-bottom) - 12px), calc(var(--screen-corner) - 31px));
+  /* Raio dos cartões na base (ex.: confirmação): concêntrico com o canto da tela */
+  --bottom-card-radius: max(28px, calc(var(--screen-corner) - var(--mobile-bar-bottom)));
   /* Área segura do topo. No Safari do iPhone (fora do app instalado), o sistema desfoca a faixa da barra
      de status por cima da página sem informá-la: main.tsx define --ios-status-bar nesse caso */
   --safe-top: max(env(safe-area-inset-top, 0px), var(--ios-status-bar, 0px));
@@ -58,7 +64,7 @@
 /* Barra e miniplayer lado a lado (celular deitado, iPad mini em pé, dobráveis abertos) */
 @media (min-width: 640px) {
   :root {
-    --mobile-bar-inset: max(var(--page-margin), calc((100vw - 960px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)));
+    --mobile-bar-inset: max(var(--page-margin), calc((100vw - 960px) / 2), calc(12px + var(--safe-left)), calc(12px + var(--safe-right)), calc(var(--screen-corner) - 31px));
   }
 }
 
@@ -664,11 +670,17 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   main .flex.items-center.justify-between.mb-4:has(> h2, > h3) {
     margin-bottom: 0.5rem !important;
   }
+  /* Botão "Ver tudo" das seções mais baixo (32px -> 26px), para caber no espaço menor */
+  main .flex.items-center.justify-between:has(> h2, > h3) > button.h-8 {
+    height: 26px !important;
+    padding-left: 0.625rem !important;
+    padding-right: 0.5rem !important;
+  }
 
   /* Subtítulos das telas 25% menores no celular */
   main h2.text-xl,
   main h3.text-lg {
-    font-size: calc(0.9375rem * var(--font-scale, 1)) !important;
+    font-size: calc(1.125rem * var(--font-scale, 1)) !important;
   }
 
   /* Listas completas (sem subtítulo): 3 colunas, como no Apple Books */
@@ -1187,7 +1199,7 @@ body {
   [data-mobile-confirm] {
     left: auto !important;
     width: min(380px, calc(100vw - 24px)) !important;
-    right: max(12px, var(--safe-right)) !important;
+    right: var(--mobile-bar-inset) !important;
   }
 }
 
