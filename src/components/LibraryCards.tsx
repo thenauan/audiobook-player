@@ -1883,3 +1883,125 @@ export function BookCard({
     </motion.div>
   );
 }
+
+// ===== Card de coleção =====
+// Tocar abre a coleção (ou marca/desmarca no modo de seleção). No celular, segurar o dedo abre o menu de
+// opções como nos audiobooks: o card se destaca e o menu surge junto dele.
+export interface CollectionCardMenuEntry {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  danger?: boolean;
+  onSelect: () => void;
+}
+
+export function CollectionCard({
+  col,
+  selectionMode = false,
+  selected = false,
+  onClick,
+  menu = [],
+}: {
+  col: Collection;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onClick: () => void;
+  menu?: CollectionCardMenuEntry[];
+}) {
+  const [contextRect, setContextRect] = useState<DOMRect | null>(null);
+  const contextElRef = useRef<HTMLElement | null>(null);
+  const close = () => setContextRect(null);
+  useEffect(() => {
+    if (!contextRect) return;
+    window.addEventListener('close-all-popups', close);
+    return () => window.removeEventListener('close-all-popups', close);
+  }, [contextRect]);
+  const openContextMenu = (el: HTMLElement) => {
+    if (selectionMode || !isMobileViewport() || menu.length === 0) return;
+    window.dispatchEvent(new Event('close-all-popups'));
+    contextElRef.current = el;
+    setContextRect(el.getBoundingClientRect());
+  };
+  const longPress = useLongPress(openContextMenu);
+
+  const face = (
+    <>
+      <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
+        <div className={`absolute inset-0 bg-gradient-to-br ${col.gradient} ${selectionMode && selected ? 'opacity-70' : ''}`} />
+        <div className="absolute inset-0 bg-black/20" />
+        <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
+          {col.emoji}
+        </span>
+      </div>
+      <div className="relative z-10">
+        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105 truncate">{col.name}</h3>
+        {col.description && (
+          <p className="text-xs font-medium text-white/80 mt-0.5 line-clamp-1 truncate">{col.description}</p>
+        )}
+      </div>
+    </>
+  );
+
+  return (
+    <>
+      <motion.div
+        {...longPress}
+        style={{ WebkitTouchCallout: 'none' }}
+        layout="position"
+        initial={{ opacity: 0, scale: 0.94, filter: 'blur(4px)' }}
+        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+        exit={{ opacity: 0, scale: 0.92, filter: 'blur(4px)' }}
+        transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+        whileTap={{ scale: 0.97 }}
+        onClick={onClick}
+        // Toque longo (Android e navegadores que disparam o menu de contexto ao segurar)
+        onContextMenu={(e) => {
+          if (!isMobileViewport()) return;
+          e.preventDefault();
+          e.stopPropagation();
+          openContextMenu(e.currentTarget as HTMLElement);
+        }}
+        className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
+          selectionMode && selected
+            ? 'border-winblue ring-2 ring-winblue shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
+            : 'border-white/15 hover:border-white/30'
+        }`}
+      >
+        {face}
+        {selectionMode && (
+          <div className="absolute top-4 right-4 z-20">
+            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+              selected ? 'bg-winblue border-winblue text-white shadow-lg' : 'border-white/70 bg-black/30 text-transparent'
+            }`}>
+              <CheckCircle2 size={16} />
+            </div>
+          </div>
+        )}
+      </motion.div>
+      <MobileContextMenu
+        open={Boolean(contextRect)}
+        rect={contextRect}
+        sourceEl={contextElRef.current}
+        preview={
+          <div className="relative isolate aspect-[16/9] w-full rounded-3xl shadow-2xl border border-white/15 p-5 flex flex-col justify-end overflow-hidden">
+            {face}
+          </div>
+        }
+        onClose={close}
+        activeKey="collection-options"
+        direction={-1}
+        targetWidth={200}
+        targetRadius={20}
+        estimatedMenuHeight={52 * Math.min(menu.length, 6) + 16}
+      >
+        <PagedMenu className="flex flex-col p-2">
+          {menu.map(entry => (
+            <MenuOptionItem key={entry.id} icon={entry.icon} danger={entry.danger} onClick={() => { close(); entry.onSelect(); }}>
+              <span>{entry.label}</span>
+            </MenuOptionItem>
+          ))}
+        </PagedMenu>
+      </MobileContextMenu>
+    </>
+  );
+}

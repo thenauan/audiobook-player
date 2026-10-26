@@ -241,6 +241,10 @@ export function MobileContextMenu({
     }
   }
 
+  // Toque iniciado no fundo depois de o menu abrir (ver o onClick do fundo)
+  const backdropArmedRef = useRef(false);
+  useEffect(() => { if (open) backdropArmedRef.current = false; }, [open]);
+
   // O item some do fundo enquanto aparece em destaque com o menu
   useEffect(() => {
     if (!open || !sourceEl) return;
@@ -265,7 +269,15 @@ export function MobileContextMenu({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.18 } }}
             transition={{ duration: 0.2 }}
-            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            // Só fecha com um toque que comece no fundo: o "clique" gerado ao soltar o dedo que abriu o
+            // menu (toque longo) cai aqui e não deve fechá-lo
+            onPointerDown={() => { backdropArmedRef.current = true; }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!backdropArmedRef.current) return;
+              backdropArmedRef.current = false;
+              onClose();
+            }}
           />
           {/* O item pressionado se destaca da interface */}
           <motion.div

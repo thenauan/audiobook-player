@@ -82,7 +82,7 @@ import {
 import { Text, Headphones, ExternalLink, Share, Download, Quote, Play, Pause, ListPlus, FileText, FilePlus2, Info, MoreHorizontal, Edit3, Maximize2, Upload, ArrowDownAZ, ArrowUpZA, Calendar, CalendarClock, Clock, Timer, BookOpen, User, Gauge, FolderOpen, ChevronRight, ChevronDown, Check, Database, FileAudio, HardDrive, Star, StarOff, Palette, Type, RotateCcw, Bell, RefreshCw, Bookmark, ArrowUpDown, Code2, Globe, Turtle, Rabbit, Clock3, Clock6, Clock9, Clock12, Dog, Bird, FolderPlus, Plus, Sun, Laptop, Monitor, Hand, ALargeSmall } from 'lucide-react';
 import { normalizeSearchStr, toPhoneticSearchStr, evaluateSearchTermMatch, matchesNationality } from './components/searchScoring';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './components/popupUtils';
-import { _FavoriteChapterCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, AuthorCard, OtherAppCard, _FavoriteAuthorCard, BookCard, ScreenSelectableRow, SCREEN_GROUP_CLASS } from './components/LibraryCards';
+import { _FavoriteChapterCard, CollectionCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, AuthorCard, OtherAppCard, _FavoriteAuthorCard, BookCard, ScreenSelectableRow, SCREEN_GROUP_CLASS } from './components/LibraryCards';
 import { MOCK_DEV_AUTHORS, MOCK_DEV_AUDIOBOOKS, normalizeBookCompareStr, extractNormalizedFileName, isSameAudiobook, deduplicateAudiobooks, loadBooksFromJson, loadAuthorsFromJson, loadCollectionsFromJson, safeLocalGet, isTestBookId, isTestAuthorId, TEST_COLLECTION_IDS } from './components/libraryData';
 
 const getSpeedIcon = (s: number) => {
@@ -3932,6 +3932,22 @@ export default function App() {
               })}
             </div>
   );
+
+  // Opções do toque longo numa coleção (celular), como nos audiobooks
+  const collectionMenu = (col: Collection) => [
+    { id: 'open', icon: <FolderOpen size={14} />, label: t('open_collection'), onSelect: () => navigateTo('library-colecao-' + col.id, col) },
+    { id: 'add', icon: <Plus size={14} />, label: t('add_items_to_collection'), onSelect: () => openMobileSheet({ kind: 'collection-add-items', collectionId: col.id }) },
+    { id: 'edit', icon: <Edit3 size={14} />, label: t('edit_collection'), onSelect: () => handleStartEditCurrentCollection(col) },
+    {
+      id: 'delete', icon: <Trash2 size={14} />, label: t('delete_collection'), danger: true,
+      onSelect: () => setMobileConfirm({
+        title: t('delete_collection'),
+        description: col.name,
+        confirmLabel: t('delete'),
+        onConfirm: () => handleDeleteCollection(col.id),
+      }),
+    },
+  ];
 
   const renderMobileHeaderActions = () => {
     const id = activeScreen.id;
@@ -11839,41 +11855,17 @@ export default function App() {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mobile-row">
                       <AnimatePresence>
-                        {sortedCollections.slice(0, isMobile ? 6 : 4).map((col) => {
-                          return (
-                            <motion.div 
-                              key={col.id} 
-                              layout="position"
-                              initial={{ opacity: 0, scale: 0.94, filter: "blur(4px)" }}
-                              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                              exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
-                              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-                              whileTap={{ scale: 0.97 }}
-                              onClick={() => {
-                                setHistoryStack([{ id: 'library' }, { id: 'library-colecoes' }]);
-                                setActiveScreen({ id: 'library-colecao-' + col.id, data: col });
-                              }}
-                              className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
-                            >
-                              <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
-                                <div className={`absolute inset-0 bg-gradient-to-br ${col.gradient}`} />
-                                <div className="absolute inset-0 bg-black/20" />
-                                <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
-                                  {col.emoji}
-                                </span>
-                              </div>
-
-                              <div className="relative z-10">
-                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105 truncate">{col.name}</h3>
-                                {col.description && (
-                                  <p className="text-xs font-medium text-white/80 mt-0.5 line-clamp-1 truncate">
-                                    {col.description}
-                                  </p>
-                                )}
-                              </div>
-                            </motion.div>
-                          );
-                        })}
+                        {sortedCollections.slice(0, isMobile ? 6 : 4).map((col) => (
+                          <CollectionCard
+                            key={col.id}
+                            col={col}
+                            menu={collectionMenu(col)}
+                            onClick={() => {
+                              setHistoryStack([{ id: 'library' }, { id: 'library-colecoes' }]);
+                              setActiveScreen({ id: 'library-colecao-' + col.id, data: col });
+                            }}
+                          />
+                        ))}
                       </AnimatePresence>
                     </div>
                   </motion.section>
@@ -12642,58 +12634,22 @@ export default function App() {
                       {sortedCollections.map((col) => {
                         const isSelected = selectedCollectionIds.includes(col.id);
                         return (
-                          <motion.div 
-                            key={col.id} 
-                            layout="position"
-                            initial={{ opacity: 0, scale: 0.94, filter: "blur(4px)" }}
-                            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                            exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
-                            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-                            whileTap={{ scale: 0.97 }} 
+                          <CollectionCard
+                            key={col.id}
+                            col={col}
+                            selectionMode={isSelectionMode}
+                            selected={isSelected}
+                            menu={collectionMenu(col)}
                             onClick={() => {
                               if (isSelectionMode) {
-                                if (isSelected) {
-                                  setSelectedCollectionIds(selectedCollectionIds.filter(id => id !== col.id));
-                                } else {
-                                  setSelectedCollectionIds([...selectedCollectionIds, col.id]);
-                                }
+                                setSelectedCollectionIds(isSelected
+                                  ? selectedCollectionIds.filter(id => id !== col.id)
+                                  : [...selectedCollectionIds, col.id]);
                               } else {
                                 navigateTo('library-colecao-' + col.id, col);
                               }
                             }}
-                            className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
-                              isSelectionMode && isSelected
-                                ? 'border-winblue ring-2 ring-winblue shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
-                                : 'border-white/15 hover:border-white/30'
-                            }`}
-                          >
-                            <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
-                              <div className={`absolute inset-0 bg-gradient-to-br ${col.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
-                              <div className="absolute inset-0 bg-black/20" />
-                              <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
-                                {col.emoji}
-                              </span>
-                            </div>
-
-                            {isSelectionMode && (
-                              <div className="absolute top-4 right-4 z-20">
-                                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                                  isSelected ? 'bg-winblue border-winblue text-white shadow-lg' : 'border-white/70 bg-black/30 text-transparent'
-                                }`}>
-                                  <CheckCircle2 size={16} />
-                                </div>
-                              </div>
-                            )}
-
-                            <div className="relative z-10">
-                              <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105 truncate">{col.name}</h3>
-                              {col.description && (
-                                <p className="text-xs font-medium text-white/80 mt-0.5 line-clamp-1 truncate">
-                                  {col.description}
-                                </p>
-                              )}
-                            </div>
-                          </motion.div>
+                          />
                         );
                       })}
                     </AnimatePresence>

@@ -519,7 +519,7 @@ export function PagedMenu({
 // (efeito líquido) e, ao fechar, o menu se recolhe de volta para dentro do botão
 export const MORPH_SPRING = { type: "spring" as const, stiffness: 170, damping: 21, mass: 1 };
 export const MORPH_BOUNCE_SPRING = { type: "spring" as const, stiffness: 190, damping: 17, mass: 1 };
-const MORPH_EXIT_SPRING = { type: "spring" as const, stiffness: 260, damping: 30, mass: 0.9 };
+export const MORPH_EXIT_SPRING = { type: "spring" as const, stiffness: 260, damping: 30, mass: 0.9 };
 // Margem negativa para não cortar a sombra do pop-up depois de aberto
 export const MORPH_EXPANDED_CLIP = 'inset(calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) round 100px)';
 
