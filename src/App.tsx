@@ -10,7 +10,7 @@ import {
   RiBookOpenLine 
 } from 'react-icons/ri';
 import { BsCheck2 } from 'react-icons/bs';
-import { LuBookHeadphones, LuBookAudio } from 'react-icons/lu';
+import { LuBookHeadphones } from 'react-icons/lu';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -14211,9 +14211,7 @@ export default function App() {
                       title: t('other_app_ebook_converter'),
                       author: 'thenauan',
                       url: 'https://github.com/thenauan/audiobook-generator',
-                      gradient: 'from-sky-500 via-blue-600 to-indigo-800',
-                      icon: <LuBookAudio size={56} className="text-white drop-shadow-md" />,
-                      watermark: <LuBookHeadphones size={120} className="text-white" />,
+                      iconSrc: `${import.meta.env.BASE_URL}icons/audiobook-generator.svg`,
                       whatItDoes: t('other_app_ebook_converter_what'),
                       howItWorks: t('other_app_ebook_converter_how'),
                     },

@@ -1052,9 +1052,8 @@ export function OtherAppCard({
     title: string;
     author: string;
     url: string;
-    gradient: string;
-    icon: React.ReactNode;
-    watermark: React.ReactNode;
+    // Ícone redondo do app (arquivo em public/icons)
+    iconSrc: string;
     whatItDoes: string;
     howItWorks: string;
   };
@@ -1067,9 +1066,9 @@ export function OtherAppCard({
   const [showDetails, setShowDetails] = useState(false);
   const [openUp, setOpenUp] = useState(false);
   const [alignLeft, setAlignLeft] = useState(false);
-  const [customIconSrc, setCustomIconSrc] = useState<string | null>(`${import.meta.env.BASE_URL}icons/${app.id}.png`);
-  // Ícone próprio do app (redondo): aparece sozinho, sem o cartão quadrado por trás
+  // Ícone do app: só aparece quando carregado (sem ícone provisório antes); se falhar, fica um círculo neutro
   const [iconLoaded, setIconLoaded] = useState(false);
+  const [iconFailed, setIconFailed] = useState(false);
 
   const handleClose = () => {
     setShowOptions(false);
@@ -1104,8 +1103,8 @@ export function OtherAppCard({
   const longPress = useLongPress(openContextMenu);
   const contextPreview = (
     <div className="flex flex-col">
-      <div className={`w-full aspect-square overflow-hidden shadow-2xl flex items-center justify-center text-white ${iconLoaded ? 'rounded-full' : `rounded-3xl bg-gradient-to-br ${app.gradient}`}`}>
-        {customIconSrc ? <img src={customIconSrc} alt="" className="w-full h-full object-cover" /> : app.icon}
+      <div className="w-full aspect-square overflow-hidden shadow-2xl rounded-full bg-card/60">
+        {!iconFailed && <img src={app.iconSrc} alt="" className="w-full h-full object-cover" />}
       </div>
       <div className="mt-2 px-0.5">
         <p className="text-sm font-bold text-[var(--text-main)] truncate">{app.title}</p>
@@ -1213,35 +1212,17 @@ export function OtherAppCard({
           }
           onOpenUrl(app.url);
         }}
-        className={`relative aspect-square w-full overflow-hidden mb-2 cursor-pointer shadow-md group-hover/appcard:shadow-xl transition-shadow ${iconLoaded ? 'rounded-full' : 'rounded-3xl'}`}
+        className="relative aspect-square w-full overflow-hidden mb-2 cursor-pointer shadow-md group-hover/appcard:shadow-xl transition-shadow rounded-full"
       >
-        <div className={`relative w-full h-full ring-2 ring-transparent group-hover/appcard:ring-winblue/40 transition-all overflow-hidden ${iconLoaded ? 'rounded-full' : 'rounded-3xl'}`}>
-          <div className={`w-full h-full flex items-center justify-center relative transition-transform duration-500 group-hover/appcard:scale-105 ${iconLoaded ? '' : `bg-gradient-to-br ${app.gradient}`}`}>
-            {!iconLoaded && (
-              <>
-                <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-                <div className="absolute -bottom-5 -right-4 opacity-15 pointer-events-none select-none transform rotate-[-8deg]">
-                  {app.watermark}
-                </div>
-                <div className="relative z-10 w-24 h-24 rounded-[26px] bg-white/15 backdrop-blur-xl border border-white/25 shadow-2xl flex items-center justify-center">
-                  {app.icon}
-                </div>
-              </>
-            )}
-            {customIconSrc && (
+        <div className="relative w-full h-full ring-2 ring-transparent group-hover/appcard:ring-winblue/40 transition-all overflow-hidden rounded-full bg-card/60">
+          <div className="w-full h-full relative transition-transform duration-500 group-hover/appcard:scale-105">
+            {!iconFailed && (
               <img
-                src={customIconSrc}
+                src={app.iconSrc}
                 alt={app.title}
                 onLoad={() => setIconLoaded(true)}
-                onError={() => {
-                  setIconLoaded(false);
-                  if (customIconSrc.endsWith('.png')) {
-                    setCustomIconSrc(`${import.meta.env.BASE_URL}icons/${app.id}.svg`);
-                  } else {
-                    setCustomIconSrc(null);
-                  }
-                }}
-                className="absolute inset-0 z-15 w-full h-full object-cover"
+                onError={() => setIconFailed(true)}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${iconLoaded ? 'opacity-100' : 'opacity-0'}`}
               />
             )}
           </div>
