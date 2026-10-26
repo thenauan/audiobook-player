@@ -660,6 +660,11 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
     display: none;
   }
 
+  /* Subtítulo das seções mais perto do conteúdo abaixo (16px -> 8px) */
+  main .flex.items-center.justify-between.mb-4:has(> h2, > h3) {
+    margin-bottom: 0.5rem !important;
+  }
+
   /* Subtítulos das telas 25% menores no celular */
   main h2.text-xl,
   main h3.text-lg {

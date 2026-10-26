@@ -4066,9 +4066,10 @@ export default function App() {
     if ((id.startsWith('library') || id.startsWith('home-') || id === 'history') && books.length > 0) {
       return (
         <MobileHeaderActions
-          quick={sortAction}
+          // Botão da esquerda da pílula: enviar audiobooks (também é a primeira opção do pop-up)
+          quick={{ id: 'upload', icon: <Upload size={15} />, label: t('upload_audiobooks'), onClick: () => fileInputRef.current?.click() }}
           menu={[
-            { id: 'upload', icon: <Upload size={14} />, label: t('upload_audiobooks'), onClick: () => fileInputRef.current?.click() },
+            sortAction,
             { id: 'delete-multiple', icon: <Trash2 size={14} />, label: t('delete_multiple'), danger: true, onClick: () => setIsSelectionMode(true) },
           ]}
         />
