@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, animate, useAnimate, useMotionValue, usePresence } from 'motion/react';
-import { MorphPopup, useCompactPopups, MORPH_SPRING, MORPH_EXIT_SPRING, MORPH_CONTENT_MOTION } from './Popovers';
+import { MorphPopup, useCompactPopups, MORPH_SPRING, MORPH_BOUNCE_SPRING, MORPH_EXIT_SPRING, MORPH_CONTENT_MOTION } from './Popovers';
 
 // ===== Pop-ups dos botões do player (marcações, velocidade, timer, fila, volume, texto) =====
 // Computador: o pop-up nasce do botão (MorphPopup). Celular: abre como a confirmação de exclusão — um
@@ -30,6 +30,8 @@ function MorphingContent({ children, className = '' }: { children: React.ReactNo
       const last = lastHeightRef.current;
       lastHeightRef.current = h;
       if (last === null || Math.abs(h - last) < 2) return;
+      // A troca de página ("Mais opções") já anima a própria altura: só acompanha
+      if (inner.querySelector('[data-paged-morphing="true"]')) return;
       // Parte da altura que está na tela e chega à nova com a mola dos pop-ups; depois volta a "auto"
       // (só a animação mais recente devolve a altura automática)
       const current = height.get();
@@ -39,7 +41,7 @@ function MorphingContent({ children, className = '' }: { children: React.ReactNo
       // Durante a animação o conteúdo fica com a altura natural (não estica nem encolhe com o recipiente)
       inner.style.flex = '0 0 auto';
       height.set(from);
-      controls = animate(height, h, MORPH_SPRING);
+      controls = animate(height, h, MORPH_BOUNCE_SPRING);
       controls.then(() => {
         if (runRef.current !== run) return;
         height.set('auto');
@@ -88,6 +90,9 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
   function MobilePlayerSheet({ source, keep, onClick, rest, children }, forwardedRef) {
     const cardRef = useRef<HTMLDivElement | null>(null);
     const clip = useMotionValue('inset(0px 0px 0px 0px round 0px)');
+    const scale = useMotionValue(0.86);
+    const opacity = useMotionValue(0);
+    const [origin, setOrigin] = useState('50% 100%');
     const [ready, setReady] = useState(false);
     const [isPresent, safeToRemove] = usePresence();
     const finalClipRef = useRef('inset(0px 0px 0px 0px round 0px)');
@@ -105,10 +110,17 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
       const rect = card.getBoundingClientRect();
       const radius = parseFloat(getComputedStyle(card).borderTopLeftRadius) || 28;
       finalClipRef.current = `inset(0px 0px 0px 0px round ${Math.round(radius)}px)`;
-      clip.set(clipFromButton(rect, source?.isConnected ? source.getBoundingClientRect() : null));
+      const btn = source?.isConnected ? source.getBoundingClientRect() : null;
+      clip.set(clipFromButton(rect, btn));
+      // A escala parte do botão (mesmo ponto de origem do recorte)
+      if (btn) setOrigin(`${btn.left + btn.width / 2 - rect.left}px ${btn.top + btn.height / 2 - rect.top}px`);
       setReady(true);
-      const controls = animate(clip, finalClipRef.current, MORPH_SPRING);
-      return () => controls.stop();
+      const controls = [
+        animate(clip, finalClipRef.current, MORPH_SPRING),
+        animate(scale, 1, MORPH_BOUNCE_SPRING),
+        animate(opacity, 1, { duration: 0.12, ease: 'easeOut' }),
+      ];
+      return () => controls.forEach(c => c.stop());
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -120,8 +132,12 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
       const rect = card.getBoundingClientRect();
       const target = clipFromButton(rect, source?.isConnected ? source.getBoundingClientRect() : null);
       const controls = animate(clip, target, MORPH_EXIT_SPRING);
+      const others = [
+        animate(scale, 0.9, MORPH_EXIT_SPRING),
+        animate(opacity, 0, { duration: 0.12, delay: 0.16 }),
+      ];
       controls.then(() => safeToRemove?.());
-      return () => controls.stop();
+      return () => { controls.stop(); others.forEach(c => c.stop()); };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPresent]);
 
@@ -140,6 +156,9 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
           maxHeight: 'calc(100dvh - var(--safe-top) - 40px)',
           clipPath: clip,
           WebkitClipPath: clip as any,
+          scale,
+          opacity,
+          transformOrigin: origin,
           visibility: ready ? 'visible' : 'hidden',
         }}
       >

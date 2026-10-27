@@ -1458,3 +1458,7 @@ main h3.text-lg.font-bold {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Altura do botão de voltar do cabeçalho (o círculo recolhido tem a mesma largura) */
+:root { --back-btn-h: 2.25rem; }
+@media (max-width: 1023px) { :root { --back-btn-h: 2.75rem; } }

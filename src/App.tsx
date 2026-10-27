@@ -4231,6 +4231,8 @@ export default function App() {
     if (el) el.style.setProperty('--header-blur', String(Math.max(0, Math.min(1, scrollTop / 28))));
   };
   const [isTitleScrolledPast, setIsTitleScrolledPast] = useState(false);
+  // Botão de voltar recolhido (só a seta) quando o título da tela sai de vista no celular
+  const backCollapsed = isMobile && isTitleScrolledPast && !isLandscapePhone;
 
   useEffect(() => {
     setHeaderBlurProgress(0);
@@ -9696,14 +9698,25 @@ export default function App() {
                     whileHover={{ scale: 1.12 }}
                     whileTap={{ scale: 0.92 }}
                     onClick={goBack}
-                    className={cn(
-                      "h-9 flex items-center gap-1.5 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all duration-200 backdrop-blur-3xl",
-                      isMobile && isTitleScrolledPast && !isLandscapePhone && "w-9 px-0 justify-center"
-                    )}
+                    // Celular: ao rolar, a pílula encolhe suavemente até virar um círculo só com a seta
+                    // (o texto se recolhe e some), e volta ao subir
+                    style={{
+                      paddingLeft: backCollapsed ? 'calc((var(--back-btn-h) - 16px) / 2)' : '1rem',
+                      paddingRight: backCollapsed ? 'calc((var(--back-btn-h) - 16px) / 2)' : '1rem',
+                      transition: 'padding 0.38s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s',
+                    }}
+                    className="h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] backdrop-blur-3xl"
                     aria-label={t('back') || undefined}
                   >
                     <ChevronLeft size={14} className="text-[var(--text-main)] rtl:rotate-180 shrink-0" />
-                    <span className={cn("text-xs font-medium text-[var(--text-main)] truncate max-w-xs max-md:max-w-[40vw]", isMobile && isTitleScrolledPast && !isLandscapePhone && "hidden")}>
+                    <motion.span
+                      initial={false}
+                      animate={backCollapsed
+                        ? { maxWidth: 0, opacity: 0, marginLeft: 0, marginRight: 0, filter: 'blur(4px)' }
+                        : { maxWidth: 320, opacity: 1, marginLeft: 6, marginRight: 0, filter: 'blur(0px)' }}
+                      transition={{ maxWidth: { type: 'spring', stiffness: 420, damping: 40, mass: 0.7 }, marginLeft: { type: 'spring', stiffness: 420, damping: 40, mass: 0.7 }, opacity: { duration: backCollapsed ? 0.12 : 0.22, delay: backCollapsed ? 0 : 0.08 }, filter: { duration: 0.2 } }}
+                      className="block overflow-hidden whitespace-nowrap text-xs font-medium text-[var(--text-main)] truncate max-md:max-w-[40vw]"
+                    >
                       {(() => {
                         const prev = historyStack[historyStack.length - 1];
                         const id = prev.id;
@@ -9791,7 +9804,7 @@ export default function App() {
                         if (id.startsWith('help')) return t('nav_help');
                         return t('back');
                       })()}
-                    </span>
+                    </motion.span>
 
                   </motion.button>
                 )}

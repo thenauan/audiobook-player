@@ -475,6 +475,32 @@ export function PagedMenu({
   const { t } = useI18n();
   const compact = useCompactPopups();
   const [page, setPage] = useState(0);
+  // Troca de página igual à troca de conteúdo dos pop-ups (ex.: opções -> "Ordenar por"): a altura muda
+  // com a mola elástica, as opções antigas se dissolvem e as novas surgem do desfoque
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const height = useMotionValue<number | 'auto'>('auto');
+  const fromHeightRef = useRef<number | null>(null);
+  const [morphing, setMorphing] = useState(false);
+  const goToPage = (next: number) => {
+    fromHeightRef.current = wrapRef.current?.offsetHeight ?? null;
+    setPage(next);
+  };
+  useLayoutEffect(() => {
+    const from = fromHeightRef.current;
+    const el = pageRef.current;
+    if (from === null || !el) return;
+    fromHeightRef.current = null;
+    const to = el.offsetHeight;
+    if (Math.abs(to - from) < 2) return;
+    height.set(from);
+    setMorphing(true);
+    const controls = animateValue(height, to, MORPH_BOUNCE_SPRING);
+    controls.then(() => { height.set('auto'); setMorphing(false); });
+    return () => controls.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
   const items = flattenOptions(children);
   const needsPaging = compact && (items.length > max || Boolean(onBackToParent));
   if (!needsPaging) {
@@ -486,28 +512,44 @@ export function PagedMenu({
   if (pages.length === 0) pages.push([]);
   const current = Math.min(page, pages.length - 1);
   const isLast = current >= pages.length - 1;
-  // Troca de página: as novas opções só aparecem suavemente no lugar (sem animar alturas em conflito com o pop-up)
   return (
     <motion.div
-      key={`page-${current}`}
-      initial={{ opacity: 0, scale: 0.95, filter: 'blur(6px)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-      transition={{ opacity: { duration: 0.2 }, filter: { duration: 0.22 }, scale: MORPH_BOUNCE_SPRING }}
+      ref={wrapRef}
+      data-paged-morphing={morphing ? 'true' : undefined}
+      style={{ height, position: 'relative', overflow: morphing ? 'hidden' : undefined }}
     >
-      <div className={className}>
-        {pages[current]}
-        <MenuOptionItem
-          immediate
-          icon={<MoreHorizontal size={14} />}
-          onClick={() => {
-            if (!isLast) { setPage(current + 1); return; }
-            if (onBackToParent) { onBackToParent(); return; }
-            setPage(0);
+      <AnimatePresence initial={false} custom={{}}>
+        <motion.div
+          key={`page-${current}`}
+          ref={pageRef}
+          variants={popupMorphContentVariants}
+          custom={{}}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{
+            opacity: { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] },
+            filter: { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] },
+            scale: MORPH_BOUNCE_SPRING,
           }}
+          className="w-full"
         >
-          <span>{t('more_options')}</span>
-        </MenuOptionItem>
-      </div>
+          <div className={className}>
+            {pages[current]}
+            <MenuOptionItem
+              immediate
+              icon={<MoreHorizontal size={14} />}
+              onClick={() => {
+                if (!isLast) { goToPage(current + 1); return; }
+                if (onBackToParent) { onBackToParent(); return; }
+                goToPage(0);
+              }}
+            >
+              <span>{t('more_options')}</span>
+            </MenuOptionItem>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </motion.div>
   );
 }
