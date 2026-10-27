@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, animate, useMotionValue, usePresence } from 'motion/react';
+import { motion, animate, useAnimate, useMotionValue, usePresence } from 'motion/react';
 import { MorphPopup, useCompactPopups, MORPH_SPRING, MORPH_EXIT_SPRING, MORPH_CONTENT_MOTION } from './Popovers';
 
 // ===== Pop-ups dos botões do player (marcações, velocidade, timer, fila, volume, texto) =====
@@ -12,6 +12,53 @@ type MorphPopupProps = React.ComponentProps<typeof MorphPopup>;
 
 // No cartão do celular, só o espaçamento e o layout interno do pop-up são mantidos (sem largura/posição)
 const KEEP_CLASS = /^(p[xytblr]?-|flex$|flex-col$|gap-|space-y-|text-left$|rtl:text-)/;
+
+// Quando o conteúdo do pop-up muda (ex.: timer ativo -> escolher tempo, lista -> edição), o pop-up muda de
+// tamanho com a mesma mola dos outros pop-ups e o conteúdo novo surge com um leve desfoque
+function MorphingContent({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const innerRef = useRef<HTMLDivElement | null>(null);
+  const height = useMotionValue<number | 'auto'>('auto');
+  const lastHeightRef = useRef<number | null>(null);
+  const runRef = useRef(0);
+  const [scope, animateScope] = useAnimate();
+  useLayoutEffect(() => {
+    const inner = innerRef.current;
+    if (!inner || typeof ResizeObserver === 'undefined') return;
+    let controls: ReturnType<typeof animate> | null = null;
+    const ro = new ResizeObserver(() => {
+      const h = inner.offsetHeight;
+      const last = lastHeightRef.current;
+      lastHeightRef.current = h;
+      if (last === null || Math.abs(h - last) < 2) return;
+      // Parte da altura que está na tela e chega à nova com a mola dos pop-ups; depois volta a "auto"
+      // (só a animação mais recente devolve a altura automática)
+      const current = height.get();
+      const from = typeof current === 'number' ? current : last;
+      controls?.stop();
+      const run = ++runRef.current;
+      // Durante a animação o conteúdo fica com a altura natural (não estica nem encolhe com o recipiente)
+      inner.style.flex = '0 0 auto';
+      height.set(from);
+      controls = animate(height, h, MORPH_SPRING);
+      controls.then(() => {
+        if (runRef.current !== run) return;
+        height.set('auto');
+        inner.style.flex = '';
+      });
+      if (Math.abs(h - last) > 12 && scope.current) {
+        animateScope(scope.current, { opacity: [0.35, 1], filter: ['blur(6px)', 'blur(0px)'] }, { duration: 0.28, ease: 'easeOut' });
+      }
+    });
+    ro.observe(inner);
+    return () => { ro.disconnect(); controls?.stop(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <motion.div ref={scope} style={{ height, overflow: 'hidden' }} className="flex flex-col min-h-0">
+      <div ref={innerRef} className={`flex-1 ${className}`}>{children}</div>
+    </motion.div>
+  );
+}
 
 // Último botão tocado: é de onde o cartão nasce quando o pop-up não informa o botão de origem
 let lastPressedButton: HTMLElement | null = null;
@@ -98,7 +145,7 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
       >
         {/* O conteúdo surge com um leve desfoque enquanto o cartão cresce (como nos outros pop-ups) */}
         <motion.div {...MORPH_CONTENT_MOTION} className="flex flex-col min-h-0">
-          {children}
+          <MorphingContent className="flex flex-col min-h-0">{children}</MorphingContent>
         </motion.div>
       </motion.div>
     );
@@ -109,7 +156,14 @@ export const PlayerPopup = React.forwardRef<HTMLDivElement, MorphPopupProps>(fun
   const compact = useCompactPopups();
   // Botão de origem guardado na abertura (o informado pelo pop-up ou o último tocado)
   const [source] = useState<HTMLElement | null>(() => ((props as any).anchor as HTMLElement) || lastPressedButton);
-  if (!compact) return <MorphPopup ref={ref} {...props} />;
+  if (!compact) {
+    const { children: desktopChildren, ...desktopProps } = props as any;
+    return (
+      <MorphPopup ref={ref} {...desktopProps}>
+        <MorphingContent className="flex flex-col min-h-0">{desktopChildren}</MorphingContent>
+      </MorphPopup>
+    );
+  }
 
   const {
     anchor: _anchor, originWidth: _ow, originHeight: _oh, originRadius: _or, originOffsetX: _ox,

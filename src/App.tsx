@@ -8052,9 +8052,9 @@ export default function App() {
                 <PlayerPopup anchor={miniSpeedBtnAnchor || miniSpeedBtnRef.current} 
                   key="menu-mini-speed"
                   data-popup-content="true"
-                  style={getButtonCoverPopupStyle(miniSpeedBtnAnchor || miniSpeedBtnRef.current, 180, 224, 'right')}
+                  style={getButtonCoverPopupStyle(miniSpeedBtnAnchor || miniSpeedBtnRef.current, 224, 224, 'right')}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-44 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-[9999] p-2 flex flex-col text-left overflow-hidden text-[var(--text-main)]"
+                  className="w-56 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-[9999] p-2 flex flex-col text-left overflow-hidden text-[var(--text-main)]"
                 >
                   <div className="relative z-10 flex flex-col">
                     <div className="px-3 py-2 mb-1 flex items-center justify-between">
