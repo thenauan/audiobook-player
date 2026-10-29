@@ -732,7 +732,12 @@ export default function FullscreenPlayer({
               animate={isMobileFs ? { opacity: 1, y: 0 } : { opacity: 1, width: 'auto', x: 0, scale: 1 }}
               exit={isMobileFs ? { opacity: 0, y: 24 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
               transition={{ type: "spring", stiffness: 440, damping: 38, mass: 0.5 }}
-              style={{ willChange: 'transform, opacity, width' }}
+              style={{
+                willChange: 'transform, opacity, width',
+                // Cor de destaque da página deste audiobook (a palavra sendo lida)
+                '--book-accent': currentBookHighlight.hex,
+                '--book-accent-rgb': currentBookHighlight.rgb,
+              } as React.CSSProperties}
               className="fs-transcript flex max-md:flex-1 max-md:w-full max-md:min-h-0 md:max-w-2xl lg:max-w-3xl h-full flex-col min-w-0 overflow-hidden transform-gpu md:shrink-0"
             >
               <div 
@@ -799,8 +804,9 @@ export default function FullscreenPlayer({
                                         handleSeek(w.start);
                                       }}
                                       className={`inline-block rounded-lg px-1 -mx-0.5 transition-colors duration-150 ${
+                                        // A linha toda fica destacada e, dentro dela, a palavra sendo lida na cor do audiobook
                                         isWordActive
-                                          ? 'text-black dark:text-winblue bg-black/10 dark:bg-winblue/20 shadow-[0_0_12px_rgba(0,0,0,0.15)] dark:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.35)] scale-105 font-black'
+                                          ? 'text-[var(--book-accent)] bg-[rgba(var(--book-accent-rgb),0.16)] shadow-[0_0_12px_rgba(var(--book-accent-rgb),0.3)] scale-105'
                                           : isActive
                                           ? (isWordPast ? 'text-black dark:text-white/95' : 'text-slate-700 dark:text-white/65 hover:text-black dark:hover:text-white')
                                           : ''

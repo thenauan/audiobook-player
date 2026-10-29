@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, animate, useAnimate, useMotionValue, usePresence } from 'motion/react';
-import { MorphPopup, useCompactPopups, MORPH_SPRING, MORPH_BOUNCE_SPRING, MORPH_EXIT_SPRING, MORPH_CONTENT_MOTION } from './Popovers';
+import { MorphPopup, useCompactPopups, MORPH_SPRING, MORPH_BOUNCE_SPRING, MORPH_EXIT_SPRING, MORPH_HANDOFF, MORPH_CONTENT_MOTION } from './Popovers';
 
 // ===== Pop-ups dos botões do player (marcações, velocidade, timer, fila, volume, texto) =====
 // Computador: o pop-up nasce do botão (MorphPopup). Celular: abre como a confirmação de exclusão — um
@@ -15,6 +15,7 @@ const KEEP_CLASS = /^(p[xytblr]?-|flex$|flex-col$|gap-|space-y-|text-left$|rtl:t
 
 // Quando o conteúdo do pop-up muda (ex.: timer ativo -> escolher tempo, lista -> edição), o pop-up muda de
 // tamanho com a mesma mola dos outros pop-ups e o conteúdo novo surge com um leve desfoque
+const CONTENT_RESIZE_SPRING = { type: 'spring' as const, stiffness: 320, damping: 36, mass: 1 };
 function MorphingContent({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const height = useMotionValue<number | 'auto'>('auto');
@@ -38,17 +39,24 @@ function MorphingContent({ children, className = '' }: { children: React.ReactNo
       const from = typeof current === 'number' ? current : last;
       controls?.stop();
       const run = ++runRef.current;
-      // Durante a animação o conteúdo fica com a altura natural (não estica nem encolhe com o recipiente)
+      // Durante a animação o conteúdo fica com a altura natural (não estica nem encolhe com o recipiente).
+      // Essas trocas de altura são do próprio ajuste, não do conteúdo: a altura medida é atualizada na hora
+      // (senão, num pop-up com altura máxima e rolagem, cada troca disparava outra animação e o pop-up
+      // ficava crescendo e encolhendo)
       inner.style.flex = '0 0 auto';
+      const target = inner.offsetHeight;
+      lastHeightRef.current = target;
       // Recorta só durante a animação (parado, o destaque das opções e o brilho não são cortados)
       if (scope.current) scope.current.style.overflow = 'hidden';
       height.set(from);
-      controls = animate(height, h, MORPH_BOUNCE_SPRING);
+      // Acomoda no novo tamanho sem passar dele e voltar (sem "crescer e encolher")
+      controls = animate(height, target, CONTENT_RESIZE_SPRING);
       controls.then(() => {
         if (runRef.current !== run) return;
         height.set('auto');
         inner.style.flex = '';
         if (scope.current) scope.current.style.overflow = '';
+        lastHeightRef.current = inner.offsetHeight;
       });
       if (Math.abs(h - last) > 12 && scope.current) {
         animateScope(scope.current, { opacity: [0.35, 1], filter: ['blur(6px)', 'blur(0px)'] }, { duration: 0.28, ease: 'easeOut' });
@@ -135,11 +143,12 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
       const rect = card.getBoundingClientRect();
       const target = clipFromButton(rect, source?.isConnected ? source.getBoundingClientRect() : null);
       const controls = animate(clip, target, MORPH_EXIT_SPRING);
+      // Encolhe até o formato do botão e então se dissolve nele (o botão reaparece no mesmo instante)
       const others = [
-        animate(scale, 0.9, MORPH_EXIT_SPRING),
-        animate(opacity, 0, { duration: 0.12, delay: 0.16 }),
+        animate(scale, 1, MORPH_EXIT_SPRING),
+        animate(opacity, 0, { duration: MORPH_HANDOFF.fade, delay: MORPH_HANDOFF.at }),
       ];
-      controls.then(() => safeToRemove?.());
+      Promise.all([controls, ...others]).then(() => safeToRemove?.());
       return () => { controls.stop(); others.forEach(c => c.stop()); };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPresent]);

@@ -7877,7 +7877,7 @@ export default function App() {
 
                   <div 
                     ref={fsQueueScrollRef}
-                    className="flex-1 min-h-0 relative overflow-y-auto custom-scrollbar flex flex-col pr-1 mt-1"
+                    className="flex-1 min-h-0 relative overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col px-1.5 mt-1"
                   >
                     {/* TOCANDO AGORA */}
                     <div ref={fsNowPlayingRef} className="shrink-0">
@@ -8620,7 +8620,7 @@ export default function App() {
 
                     <div 
                       ref={miniQueueScrollRef}
-                      className="flex-1 min-h-0 relative overflow-y-auto custom-scrollbar flex flex-col pr-1 mt-1"
+                      className="flex-1 min-h-0 relative overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col px-1.5 mt-1"
                     >
                       {/* TOCANDO AGORA */}
                       <div ref={miniNowPlayingRef} className="shrink-0">

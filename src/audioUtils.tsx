@@ -1896,6 +1896,34 @@ function parseJsonTranscript(jsonText: string): TranscriptLine[] {
   return [];
 }
 
+// Texto com marcas de tempo por palavra dentro da frase (VTT "<00:00:01.200>", LRC estendido "<01:02.30>"):
+// devolve as palavras com início/fim. Trechos com várias palavras entre duas marcas dividem o tempo igualmente.
+function parseInlineTimedWords(body: string, lineStart: number, lineEnd: number): TranscriptWord[] {
+  const re = /<(\d{1,2}:\d{2}(?::\d{2})?[.,:]\d{1,3})>/g;
+  if (!re.test(body)) return [];
+  re.lastIndex = 0;
+  const chunks: { start: number; text: string }[] = [];
+  let last = 0;
+  let curStart = lineStart;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(body)) !== null) {
+    chunks.push({ start: curStart, text: body.slice(last, m.index) });
+    const t = parseTimeValueToSeconds(m[1].replace(/:(\d{1,3})$/, '.$1'));
+    if (t !== null) curStart = t;
+    last = m.index + m[0].length;
+  }
+  chunks.push({ start: curStart, text: body.slice(last) });
+  const words: TranscriptWord[] = [];
+  chunks.forEach((c, i) => {
+    const parts = c.text.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return;
+    const chunkEnd = Math.max(c.start + 0.05, i + 1 < chunks.length ? chunks[i + 1].start : lineEnd);
+    const step = (chunkEnd - c.start) / parts.length;
+    parts.forEach((text, j) => words.push({ start: c.start + step * j, end: c.start + step * (j + 1), text }));
+  });
+  return words.length > 1 ? words : [];
+}
+
 function parseSmilOrXmlTranscript(
   xmlText: string,
   xhtmlMap?: Map<string, Document>
@@ -1904,6 +1932,8 @@ function parseSmilOrXmlTranscript(
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, 'text/xml');
     const results: TranscriptLine[] = [];
+    // Elemento do texto de cada trecho (para juntar palavras da mesma frase)
+    const fragParents: (Element | null)[] = [];
 
     // 1. Standard EPUB 3 Media Overlays / SMIL (<par> with <text> and <audio>)
     const pars = Array.from(doc.getElementsByTagName('par'));
@@ -1927,6 +1957,7 @@ function parseSmilOrXmlTranscript(
       ) ?? (clipBegin + 3.5);
 
       let resolvedText = '';
+      let fragParent: Element | null = null;
       if (textEl) {
         const srcAttr = textEl.getAttribute('src') || '';
         const inlineText = (textEl.textContent || '').trim();
@@ -1944,6 +1975,7 @@ function parseSmilOrXmlTranscript(
             const fragEl = targetDoc.getElementById(fragmentId) || targetDoc.querySelector(`[id="${CSS.escape(fragmentId)}"]`);
             if (fragEl && fragEl.textContent) {
               resolvedText = fragEl.textContent.replace(/\s+/g, ' ').trim();
+              fragParent = fragEl.parentElement;
             }
           }
         }
@@ -1958,7 +1990,31 @@ function parseSmilOrXmlTranscript(
           end: Math.max(clipBegin + 0.1, clipEnd),
           text: resolvedText,
         });
+        fragParents.push(fragParent);
       }
+    }
+
+    // Sincronização por palavra (cada trecho é uma palavra): junta as palavras em frases, mantendo o
+    // tempo de cada uma, para destacar a frase e a palavra ao mesmo tempo
+    const singleWords = results.filter(r => !/\s/.test(r.text)).length;
+    if (results.length > 1 && singleWords / results.length >= 0.8) {
+      const haveParents = fragParents.every(Boolean);
+      if (haveParents) {
+        const grouped: TranscriptLine[] = [];
+        results.forEach((r, i) => {
+          const prev = grouped[grouped.length - 1];
+          if (prev && fragParents[i] === fragParents[i - 1]) {
+            prev.words!.push({ start: r.start, end: r.end, text: r.text });
+            prev.end = Math.max(prev.end, r.end);
+            prev.text = `${prev.text} ${r.text}`;
+          } else {
+            grouped.push({ start: r.start, end: r.end, text: r.text, words: [{ start: r.start, end: r.end, text: r.text }] });
+          }
+        });
+        // Frase muito longa (o pai é o parágrafo inteiro, por exemplo): divide em frases menores
+        return grouped.flatMap(g => (g.words!.length > 24 ? groupTimedWordsIntoSegments(g.words!) : [g]));
+      }
+      return groupTimedWordsIntoSegments(results.map(r => ({ start: r.start, end: r.end, text: r.text })));
     }
 
     if (results.length > 0) return results;
@@ -2010,10 +2066,13 @@ function parseLrcOrVttOrSrtTranscript(raw: string): TranscriptLine[] {
       .replace(/\s+/g, ' ')
       .trim();
     if (start !== null && cueText) {
+      const cueEnd = end !== null && end > start ? end : start + 3.5;
+      const words = parseInlineTimedWords(match[3], start, cueEnd);
       results.push({
         start,
-        end: end !== null && end > start ? end : start + 3.5,
+        end: cueEnd,
         text: cueText,
+        ...(words.length > 0 ? { words } : {}),
       });
     }
   }
@@ -2021,7 +2080,7 @@ function parseLrcOrVttOrSrtTranscript(raw: string): TranscriptLine[] {
 
   // 2. Try LRC format: "[mm:ss.xx] Texto"
   const lines = text.split('\n');
-  const lrcEntries: { start: number; text: string }[] = [];
+  const lrcEntries: { start: number; text: string; raw: string }[] = [];
   const lrcRegex = /\[(\d{1,3}:\d{2}(?:[.:]\d{1,3})?)\]/g;
   for (const line of lines) {
     const timestamps: number[] = [];
@@ -2032,10 +2091,11 @@ function parseLrcOrVttOrSrtTranscript(raw: string): TranscriptLine[] {
       if (sec !== null) timestamps.push(sec);
     }
     if (timestamps.length > 0) {
-      const lyricText = line.replace(/\[[^\]]*\]/g, '').trim();
+      const raw = line.replace(/\[[^\]]*\]/g, '').trim();
+      const lyricText = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
       if (lyricText) {
         for (const ts of timestamps) {
-          lrcEntries.push({ start: ts, text: lyricText });
+          lrcEntries.push({ start: ts, text: lyricText, raw });
         }
       }
     }
@@ -2045,10 +2105,14 @@ function parseLrcOrVttOrSrtTranscript(raw: string): TranscriptLine[] {
     lrcEntries.sort((a, b) => a.start - b.start);
     return lrcEntries.map((item, idx) => {
       const next = lrcEntries[idx + 1];
+      const end = next && next.start > item.start ? next.start : item.start + 4.0;
+      // LRC estendido: "<mm:ss.xx>palavra" marca o tempo de cada palavra
+      const words = parseInlineTimedWords(item.raw, item.start, end);
       return {
         start: item.start,
-        end: next && next.start > item.start ? next.start : item.start + 4.0,
+        end,
         text: item.text,
+        ...(words.length > 0 ? { words } : {}),
       };
     });
   }

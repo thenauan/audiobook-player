@@ -562,6 +562,8 @@ export function PagedMenu({
 export const MORPH_SPRING = { type: "spring" as const, stiffness: 170, damping: 21, mass: 1 };
 export const MORPH_BOUNCE_SPRING = { type: "spring" as const, stiffness: 190, damping: 17, mass: 1 };
 export const MORPH_EXIT_SPRING = { type: "spring" as const, stiffness: 260, damping: 30, mass: 0.9 };
+// Momento (s) em que o pop-up, já encolhido no formato do botão, passa o lugar para ele (troca cruzada)
+export const MORPH_HANDOFF = { at: 0.26, fade: 0.12 };
 // Margem negativa para não cortar a sombra do pop-up depois de aberto
 export const MORPH_EXPANDED_CLIP = 'inset(calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) round 100px)';
 
@@ -615,14 +617,16 @@ export function getButtonMorphMotion(opts: {
     // A forma (clip) cresce a partir do botão; a escala com mola dá o leve "overshoot" elástico do iOS
     initial: { clipPath: collapsed, scale: 0.86, opacity: 0 },
     animate: { clipPath: MORPH_EXPANDED_CLIP, scale: 1, opacity: 1 },
+    // Fechar: a forma encolhe até ficar exatamente do tamanho do botão e só então se dissolve nele
+    // (o botão reaparece no mesmo instante, ver morphTriggerAnimate)
     exit: {
       clipPath: collapsed,
-      scale: 0.9,
+      scale: 1,
       opacity: 0,
       transition: {
         clipPath: MORPH_EXIT_SPRING,
         scale: MORPH_EXIT_SPRING,
-        opacity: { duration: 0.12, delay: 0.16 },
+        opacity: { duration: MORPH_HANDOFF.fade, delay: MORPH_HANDOFF.at },
       },
     },
     transition: {
@@ -655,9 +659,9 @@ export const MORPH_CONTENT_MOTION = {
 export function morphTriggerAnimate(isOpen: boolean) {
   return isOpen
     ? { opacity: 0, scale: 1.12, pointerEvents: 'none' as const, transition: { opacity: { duration: 0.14 }, scale: MORPH_SPRING } }
-    // Ao fechar, o botão volta logo, por baixo do pop-up que encolhe até ele (sem um instante vazio entre
-    // o pop-up sumir e o botão aparecer, que fazia os botões piscarem)
-    : { opacity: 1, scale: 1, pointerEvents: 'auto' as const, transition: { opacity: { duration: 0.12, delay: 0.03 }, scale: { duration: 0 } } };
+    // Ao fechar, o botão reaparece quando o pop-up termina de encolher no formato dele: os dois se cruzam
+    // (um surge enquanto o outro some), sem um instante vazio que faria o botão piscar
+    : { opacity: 1, scale: 1, pointerEvents: 'auto' as const, transition: { opacity: { duration: MORPH_HANDOFF.fade, delay: MORPH_HANDOFF.at - 0.04 }, scale: { duration: 0 } } };
 }
 
 type MorphPopupProps = Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'exit' | 'transition'> & {
@@ -995,10 +999,16 @@ export function SmoothSubMorph({
 }) {
   const activeKeyRef = useRef(activeKey);
   activeKeyRef.current = activeKey;
-  const prevKeyRef = useRef(activeKey);
+  const [prevKey, setPrevKey] = useState(activeKey);
   const [isMorphing, setIsMorphing] = useState(false);
   const [height, setHeight] = useState<number | 'auto'>('auto');
   const [enableSpring, setEnableSpring] = useState(false);
+  // A troca é percebida já na renderização: o primeiro quadro mantém a altura anterior (sem mostrar o
+  // tamanho novo por um instante antes de animar)
+  if (prevKey !== activeKey) {
+    setPrevKey(activeKey);
+    setIsMorphing(true);
+  }
 
   const handleResize = useCallback((h: number) => {
     setHeight(prev => (prev === h ? prev : h));
@@ -1010,13 +1020,10 @@ export function SmoothSubMorph({
   }, []);
 
   useEffect(() => {
-    if (prevKeyRef.current !== activeKey) {
-      prevKeyRef.current = activeKey;
-      setIsMorphing(true);
-      const t = setTimeout(() => setIsMorphing(false), 240);
-      return () => clearTimeout(t);
-    }
-  }, [activeKey]);
+    if (!isMorphing) return;
+    const t = setTimeout(() => setIsMorphing(false), 240);
+    return () => clearTimeout(t);
+  }, [isMorphing, activeKey]);
 
   return (
     <motion.div
@@ -1026,7 +1033,9 @@ export function SmoothSubMorph({
           ? { height: { type: "spring", stiffness: 520, damping: 38, mass: 0.55 } }
           : { height: { duration: 0 } }
       }
-      className={cn("relative w-full shrink-0", isMorphing ? "overflow-hidden" : "overflow-visible", className)}
+      // Grade com uma célula: o conteúdo que sai e o que entra ficam sobrepostos (a altura nunca soma os dois,
+      // o que fazia o pop-up dar um salto de um quadro ao trocar de conteúdo)
+      className={cn("relative w-full shrink-0 grid", isMorphing ? "overflow-hidden" : "overflow-visible", className)}
     >
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
@@ -1041,6 +1050,7 @@ export function SmoothSubMorph({
             scale: { type: "spring", stiffness: 520, damping: 38, mass: 0.55 },
             y: { type: "spring", stiffness: 520, damping: 38, mass: 0.55 },
           }}
+          style={{ gridArea: '1 / 1' }}
           className="w-full overflow-visible"
         >
           <MorphMeasuredContent
