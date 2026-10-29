@@ -34,6 +34,8 @@ import { ScreenErrorBoundary } from './components/ScreenErrorBoundary';
 import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
+import { DriveImportDialog, type DriveImportStatus } from './components/DriveImportDialog';
+import { parseDriveLink, listDriveAudio, downloadDriveAudio, DRIVE_IMPORT_AVAILABLE } from './googleDrive';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
 import { installTouchMenus } from './components/touchMenu';
 import { installScrollFades } from './components/scrollFade';
@@ -80,7 +82,7 @@ import {
   getTranslation,
   I18nContext,
 } from './translations';
-import { Text, Headphones, ExternalLink, Share, Download, Quote, Play, Pause, ListPlus, FileText, FilePlus2, Info, MoreHorizontal, Edit3, Maximize2, Upload, ArrowDownAZ, ArrowUpZA, Calendar, CalendarClock, Clock, Timer, BookOpen, User, Gauge, FolderOpen, ChevronRight, ChevronDown, Check, Database, FileAudio, HardDrive, Star, StarOff, Palette, Type, RotateCcw, Bell, RefreshCw, Bookmark, ArrowUpDown, Code2, Globe, Turtle, Rabbit, Clock3, Clock6, Clock9, Clock12, Dog, Bird, FolderPlus, Plus, Sun, Laptop, Monitor, Hand, ALargeSmall } from 'lucide-react';
+import { Text, Headphones, ExternalLink, Share, Download, Quote, Play, Pause, ListPlus, FileText, FilePlus2, Info, MoreHorizontal, Edit3, Maximize2, Upload, ArrowDownAZ, ArrowUpZA, Calendar, CalendarClock, Clock, Timer, BookOpen, User, Gauge, FolderOpen, ChevronRight, ChevronDown, Check, Database, FileAudio, HardDrive, Star, StarOff, Palette, Type, RotateCcw, Bell, RefreshCw, Bookmark, ArrowUpDown, Code2, Globe, Turtle, Rabbit, Clock3, Clock6, Clock9, Clock12, Dog, Bird, FolderPlus, Plus, Sun, Laptop, Monitor, Hand, ALargeSmall, Cloud } from 'lucide-react';
 import { normalizeSearchStr, toPhoneticSearchStr, evaluateSearchTermMatch, matchesNationality } from './components/searchScoring';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './components/popupUtils';
 import { _FavoriteChapterCard, CollectionCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, AuthorCard, OtherAppCard, _FavoriteAuthorCard, BookCard, ScreenSelectableRow, SCREEN_GROUP_CLASS } from './components/LibraryCards';
@@ -1858,6 +1860,73 @@ export default function App() {
   // Ajustes: Sistema
   const [dataFolder, setDataFolder] = useState<string>(() => localStorage.getItem('app_data_folder') || '%APPDATA%\\AudiobookPlayer');
   const [isSyncingLibrary, setIsSyncingLibrary] = useState<boolean>(false);
+
+  // Importar do Google Drive por link (arquivo ou pasta compartilhada)
+  const [showDriveImport, setShowDriveImport] = useState(false);
+  const [driveImportStatus, setDriveImportStatus] = useState<DriveImportStatus>({ phase: 'idle' });
+  const driveImportBusyRef = useRef(false);
+  const openDriveImport = () => {
+    window.dispatchEvent(new Event('close-all-popups'));
+    if (!driveImportBusyRef.current) setDriveImportStatus({ phase: 'idle' });
+    setShowDriveImport(true);
+  };
+  const driveErrorMessage = (err: unknown) => {
+    const code = (err as Error)?.message || '';
+    if (code.includes('not-shared')) return t('gdrive_err_not_shared');
+    if (code.includes('not-audio')) return t('gdrive_err_no_audio');
+    return t('gdrive_err_generic');
+  };
+  const handleImportFromDrive = async (rawLink: string) => {
+    if (driveImportBusyRef.current) return;
+    const link = parseDriveLink(rawLink);
+    if (!link) {
+      setDriveImportStatus({ phase: 'error', message: t('gdrive_err_link') });
+      return;
+    }
+    driveImportBusyRef.current = true;
+    try {
+      setDriveImportStatus({ phase: 'listing' });
+      const entries = await listDriveAudio(link);
+      if (entries.length === 0) {
+        setDriveImportStatus({ phase: 'error', message: t('gdrive_err_no_audio') });
+        return;
+      }
+      const files: File[] = [];
+      let failures = 0;
+      let lastError: unknown = null;
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const label = entry.name || t('gdrive_file');
+        setDriveImportStatus({ phase: 'downloading', index: i + 1, total: entries.length, name: label, percent: null });
+        try {
+          const file = await downloadDriveAudio(entry, libraryFolder, (received, size) => {
+            setDriveImportStatus({
+              phase: 'downloading', index: i + 1, total: entries.length, name: label,
+              percent: size ? Math.min(100, Math.round((received / size) * 100)) : null,
+            });
+          });
+          files.push(file);
+        } catch (err) {
+          failures++;
+          lastError = err;
+          console.warn('Falha ao baixar do Google Drive:', entry, err);
+        }
+      }
+      if (files.length === 0) {
+        setDriveImportStatus({ phase: 'error', message: driveErrorMessage(lastError) });
+        return;
+      }
+      await processAudioFiles(files);
+      setDriveImportStatus(failures > 0
+        ? { phase: 'error', message: t('gdrive_partial', { count: files.length, failed: failures }) }
+        : { phase: 'done', count: files.length });
+    } catch (err) {
+      console.warn('Falha ao importar do Google Drive:', err);
+      setDriveImportStatus({ phase: 'error', message: driveErrorMessage(err) });
+    } finally {
+      driveImportBusyRef.current = false;
+    }
+  };
 
   const handleSelectFolder = async (onSelect: (folderPath: string) => void, _initialFolder: string) => {
     // Celular/tablet ou site publicado: abre na hora (no mesmo toque) o seletor do aparelho.
@@ -4238,6 +4307,7 @@ export default function App() {
           // Botão da esquerda da pílula: enviar audiobooks (também é a primeira opção do pop-up)
           quick={{ id: 'upload', icon: <Upload size={15} />, label: t('upload_audiobooks'), onClick: () => fileInputRef.current?.click() }}
           menu={[
+            { id: 'gdrive-import', icon: <Cloud size={14} />, label: t('gdrive_import_menu'), onClick: openDriveImport },
             sortAction,
             { id: 'delete-multiple', icon: <Trash2 size={14} />, label: t('delete_multiple'), danger: true, onClick: () => setIsSelectionMode(true) },
           ]}
@@ -11111,6 +11181,15 @@ export default function App() {
                               >
                                 <Upload size={13} />
                               </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.12 }}
+                                whileTap={{ scale: 0.92 }}
+                                title={t('gdrive_import_menu')}
+                                onClick={openDriveImport}
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                              >
+                                <Cloud size={13} />
+                              </motion.button>
                               {IS_INSTALLED_APP && activeScreen.id.startsWith('library') && (
                                 <motion.button
                                   whileHover={{ scale: 1.12 }}
@@ -15141,6 +15220,20 @@ export default function App() {
       />
 
 
+
+      <AnimatePresence>
+        {showDriveImport && (
+          <DriveImportDialog
+            key="drive-import"
+            isMobile={isMobile}
+            status={driveImportStatus}
+            available={DRIVE_IMPORT_AVAILABLE}
+            onImport={handleImportFromDrive}
+            onClose={() => setShowDriveImport(false)}
+            t={t}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Overlay Visual de Drag & Drop Global */}
       <AnimatePresence>

@@ -1,5 +1,5 @@
 // Service Worker for Audiobook Player PWA
-const CACHE_NAME = 'audiobook-player-v8';
+const CACHE_NAME = 'audiobook-player-v9';
 // Caminhos relativos à pasta do service worker (funciona também numa subpasta, como no GitHub Pages)
 const ASSETS_TO_CACHE = [
   './',
@@ -43,6 +43,8 @@ self.addEventListener('fetch', (event) => {
   if (
     request.method !== 'GET' ||
     request.url.startsWith('blob:') ||
+    // Google Drive (importar por link): direto da rede, sem passar pelo cache
+    request.url.startsWith('https://www.googleapis.com/') ||
     request.url.includes('/@vite/') ||
     request.url.includes('/@fs/') ||
     request.url.includes('/@id/') ||

@@ -150,6 +150,82 @@ app.whenReady().then(() => {
     return fs.promises.readFile(target);
   });
 
+  // ----- Importar de um link do Google Drive (arquivo ou pasta compartilhada com "qualquer pessoa com o link") -----
+  const decodeHtml = (t) => String(t || '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'").replace(/&#(\d+);/g, (_m, n) => String.fromCharCode(Number(n)));
+  // Pasta pública: a página de visualização incorporada lista os arquivos e subpastas (sem chave de API)
+  ipcMain.handle('gdrive-list', async (_e, kind, id) => {
+    const safeId = String(id || '').replace(/[^\w-]/g, '');
+    if (!safeId) return [];
+    if (kind !== 'folder') return [{ id: safeId, name: '' }];
+    const out = [];
+    const seen = new Set();
+    const walk = async (folderId, depth) => {
+      if (seen.has(folderId)) return;
+      seen.add(folderId);
+      const res = await net.fetch(`https://drive.google.com/embeddedfolderview?id=${folderId}`);
+      if (!res.ok) throw new Error('not-shared');
+      const html = await res.text();
+      const re = /<a href="([^"]+)"[^>]*>[\s\S]*?<div class="flip-entry-title">([^<]*)<\/div>/g;
+      let m;
+      const subfolders = [];
+      while ((m = re.exec(html)) !== null) {
+        const href = decodeHtml(m[1]);
+        const name = decodeHtml(m[2]).trim();
+        const fileId = (href.match(/\/file\/d\/([\w-]+)/) || [])[1];
+        const subId = (href.match(/\/folders\/([\w-]+)/) || [])[1];
+        if (fileId) { if (isAudio(name)) out.push({ id: fileId, name }); }
+        else if (subId && depth < 3) subfolders.push(subId);
+      }
+      for (const sub of subfolders) await walk(sub, depth + 1);
+    };
+    await walk(safeId, 0);
+    return out;
+  });
+  // Baixa o arquivo direto para a pasta da biblioteca, avisando o progresso
+  ipcMain.handle('gdrive-download', async (e, id, folder) => {
+    const safeId = String(id || '').replace(/[^\w-]/g, '');
+    const res = await net.fetch(`https://drive.usercontent.google.com/download?id=${safeId}&export=download&confirm=t`);
+    const type = String(res.headers.get('content-type') || '');
+    if (!res.ok || !res.body || type.includes('text/html')) throw new Error('not-shared');
+    const disp = String(res.headers.get('content-disposition') || '');
+    const star = disp.match(/filename\*=UTF-8''([^;]+)/i);
+    const plain = disp.match(/filename="?([^";]+)"?/i);
+    let name = path.basename(star ? decodeURIComponent(star[1]) : plain ? plain[1] : `${safeId}.mp3`);
+    if (!isAudio(name)) throw new Error('not-audio');
+    const dir = resolveFolder(folder);
+    await fs.promises.mkdir(dir, { recursive: true });
+    const target = path.join(dir, name);
+    const total = Number(res.headers.get('content-length')) || 0;
+    const tmp = `${target}.download`;
+    const out = fs.createWriteStream(tmp);
+    const reader = res.body.getReader();
+    let received = 0;
+    let lastSent = 0;
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        received += value.length;
+        if (!out.write(Buffer.from(value))) await new Promise(r => out.once('drain', r));
+        const now = Date.now();
+        if (now - lastSent > 150) {
+          lastSent = now;
+          e.sender.send('gdrive-progress', { id: safeId, received, total });
+        }
+      }
+      await new Promise((resolve, reject) => out.end((err) => (err ? reject(err) : resolve())));
+      await fs.promises.rename(tmp, target);
+    } catch (err) {
+      out.destroy();
+      fs.promises.unlink(tmp).catch(() => {});
+      throw err;
+    }
+    e.sender.send('gdrive-progress', { id: safeId, received, total: total || received });
+    return { path: target, name, size: received };
+  });
+
   if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
   createWindow();
   app.on('activate', () => {

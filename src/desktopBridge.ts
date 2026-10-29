@@ -14,6 +14,10 @@ export interface DesktopBridge {
   saveAudiobook: (fileName: string, folder: string, data: ArrayBuffer) => Promise<string>;
   scanLibraryFolder: (folder: string) => Promise<{ folder: string; exists: boolean; files: { name: string; path: string; size: number }[] }>;
   readAudioFile: (filePath: string) => Promise<Uint8Array | null>;
+  // Google Drive por link (arquivo ou pasta pública): lista os áudios e baixa para a pasta da biblioteca
+  gdriveList?: (kind: 'file' | 'folder', id: string) => Promise<{ id: string; name: string }[]>;
+  gdriveDownload?: (id: string, folder: string) => Promise<{ path: string; name: string; size: number }>;
+  onGdriveProgress?: (cb: (p: { id: string; received: number; total: number }) => void) => () => void;
   closeApp: () => Promise<void>;
 }
 
