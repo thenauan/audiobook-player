@@ -23,8 +23,50 @@ function scrollsVertically(from: HTMLElement, popup: Element): boolean {
   return false;
 }
 
+// Linhas de lista tocáveis fora dos pop-ups (Mais, Ajustes, Ajuda): destaque enquanto o dedo está em cima
+// (o ":active" do iPhone quase não aparece num toque rápido). Some ao arrastar (rolagem) ou ao soltar.
+const ROW_SELECTOR = '.settings-list-row, [data-tap-card]';
+function installRowHighlights(): () => void {
+  let row: HTMLElement | null = null;
+  let start: { x: number; y: number } | null = null;
+  const clear = (delay = 0) => {
+    const el = row;
+    row = null;
+    start = null;
+    if (!el) return;
+    if (delay) setTimeout(() => el.removeAttribute(ACTIVE_ATTR), delay);
+    else el.removeAttribute(ACTIVE_ATTR);
+  };
+  const onStart = (e: TouchEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (e.touches.length !== 1 || target?.closest?.('[data-popup-content]')) return;
+    const el = target?.closest?.(ROW_SELECTOR) as HTMLElement | null;
+    if (!el) return;
+    row = el;
+    start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    el.setAttribute(ACTIVE_ATTR, 'true');
+  };
+  const onMove = (e: TouchEvent) => {
+    if (!start) return;
+    const t = e.touches[0];
+    if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 8) clear();
+  };
+  const onEnd = () => clear(140);
+  document.addEventListener('touchstart', onStart, { passive: true, capture: true });
+  document.addEventListener('touchmove', onMove, { passive: true, capture: true });
+  document.addEventListener('touchend', onEnd, { passive: true, capture: true });
+  document.addEventListener('touchcancel', onEnd, { passive: true, capture: true });
+  return () => {
+    document.removeEventListener('touchstart', onStart, { capture: true } as any);
+    document.removeEventListener('touchmove', onMove, { capture: true } as any);
+    document.removeEventListener('touchend', onEnd, { capture: true } as any);
+    document.removeEventListener('touchcancel', onEnd, { capture: true } as any);
+  };
+}
+
 export function installTouchMenus(): () => void {
   if (typeof document === 'undefined') return () => {};
+  const removeRowHighlights = installRowHighlights();
   let popup: Element | null = null;
   let active: HTMLElement | null = null;
   let start: { x: number; y: number } | null = null;
@@ -95,6 +137,7 @@ export function installTouchMenus(): () => void {
   document.addEventListener('touchend', onEnd, { passive: false, capture: true });
   document.addEventListener('touchcancel', reset, { passive: true, capture: true });
   return () => {
+    removeRowHighlights();
     document.removeEventListener('touchstart', onStart, { capture: true } as any);
     document.removeEventListener('touchmove', onMove, { capture: true } as any);
     document.removeEventListener('touchend', onEnd, { capture: true } as any);

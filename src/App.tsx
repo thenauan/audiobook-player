@@ -4506,9 +4506,41 @@ export default function App() {
         const savedPositions = JSON.parse(localStorage.getItem('audiobook_playback_positions') || '{}');
         savedPositions[bookId] = time;
         localStorage.setItem('audiobook_playback_positions', JSON.stringify(savedPositions));
+        // Onde parou em cada capítulo (para voltar ao capítulo de onde parou, mesmo depois de ouvir outros
+        // livros). Capítulo ouvido até o fim (ou quase) volta a começar do início.
+        const book = booksRef.current.find(b => b.id === bookId);
+        const chapters = book?.chapters || [];
+        const idx = chapters.findIndex((chap, i) => {
+          const next = chapters[i + 1];
+          return time >= chap.startTime && (!next || time < next.startTime);
+        });
+        if (idx >= 0) {
+          const chap = chapters[idx];
+          const elapsed = Math.max(0, time - (chap.startTime || 0));
+          const all = JSON.parse(localStorage.getItem('audiobook_chapter_positions') || '{}');
+          const forBook = (all[bookId] && typeof all[bookId] === 'object') ? all[bookId] : {};
+          if (elapsed < 2 || (chap.duration > 0 && elapsed >= chap.duration - 3)) delete forBook[String(chap.id)];
+          else forBook[String(chap.id)] = Math.round(elapsed * 10) / 10;
+          all[bookId] = forBook;
+          localStorage.setItem('audiobook_chapter_positions', JSON.stringify(all));
+        }
       } catch {}
     }
   }, [resumePlayback]);
+
+  // Onde o usuário parou num capítulo (segundos dentro do capítulo), se houver
+  const getChapterResumeElapsed = (bookId: string, chapter: Chapter | undefined): number | null => {
+    if (!resumePlayback || !chapter) return null;
+    try {
+      const all = JSON.parse(localStorage.getItem('audiobook_chapter_positions') || '{}');
+      const v = Number(all?.[bookId]?.[String(chapter.id)]);
+      if (!isFinite(v) || v < 2) return null;
+      if (chapter.duration > 0 && v >= chapter.duration - 3) return null;
+      return v;
+    } catch {
+      return null;
+    }
+  };
 
   // Atualização otimizada de posição na Media Session API
   const lastMediaSessionPositionUpdateRef = useRef<number>(0);
@@ -5639,7 +5671,16 @@ export default function App() {
       return;
     }
     recordPlaySession(book);
-    const resumeTime = chapterIndex < 0 ? getResumeTime(book) : null;
+    // Capítulo escolhido: continua de onde parou nele (se já tiver sido ouvido em parte)
+    const chosenChapter = chapterIndex >= 0 ? book.chapters?.[chapterIndex] : undefined;
+    const chapterElapsed = chosenChapter ? getChapterResumeElapsed(book.id, chosenChapter) : null;
+    const resumeTime = chapterIndex < 0
+      ? getResumeTime(book)
+      : (chapterElapsed !== null ? (chosenChapter!.startTime || 0) + chapterElapsed : null);
+    // Antes de pular para outro capítulo do mesmo livro, guarda onde parou no atual
+    if (currentBook?.id === book.id && book.id !== EMPTY_BOOK.id) {
+      savePlaybackPosition(audioRef.current?.currentTime ?? currentTime, book.id, true);
+    }
     const resumeIdx = resumeTime !== null
       ? Math.max(0, (book.chapters || []).findIndex((chap, i) => {
           const next = book.chapters[i + 1];
@@ -7864,7 +7905,7 @@ export default function App() {
                               beginBookSwitch(item.book);
                               setCurrentBook(item.book);
                               setSelectedBook(item.book);
-                              handleSeek(item.startTime);
+                              handleSeek(item.startTime + (getChapterResumeElapsed(item.bookId || item.book?.id, (item.book?.chapters || booksRef.current.find(b => b.id === (item.bookId || item.book?.id))?.chapters || []).find((c: Chapter) => c.id === item.chapterId)) || 0));
                               setIsPlaying(true);
                               setPlaybackQueue(prev => {
                                 const curIdx = prev.findIndex(it => it.id === item.id);
@@ -8606,7 +8647,7 @@ export default function App() {
                                 beginBookSwitch(item.book);
                                 setCurrentBook(item.book);
                                 setSelectedBook(item.book);
-                                handleSeek(item.startTime);
+                                handleSeek(item.startTime + (getChapterResumeElapsed(item.bookId || item.book?.id, (item.book?.chapters || booksRef.current.find(b => b.id === (item.bookId || item.book?.id))?.chapters || []).find((c: Chapter) => c.id === item.chapterId)) || 0));
                                 setIsPlaying(true);
                                 setPlaybackQueue(prev => {
                                   const curIdx = prev.findIndex(it => it.id === item.id);
@@ -12388,7 +12429,7 @@ export default function App() {
                           <div className="fixed inset-0 z-[29]" onClick={() => setIsMobileAlphaNavOpen(false)} />
                         )}
                         <aside
-                          className={`fixed z-30 pointer-events-auto flex items-center justify-center transition-all duration-300 top-1/2 -translate-y-1/2 ${
+                          className={`fixed z-30 pointer-events-auto flex items-center justify-center transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] top-1/2 -translate-y-1/2 ${
                             isMobile ? 'right-1.5' : 'right-6'
                           } ${
                             isCompactNav
@@ -12402,7 +12443,7 @@ export default function App() {
                         >
                           <nav
                             {...mobileNavHandlers}
-                            className={`w-full flex flex-col items-center no-scrollbar select-none transition-all duration-300 border border-[var(--text-main)]/10 ${
+                            className={`w-full flex flex-col items-center no-scrollbar select-none transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] border border-[var(--text-main)]/10 ${
                               isCompactNav
                                 ? 'p-0.5 gap-0 rounded-full bg-card/55 backdrop-blur-xl shadow-md overflow-hidden'
                                 : `p-1.5 bg-card/85 backdrop-blur-3xl shadow-2xl ${isMobile ? 'overflow-hidden' : 'overflow-y-auto'} ${isAlphabetMode ? 'rounded-full gap-1' : 'rounded-[18px] gap-1.5'}`
@@ -12420,7 +12461,7 @@ export default function App() {
                                   data-nav-id={group.id}
                                   // No mobile o toque/arraste é tratado pela barra; aqui só teclado e desktop
                                   onClick={(e) => { if (!isMobile || e.detail === 0) handleScrollToGroup(group.id); }}
-                                  className={`relative flex items-center justify-center font-bold transition-all duration-200 cursor-pointer ${
+                                  className={`relative flex items-center justify-center font-bold transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
                                     isMobile ? 'flex-1 min-h-0 w-full' : 'shrink-0'
                                   } ${
                                     isCompactNav

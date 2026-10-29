@@ -142,6 +142,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                 key={theme.id}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => navigateTo('help-theme', { id: theme.id, title: theme.title })}
+                data-tap-card="true"
                 className="relative isolate flex items-center justify-between p-5 sm:p-6 rounded-[28px] cursor-pointer shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] group"
               >
                 {/* Camada interna recortada com fundo e ícone com zoom */}
@@ -199,7 +200,8 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                     key={sub.id}
                     whileTap={{ scale: 0.985 }}
                     onClick={() => navigateTo('help-article', { themeId: currentTheme.id, subthemeId: sub.id, theme: currentTheme, subtheme: sub })}
-                    className="relative isolate flex items-center justify-between p-5 sm:p-6 rounded-[28px] cursor-pointer shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] group"
+                    data-tap-card="true"
+                className="relative isolate flex items-center justify-between p-5 sm:p-6 rounded-[28px] cursor-pointer shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] group"
                   >
                     {/* Camada interna recortada com fundo e ícone com zoom */}
                     <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">

@@ -1452,9 +1452,13 @@ main h2.text-xl.font-bold,
 main h3.text-lg.font-bold {
   font-size: var(--subtitle-size) !important;
 }
+/* Computador: título do pop-up um pouco maior que as opções (12,75px x 10,2px na escala padrão);
+   celular: o tamanho dos subtítulos das telas */
+:root { --popup-title-size: calc(0.9375rem * var(--font-scale, 1)); }
+@media (max-width: 1023px) { :root { --popup-title-size: var(--subtitle-size); } }
 :is([data-popup-content], [data-player-sheet]) :is(h3, h4, span).text-sm.font-bold,
 [data-mobile-confirm] :is(h3, h4) {
-  font-size: var(--subtitle-size) !important;
+  font-size: var(--popup-title-size) !important;
   line-height: 1.3;
 }
 /* Títulos de pop-up numa linha só (os de confirmação podem quebrar: são frases) */
@@ -1560,4 +1564,34 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ==========================================================================
+   CELULAR: DESTAQUES SÓ COM PREENCHIMENTO (sem contorno nem brilho)
+   ========================================================================== */
+@media (max-width: 1023px) {
+  /* Opções de pop-ups, folhas e cartões do player: destaque (tocada, selecionada, clicada) sem borda/brilho */
+  :is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) button.group.w-full,
+  :is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) button.group.w-full > .absolute.inset-0,
+  :is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) [data-touch-active],
+  :is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) [class*="border-winblue"][class*="bg-winblue/"] {
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+  /* Capítulo atual na página do audiobook: só o preenchimento */
+  [data-chapter-row] {
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+  /* Linhas de Mais, Ajustes e Ajuda: destaque de preenchimento ao tocar */
+  .settings-list-row[data-touch-active] {
+    background-color: rgb(255 255 255 / 0.12) !important;
+    filter: none !important;
+  }
+  html:not(.dark) .settings-list-row[data-touch-active] {
+    background-color: rgb(100 116 139 / 0.14) !important;
+  }
+  [data-tap-card][data-touch-active] {
+    filter: brightness(0.86) !important;
+  }
 }
