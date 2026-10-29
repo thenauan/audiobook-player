@@ -12438,6 +12438,8 @@ export default function App() {
                           }`}
                           style={{
                             maxHeight: isMobile ? 'calc(100dvh - 260px)' : (isPlayerVisible ? 'calc(100vh - 190px)' : 'calc(100vh - 120px)'),
+                            // Celular deitado: fora do notch/Dynamic Island do lado direito
+                            ...(isMobile ? { right: 'max(6px, calc(var(--safe-right) + 4px))' } : {}),
                           }}
                           aria-label={t('audiobooks_filter_aria')}
                         >

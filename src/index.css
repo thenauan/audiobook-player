@@ -783,7 +783,7 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   /* (sem aumentar a opção nem brilho largo: dentro da margem do pop-up, nada é cortado) */
   [data-popup-content] [data-touch-active] {
     background-color: rgb(255 255 255 / 0.15) !important;
-    border-color: rgb(255 255 255 / 0.2) !important;
+    border-color: transparent !important;
     box-shadow: 0 0 6px rgb(255 255 255 / 0.12) !important;
     color: #fff;
   }
@@ -1490,7 +1490,7 @@ html:not(.dark) main [class*="aspect-[16/9]"].rounded-3xl {
 html:not(.dark) [data-popup-content] [data-touch-active],
 html:not(.dark) [data-player-sheet] [data-touch-active] {
   background-color: rgb(100 116 139 / 0.16) !important;
-  border-color: rgb(100 116 139 / 0.22) !important;
+  border-color: transparent !important;
   box-shadow: none !important;
   color: inherit !important;
 }
@@ -1499,7 +1499,7 @@ html:not(.dark) [data-player-sheet] [data-touch-active] {
 :is([data-popup-content], [data-player-sheet], [data-mobile-confirm]) :is(button, [role="button"]).text-red-500[data-touch-active],
 :is(button, [role="button"]).text-red-500:active {
   background-color: rgb(239 68 68 / 0.16) !important;
-  border-color: rgb(239 68 68 / 0.32) !important;
+  border-color: transparent !important;
   box-shadow: 0 0 6px rgb(239 68 68 / 0.18) !important;
   color: rgb(239 68 68) !important;
   filter: none !important;
@@ -1567,22 +1567,17 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
 }
 
 /* ==========================================================================
-   CELULAR: DESTAQUES SÓ COM PREENCHIMENTO (sem contorno nem brilho)
+   DESTAQUES TEMPORÁRIOS SEM CONTORNO
+   Em pop-ups, folhas e afins, o destaque que aparece ao passar o mouse, ao tocar/segurar ou logo após o
+   clique fica só com o preenchimento (e o brilho), sem contorno. Destaques fixos (opção selecionada,
+   capítulo atual) mantêm o contorno.
    ========================================================================== */
+:is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) :is(button, [role="button"]):is(:hover, [data-touch-active]):not([class*="border-winblue"]),
+:is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) button.group.w-full[class*="ring-1"] {
+  border-color: transparent !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
 @media (max-width: 1023px) {
-  /* Opções de pop-ups, folhas e cartões do player: destaque (tocada, selecionada, clicada) sem borda/brilho */
-  :is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) button.group.w-full,
-  :is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) button.group.w-full > .absolute.inset-0,
-  :is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) [data-touch-active],
-  :is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) [class*="border-winblue"][class*="bg-winblue/"] {
-    border-color: transparent !important;
-    box-shadow: none !important;
-  }
-  /* Capítulo atual na página do audiobook: só o preenchimento */
-  [data-chapter-row] {
-    border-color: transparent !important;
-    box-shadow: none !important;
-  }
   /* Linhas de Mais, Ajustes e Ajuda: destaque de preenchimento ao tocar */
   .settings-list-row[data-touch-active] {
     background-color: rgb(255 255 255 / 0.12) !important;
@@ -1593,5 +1588,12 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
   }
   [data-tap-card][data-touch-active] {
     filter: brightness(0.86) !important;
+  }
+}
+
+/* Celular: o desfoque do cabeçalho acompanha os botões maiores (44pt) e desce um pouco mais */
+@media (max-width: 1023px) {
+  .apple-header-blur {
+    height: calc(var(--app-header-top) + 44px + 64px) !important;
   }
 }
