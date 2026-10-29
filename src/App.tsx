@@ -34,7 +34,7 @@ import { ScreenErrorBoundary } from './components/ScreenErrorBoundary';
 import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
-import { DriveImportDialog, type DriveImportStatus } from './components/DriveImportDialog';
+import { DriveImportPanel, type DriveImportStatus } from './components/DriveImportDialog';
 import { parseDriveLink, listDriveAudio, downloadDriveAudio, DRIVE_IMPORT_AVAILABLE } from './googleDrive';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
 import { installTouchMenus } from './components/touchMenu';
@@ -1862,14 +1862,20 @@ export default function App() {
   const [isSyncingLibrary, setIsSyncingLibrary] = useState<boolean>(false);
 
   // Importar do Google Drive por link (arquivo ou pasta compartilhada)
+  // Computador: pop-up que nasce do botão de nuvem; celular: painel do menu da pílula do cabeçalho
   const [showDriveImport, setShowDriveImport] = useState(false);
   const [driveImportStatus, setDriveImportStatus] = useState<DriveImportStatus>({ phase: 'idle' });
+  const [driveBtnAnchor, setDriveBtnAnchor] = useState<HTMLElement | null>(null);
   const driveImportBusyRef = useRef(false);
-  const openDriveImport = () => {
-    window.dispatchEvent(new Event('close-all-popups'));
-    if (!driveImportBusyRef.current) setDriveImportStatus({ phase: 'idle' });
-    setShowDriveImport(true);
-  };
+  useEffect(() => {
+    const onCloseAll = () => {
+      setShowDriveImport(false);
+      // Ao fechar, um resultado já mostrado some (o download em andamento continua e segue aparecendo)
+      if (!driveImportBusyRef.current) setDriveImportStatus({ phase: 'idle' });
+    };
+    window.addEventListener('close-all-popups', onCloseAll);
+    return () => window.removeEventListener('close-all-popups', onCloseAll);
+  }, []);
   const driveErrorMessage = (err: unknown) => {
     const code = (err as Error)?.message || '';
     if (code.includes('not-shared')) return t('gdrive_err_not_shared');
@@ -4307,7 +4313,11 @@ export default function App() {
           // Botão da esquerda da pílula: enviar audiobooks (também é a primeira opção do pop-up)
           quick={{ id: 'upload', icon: <Upload size={15} />, label: t('upload_audiobooks'), onClick: () => fileInputRef.current?.click() }}
           menu={[
-            { id: 'gdrive-import', icon: <Cloud size={14} />, label: t('gdrive_import_menu'), onClick: openDriveImport },
+            {
+              id: 'gdrive-import', icon: <Cloud size={14} />, label: t('gdrive_import_menu'),
+              panelWidth: 340,
+              panel: <DriveImportPanel status={driveImportStatus} available={DRIVE_IMPORT_AVAILABLE} onImport={handleImportFromDrive} t={t} />,
+            },
             sortAction,
             { id: 'delete-multiple', icon: <Trash2 size={14} />, label: t('delete_multiple'), danger: true, onClick: () => setIsSelectionMode(true) },
           ]}
@@ -11184,8 +11194,15 @@ export default function App() {
                               <motion.button
                                 whileHover={{ scale: 1.12 }}
                                 whileTap={{ scale: 0.92 }}
+                                animate={morphTriggerAnimate(showDriveImport)}
                                 title={t('gdrive_import_menu')}
-                                onClick={openDriveImport}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const wasOpen = showDriveImport;
+                                  const btn = e.currentTarget;
+                                  closeAllPopups();
+                                  if (!wasOpen) { setDriveBtnAnchor(btn); setShowDriveImport(true); }
+                                }}
                                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                               >
                                 <Cloud size={13} />
@@ -15149,6 +15166,24 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* POPUP DO GOOGLE DRIVE (computador): nasce do botão de nuvem */}
+      {showDriveImport && !isMobile && (
+        <div className="fixed inset-0 z-[9998] cursor-default" {...getBackdropProps(() => setShowDriveImport(false))} />
+      )}
+      <AnimatePresence>
+        {showDriveImport && !isMobile && driveBtnAnchor && (
+          <MorphPopup anchor={driveBtnAnchor}
+            key="global-drive-import"
+            style={getButtonCoverPopupStyle(driveBtnAnchor, 250, 220, 'right')}
+            data-popup-content="true"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[22px] shadow-2xl z-[9999] flex flex-col text-left overflow-hidden"
+          >
+            <DriveImportPanel status={driveImportStatus} available={DRIVE_IMPORT_AVAILABLE} onImport={handleImportFromDrive} t={t} />
+          </MorphPopup>
+        )}
+      </AnimatePresence>
+
       {/* POPUP GLOBAL DE ORDENAÇÃO (TRANSFORMAÇÃO DO BOTÃO) */}
       {showSortMenu && (
         <div 
@@ -15220,20 +15255,6 @@ export default function App() {
       />
 
 
-
-      <AnimatePresence>
-        {showDriveImport && (
-          <DriveImportDialog
-            key="drive-import"
-            isMobile={isMobile}
-            status={driveImportStatus}
-            available={DRIVE_IMPORT_AVAILABLE}
-            onImport={handleImportFromDrive}
-            onClose={() => setShowDriveImport(false)}
-            t={t}
-          />
-        )}
-      </AnimatePresence>
 
       {/* Overlay Visual de Drag & Drop Global */}
       <AnimatePresence>

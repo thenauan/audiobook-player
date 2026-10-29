@@ -644,7 +644,8 @@ export function getButtonMorphMotion(opts: {
 // Conteúdo do pop-up: surge do desfoque com um leve zoom (e some desfocando antes da forma encolher)
 export const MORPH_CONTENT_MOTION = {
   initial: { opacity: 0, scale: 0.9, filter: 'blur(10px)' },
-  animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
+  // Ao terminar, sem filtro nenhum (um "blur(0px)" que sobra deixa o texto borrado no Chrome/Electron)
+  animate: { opacity: 1, scale: 1, filter: 'blur(0px)', transitionEnd: { filter: 'none' } },
   exit: {
     opacity: 0,
     scale: 0.92,
@@ -899,11 +900,9 @@ export function PopupMorphContainer({
     openUp: isOpeningUp,
   });
 
-  const animatedHeight = justChangedKey
-    ? lastHeightRef.current
-    : isKeyMorphing
-      ? morphHeight
-      : 'auto';
+  // A altura acompanha sempre o conteúdo (não só na troca de painel): se o painel cresce depois de aberto
+  // (ex.: uma linha de progresso aparece), o pop-up cresce junto em vez de cortar o fim
+  const animatedHeight = justChangedKey ? lastHeightRef.current : morphHeight;
 
   return (
     <motion.div
@@ -932,9 +931,9 @@ export function PopupMorphContainer({
           ...MORPH_CONTENT_MOTION.transition,
           width: enableWidthSpring ? MORPH_BOUNCE_SPRING : { duration: 0 },
           height:
-            !justChangedKey && isKeyMorphing
-              ? MORPH_BOUNCE_SPRING
-              : { duration: 0 },
+            justChangedKey || !enableWidthSpring
+              ? { duration: 0 }
+              : isKeyMorphing ? MORPH_BOUNCE_SPRING : MORPH_SPRING,
         }}
         className="relative z-10 overflow-hidden will-change-[width,height]"
       >
