@@ -72,23 +72,34 @@ export function installTouchMenus(): () => void {
   let start: { x: number; y: number } | null = null;
   let dragging = false;
   let scrollable = false;
+  let sweepTimer: ReturnType<typeof setTimeout> | null = null;
 
+  // No máximo um destaque por vez: limpa qualquer destaque que tenha sobrado (de um toque anterior, de uma
+  // página do menu que está saindo ou de um toque cancelado pelo sistema)
+  const clearAll = (except?: HTMLElement | null) => {
+    document.querySelectorAll<HTMLElement>(`[data-popup-content] [${ACTIVE_ATTR}], [data-player-sheet] [${ACTIVE_ATTR}]`)
+      .forEach(el => { if (el !== except) el.removeAttribute(ACTIVE_ATTR); });
+  };
   const setActive = (el: HTMLElement | null) => {
     if (active === el) return;
     active?.removeAttribute(ACTIVE_ATTR);
     active = el;
+    clearAll(el);
     active?.setAttribute(ACTIVE_ATTR, 'true');
     // Leve toque tátil ao passar para outra opção (Android; o iOS ignora)
     if (el && dragging) { try { navigator.vibrate?.(4); } catch { /* sem vibração */ } }
   };
   const reset = () => {
     setActive(null);
+    clearAll();
     popup = null;
     start = null;
     dragging = false;
   };
 
   const onStart = (e: TouchEvent) => {
+    if (sweepTimer) { clearTimeout(sweepTimer); sweepTimer = null; }
+    clearAll();
     if (e.touches.length !== 1) { reset(); return; }
     const target = e.target as HTMLElement | null;
     const option = target?.closest?.(OPTION_SELECTOR) as HTMLElement | null;
@@ -125,7 +136,9 @@ export function installTouchMenus(): () => void {
     popup = null;
     start = null;
     dragging = false;
-    if (highlighted) setTimeout(() => highlighted.removeAttribute(ACTIVE_ATTR), 160);
+    // Some logo depois de soltar (e qualquer outro destaque que tenha sobrado também)
+    if (sweepTimer) clearTimeout(sweepTimer);
+    sweepTimer = setTimeout(() => { sweepTimer = null; if (!start) clearAll(); }, highlighted ? 160 : 0);
     if (!wasDragging) return; // toque simples: o clique normal do navegador escolhe a opção
     // Arrastou: o navegador não gera o clique; escolhe a opção sob o dedo ao soltar
     if (e.cancelable) e.preventDefault();
@@ -136,7 +149,10 @@ export function installTouchMenus(): () => void {
   document.addEventListener('touchmove', onMove, { passive: false, capture: true });
   document.addEventListener('touchend', onEnd, { passive: false, capture: true });
   document.addEventListener('touchcancel', reset, { passive: true, capture: true });
+  // Pop-up fechado ou trocado: nenhum destaque fica para trás
+  window.addEventListener('close-all-popups', reset);
   return () => {
+    window.removeEventListener('close-all-popups', reset);
     removeRowHighlights();
     document.removeEventListener('touchstart', onStart, { capture: true } as any);
     document.removeEventListener('touchmove', onMove, { capture: true } as any);

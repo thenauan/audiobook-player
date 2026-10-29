@@ -105,6 +105,7 @@ const getSleepTimerIcon = (mins: number) => {
 type ScreenState = {
   id: string; // 'home', 'search', 'library', 'history', 'settings', 'help', 'book-detail', 'author-detail', 'genre-detail', etc.
   data?: any; // The book or author object
+  scrollTop?: number; // Rolagem da tela ao sair dela (restaurada ao voltar)
 };
 
 
@@ -155,6 +156,8 @@ const IOS_NAV = { type: 'spring', stiffness: 300, damping: 34, mass: 0.9, restDe
 // (senão ela "pula" para o próprio topo e os itens piscam/se sobrepõem durante a animação).
 let exitScrollTop = 0;
 let exitTopPx: number | null = null;
+// Ao voltar, a tela anterior reabre na rolagem em que estava: a que sai é compensada por essa rolagem
+let exitRestoreOffset = 0;
 // Durante a troca de telas, a barra de abas e o miniplayer ficam parados: as rolagens feitas pelo app
 // (voltar ao topo, restaurar a posição da tela anterior) não recolhem nem expandem a barra
 let navBarFreezeUntil = 0;
@@ -162,6 +165,7 @@ function captureExitScroll(el: HTMLElement | null) {
   navBarFreezeUntil = Date.now() + 900;
   exitScrollTop = el?.scrollTop || 0;
   exitTopPx = null;
+  exitRestoreOffset = 0;
   if (!el) return;
   // Posição real da tela atual dentro da área rolável (a tela que sai fica exatamente onde estava)
   const screen = Array.from(el.children).find(c => getComputedStyle(c).position !== 'absolute' && c.getBoundingClientRect().height > 0);
@@ -172,7 +176,7 @@ function captureExitScroll(el: HTMLElement | null) {
 const OVERLAY_T = { top: { duration: 0 }, left: { duration: 0 }, right: { duration: 0 }, position: { duration: 0 } };
 const exitOverlay = () => ({
   position: 'absolute',
-  top: exitTopPx !== null ? exitTopPx : `calc(var(--app-header-top) + 60px - ${exitScrollTop}px)`,
+  top: exitTopPx !== null ? exitTopPx + exitRestoreOffset : `calc(var(--app-header-top) + 60px - ${exitScrollTop - exitRestoreOffset}px)`,
   left: 'max(var(--page-margin), var(--safe-left))',
   right: 'max(var(--page-margin), var(--safe-right))',
 });
@@ -2274,7 +2278,8 @@ export default function App() {
       const currentEntry = activeScreen.id === 'book-detail' && !activeScreen.data
         ? { ...activeScreen, data: selectedBook }
         : activeScreen;
-      setHistoryStack((prev) => [...prev, currentEntry]);
+      const leavingScrollTop = mainScrollRef.current?.scrollTop || 0;
+      setHistoryStack((prev) => [...prev, { ...currentEntry, scrollTop: leavingScrollTop }]);
       setActiveScreen({ id: screenId, data });
     }
     const isChapterJump = screenId === 'book-detail' && pendingChapterScrollRef.current;
@@ -2340,15 +2345,39 @@ export default function App() {
         }
       }
       setHistoryStack((curr) => curr.slice(0, -1));
+      // A tela anterior volta na mesma rolagem em que estava (não no topo)
+      const restoreTop = Math.max(0, prev.scrollTop || 0);
+      exitRestoreOffset = isMobileNav() ? restoreTop : 0;
+      pendingScrollRestoreRef.current = restoreTop;
       setActiveScreen(prev);
       if (prev.id === 'book-detail' && prev.data) {
         setSelectedBook(prev.data);
       }
-      if (mainScrollRef.current) {
-        mainScrollRef.current.scrollTop = 0;
-      }
     }
   };
+
+  // Restaura a rolagem da tela anterior antes de ela aparecer (celular: as duas telas estão juntas na
+  // troca; computador: espera a tela que sai terminar). Se o conteúdo ainda está carregando, tenta de novo.
+  const pendingScrollRestoreRef = useRef<number | null>(null);
+  const restoredScreenRef = useRef<ScreenState | null>(null);
+  useLayoutEffect(() => {
+    const target = pendingScrollRestoreRef.current;
+    if (target === null) return;
+    pendingScrollRestoreRef.current = null;
+    restoredScreenRef.current = activeScreen;
+    const el = mainScrollRef.current;
+    if (!el) return;
+    let frames = 0;
+    let raf = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const apply = () => {
+      el.scrollTop = target;
+      if (Math.abs(el.scrollTop - target) > 1 && frames++ < 40) raf = requestAnimationFrame(apply);
+    };
+    if (isMobileNav()) apply();
+    else { el.scrollTop = 0; timer = setTimeout(apply, 90); }
+    return () => { cancelAnimationFrame(raf); if (timer) clearTimeout(timer); };
+  }, [activeScreen]);
 
   // Detecta se a sinopse na página do audiobook ultrapassa 6 linhas
   useEffect(() => {
@@ -2418,6 +2447,11 @@ export default function App() {
         clearTimeout(t2);
       };
     } else {
+      // Voltando para uma tela: ela fica na rolagem em que estava
+      if (restoredScreenRef.current === activeScreen) {
+        restoredScreenRef.current = null;
+        return;
+      }
       const scrollToTop = () => {
         if (mainScrollRef.current) {
           mainScrollRef.current.scrollTop = 0;

@@ -1452,10 +1452,9 @@ main h2.text-xl.font-bold,
 main h3.text-lg.font-bold {
   font-size: var(--subtitle-size) !important;
 }
-/* Computador: título do pop-up um pouco maior que as opções (12,75px x 10,2px na escala padrão);
-   celular: o tamanho dos subtítulos das telas */
-:root { --popup-title-size: calc(0.9375rem * var(--font-scale, 1)); }
-@media (max-width: 1023px) { :root { --popup-title-size: var(--subtitle-size); } }
+/* Títulos dos pop-ups no tamanho do título do cabeçalho do celular (17pt), proporcional à escala de texto
+   (computador: 17 x 0,85 = 14,45px; celular: 17px) */
+:root { --popup-title-size: calc(1.0625rem * var(--font-scale, 1)); }
 :is([data-popup-content], [data-player-sheet]) :is(h3, h4, span).text-sm.font-bold,
 [data-mobile-confirm] :is(h3, h4) {
   font-size: var(--popup-title-size) !important;
@@ -1596,9 +1595,69 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
   }
 }
 
-/* Celular: o desfoque do cabeçalho acompanha os botões maiores (44pt) e desce um pouco mais */
+/* Celular: o desfoque forte vai até embaixo da linha do título e dos botões (44pt) e só depois esmaece
+   (posições medidas a partir do topo do cabeçalho, iguais em qualquer iPhone) */
 @media (max-width: 1023px) {
   .apple-header-blur {
-    height: calc(var(--app-header-top) + 44px + 64px) !important;
+    height: calc(var(--app-header-top) + 124px) !important;
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(6) {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(var(--app-header-top) + 44px), transparent calc(var(--app-header-top) + 64px));
+    mask-image: linear-gradient(to bottom, #000 0, #000 calc(var(--app-header-top) + 44px), transparent calc(var(--app-header-top) + 64px));
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(5) {
+    -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 24px), #000 calc(var(--app-header-top) + 40px), #000 calc(var(--app-header-top) + 58px), transparent calc(var(--app-header-top) + 76px));
+    mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 24px), #000 calc(var(--app-header-top) + 40px), #000 calc(var(--app-header-top) + 58px), transparent calc(var(--app-header-top) + 76px));
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(4) {
+    -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 40px), #000 calc(var(--app-header-top) + 56px), #000 calc(var(--app-header-top) + 70px), transparent calc(var(--app-header-top) + 88px));
+    mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 40px), #000 calc(var(--app-header-top) + 56px), #000 calc(var(--app-header-top) + 70px), transparent calc(var(--app-header-top) + 88px));
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(3) {
+    -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 56px), #000 calc(var(--app-header-top) + 70px), #000 calc(var(--app-header-top) + 82px), transparent calc(var(--app-header-top) + 100px));
+    mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 56px), #000 calc(var(--app-header-top) + 70px), #000 calc(var(--app-header-top) + 82px), transparent calc(var(--app-header-top) + 100px));
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(2) {
+    -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 70px), #000 calc(var(--app-header-top) + 82px), #000 calc(var(--app-header-top) + 94px), transparent calc(var(--app-header-top) + 112px));
+    mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 70px), #000 calc(var(--app-header-top) + 82px), #000 calc(var(--app-header-top) + 94px), transparent calc(var(--app-header-top) + 112px));
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(1) {
+    -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 82px), #000 calc(var(--app-header-top) + 94px), #000 calc(var(--app-header-top) + 104px), transparent calc(var(--app-header-top) + 124px));
+    mask-image: linear-gradient(to bottom, transparent calc(var(--app-header-top) + 82px), #000 calc(var(--app-header-top) + 94px), #000 calc(var(--app-header-top) + 104px), transparent calc(var(--app-header-top) + 124px));
+  }
+  .apple-header-blur > .apple-blur-tint {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg-mica) 74%, transparent) 0,
+      color-mix(in srgb, var(--bg-mica) 58%, transparent) var(--app-header-top),
+      color-mix(in srgb, var(--bg-mica) 44%, transparent) calc(var(--app-header-top) + 44px),
+      color-mix(in srgb, var(--bg-mica) 18%, transparent) calc(var(--app-header-top) + 76px),
+      color-mix(in srgb, var(--bg-mica) 5%, transparent) calc(var(--app-header-top) + 100px),
+      transparent calc(var(--app-header-top) + 124px)
+    );
+  }
+}
+
+/* Celular: segurar uma capa/foto abre o menu de opções do app, e não o menu de imagem do iPhone
+   (levantar, arrastar ou salvar a imagem). As imagens dos cards não reagem ao toque sozinhas: o toque
+   vai para o card. */
+@media (max-width: 1023px) {
+  img {
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  [data-zoom-key],
+  [data-zoom-key] * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  [data-zoom-key] img,
+  .mobile-row img,
+  .mobile-grid-3 img,
+  .mobile-grid-2 img {
+    pointer-events: none;
   }
 }
