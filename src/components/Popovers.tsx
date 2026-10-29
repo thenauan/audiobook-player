@@ -561,9 +561,11 @@ export function PagedMenu({
 // (efeito líquido) e, ao fechar, o menu se recolhe de volta para dentro do botão
 export const MORPH_SPRING = { type: "spring" as const, stiffness: 170, damping: 21, mass: 1 };
 export const MORPH_BOUNCE_SPRING = { type: "spring" as const, stiffness: 190, damping: 17, mass: 1 };
-export const MORPH_EXIT_SPRING = { type: "spring" as const, stiffness: 260, damping: 30, mass: 0.9 };
+export const MORPH_EXIT_SPRING = { type: "spring" as const, stiffness: 430, damping: 40, mass: 0.8 };
 // Momento (s) em que o pop-up, já encolhido no formato do botão, passa o lugar para ele (troca cruzada)
-export const MORPH_HANDOFF = { at: 0.26, fade: 0.12 };
+export const MORPH_HANDOFF = { at: 0.17, fade: 0.1 };
+// Abertura rápida (pop-ups do player): cresce do botão sem demora, com um leve assentamento
+export const MORPH_FAST_SPRING = { type: "spring" as const, stiffness: 380, damping: 32, mass: 0.8 };
 // Margem negativa para não cortar a sombra do pop-up depois de aberto
 export const MORPH_EXPANDED_CLIP = 'inset(calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) round 100px)';
 
@@ -611,6 +613,7 @@ export function getButtonMorphMotion(opts: {
   openUp: boolean;
   originRadius?: number;
   originOffsetX?: number;
+  fast?: boolean;
 }) {
   const collapsed = getButtonMorphClip(opts.originWidth, opts.originHeight, opts.alignRight, opts.openUp, opts.originRadius, opts.originOffsetX);
   return {
@@ -631,9 +634,9 @@ export function getButtonMorphMotion(opts: {
       },
     },
     transition: {
-      clipPath: MORPH_SPRING,
-      scale: MORPH_BOUNCE_SPRING,
-      opacity: { duration: 0.12, ease: "easeOut" as const },
+      clipPath: opts.fast ? MORPH_FAST_SPRING : MORPH_SPRING,
+      scale: opts.fast ? MORPH_FAST_SPRING : MORPH_BOUNCE_SPRING,
+      opacity: { duration: opts.fast ? 0.08 : 0.12, ease: "easeOut" as const },
     },
   };
 }
@@ -674,10 +677,11 @@ type MorphPopupProps = Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'exi
   originOffsetX?: number;
   openUp?: boolean;
   alignRight?: boolean;
+  fast?: boolean;
 };
 
 export const MorphPopup = React.forwardRef<HTMLDivElement, MorphPopupProps>(function MorphPopup(
-  { anchor, originWidth, originHeight, originRadius, originOffsetX, openUp, alignRight, style, className, ...rest },
+  { anchor, originWidth, originHeight, originRadius, originOffsetX, openUp, alignRight, fast, style, className, ...rest },
   ref
 ) {
   const corner = inferMorphCorner(style, className);
@@ -688,6 +692,7 @@ export const MorphPopup = React.forwardRef<HTMLDivElement, MorphPopupProps>(func
     openUp: openUp ?? corner.openUp,
     originRadius,
     originOffsetX,
+    fast,
   });
   const { children, ...motionRest } = rest;
   // O wrapper herda o layout do pop-up (coluna, gap, alinhamento) para não alterar o conteúdo

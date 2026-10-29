@@ -1647,6 +1647,35 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
   }
 }
 
+/* Celular: desfoque do cabeçalho um pouco mais fraco (mesmas camadas, intensidades menores) */
+@media (max-width: 1023px) {
+  .apple-header-blur > .apple-blur-layer:nth-child(6) {
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(5) {
+    -webkit-backdrop-filter: blur(11px) saturate(150%);
+    backdrop-filter: blur(11px) saturate(150%);
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(4) {
+    -webkit-backdrop-filter: blur(6.5px) saturate(150%);
+    backdrop-filter: blur(6.5px) saturate(150%);
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(3) {
+    -webkit-backdrop-filter: blur(3.5px) saturate(150%);
+    backdrop-filter: blur(3.5px) saturate(150%);
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(2) {
+    -webkit-backdrop-filter: blur(1.8px) saturate(150%);
+    backdrop-filter: blur(1.8px) saturate(150%);
+  }
+  .apple-header-blur > .apple-blur-layer:nth-child(1) {
+    -webkit-backdrop-filter: blur(0.8px) saturate(150%);
+    backdrop-filter: blur(0.8px) saturate(150%);
+  }
+  .apple-header-blur > .apple-blur-tint { opacity: calc(var(--header-blur, 0) * 0.78); }
+}
+
 /* Celular: segurar uma capa/foto abre o menu de opções do app, e não o menu de imagem do iPhone
    (levantar, arrastar ou salvar a imagem). As imagens dos cards não reagem ao toque sozinhas: o toque
    vai para o card. */

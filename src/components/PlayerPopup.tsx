@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, animate, useAnimate, useMotionValue, usePresence } from 'motion/react';
-import { MorphPopup, useCompactPopups, MORPH_SPRING, MORPH_BOUNCE_SPRING, MORPH_EXIT_SPRING, MORPH_HANDOFF, MORPH_CONTENT_MOTION } from './Popovers';
+import { MorphPopup, useCompactPopups, MORPH_EXIT_SPRING, MORPH_HANDOFF, MORPH_FAST_SPRING, MORPH_CONTENT_MOTION } from './Popovers';
 
 // ===== Pop-ups dos botões do player (marcações, velocidade, timer, fila, volume, texto) =====
 // Computador: o pop-up nasce do botão (MorphPopup). Celular: abre como a confirmação de exclusão — um
@@ -127,9 +127,10 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
       if (btn) setOrigin(`${btn.left + btn.width / 2 - rect.left}px ${btn.top + btn.height / 2 - rect.top}px`);
       setReady(true);
       const controls = [
-        animate(clip, finalClipRef.current, MORPH_SPRING),
-        animate(scale, 1, MORPH_BOUNCE_SPRING),
-        animate(opacity, 1, { duration: 0.12, ease: 'easeOut' }),
+        // Pop-ups do player: abertura rápida
+        animate(clip, finalClipRef.current, MORPH_FAST_SPRING),
+        animate(scale, 1, MORPH_FAST_SPRING),
+        animate(opacity, 1, { duration: 0.08, ease: 'easeOut' }),
       ];
       return () => controls.forEach(c => c.stop());
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +192,7 @@ export const PlayerPopup = React.forwardRef<HTMLDivElement, MorphPopupProps & { 
   if (!compact) {
     const { children: desktopChildren, ...desktopProps } = props as any;
     return (
-      <MorphPopup ref={ref} {...desktopProps}>
+      <MorphPopup ref={ref} fast {...desktopProps}>
         <MorphingContent className="flex flex-col min-h-0">{desktopChildren}</MorphingContent>
       </MorphPopup>
     );
@@ -216,7 +217,7 @@ export const PlayerPopup = React.forwardRef<HTMLDivElement, MorphPopupProps & { 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.22 }}
+        transition={{ duration: 0.16 }}
       />
       <MobilePlayerSheet ref={ref} source={source} keep={keep} onClick={onClick} rest={rest}>
         {children}
