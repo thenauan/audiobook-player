@@ -614,8 +614,9 @@ export function getButtonMorphMotion(opts: {
 }) {
   const collapsed = getButtonMorphClip(opts.originWidth, opts.originHeight, opts.alignRight, opts.openUp, opts.originRadius, opts.originOffsetX);
   return {
-    // A forma (clip) cresce a partir do botão; a escala com mola dá o leve "overshoot" elástico do iOS
-    initial: { clipPath: collapsed, scale: 0.86, opacity: 0 },
+    // A forma (clip) parte exatamente do tamanho e do lugar do botão (escala 1: menor que ele, parecia um
+    // pop-up abrindo por cima do botão) e cresce com a mola, com o leve "overshoot" elástico do iOS
+    initial: { clipPath: collapsed, scale: 1, opacity: 0 },
     animate: { clipPath: MORPH_EXPANDED_CLIP, scale: 1, opacity: 1 },
     // Fechar: a forma encolhe até ficar exatamente do tamanho do botão e só então se dissolve nele
     // (o botão reaparece no mesmo instante, ver morphTriggerAnimate)
@@ -658,7 +659,8 @@ export const MORPH_CONTENT_MOTION = {
 // O botão cresce um pouco enquanto se funde no menu que nasce dele; ao fechar, ressurge do menu recolhido
 export function morphTriggerAnimate(isOpen: boolean) {
   return isOpen
-    ? { opacity: 0, scale: 1.12, pointerEvents: 'none' as const, transition: { opacity: { duration: 0.14 }, scale: MORPH_SPRING } }
+    // Ao abrir, o botão dá lugar à forma do pop-up que nasce exatamente sobre ele (sem crescer à parte)
+    ? { opacity: 0, scale: 1, pointerEvents: 'none' as const, transition: { opacity: { duration: 0.1 }, scale: { duration: 0 } } }
     // Ao fechar, o botão reaparece quando o pop-up termina de encolher no formato dele: os dois se cruzam
     // (um surge enquanto o outro some), sem um instante vazio que faria o botão piscar
     : { opacity: 1, scale: 1, pointerEvents: 'auto' as const, transition: { opacity: { duration: MORPH_HANDOFF.fade, delay: MORPH_HANDOFF.at - 0.04 }, scale: { duration: 0 } } };

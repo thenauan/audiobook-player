@@ -101,7 +101,7 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
   function MobilePlayerSheet({ source, keep, onClick, rest, children }, forwardedRef) {
     const cardRef = useRef<HTMLDivElement | null>(null);
     const clip = useMotionValue('inset(0px 0px 0px 0px round 0px)');
-    const scale = useMotionValue(0.86);
+    const scale = useMotionValue(1);
     const opacity = useMotionValue(0);
     const [origin, setOrigin] = useState('50% 100%');
     const [ready, setReady] = useState(false);
