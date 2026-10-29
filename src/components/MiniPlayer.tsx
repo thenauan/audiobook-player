@@ -433,7 +433,7 @@ export function MobileMiniPlayer({
         layoutId="player-shell"
         aria-hidden="true"
         transition={MORPH_LAYOUT}
-        className="absolute inset-0 -z-10 pointer-events-none backdrop-blur-xl border"
+        className="absolute inset-0 -z-10 pointer-events-none border"
         style={{ ...miniplayerAmbientStyle, boxShadow: MOBILE_GLASS_SHADOW, borderRadius: docked ? 28 : height / 2 }}
       />
       <div

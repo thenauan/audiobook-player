@@ -3315,9 +3315,12 @@ export default function App() {
       const darkBg2 = hslToHex(h, Math.min(60, Math.max(18, baseS * 0.65)), 8);
       const darkBorder = hslToHex(h, Math.min(70, Math.max(22, baseS * 0.75)), 22);
 
+      // Vidro: translúcido com desfoque (como os pop-ups e a barra de abas), levemente na cor da capa
       return {
-        background: `linear-gradient(135deg, ${darkBg1}F0, ${darkBg2}F5)`,
-        borderColor: `${darkBorder}80`,
+        background: `linear-gradient(135deg, ${darkBg1}B8, ${darkBg2}C7)`,
+        borderColor: `${darkBorder}38`,
+        backdropFilter: 'blur(28px) saturate(170%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(170%)',
         boxShadow: `0 20px 40px -12px rgba(0, 0, 0, 0.7), 0 0 28px -4px ${darkBorder}33`,
         transition: 'background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease',
       } as React.CSSProperties;
@@ -3329,8 +3332,10 @@ export default function App() {
       const lightBorder = hslToHex(h, Math.min(85, lightSat + 10), 68);
 
       return {
-        background: `linear-gradient(135deg, ${lightBg1}F5, ${lightBg2}EE)`,
-        borderColor: `${lightBorder}B3`,
+        background: `linear-gradient(135deg, ${lightBg1}B3, ${lightBg2}AD)`,
+        borderColor: 'rgba(255, 255, 255, 0.42)',
+        backdropFilter: 'blur(28px) saturate(170%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(170%)',
         boxShadow: `0 20px 35px -10px rgba(0, 0, 0, 0.12), 0 0 28px -4px ${lightBorder}55`,
         transition: 'background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease',
       } as React.CSSProperties;
@@ -13912,15 +13917,15 @@ export default function App() {
                 return (
                   <div className="md:hidden land:hidden relative mobile-bleed -mt-[calc(var(--app-header-top)+76px)]">
                     <div data-zoom-hero="true" className="relative w-full" style={{ height: 'min(100vw, 62dvh)' }}>
-                      {/* Camadas da capa: o esmaecimento continua ~72px abaixo do bloco, por trás do conteúdo,
+                      {/* Camadas da capa: o esmaecimento continua ~140px abaixo do bloco, por trás do conteúdo,
                           com curva suave (sem degrau nem linha reta entre a capa e a tela) */}
-                      <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 72px)' }}>
+                      <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 140px)' }}>
                       <img
                         src={heroPic}
                         onError={(e) => { e.currentTarget.src = getAuthorAvatar(authorData.name); }}
                         alt={authorData.name}
                         className="absolute inset-0 w-full h-full object-cover"
-                        style={fadeMask('linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 46.0%, rgba(0,0,0,0.972) 51.4%, rgba(0,0,0,0.896) 56.8%, rgba(0,0,0,0.784) 62.2%, rgba(0,0,0,0.648) 67.6%, rgba(0,0,0,0.500) 73.0%, rgba(0,0,0,0.352) 78.4%, rgba(0,0,0,0.216) 83.8%, rgba(0,0,0,0.104) 89.2%, rgba(0,0,0,0.028) 94.6%, rgba(0,0,0,0.000) 100.0%)')}
+                        style={fadeMask('linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 38.0%, rgba(0,0,0,0.998) 41.5%, rgba(0,0,0,0.984) 45.0%, rgba(0,0,0,0.951) 48.5%, rgba(0,0,0,0.896) 52.0%, rgba(0,0,0,0.820) 55.5%, rgba(0,0,0,0.725) 59.0%, rgba(0,0,0,0.616) 62.5%, rgba(0,0,0,0.500) 66.0%, rgba(0,0,0,0.384) 69.5%, rgba(0,0,0,0.275) 73.0%, rgba(0,0,0,0.180) 76.5%, rgba(0,0,0,0.104) 80.0%, rgba(0,0,0,0.049) 83.5%, rgba(0,0,0,0.016) 87.0%, rgba(0,0,0,0.002) 90.5%, rgba(0,0,0,0.000) 94.0%)')}
                       />
                       <img
                         src={heroPic}
@@ -13935,12 +13940,12 @@ export default function App() {
                         alt=""
                         aria-hidden="true"
                         className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 pointer-events-none"
-                        style={fadeMask('linear-gradient(to bottom, transparent 44.0%, rgba(0,0,0,0.028) 46.2%, rgba(0,0,0,0.104) 48.4%, rgba(0,0,0,0.216) 50.6%, rgba(0,0,0,0.352) 52.8%, rgba(0,0,0,0.500) 55.0%, rgba(0,0,0,0.648) 57.2%, rgba(0,0,0,0.784) 59.4%, rgba(0,0,0,0.896) 61.6%, rgba(0,0,0,0.972) 63.8%, rgba(0,0,0,1.000) 66.0%, rgba(0,0,0,1.000) 74.0%, rgba(0,0,0,0.972) 76.6%, rgba(0,0,0,0.896) 79.2%, rgba(0,0,0,0.784) 81.8%, rgba(0,0,0,0.648) 84.4%, rgba(0,0,0,0.500) 87.0%, rgba(0,0,0,0.352) 89.6%, rgba(0,0,0,0.216) 92.2%, rgba(0,0,0,0.104) 94.8%, rgba(0,0,0,0.028) 97.4%, rgba(0,0,0,0.000) 100.0%)')}
+                        style={fadeMask('linear-gradient(to bottom, transparent 38.0%, rgba(0,0,0,0.002) 39.1%, rgba(0,0,0,0.016) 40.2%, rgba(0,0,0,0.049) 41.4%, rgba(0,0,0,0.104) 42.5%, rgba(0,0,0,0.180) 43.6%, rgba(0,0,0,0.275) 44.8%, rgba(0,0,0,0.384) 45.9%, rgba(0,0,0,0.500) 47.0%, rgba(0,0,0,0.616) 48.1%, rgba(0,0,0,0.725) 49.2%, rgba(0,0,0,0.820) 50.4%, rgba(0,0,0,0.896) 51.5%, rgba(0,0,0,0.951) 52.6%, rgba(0,0,0,0.984) 53.8%, rgba(0,0,0,0.998) 54.9%, rgba(0,0,0,1.000) 56.0%, rgba(0,0,0,1.000) 64.0%, rgba(0,0,0,0.998) 65.5%, rgba(0,0,0,0.984) 67.0%, rgba(0,0,0,0.951) 68.5%, rgba(0,0,0,0.896) 70.0%, rgba(0,0,0,0.820) 71.5%, rgba(0,0,0,0.725) 73.0%, rgba(0,0,0,0.616) 74.5%, rgba(0,0,0,0.500) 76.0%, rgba(0,0,0,0.384) 77.5%, rgba(0,0,0,0.275) 79.0%, rgba(0,0,0,0.180) 80.5%, rgba(0,0,0,0.104) 82.0%, rgba(0,0,0,0.049) 83.5%, rgba(0,0,0,0.016) 85.0%, rgba(0,0,0,0.002) 86.5%, rgba(0,0,0,0.000) 88.0%)')}
                       />
                       </div>
                       <div className="absolute inset-x-0 bottom-0 px-5 pb-4 flex flex-col items-center text-center text-[var(--text-main)]">
                         <h2 data-screen-title="true" className="text-[26px] font-bold leading-tight tracking-tight line-clamp-2">{authorData.name}</h2>
-                        {heroMeta && <p className="text-[13px] font-medium text-[var(--text-muted)] mt-1">{heroMeta}</p>}
+                        {heroMeta && <p className="text-[13px] font-semibold text-[var(--text-main)]/75 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{heroMeta}</p>}
                       </div>
                     </div>
                     {Boolean(authorData.bio && authorData.bio.trim().length > 0 && !isAutoGeneratedBio(authorData.bio)) && (

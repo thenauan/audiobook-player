@@ -278,7 +278,7 @@ export default function BookDetailView({
                       if (isThisBookCurrent) setIsPlaying(!isPlaying);
                       else handlePlayBookFromStart(activeBook);
                     }}
-                    className="h-11 px-8 min-w-[132px] rounded-full bg-winblue/20 border border-winblue/45 shadow-sm backdrop-blur-3xl text-winblue text-sm font-bold flex items-center justify-center gap-2"
+                    className="h-11 px-8 min-w-[132px] rounded-full bg-winblue border border-white/15 shadow-md text-white text-sm font-bold flex items-center justify-center gap-2"
                   >
                     {isBookPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} />}
                     <span>{isBookPlaying ? t('pause') : t('listen')}</span>
@@ -316,7 +316,7 @@ export default function BookDetailView({
                   {activeBook.author}
                 </button>
                 {heroMeta.length > 0 && (
-                  <p className="text-[11px] font-medium text-[var(--text-muted)] mt-1">{heroMeta.join(' • ')}</p>
+                  <p className="text-[11px] font-semibold text-[var(--text-main)]/70 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{heroMeta.join(' • ')}</p>
                 )}
               </div>
             </div>
@@ -324,15 +324,15 @@ export default function BookDetailView({
           </div>
           <div className="md:hidden land:hidden relative mobile-bleed -mt-[calc(var(--app-header-top)+76px)]">
             <div data-zoom-hero="true" className="relative w-full" style={{ height: 'min(150vw, 74dvh)' }}>
-              {/* Camadas da capa: o esmaecimento continua ~72px abaixo do bloco, por trás do conteúdo,
+              {/* Camadas da capa: o esmaecimento continua ~140px abaixo do bloco, por trás do conteúdo,
                   com curva suave (sem degrau nem linha reta entre a capa e a tela) */}
-              <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 72px)' }}>
+              <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 140px)' }}>
               <img
                 src={heroCover}
                 onError={(e) => handleBookCoverError(activeBook, e)}
                 alt={activeBook.title}
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 46.0%, rgba(0,0,0,0.972) 51.4%, rgba(0,0,0,0.896) 56.8%, rgba(0,0,0,0.784) 62.2%, rgba(0,0,0,0.648) 67.6%, rgba(0,0,0,0.500) 73.0%, rgba(0,0,0,0.352) 78.4%, rgba(0,0,0,0.216) 83.8%, rgba(0,0,0,0.104) 89.2%, rgba(0,0,0,0.028) 94.6%, rgba(0,0,0,0.000) 100.0%)', maskImage: 'linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 46.0%, rgba(0,0,0,0.972) 51.4%, rgba(0,0,0,0.896) 56.8%, rgba(0,0,0,0.784) 62.2%, rgba(0,0,0,0.648) 67.6%, rgba(0,0,0,0.500) 73.0%, rgba(0,0,0,0.352) 78.4%, rgba(0,0,0,0.216) 83.8%, rgba(0,0,0,0.104) 89.2%, rgba(0,0,0,0.028) 94.6%, rgba(0,0,0,0.000) 100.0%)' }}
+                style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 38.0%, rgba(0,0,0,0.998) 41.5%, rgba(0,0,0,0.984) 45.0%, rgba(0,0,0,0.951) 48.5%, rgba(0,0,0,0.896) 52.0%, rgba(0,0,0,0.820) 55.5%, rgba(0,0,0,0.725) 59.0%, rgba(0,0,0,0.616) 62.5%, rgba(0,0,0,0.500) 66.0%, rgba(0,0,0,0.384) 69.5%, rgba(0,0,0,0.275) 73.0%, rgba(0,0,0,0.180) 76.5%, rgba(0,0,0,0.104) 80.0%, rgba(0,0,0,0.049) 83.5%, rgba(0,0,0,0.016) 87.0%, rgba(0,0,0,0.002) 90.5%, rgba(0,0,0,0.000) 94.0%)', maskImage: 'linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 38.0%, rgba(0,0,0,0.998) 41.5%, rgba(0,0,0,0.984) 45.0%, rgba(0,0,0,0.951) 48.5%, rgba(0,0,0,0.896) 52.0%, rgba(0,0,0,0.820) 55.5%, rgba(0,0,0,0.725) 59.0%, rgba(0,0,0,0.616) 62.5%, rgba(0,0,0,0.500) 66.0%, rgba(0,0,0,0.384) 69.5%, rgba(0,0,0,0.275) 73.0%, rgba(0,0,0,0.180) 76.5%, rgba(0,0,0,0.104) 80.0%, rgba(0,0,0,0.049) 83.5%, rgba(0,0,0,0.016) 87.0%, rgba(0,0,0,0.002) 90.5%, rgba(0,0,0,0.000) 94.0%)' }}
               />
               {/* Desfoque e sombra no topo (cabeçalho legível sobre a capa) */}
               <img
@@ -352,8 +352,8 @@ export default function BookDetailView({
                 aria-hidden="true"
                 className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 pointer-events-none"
                 style={{
-                  WebkitMaskImage: 'linear-gradient(to bottom, transparent 44.0%, rgba(0,0,0,0.028) 46.2%, rgba(0,0,0,0.104) 48.4%, rgba(0,0,0,0.216) 50.6%, rgba(0,0,0,0.352) 52.8%, rgba(0,0,0,0.500) 55.0%, rgba(0,0,0,0.648) 57.2%, rgba(0,0,0,0.784) 59.4%, rgba(0,0,0,0.896) 61.6%, rgba(0,0,0,0.972) 63.8%, rgba(0,0,0,1.000) 66.0%, rgba(0,0,0,1.000) 74.0%, rgba(0,0,0,0.972) 76.6%, rgba(0,0,0,0.896) 79.2%, rgba(0,0,0,0.784) 81.8%, rgba(0,0,0,0.648) 84.4%, rgba(0,0,0,0.500) 87.0%, rgba(0,0,0,0.352) 89.6%, rgba(0,0,0,0.216) 92.2%, rgba(0,0,0,0.104) 94.8%, rgba(0,0,0,0.028) 97.4%, rgba(0,0,0,0.000) 100.0%)',
-                  maskImage: 'linear-gradient(to bottom, transparent 44.0%, rgba(0,0,0,0.028) 46.2%, rgba(0,0,0,0.104) 48.4%, rgba(0,0,0,0.216) 50.6%, rgba(0,0,0,0.352) 52.8%, rgba(0,0,0,0.500) 55.0%, rgba(0,0,0,0.648) 57.2%, rgba(0,0,0,0.784) 59.4%, rgba(0,0,0,0.896) 61.6%, rgba(0,0,0,0.972) 63.8%, rgba(0,0,0,1.000) 66.0%, rgba(0,0,0,1.000) 74.0%, rgba(0,0,0,0.972) 76.6%, rgba(0,0,0,0.896) 79.2%, rgba(0,0,0,0.784) 81.8%, rgba(0,0,0,0.648) 84.4%, rgba(0,0,0,0.500) 87.0%, rgba(0,0,0,0.352) 89.6%, rgba(0,0,0,0.216) 92.2%, rgba(0,0,0,0.104) 94.8%, rgba(0,0,0,0.028) 97.4%, rgba(0,0,0,0.000) 100.0%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, transparent 38.0%, rgba(0,0,0,0.002) 39.1%, rgba(0,0,0,0.016) 40.2%, rgba(0,0,0,0.049) 41.4%, rgba(0,0,0,0.104) 42.5%, rgba(0,0,0,0.180) 43.6%, rgba(0,0,0,0.275) 44.8%, rgba(0,0,0,0.384) 45.9%, rgba(0,0,0,0.500) 47.0%, rgba(0,0,0,0.616) 48.1%, rgba(0,0,0,0.725) 49.2%, rgba(0,0,0,0.820) 50.4%, rgba(0,0,0,0.896) 51.5%, rgba(0,0,0,0.951) 52.6%, rgba(0,0,0,0.984) 53.8%, rgba(0,0,0,0.998) 54.9%, rgba(0,0,0,1.000) 56.0%, rgba(0,0,0,1.000) 64.0%, rgba(0,0,0,0.998) 65.5%, rgba(0,0,0,0.984) 67.0%, rgba(0,0,0,0.951) 68.5%, rgba(0,0,0,0.896) 70.0%, rgba(0,0,0,0.820) 71.5%, rgba(0,0,0,0.725) 73.0%, rgba(0,0,0,0.616) 74.5%, rgba(0,0,0,0.500) 76.0%, rgba(0,0,0,0.384) 77.5%, rgba(0,0,0,0.275) 79.0%, rgba(0,0,0,0.180) 80.5%, rgba(0,0,0,0.104) 82.0%, rgba(0,0,0,0.049) 83.5%, rgba(0,0,0,0.016) 85.0%, rgba(0,0,0,0.002) 86.5%, rgba(0,0,0,0.000) 88.0%)',
+                  maskImage: 'linear-gradient(to bottom, transparent 38.0%, rgba(0,0,0,0.002) 39.1%, rgba(0,0,0,0.016) 40.2%, rgba(0,0,0,0.049) 41.4%, rgba(0,0,0,0.104) 42.5%, rgba(0,0,0,0.180) 43.6%, rgba(0,0,0,0.275) 44.8%, rgba(0,0,0,0.384) 45.9%, rgba(0,0,0,0.500) 47.0%, rgba(0,0,0,0.616) 48.1%, rgba(0,0,0,0.725) 49.2%, rgba(0,0,0,0.820) 50.4%, rgba(0,0,0,0.896) 51.5%, rgba(0,0,0,0.951) 52.6%, rgba(0,0,0,0.984) 53.8%, rgba(0,0,0,0.998) 54.9%, rgba(0,0,0,1.000) 56.0%, rgba(0,0,0,1.000) 64.0%, rgba(0,0,0,0.998) 65.5%, rgba(0,0,0,0.984) 67.0%, rgba(0,0,0,0.951) 68.5%, rgba(0,0,0,0.896) 70.0%, rgba(0,0,0,0.820) 71.5%, rgba(0,0,0,0.725) 73.0%, rgba(0,0,0,0.616) 74.5%, rgba(0,0,0,0.500) 76.0%, rgba(0,0,0,0.384) 77.5%, rgba(0,0,0,0.275) 79.0%, rgba(0,0,0,0.180) 80.5%, rgba(0,0,0,0.104) 82.0%, rgba(0,0,0,0.049) 83.5%, rgba(0,0,0,0.016) 85.0%, rgba(0,0,0,0.002) 86.5%, rgba(0,0,0,0.000) 88.0%)',
                 }}
               />
               </div>
@@ -361,12 +361,12 @@ export default function BookDetailView({
                 <h2 data-screen-title="true" className="text-[24px] font-bold leading-tight tracking-tight line-clamp-2">{activeBook.title}</h2>
                 <button
                   onClick={() => handleSelectAuthor(activeBook.authorId, activeBook.author)}
-                  className="mobile-press text-[15px] font-semibold text-[var(--text-muted)] mt-1"
+                  className="mobile-press text-[15px] font-semibold text-[var(--text-main)]/80 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]"
                 >
                   {activeBook.author}
                 </button>
                 {heroMeta.length > 0 && (
-                  <p className="text-[11px] font-medium text-[var(--text-muted)] mt-1">{heroMeta.join(' • ')}</p>
+                  <p className="text-[11px] font-semibold text-[var(--text-main)]/70 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{heroMeta.join(' • ')}</p>
                 )}
                 {heroButtons}
               </div>
