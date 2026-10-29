@@ -31,9 +31,6 @@ jobs:
           ELECTRON_SKIP_BINARY_DOWNLOAD: 1
       - run: npm test
       - run: npm run build
-        env:
-          # Chave pública da API do Google Drive (importar por link no site/celular), restrita ao endereço do site
-          VITE_GOOGLE_API_KEY: ${{ vars.GOOGLE_API_KEY }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

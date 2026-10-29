@@ -11,7 +11,6 @@ contextBridge.exposeInMainWorld('electron', {
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   openPath: (target) => ipcRenderer.invoke('open-path', target),
   selectFolder: (defaultPath) => ipcRenderer.invoke('select-folder', defaultPath),
-  findGoogleDrive: () => ipcRenderer.invoke('find-google-drive'),
   saveAudiobook: (fileName, folder, data) => ipcRenderer.invoke('save-audiobook', fileName, folder, data),
   scanLibraryFolder: (folder) => ipcRenderer.invoke('scan-library-folder', folder),
   readAudioFile: (filePath) => ipcRenderer.invoke('read-audio-file', filePath),

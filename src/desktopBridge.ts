@@ -9,8 +9,6 @@ export interface DesktopBridge {
   openExternal: (url: string) => Promise<void>;
   openPath: (target: string) => Promise<string>;
   selectFolder: (defaultPath?: string) => Promise<string>;
-  // Pastas do Google Drive para computador encontradas neste computador (vazio se não estiver instalado)
-  findGoogleDrive?: () => Promise<string[]>;
   saveAudiobook: (fileName: string, folder: string, data: ArrayBuffer) => Promise<string>;
   scanLibraryFolder: (folder: string) => Promise<{ folder: string; exists: boolean; files: { name: string; path: string; size: number }[] }>;
   readAudioFile: (filePath: string) => Promise<Uint8Array | null>;

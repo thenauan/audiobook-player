@@ -2,7 +2,8 @@
 // Cola-se o link de um arquivo ou de uma pasta compartilhada ("qualquer pessoa com o link") e o app baixa
 // os áudios. No app instalado (computador), o download é feito pelo próprio app (Electron), sem chave.
 // No site e no celular, o navegador não pode baixar direto do drive.google.com (bloqueio de CORS): usa-se
-// a API oficial do Drive com uma chave de API pública (VITE_GOOGLE_API_KEY, restrita ao endereço do site).
+// a API oficial do Drive com a chave de API de cada pessoa (gratuita, criada na própria conta Google e
+// guardada só no aparelho dela). O site não tem chave própria nem vínculo com nenhuma conta.
 import { desktop } from './desktopBridge';
 
 export type DriveLink = { kind: 'file' | 'folder'; id: string };
@@ -11,7 +12,44 @@ export type DriveProgress = { index: number; total: number; name: string; receiv
 
 const AUDIO_EXT = /\.(mp3|m4a|m4b|mp4|aac|wav|flac|ogg|opus|wma|webm)$/i;
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
-const API_KEY: string = (import.meta as any).env?.VITE_GOOGLE_API_KEY || '';
+const KEY_STORAGE = 'app_google_api_key';
+
+export function getGoogleApiKey(): string {
+  try { return (localStorage.getItem(KEY_STORAGE) || '').trim(); } catch { return ''; }
+}
+export function setUserGoogleApiKey(key: string) {
+  try {
+    if (key.trim()) localStorage.setItem(KEY_STORAGE, key.trim());
+    else localStorage.removeItem(KEY_STORAGE);
+  } catch { /* sem armazenamento */ }
+}
+// O app instalado baixa sem chave; no navegador, precisa de uma chave
+export const DRIVE_NEEDS_KEY = !desktop?.gdriveList;
+export const isDriveImportAvailable = () => !DRIVE_NEEDS_KEY || Boolean(getGoogleApiKey());
+
+// Motivo de uma resposta de erro da API (chave inválida, API desativada, endereço não permitido...)
+async function apiError(res: Response): Promise<Error> {
+  let text = '';
+  try { text = JSON.stringify(await res.json()); } catch { /* sem corpo */ }
+  if (/API_KEY_INVALID|API key not valid|keyInvalid/i.test(text)) return new Error('bad-key');
+  if (/SERVICE_DISABLED|accessNotConfigured|has not been used|is disabled/i.test(text)) return new Error('api-disabled');
+  if (/REFERRER_BLOCKED|referer|referrer/i.test(text)) return new Error('referrer');
+  if (/API_KEY_SERVICE_BLOCKED|API_KEY_.*BLOCKED/i.test(text)) return new Error('key-restricted');
+  if (res.status === 404 || res.status === 403) return new Error('not-shared');
+  return new Error(`http-${res.status}`);
+}
+
+// Testa uma chave antes de salvar (pede algo que não existe: a chave boa recebe "não encontrado")
+export async function testGoogleApiKey(key: string): Promise<'ok' | string> {
+  try {
+    const res = await fetch(`${API}/0000000000000000000000000000?fields=id&key=${encodeURIComponent(key.trim())}`);
+    if (res.ok || res.status === 404) return 'ok';
+    const err = await apiError(res);
+    return err.message === 'not-shared' ? 'ok' : err.message;
+  } catch {
+    return 'network';
+  }
+}
 const API = 'https://www.googleapis.com/drive/v3/files';
 
 // Lê o id do arquivo/pasta em qualquer formato de link do Drive (ou o próprio id colado)
@@ -28,17 +66,12 @@ export function parseDriveLink(raw: string): DriveLink | null {
   return null;
 }
 
-// O Drive pode ser usado aqui? (app instalado sempre; site/celular só com a chave configurada)
-export const DRIVE_IMPORT_AVAILABLE = Boolean(desktop?.gdriveList) || Boolean(API_KEY);
 
 const isAudioName = (name: string, mime?: string) => AUDIO_EXT.test(name) || Boolean(mime && mime.startsWith('audio/'));
 
 async function apiJson(url: string): Promise<any> {
   const res = await fetch(url);
-  if (!res.ok) {
-    if (res.status === 404 || res.status === 403) throw new Error('not-shared');
-    throw new Error(`http-${res.status}`);
-  }
+  if (!res.ok) throw await apiError(res);
   return res.json();
 }
 
@@ -48,8 +81,9 @@ export async function listDriveAudio(link: DriveLink): Promise<DriveEntry[]> {
     const items = await desktop.gdriveList(link.kind, link.id);
     return items.filter(i => !i.name || isAudioName(i.name));
   }
-  if (!API_KEY) throw new Error('no-key');
-  const common = `supportsAllDrives=true&key=${encodeURIComponent(API_KEY)}`;
+  const key = getGoogleApiKey();
+  if (!key) throw new Error('no-key');
+  const common = `supportsAllDrives=true&key=${encodeURIComponent(key)}`;
   if (link.kind === 'file') {
     const meta = await apiJson(`${API}/${link.id}?fields=id,name,mimeType,size&${common}`);
     if (meta.mimeType === FOLDER_MIME) return listDriveAudio({ kind: 'folder', id: link.id });
@@ -93,8 +127,9 @@ export async function downloadDriveAudio(entry: DriveEntry, libraryFolder: strin
       off?.();
     }
   }
-  const res = await fetch(`${API}/${entry.id}?alt=media&supportsAllDrives=true&key=${encodeURIComponent(API_KEY)}`);
-  if (!res.ok || !res.body) throw new Error(res.status === 403 || res.status === 404 ? 'not-shared' : `http-${res.status}`);
+  const res = await fetch(`${API}/${entry.id}?alt=media&supportsAllDrives=true&key=${encodeURIComponent(getGoogleApiKey())}`);
+  if (!res.ok) throw await apiError(res);
+  if (!res.body) throw new Error('http-body');
   const size = Number(res.headers.get('content-length')) || entry.size;
   const reader = res.body.getReader();
   const chunks: Uint8Array[] = [];
