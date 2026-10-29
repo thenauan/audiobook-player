@@ -12473,7 +12473,7 @@ export default function App() {
                                           : `${isMobile ? 'max-h-7' : 'w-full h-7'} px-1 rounded-[12px] text-[10px] tracking-tight`
                                         } ${
                                           isSelected
-                                            ? 'bg-winblue/20 text-winblue border border-winblue ring-1 ring-winblue/40 shadow-[0_0_14px_rgba(var(--winblue-rgb),0.45)] hover:bg-winblue/25 hover:shadow-[0_0_18px_rgba(var(--winblue-rgb),0.6)]'
+                                            ? 'bg-winblue/20 text-winblue border border-transparent shadow-[0_0_14px_rgba(var(--winblue-rgb),0.45)] hover:bg-winblue/25 hover:shadow-[0_0_18px_rgba(var(--winblue-rgb),0.6)]'
                                             : 'text-[var(--text-muted)] border border-transparent hover:text-white hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_12px_rgba(255,255,255,0.35)]'
                                         }`
                                   }`}
@@ -12712,7 +12712,7 @@ export default function App() {
                             }}
                             className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
                               isSelectionMode && isSelected
-                                ? 'border-winblue ring-2 ring-winblue shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
+                                ? 'border-transparent shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
                                 : 'border-white/15 hover:border-white/30'
                             }`}
                           >
@@ -13064,7 +13064,7 @@ export default function App() {
                             }}
                             className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
                               isSelectionMode && isSelected 
-                                ? 'border-winblue ring-2 ring-winblue shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]' 
+                                ? 'border-transparent shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]' 
                                 : 'border-white/15 hover:border-white/30'
                             }`}
                           >
@@ -13275,7 +13275,7 @@ export default function App() {
                                             }}
                                             className={`relative isolate h-28 rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-4 flex flex-col justify-end ${
                                               isSelectionMode && isAllSelected
-                                                ? 'border-winblue ring-2 ring-winblue shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
+                                                ? 'border-transparent shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
                                                 : 'border-white/15 hover:border-white/30'
                                             }`}
                                           >

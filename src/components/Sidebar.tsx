@@ -27,8 +27,8 @@ export function SidebarItem({ icon, label, active, onClick }: SidebarItemProps) 
       className={cn(
         "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-150 select-none border",
         active 
-          ? "bg-winblue/15 text-winblue border-winblue/25 shadow-[0_0_12px_rgba(var(--winblue-rgb),0.18)]" 
-          : "border-transparent text-[var(--text-main)] hover:bg-white/15 hover:text-white hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+          ? "bg-winblue/15 text-winblue border-transparent shadow-[0_0_12px_rgba(var(--winblue-rgb),0.18)]" 
+          : "border-transparent text-[var(--text-main)] hover:bg-white/15 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]"
       )}
     >
       <span className="shrink-0 flex items-center justify-center text-inherit">{icon}</span>

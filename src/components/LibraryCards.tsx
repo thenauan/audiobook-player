@@ -1972,7 +1972,7 @@ export function CollectionCard({
         }}
         className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${desktopMenu ? 'z-50' : ''} ${
           selectionMode && selected
-            ? 'border-winblue ring-2 ring-winblue shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
+            ? 'border-transparent shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
             : 'border-white/15 hover:border-white/30'
         }`}
       >
