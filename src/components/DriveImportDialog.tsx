@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link2, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link2, Loader2, CheckCircle2, AlertTriangle, ArrowDownToLine, ClipboardPaste } from 'lucide-react';
 
 // ===== Importar do Google Drive por link =====
 // Painel dos pop-ups da interface: no celular surge da transformação do menu da pílula do cabeçalho
@@ -13,11 +13,14 @@ export type DriveImportStatus =
   | { phase: 'error'; message: string };
 
 export function DriveImportPanel({
+  hideHeader,
   status,
   available,
   onImport,
   t,
 }: {
+  // Na tela própria do ajuste (celular), o título e a explicação já estão na tela
+  hideHeader?: boolean;
   status: DriveImportStatus;
   available: boolean;
   onImport: (link: string) => void;
@@ -33,14 +36,23 @@ export function DriveImportPanel({
     return () => clearTimeout(id);
   }, []);
 
-  const submit = () => { if (link.trim() && !busy && available) onImport(link.trim()); };
+  const submit = () => { if (link.trim() && !busy) onImport(link.trim()); };
+  // Colar com um toque (no iPhone, segurar o campo dentro de um pop-up nem sempre mostra o "Colar")
+  const canReadClipboard = typeof navigator !== 'undefined' && Boolean(navigator.clipboard?.readText);
+  const pasteFromClipboard = async () => {
+    try {
+      const text = (await navigator.clipboard.readText()).trim();
+      if (text) setLink(text);
+    } catch { /* sem permissão: o usuário cola pelo teclado */ }
+    inputRef.current?.focus({ preventScroll: true });
+  };
 
   return (
     <div className="flex flex-col p-1.5 text-left rtl:text-right">
-      <div className="px-3 pt-2 pb-1">
+      {!hideHeader && <div className="px-3 pt-2 pb-1">
         <h3 className="text-sm font-bold text-[var(--text-main)]">{t('gdrive_import_title')}</h3>
         <p className="text-xs text-[var(--text-muted)] mt-1 leading-snug">{t('gdrive_import_desc')}</p>
-      </div>
+      </div>}
 
       <form
         className="flex items-center gap-2 px-1.5 pt-2 pb-1.5"
@@ -52,22 +64,36 @@ export function DriveImportPanel({
             ref={inputRef}
             value={link}
             onChange={(e) => setLink(e.target.value)}
-            disabled={busy || !available}
+            // Nunca desabilitado: um campo desabilitado não aceita colar (no iPhone, nem mostra o "Colar")
+            readOnly={busy}
             inputMode="url"
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}
             placeholder={t('gdrive_import_placeholder')}
+            style={{ WebkitUserSelect: 'text', userSelect: 'text', WebkitTouchCallout: 'default' } as React.CSSProperties}
             className="flex-1 min-w-0 bg-transparent outline-none text-[16px] md:text-xs text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
           />
+          {canReadClipboard && !link && !busy && (
+            <button
+              type="button"
+              onClick={pasteFromClipboard}
+              aria-label={t('paste')}
+              title={t('paste')}
+              className="w-7 h-7 -mr-1.5 shrink-0 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-white/10 transition-colors"
+            >
+              <ClipboardPaste size={14} />
+            </button>
+          )}
         </div>
         <button
           type="submit"
-          disabled={busy || !link.trim() || !available}
-          className="h-10 px-4 rounded-full bg-winblue/20 border border-winblue/45 text-winblue text-xs font-bold shrink-0 disabled:opacity-40 flex items-center gap-1.5 transition-colors hover:bg-winblue/30"
+          disabled={busy || !link.trim()}
+          aria-label={t('gdrive_import_btn')}
+          title={t('gdrive_import_btn')}
+          className="w-10 h-10 rounded-full bg-winblue/20 border border-winblue/45 text-winblue shrink-0 disabled:opacity-40 flex items-center justify-center transition-colors hover:bg-winblue/30"
         >
-          {busy && <Loader2 size={13} className="animate-spin" />}
-          <span>{t('gdrive_import_btn')}</span>
+          {busy ? <Loader2 size={16} className="animate-spin" /> : <ArrowDownToLine size={16} />}
         </button>
       </form>
 

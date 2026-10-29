@@ -36,6 +36,7 @@ import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } 
 import { MobileConfirmCard } from './components/MobileConfirm';
 import { DriveImportPanel, type DriveImportStatus } from './components/DriveImportDialog';
 import { parseDriveLink, listDriveAudio, downloadDriveAudio, DRIVE_IMPORT_AVAILABLE } from './googleDrive';
+import { WEB_FOLDER_SUPPORTED, pickWebFolder, getSavedWebFolder, forgetWebFolder, ensureWebFolderPermission, listWebFolderAudio } from './webDriveFolder';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
 import { installTouchMenus } from './components/touchMenu';
 import { installScrollFades } from './components/scrollFade';
@@ -1878,6 +1879,7 @@ export default function App() {
   }, []);
   const driveErrorMessage = (err: unknown) => {
     const code = (err as Error)?.message || '';
+    if (code.includes('no-key')) return t('gdrive_import_unavailable');
     if (code.includes('not-shared')) return t('gdrive_err_not_shared');
     if (code.includes('not-audio')) return t('gdrive_err_no_audio');
     return t('gdrive_err_generic');
@@ -1955,7 +1957,7 @@ export default function App() {
       const data = await desktop.scanLibraryFolder(folder);
       // Pasta do Google Drive (se conectada): seus audiobooks entram junto, lidos de lá (sem cópia)
       const altFolder = altLibraryFolderRef.current;
-      if (data && altFolder && altFolder !== folder) {
+      if (data && altFolder && altFolder !== folder && /[\\/]/.test(altFolder)) {
         try {
           const alt = await desktop.scanLibraryFolder(altFolder);
           if (alt?.exists && alt.files?.length) {
@@ -2035,8 +2037,60 @@ export default function App() {
   altLibraryFolderRef.current = altLibraryFolder;
   // Conecta o Google Drive como pasta alternativa: abre o seletor já dentro do Drive (Google Drive para
   // computador) para escolher a pasta dos audiobooks; sem o Drive instalado, explica como instalar
+  // Navegador do computador (Chrome/Edge): lê a pasta do Drive escolhida (Google Drive para computador)
+  const handleSyncWebDriveFolder = async () => {
+    const handle = await getSavedWebFolder();
+    if (!handle) return;
+    if (!(await ensureWebFolderPermission(handle, true))) {
+      showToast(t('gdrive_permission_needed'));
+      return;
+    }
+    setIsSyncingLibrary(true);
+    try {
+      const entries = await listWebFolderAudio(handle);
+      const fresh = entries.filter(item => {
+        const nameLower = extractNormalizedFileName(item.name);
+        const stemLower = normalizeBookCompareStr(item.name.replace(/\.[^/.]+$/, ''));
+        return !booksRef.current.some(b => {
+          const existingFile = extractNormalizedFileName(b.fileName || b.filePath);
+          return (existingFile && existingFile === nameLower) || (stemLower && normalizeBookCompareStr(b.title) === stemLower);
+        });
+      });
+      if (fresh.length === 0) {
+        showToast(t('gdrive_sync_none'));
+        return;
+      }
+      const files: File[] = [];
+      for (const item of fresh) {
+        try { files.push(await item.getFile()); } catch (err) { console.warn('Não foi possível ler da pasta do Drive:', item.name, err); }
+      }
+      if (files.length > 0) await processAudioFiles(files);
+    } catch (err) {
+      console.warn('Erro ao ler a pasta do Google Drive:', err);
+      showToast(t('gdrive_err_generic'));
+    } finally {
+      setTimeout(() => setIsSyncingLibrary(false), 400);
+    }
+  };
+  const handleSyncGoogleDrive = () => {
+    if (desktop?.scanLibraryFolder) handleSyncLibraryNow();
+    else handleSyncWebDriveFolder();
+  };
+
   const handleConnectGoogleDrive = async () => {
-    if (!desktop?.selectFolder) return;
+    if (!desktop?.selectFolder) {
+      if (!WEB_FOLDER_SUPPORTED) {
+        showToast(t('gdrive_browser_unsupported'));
+        return;
+      }
+      const handle = await pickWebFolder();
+      if (!handle) return;
+      setAltLibraryFolder(handle.name);
+      altLibraryFolderRef.current = handle.name;
+      showToast(t('gdrive_connected', { folder: handle.name }));
+      await handleSyncWebDriveFolder();
+      return;
+    }
     let drives: string[] = [];
     try { drives = (await desktop.findGoogleDrive?.()) || []; } catch {}
     if (drives.length === 0) {
@@ -2052,6 +2106,7 @@ export default function App() {
     await handleSyncLibraryNow(libraryFolder);
   };
   const handleDisconnectGoogleDrive = () => {
+    if (!desktop?.scanLibraryFolder) forgetWebFolder();
     setAltLibraryFolder('');
     altLibraryFolderRef.current = '';
     showToast(t('gdrive_disconnected'));
@@ -14506,6 +14561,11 @@ export default function App() {
                 altLibraryFolder={altLibraryFolder}
                 handleConnectGoogleDrive={handleConnectGoogleDrive}
                 handleDisconnectGoogleDrive={handleDisconnectGoogleDrive}
+                handleSyncGoogleDrive={handleSyncGoogleDrive}
+                driveImportStatus={driveImportStatus}
+                driveImportAvailable={DRIVE_IMPORT_AVAILABLE}
+                handleImportFromDrive={handleImportFromDrive}
+                openDriveImportFrom={(anchor) => { closeAllPopups(); setDriveBtnAnchor(anchor); setShowDriveImport(true); }}
                 detectNewFiles={detectNewFiles}
                 setDetectNewFiles={setDetectNewFiles}
                 checkOnStartup={checkOnStartup}

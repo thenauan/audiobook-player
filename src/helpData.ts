@@ -1208,6 +1208,66 @@ export const HELP_THEMES: HelpTheme[] = [
           ],
           tip: { title: "Seus dados", text: "Os audiobooks importados e seu progresso ficam salvos no próprio aparelho. Use \"Exportar biblioteca\" nos Ajustes para fazer backup." },
         },
+      },
+      {
+        id: 'sub-gdrive-import',
+        title: "Importar do Google Drive",
+        subtitle: "Cole o link de um arquivo ou pasta do Drive e o app baixa os audiobooks",
+        emoji: '☁️',
+        gradient: 'from-sky-500 via-blue-600 to-indigo-700',
+        article: {
+          id: 'art-gdrive-import',
+          title: "Importar do Google Drive",
+          subtitle: "Cole o link de um arquivo ou pasta do Drive e o app baixa os audiobooks",
+          emoji: '☁️',
+          overview: "Audiobooks guardados no Google Drive podem entrar na biblioteca direto pelo link, no celular e no computador. Funciona com um arquivo de áudio ou com uma pasta inteira (inclusive subpastas).",
+          steps: [
+              { number: '1', title: "Compartilhe no Drive", desc: "No Google Drive, abra o compartilhamento do arquivo ou da pasta e escolha \"Qualquer pessoa com o link\". Copie o link." },
+              { number: '2', title: "Abra a importação", desc: "Celular: na Biblioteca, toque em ⋯ e em \"Importar do Google Drive\". Computador: botão de nuvem no topo da Biblioteca. Também fica em Ajustes > Biblioteca." },
+              { number: '3', title: "Cole e importe", desc: "Cole o link (ou toque no ícone de colar) e toque na seta de baixar. O progresso de cada arquivo aparece no próprio pop-up." }
+          ],
+          tip: { title: "Dica", text: "No app do computador, os arquivos baixados vão direto para a pasta da biblioteca." },
+        },
+      },
+      {
+        id: 'sub-gdrive-folder',
+        title: "Pasta do Google Drive no computador",
+        subtitle: "Use uma pasta do Drive como biblioteca alternativa",
+        emoji: '🗂️',
+        gradient: 'from-emerald-500 via-teal-600 to-cyan-700',
+        article: {
+          id: 'art-gdrive-folder',
+          title: "Pasta do Google Drive no computador",
+          subtitle: "Use uma pasta do Drive como biblioteca alternativa",
+          emoji: '🗂️',
+          overview: "No app instalado no computador, uma pasta do Google Drive pode funcionar como uma segunda pasta da biblioteca: os audiobooks dela entram junto na sincronização e são lidos direto do Drive, sem cópia no computador.",
+          steps: [
+              { number: '1', title: "Instale o Google Drive para computador", desc: "Baixe em google.com/drive/download e entre na sua conta. O Drive aparece como uma pasta do sistema." },
+              { number: '2', title: "Conecte nos Ajustes", desc: "Em Ajustes > Biblioteca > Google Drive, clique em \"Conectar Drive\" e escolha a pasta dos audiobooks." },
+              { number: '3', title: "Sincronize", desc: "Use \"Sincronizar agora\" (ou a sincronização ao iniciar) para trazer os audiobooks novos da pasta." }
+          ],
+          tip: { title: "Dica", text: "Para trocar ou parar de usar a pasta, use \"Trocar pasta\" ou \"Desconectar\" no mesmo ajuste." },
+        },
+      },
+      {
+        id: 'sub-word-highlight',
+        title: "Destaque de frase e palavra",
+        subtitle: "O texto sincronizado destaca a frase e a palavra lida ao mesmo tempo",
+        emoji: '✨',
+        gradient: 'from-amber-500 via-orange-600 to-rose-600',
+        article: {
+          id: 'art-word-highlight',
+          title: "Destaque de frase e palavra",
+          subtitle: "O texto sincronizado destaca a frase e a palavra lida ao mesmo tempo",
+          emoji: '✨',
+          overview: "Quando o arquivo de texto tem o tempo de cada palavra, o player destaca a frase atual e, dentro dela, a palavra sendo lida, na cor de destaque da página do audiobook (nos modos claro e escuro).",
+          steps: [
+              { number: '1', title: "Formatos com palavra", desc: "EPUB com Media Overlays (SMIL) por palavra, VTT com marcas de tempo por palavra, LRC estendido (<mm:ss.xx>palavra) e JSON com \"words\"." },
+              { number: '2', title: "Frases montadas sozinhas", desc: "Se o arquivo marca só palavras, o app junta as palavras nas frases do livro, mantendo o tempo de cada uma." },
+              { number: '3', title: "Toque para pular", desc: "Toque numa frase ou numa palavra para levar o áudio até ela." }
+          ],
+          tip: { title: "Importante", text: "Textos importados antes desta versão precisam ser enviados de novo para ganhar o destaque por palavra." },
+        },
       }
     ],
   },
