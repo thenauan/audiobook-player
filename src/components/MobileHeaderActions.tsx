@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MoreHorizontal, Trash2, X } from 'lucide-react';
-import { MenuOptionItem, MorphPopup, PopupMorphContainer, morphTriggerAnimate } from './Popovers';
+import { MenuOptionItem, MorphPopup, PagedMenu, PopupMorphContainer, morphTriggerAnimate } from './Popovers';
 import { getBackdropProps } from './popupUtils';
 import { MobileConfirmCard } from './MobileConfirm';
 import { useI18n } from '../translations';
@@ -231,7 +231,7 @@ export function MobileHeaderActions({
                   className="absolute top-0 right-0 z-50 max-w-[calc(100vw-32px)]"
                 >
                   {view === 'menu' || !viewAction ? (
-                    <div className="flex flex-col p-1.5 text-left rtl:text-right">
+                    <PagedMenu className="flex flex-col p-1.5 text-left rtl:text-right">
                       {items.map(action => (
                         <MenuOptionItem
                           key={action.id}
@@ -243,7 +243,7 @@ export function MobileHeaderActions({
                           <span>{action.label}</span>
                         </MenuOptionItem>
                       ))}
-                    </div>
+                    </PagedMenu>
                   ) : viewAction.confirm ? (
                     <ConfirmView action={viewAction} onCancel={() => setView('menu')} />
                   ) : (

@@ -30,6 +30,7 @@ import { useIsMobile, useIsTouchDevice, useIsCompactPlayer, useIsLandscapePhone 
 import { MobileSheet } from './components/MobileSheet';
 import { desktop, IS_INSTALLED_APP } from './desktopBridge';
 import { PlayerPopup } from './components/PlayerPopup';
+import { ScreenErrorBoundary } from './components/ScreenErrorBoundary';
 import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
@@ -215,6 +216,21 @@ const transicaoConteudo: any = {
   },
 };
 
+// Fila para gravar no aparelho: sem a cópia do livro inteiro e sem a capa em cada item (eram gravados de
+// novo a cada mudança da fila); ao abrir, a fila é reconectada aos livros da biblioteca
+function slimQueueForStorage(queue: any[]): any[] {
+  return queue.map(item => {
+    const { book: _book, cover, ...rest } = item || {};
+    return { ...rest, cover: typeof cover === 'string' && cover.length < 512 ? cover : '' };
+  });
+}
+
+// iPhone/iPad (inclusive iPad que se apresenta como Mac): sem botão "voltar" do sistema
+const IS_APPLE_TOUCH = typeof navigator !== 'undefined' && (
+  /iPhone|iPad|iPod/.test(navigator.userAgent || '') ||
+  (/Macintosh/.test(navigator.userAgent || '') && (navigator.maxTouchPoints || 0) > 1)
+);
+
 export type QueueItem = {
   id: string;
   bookId: string;
@@ -286,15 +302,55 @@ export default function App() {
   // (senão uma cópia antiga do localStorage poderia sobrescrever os dados completos)
   const [isLibraryDataHydrated, setIsLibraryDataHydrated] = useState(false);
   const storageErrorShownRef = useRef(false);
-  const persistLibraryData = useCallback((key: string, value: unknown) => {
-    const json = JSON.stringify(value);
-    writeLocalMirror(key, json);
-    writeAppData(key, json).catch(() => {
-      if (storageErrorShownRef.current) return;
-      storageErrorShownRef.current = true;
-      window.dispatchEvent(new CustomEvent('app-storage-error'));
-    });
+  // Gravações agrupadas e adiadas: transformar a biblioteca/fila em texto e gravar no aparelho é pesado;
+  // feito na hora (a cada mudança) travava a página por instantes e, no iPhone, chegava a cortar o áudio.
+  // Cada chave guarda só o último valor e é gravada ~0,5 s depois, quando o aparelho estiver livre
+  // (e na hora, se o app for fechado ou ficar em segundo plano).
+  const pendingWritesRef = useRef(new Map<string, () => void>());
+  const pendingTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const flushPendingWrites = useCallback(() => {
+    pendingTimersRef.current.forEach(timer => clearTimeout(timer));
+    pendingTimersRef.current.clear();
+    const writes = Array.from(pendingWritesRef.current.values());
+    pendingWritesRef.current.clear();
+    writes.forEach(write => { try { write(); } catch {} });
   }, []);
+  const scheduleWrite = useCallback((key: string, write: () => void) => {
+    pendingWritesRef.current.set(key, write);
+    const prev = pendingTimersRef.current.get(key);
+    if (prev) clearTimeout(prev);
+    pendingTimersRef.current.set(key, setTimeout(() => {
+      pendingTimersRef.current.delete(key);
+      const run = () => {
+        const fn = pendingWritesRef.current.get(key);
+        pendingWritesRef.current.delete(key);
+        try { fn?.(); } catch {}
+      };
+      const ric = (window as any).requestIdleCallback as ((cb: () => void, o?: { timeout: number }) => number) | undefined;
+      if (ric) ric(run, { timeout: 1500 }); else run();
+    }, 500));
+  }, []);
+  useEffect(() => {
+    const onHide = () => { if (document.visibilityState === 'hidden') flushPendingWrites(); };
+    window.addEventListener('pagehide', flushPendingWrites);
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      window.removeEventListener('pagehide', flushPendingWrites);
+      document.removeEventListener('visibilitychange', onHide);
+    };
+  }, [flushPendingWrites]);
+
+  const persistLibraryData = useCallback((key: string, value: unknown) => {
+    scheduleWrite(key, () => {
+      const json = JSON.stringify(value);
+      writeLocalMirror(key, json);
+      writeAppData(key, json).catch(() => {
+        if (storageErrorShownRef.current) return;
+        storageErrorShownRef.current = true;
+        window.dispatchEvent(new CustomEvent('app-storage-error'));
+      });
+    });
+  }, [scheduleWrite]);
 
   useEffect(() => {
     if (!isLibraryDataHydrated) return;
@@ -402,6 +458,8 @@ export default function App() {
   });
 
   const audioContextRef = useRef<AudioContext | null>(null);
+  // Tentativas de recuperar o áudio de cada livro após um erro de carregamento
+  const audioRecoveryTriesRef = useRef(new Map<string, number>());
   const gainNodeRef = useRef<GainNode | null>(null);
   const volumeRef = useRef(1);
   const isMutedRef = useRef(false);
@@ -543,7 +601,7 @@ export default function App() {
     }
     // Atualiza itens na fila caso pertençam a este livro
     setPlaybackQueue(prev => prev.map(item => {
-      if (item.book.id === target.id) {
+      if ((item.bookId || item.book?.id) === target.id) {
         const matchingChap = updatedChapters.find((c: Chapter) => c.id === item.chapterId);
         return {
           ...item,
@@ -1252,7 +1310,8 @@ export default function App() {
         if (savedQueue) {
           const parsed = JSON.parse(savedQueue);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+            // Ignora itens incompletos (ex.: dados antigos ou corrompidos)
+            return parsed.filter((it: any) => it && typeof it === 'object' && (it.bookId || it.book?.id) && it.chapterId !== undefined);
           }
         }
       }
@@ -1690,6 +1749,7 @@ export default function App() {
       if (lastPlayedBookId) {
         const found = books.find(b => b.id === lastPlayedBookId);
         if (found) {
+          beginBookSwitch(found);
           setCurrentBook(found);
           const savedTime = localStorage.getItem('app_last_played_time');
           if (savedTime !== null) {
@@ -1717,11 +1777,12 @@ export default function App() {
   // Persiste a fila de reprodução se a opção de continuar reprodução estiver ativa
   useEffect(() => {
     if (resumePlayback) {
-      try {
-        localStorage.setItem('app_playback_queue', JSON.stringify(playbackQueue));
-      } catch {}
+      const queue = playbackQueue;
+      scheduleWrite('app_playback_queue', () => {
+        localStorage.setItem('app_playback_queue', JSON.stringify(slimQueueForStorage(queue)));
+      });
     }
-  }, [playbackQueue, resumePlayback]);
+  }, [playbackQueue, resumePlayback, scheduleWrite]);
 
   // Sincroniza os livros da fila restaurada com a biblioteca atual
   useEffect(() => {
@@ -1762,7 +1823,7 @@ export default function App() {
             localStorage.setItem('app_last_played_book_id', currentBook.id);
             localStorage.setItem('app_last_played_time', String(currentTime));
           }
-          localStorage.setItem('app_playback_queue', JSON.stringify(playbackQueue));
+          localStorage.setItem('app_playback_queue', JSON.stringify(slimQueueForStorage(playbackQueue)));
         } catch {}
       }
     };
@@ -2626,7 +2687,7 @@ export default function App() {
     });
 
     // Limpar itens da fila de reprodução
-    setPlaybackQueue(prev => prev.filter(item => !deletedBookIds.includes(item.book.id)));
+    setPlaybackQueue(prev => prev.filter(item => !deletedBookIds.includes(item.bookId || item.book?.id)));
 
     // Se o livro selecionado para detalhes foi apagado:
     if (selectedBook && deletedBookIds.includes(selectedBook.id)) {
@@ -3933,9 +3994,8 @@ export default function App() {
             </div>
   );
 
-  // Opções do toque longo numa coleção (celular), como nos audiobooks
+  // Opções de uma coleção (toque longo no celular; três pontinhos ou clique direito no computador)
   const collectionMenu = (col: Collection) => [
-    { id: 'open', icon: <FolderOpen size={14} />, label: t('open_collection'), onSelect: () => navigateTo('library-colecao-' + col.id, col) },
     { id: 'add', icon: <Plus size={14} />, label: t('add_items_to_collection'), onSelect: () => openMobileSheet({ kind: 'collection-add-items', collectionId: col.id }) },
     { id: 'edit', icon: <Edit3 size={14} />, label: t('edit_collection'), onSelect: () => handleStartEditCurrentCollection(col) },
     {
@@ -4469,14 +4529,28 @@ export default function App() {
     }
   }, []);
 
+  // Livro que está tocando ou acabou de ser escolhido (atualizado na hora da troca, antes do novo estado)
+  const latestBookIdRef = useRef<string | undefined>(currentBook?.id);
+  latestBookIdRef.current = currentBook?.id;
+  // Antes de trocar de livro: guarda onde o anterior parou e passa a gravar no novo
+  const beginBookSwitch = (next: Audiobook | undefined | null) => {
+    if (!next) return;
+    if (currentBook?.id && currentBook.id !== EMPTY_BOOK.id && currentBook.id !== next.id) {
+      savePlaybackPosition(audioRef.current?.currentTime ?? currentTime, currentBook.id, true);
+    }
+    latestBookIdRef.current = next.id;
+  };
+
   // Função centralizada para busca e sincronização do tempo de áudio
   const handleSeek = useCallback((newTime: number) => {
     const clamped = Math.max(0, Math.min(totalDuration || 999999, newTime));
     setCurrentTime(clamped);
     lastTrackedAudioTimeRef.current = clamped;
 
-    if (currentBook?.id && currentBook.id !== EMPTY_BOOK.id) {
-      savePlaybackPosition(clamped, currentBook.id, true);
+    // Grava no livro que está entrando agora (logo depois de uma troca, o estado ainda é o do anterior)
+    const seekBookId = latestBookIdRef.current;
+    if (seekBookId && seekBookId !== EMPTY_BOOK.id) {
+      savePlaybackPosition(clamped, seekBookId, true);
     }
 
     const audio = audioRef.current;
@@ -4509,6 +4583,7 @@ export default function App() {
       if (found) {
         targetBook = found;
         recordPlaySession(found);
+        beginBookSwitch(found);
         setCurrentBook(found);
         setSelectedBook(found);
       }
@@ -4546,6 +4621,7 @@ export default function App() {
     });
 
     if (!currentBook || currentBook.id !== targetBook.id) {
+      beginBookSwitch(targetBook);
       setCurrentBook(targetBook);
       setSelectedBook(targetBook);
     }
@@ -4744,6 +4820,7 @@ export default function App() {
         createdAt: Date.now(),
       });
       setPlaybackQueue(prev => prev.slice(1));
+      beginBookSwitch(nextItem.book);
       setCurrentBook(nextItem.book);
       setSelectedBook(nextItem.book);
       handleSeek(nextItem.startTime);
@@ -5269,6 +5346,36 @@ export default function App() {
     }
   }, [currentAudioSrc]);
 
+  // Proteção da reprodução: no iPhone, mudar a biblioteca, a fila ou a velocidade às vezes fazia o sistema
+  // pausar o áudio (ou suspender o processamento de áudio) sem o usuário pedir. Se isso acontecer logo
+  // depois de uma dessas mudanças, a reprodução continua sozinha. Pausas do sistema em outros momentos
+  // (ligação, Siri, outro app tocando) continuam sendo respeitadas.
+  const playingNowRef = useRef(isPlaying);
+  playingNowRef.current = isPlaying;
+  const lastLibraryChangeAtRef = useRef(0);
+  useEffect(() => { lastLibraryChangeAtRef.current = Date.now(); }, [books, playbackQueue, playbackSpeed]);
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const recentChange = () => Date.now() - lastLibraryChangeAtRef.current < 2000;
+    const onUnexpectedPause = () => {
+      if (!playingNowRef.current || audio.ended || !recentChange()) return;
+      setTimeout(() => {
+        if (playingNowRef.current && audio.paused && !audio.ended) audio.play().catch(() => {});
+      }, 60);
+    };
+    audio.addEventListener('pause', onUnexpectedPause);
+    const ctx = audioContextRef.current;
+    const onCtxState = () => {
+      if (ctx && ctx.state !== 'running' && playingNowRef.current && recentChange()) ctx.resume().catch(() => {});
+    };
+    ctx?.addEventListener('statechange', onCtxState);
+    return () => {
+      audio.removeEventListener('pause', onUnexpectedPause);
+      ctx?.removeEventListener('statechange', onCtxState);
+    };
+  }, [currentAudioSrc, isPlaying]);
+
   // Sincronização de Play/Pause com o elemento HTML5 Audio
   useEffect(() => {
     const audio = audioRef.current;
@@ -5415,6 +5522,7 @@ export default function App() {
     if (playbackQueue.length > 0) {
       const nextItem = playbackQueue[0];
       setPlaybackQueue(prev => prev.slice(1));
+      beginBookSwitch(nextItem.book);
       setCurrentBook(nextItem.book);
       setSelectedBook(nextItem.book);
       handleSeek(nextItem.startTime);
@@ -5454,6 +5562,7 @@ export default function App() {
           if (playbackQueue.length > 0) {
             const nextItem = playbackQueue[0];
             setPlaybackQueue(prev => prev.slice(1));
+            beginBookSwitch(nextItem.book);
             setCurrentBook(nextItem.book);
             setSelectedBook(nextItem.book);
             return nextItem.startTime;
@@ -5502,9 +5611,42 @@ export default function App() {
     navigateTo('book-detail', book);
   };
 
+  // Posição salva de um audiobook (onde parou), se houver e se ainda não tiver chegado ao fim
+  const getResumeTime = (book: Audiobook): number | null => {
+    if (!resumePlayback) return null;
+    try {
+      const saved = Number(JSON.parse(localStorage.getItem('audiobook_playback_positions') || '{}')[book.id]);
+      const total = (book.chapters || []).reduce((acc, c) => acc + (c.duration || 0), 0);
+      if (!isFinite(saved) || saved <= 1) return null;
+      if (total > 0 && saved >= total - 5) return null;
+      return saved;
+    } catch {
+      return null;
+    }
+  };
+
+  // Tocar um audiobook. Com um capítulo escolhido, começa nele; sem capítulo (botão "Ouvir", play do card),
+  // continua de onde parou: o livro atual só retoma (ou pausa) e outro livro volta à posição salva dele
   const handlePlayBookFromStart = (book: Audiobook, chapterIndex = -1) => {
+    if (chapterIndex < 0 && currentBook?.id === book.id && book.id !== EMPTY_BOOK.id) {
+      if (isPlaying) {
+        setIsPlaying(false);
+      } else {
+        recordPlaySession(book);
+        setSelectedBook(book);
+        setIsPlaying(true);
+      }
+      return;
+    }
     recordPlaySession(book);
-    const targetIdx = chapterIndex >= 0 ? chapterIndex : 0;
+    const resumeTime = chapterIndex < 0 ? getResumeTime(book) : null;
+    const resumeIdx = resumeTime !== null
+      ? Math.max(0, (book.chapters || []).findIndex((chap, i) => {
+          const next = book.chapters[i + 1];
+          return resumeTime >= chap.startTime && (!next || resumeTime < next.startTime);
+        }))
+      : 0;
+    const targetIdx = chapterIndex >= 0 ? chapterIndex : resumeIdx;
     const isSameBook = currentBook.id === book.id;
     const isSameChapter = isSameBook && currentChapter.id === (book.chapters?.[targetIdx]?.id || 1);
     
@@ -5516,7 +5658,7 @@ export default function App() {
           ? Math.max(0, currentTime - currentChapter.startTime)
           : 0;
         const targetChapter = book.chapters?.[targetIdx] || { id: 1, startTime: 0 };
-        const targetGlobalTime = targetChapter.startTime || 0;
+        const targetGlobalTime = resumeTime ?? (targetChapter.startTime || 0);
 
         if (!isSameBook || Math.abs(currentTime - targetGlobalTime) > 3) {
           setPlaybackReturnPoint({
@@ -5532,10 +5674,22 @@ export default function App() {
         }
       }
 
-      const targetTime = book.chapters?.[targetIdx]?.startTime || 0;
-      setCurrentBook(book);
-      setSelectedBook(book);
-      handleSeek(targetTime);
+      const targetTime = resumeTime ?? (book.chapters?.[targetIdx]?.startTime || 0);
+      const switchingBook = !currentBook || currentBook.id !== book.id;
+      if (switchingBook) {
+        // Guarda onde o livro anterior parou ANTES de trocar; o salto para o livro novo não pode ser gravado
+        // no anterior (era isso que fazia o livro voltar sempre ao início)
+        beginBookSwitch(book);
+        setCurrentBook(book);
+        setSelectedBook(book);
+        setCurrentTime(targetTime);
+        lastTrackedAudioTimeRef.current = targetTime;
+        pendingSeekRef.current = targetTime;
+        savePlaybackPosition(targetTime, book.id, true);
+      } else {
+        setSelectedBook(book);
+        handleSeek(targetTime);
+      }
       setIsPlaying(true);
       if (book.chapters?.[targetIdx]) {
         const startedId = `${book.id}-${book.chapters[targetIdx].id}`;
@@ -7348,7 +7502,7 @@ export default function App() {
               >
                 <div className="relative z-10 flex flex-col">
                   <div className="px-3 py-2 mb-1 flex items-center justify-between">
-                    <span className="text-sm font-bold text-[var(--text-main)]">{t('speed')}</span>
+                    <span className="text-sm font-bold text-[var(--text-main)]">{t('playback_speed')}</span>
                   </div>
                   <PagedMenu className="flex flex-col">{[0.75, 1, 1.25, 1.5, 1.75, 2].map((s) => {
                     const isSelected = playbackSpeed === s;
@@ -7707,6 +7861,7 @@ export default function App() {
                             item={item}
                             formatTime={formatTime}
                             onPlay={() => {
+                              beginBookSwitch(item.book);
                               setCurrentBook(item.book);
                               setSelectedBook(item.book);
                               handleSeek(item.startTime);
@@ -7723,7 +7878,7 @@ export default function App() {
                             }}
                             onViewBook={() => {
                               pendingChapterScrollRef.current = true;
-                              targetScrollChapterIdRef.current = `${item.book.id}-${item.chapterId}`;
+                              targetScrollChapterIdRef.current = `${item.bookId || item.book?.id}-${item.chapterId}`;
                               setSelectedBook(item.book);
                               setShouldScrollToCurrentChapter(Date.now());
                               navigateTo('book-detail', item.book);
@@ -8448,6 +8603,7 @@ export default function App() {
                               item={item}
                               formatTime={formatTime}
                               onPlay={() => {
+                                beginBookSwitch(item.book);
                                 setCurrentBook(item.book);
                                 setSelectedBook(item.book);
                                 handleSeek(item.startTime);
@@ -8464,7 +8620,7 @@ export default function App() {
                               }}
                               onViewBook={() => {
                                 pendingChapterScrollRef.current = true;
-                                targetScrollChapterIdRef.current = `${item.book.id}-${item.chapterId}`;
+                                targetScrollChapterIdRef.current = `${item.bookId || item.book?.id}-${item.chapterId}`;
                                 setSelectedBook(item.book);
                                 setShouldScrollToCurrentChapter(Date.now());
                                 navigateTo('book-detail', item.book);
@@ -9432,6 +9588,10 @@ export default function App() {
   };
   useEffect(() => {
     if (typeof window === 'undefined' || !window.history?.pushState) return;
+    // iPhone/iPad: sem entradas no histórico. Lá não há botão "voltar" do sistema, e com histórico o gesto
+    // nativo da borda arrastava a página inteira (inclusive a barra de abas e o miniplayer); assim, só o
+    // gesto do próprio app (que move apenas a tela) faz o voltar
+    if (IS_APPLE_TOUCH) return;
     if (navDepth > browserDepthRef.current) {
       while (browserDepthRef.current < navDepth) {
         browserDepthRef.current += 1;
@@ -9546,14 +9706,23 @@ export default function App() {
           setSwipeRelease(Math.max(0, dx * 0.85), el.clientWidth);
           setNavDirection('popSwipe');
           pendingSwipeResetRef.current = el;
-          edgeSwipeRef.current.pendingBack = true;
-          edgeSwipeRef.current.backAt = Date.now();
-          window.history.back();
+          if (IS_APPLE_TOUCH) {
+            systemBackRef.current();
+          } else {
+            edgeSwipeRef.current.pendingBack = true;
+            edgeSwipeRef.current.backAt = Date.now();
+            window.history.back();
+          }
         } else {
           // Player em tela cheia: termina de deslizar e minimiza
           if (el) { el.style.transition = 'transform 0.2s ease-out'; el.style.transform = `translateX(${isRtl() ? '-' : ''}100%)`; }
           edgeSwipeRef.current.backAt = Date.now() + 200;
           setTimeout(() => {
+            if (IS_APPLE_TOUCH) {
+              systemBackRef.current();
+              requestAnimationFrame(() => { if (el) { el.style.transition = ''; el.style.transform = ''; } });
+              return;
+            }
             edgeSwipeRef.current.pendingBack = true;
             window.history.back();
             requestAnimationFrame(() => { if (el) { el.style.transition = ''; el.style.transform = ''; } });
@@ -9701,9 +9870,9 @@ export default function App() {
                     // Celular: ao rolar, a pílula encolhe suavemente até virar um círculo só com a seta
                     // (o texto se recolhe e some), e volta ao subir
                     style={{
-                      paddingLeft: backCollapsed ? 'calc((var(--back-btn-h) - 16px) / 2)' : '1rem',
-                      paddingRight: backCollapsed ? 'calc((var(--back-btn-h) - 16px) / 2)' : '1rem',
-                      transition: 'padding 0.38s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s',
+                      paddingLeft: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
+                      paddingRight: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
+                      transition: 'padding 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s',
                     }}
                     className="h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] backdrop-blur-3xl"
                     aria-label={t('back') || undefined}
@@ -9714,7 +9883,7 @@ export default function App() {
                       animate={backCollapsed
                         ? { maxWidth: 0, opacity: 0, marginLeft: 0, marginRight: 0, filter: 'blur(4px)' }
                         : { maxWidth: 320, opacity: 1, marginLeft: 6, marginRight: 0, filter: 'blur(0px)' }}
-                      transition={{ maxWidth: { type: 'spring', stiffness: 420, damping: 40, mass: 0.7 }, marginLeft: { type: 'spring', stiffness: 420, damping: 40, mass: 0.7 }, opacity: { duration: backCollapsed ? 0.12 : 0.22, delay: backCollapsed ? 0 : 0.08 }, filter: { duration: 0.2 } }}
+                      transition={{ maxWidth: { type: 'spring', stiffness: 760, damping: 52, mass: 0.5 }, marginLeft: { type: 'spring', stiffness: 760, damping: 52, mass: 0.5 }, opacity: { duration: backCollapsed ? 0.08 : 0.14, delay: backCollapsed ? 0 : 0.05 }, filter: { duration: 0.12 } }}
                       className="block overflow-hidden whitespace-nowrap text-xs font-medium text-[var(--text-main)] truncate max-md:max-w-[40vw]"
                     >
                       {(() => {
@@ -11373,6 +11542,12 @@ export default function App() {
 
           {/* Viewport de Conteúdo com Scroll */}
         <div ref={mainScrollRef} className={cn("app-scroll flex-1 min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 md:px-8 pt-[calc(var(--app-header-top)+60px)] relative z-10", isPlayerVisible ? "has-mini pb-52 md:pb-32" : "pb-32 md:pb-12")}>
+          {/* Se uma tela der erro, só ela mostra um aviso; abas, cabeçalho e player continuam funcionando */}
+          <ScreenErrorBoundary
+            resetKey={getScreenKey(activeScreen)}
+            onBack={historyStack.length > 0 ? goBack : undefined}
+            labels={{ title: t('screen_error_title'), description: t('screen_error_desc'), back: t('back'), retry: t('screen_error_retry') }}
+          >
           <AnimatePresence mode={isMobile ? 'sync' : 'wait'}>
           
           {/* SCREEN: SEARCH */}
@@ -11854,7 +12029,7 @@ export default function App() {
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('collections')}</h2>
-                      {collections.length > 4 && (
+                      {collections.length > (isMobile ? 6 : 4) && (
                         <motion.button 
                           whileHover={{ scale: 1.06 }} 
                           whileTap={{ scale: 0.94 }}
@@ -11898,7 +12073,7 @@ export default function App() {
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('genres')}</h2>
-                      {sortedGenres.length > 4 && (
+                      {sortedGenres.length > (isMobile ? 6 : 4) && (
                         <motion.button 
                           whileHover={{ scale: 1.06 }} 
                           whileTap={{ scale: 0.94 }}
@@ -12002,6 +12177,8 @@ export default function App() {
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('languages')}</h2>
+                      {/* Só quando há mais idiomas do que a seção mostra */}
+                      {sortedLanguages.length > (isMobile ? 6 : 4) && (
                       <motion.button 
                         whileHover={{ scale: 1.06 }} 
                         whileTap={{ scale: 0.94 }}
@@ -12011,6 +12188,7 @@ export default function App() {
                         <span>{t('see_all')}</span>
                         <ChevronRight size={15} className="-mr-0.5" />
                       </motion.button>
+                      )}
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mobile-row">
                       <AnimatePresence>
@@ -13656,13 +13834,16 @@ export default function App() {
                 const fadeMask = (m: string) => ({ WebkitMaskImage: m, maskImage: m });
                 return (
                   <div className="md:hidden land:hidden relative mobile-bleed -mt-[calc(var(--app-header-top)+76px)]">
-                    <div data-zoom-hero="true" className="relative w-full overflow-hidden" style={{ height: 'min(100vw, 62dvh)' }}>
+                    <div data-zoom-hero="true" className="relative w-full" style={{ height: 'min(100vw, 62dvh)' }}>
+                      {/* Camadas da capa: o esmaecimento continua ~72px abaixo do bloco, por trás do conteúdo,
+                          com curva suave (sem degrau nem linha reta entre a capa e a tela) */}
+                      <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 72px)' }}>
                       <img
                         src={heroPic}
                         onError={(e) => { e.currentTarget.src = getAuthorAvatar(authorData.name); }}
                         alt={authorData.name}
                         className="absolute inset-0 w-full h-full object-cover"
-                        style={fadeMask('linear-gradient(to bottom, black 55%, transparent 84%)')}
+                        style={fadeMask('linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 46.0%, rgba(0,0,0,0.972) 51.4%, rgba(0,0,0,0.896) 56.8%, rgba(0,0,0,0.784) 62.2%, rgba(0,0,0,0.648) 67.6%, rgba(0,0,0,0.500) 73.0%, rgba(0,0,0,0.352) 78.4%, rgba(0,0,0,0.216) 83.8%, rgba(0,0,0,0.104) 89.2%, rgba(0,0,0,0.028) 94.6%, rgba(0,0,0,0.000) 100.0%)')}
                       />
                       <img
                         src={heroPic}
@@ -13677,8 +13858,9 @@ export default function App() {
                         alt=""
                         aria-hidden="true"
                         className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 pointer-events-none"
-                        style={fadeMask('linear-gradient(to bottom, transparent 50%, black 66%, black 80%, transparent 96%)')}
+                        style={fadeMask('linear-gradient(to bottom, transparent 44.0%, rgba(0,0,0,0.028) 46.2%, rgba(0,0,0,0.104) 48.4%, rgba(0,0,0,0.216) 50.6%, rgba(0,0,0,0.352) 52.8%, rgba(0,0,0,0.500) 55.0%, rgba(0,0,0,0.648) 57.2%, rgba(0,0,0,0.784) 59.4%, rgba(0,0,0,0.896) 61.6%, rgba(0,0,0,0.972) 63.8%, rgba(0,0,0,1.000) 66.0%, rgba(0,0,0,1.000) 74.0%, rgba(0,0,0,0.972) 76.6%, rgba(0,0,0,0.896) 79.2%, rgba(0,0,0,0.784) 81.8%, rgba(0,0,0,0.648) 84.4%, rgba(0,0,0,0.500) 87.0%, rgba(0,0,0,0.352) 89.6%, rgba(0,0,0,0.216) 92.2%, rgba(0,0,0,0.104) 94.8%, rgba(0,0,0,0.028) 97.4%, rgba(0,0,0,0.000) 100.0%)')}
                       />
+                      </div>
                       <div className="absolute inset-x-0 bottom-0 px-5 pb-4 flex flex-col items-center text-center text-[var(--text-main)]">
                         <h2 data-screen-title="true" className="text-[26px] font-bold leading-tight tracking-tight line-clamp-2">{authorData.name}</h2>
                         {heroMeta && <p className="text-[13px] font-medium text-[var(--text-muted)] mt-1">{heroMeta}</p>}
@@ -14215,6 +14397,7 @@ export default function App() {
             )}
 
           </AnimatePresence>
+          </ScreenErrorBoundary>
           </div>
         </main>
 
@@ -14787,6 +14970,18 @@ export default function App() {
         onEnded={handleAudioEnded}
         onError={(e) => {
           console.warn('Erro na reprodução nativa de áudio:', e);
+          // O endereço temporário do áudio pode ter sido descartado (ex.: pelo sistema): recarrega o arquivo
+          // guardado no aparelho e retoma do mesmo ponto (no máximo 2 tentativas por livro, sem ciclo)
+          const bookId = currentBook?.id;
+          if (!bookId || bookId === EMPTY_BOOK.id || !storedAudioBlobKeysRef.current.has(bookId)) return;
+          const tries = audioRecoveryTriesRef.current.get(bookId) || 0;
+          if (tries >= 2) return;
+          audioRecoveryTriesRef.current.set(bookId, tries + 1);
+          pendingSeekRef.current = currentTime;
+          const oldUrl = audioUrlsRef.current.get(bookId);
+          if (oldUrl?.startsWith('blob:')) { try { URL.revokeObjectURL(oldUrl); } catch {} }
+          audioUrlsRef.current.delete(bookId);
+          loadAudioForBook(bookId, true);
         }}
         onLoadedMetadata={() => {
           if (pendingSeekRef.current !== null && audioRef.current) {

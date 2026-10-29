@@ -40,12 +40,15 @@ function MorphingContent({ children, className = '' }: { children: React.ReactNo
       const run = ++runRef.current;
       // Durante a animação o conteúdo fica com a altura natural (não estica nem encolhe com o recipiente)
       inner.style.flex = '0 0 auto';
+      // Recorta só durante a animação (parado, o destaque das opções e o brilho não são cortados)
+      if (scope.current) scope.current.style.overflow = 'hidden';
       height.set(from);
       controls = animate(height, h, MORPH_BOUNCE_SPRING);
       controls.then(() => {
         if (runRef.current !== run) return;
         height.set('auto');
         inner.style.flex = '';
+        if (scope.current) scope.current.style.overflow = '';
       });
       if (Math.abs(h - last) > 12 && scope.current) {
         animateScope(scope.current, { opacity: [0.35, 1], filter: ['blur(6px)', 'blur(0px)'] }, { duration: 0.28, ease: 'easeOut' });
@@ -56,7 +59,7 @@ function MorphingContent({ children, className = '' }: { children: React.ReactNo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <motion.div ref={scope} style={{ height, overflow: 'hidden' }} className="flex flex-col min-h-0">
+    <motion.div ref={scope} style={{ height }} className="flex flex-col min-h-0">
       <div ref={innerRef} className={`flex-1 ${className}`}>{children}</div>
     </motion.div>
   );

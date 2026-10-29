@@ -775,17 +775,17 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   }
 
   [data-popup-content] button.group.w-full {
-    font-size: 15px !important;
+    font-size: 16px !important;
     min-height: 44px;
     border-radius: 20px !important;
   }
   /* Opção tocada (ou sob o dedo ao arrastar): o mesmo destaque do "passar o mouse" no computador */
+  /* (sem aumentar a opção nem brilho largo: dentro da margem do pop-up, nada é cortado) */
   [data-popup-content] [data-touch-active] {
     background-color: rgb(255 255 255 / 0.15) !important;
     border-color: rgb(255 255 255 / 0.2) !important;
-    box-shadow: 0 0 12px rgb(255 255 255 / 0.15) !important;
+    box-shadow: 0 0 6px rgb(255 255 255 / 0.12) !important;
     color: #fff;
-    transform: scale(1.02);
   }
   html:not(.dark) [data-popup-content] [data-touch-active] {
     background-color: rgb(100 116 139 / 0.18) !important;
@@ -951,10 +951,16 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   }
   .fs-body {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    /* Coluna da capa mais estreita: os controles ficam mais perto da capa (no máximo metade do espaço de antes) */
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
     grid-template-rows: 1fr auto auto 1fr;
     column-gap: 24px;
     align-items: center;
+  }
+  /* Simetria: a capa fica tão longe da borda esquerda quanto os controles da borda direita */
+  [data-fullscreen-player].fs-safe {
+    padding-left: max(var(--page-margin), var(--safe-left), var(--safe-right)) !important;
+    padding-right: max(var(--page-margin), var(--safe-left), var(--safe-right)) !important;
   }
   .fs-top {
     display: contents;
@@ -966,21 +972,19 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
     justify-content: flex-start;
     height: 100%;
   }
-  /* Player centralizado na metade direita, com largura limitada (alinhado como a capa à esquerda) */
+  /* Player ocupando a coluna da direita até a margem (alinhado à direita como a capa à esquerda) */
   .fs-info {
     grid-column: 2;
     grid-row: 2;
     margin: 0 0 6px !important;
-    justify-self: end;
+    justify-self: stretch;
     width: 100%;
-    max-width: 24rem;
   }
   .fs-controls {
     grid-column: 2;
     grid-row: 3;
-    justify-self: end;
+    justify-self: stretch;
     width: 100%;
-    max-width: 24rem;
     margin-top: 0;
   }
   .fs-column {
@@ -1391,7 +1395,7 @@ html.standalone #root {
   --fade-bottom: var(--fade-size);
 }
 /* Letra do player em tela cheia e folhas: transição mais longa, como no Apple Music */
-.fullscreen-transcript { --fade-size: 64px; }
+.fullscreen-transcript { --fade-size: 110px; }
 [data-mobile-sheet] .overflow-y-auto { --fade-size: 32px; }
 [data-scroll-fade="search"] { --fade-size: 28px; }
 
@@ -1440,7 +1444,8 @@ main .flex.items-center.justify-between:has(> h2.text-xl.font-bold, > h3.text-lg
 }
 @media (max-width: 1023px) {
   :root {
-    --subtitle-size: calc(1.125rem * var(--font-scale, 1));
+    /* iOS: títulos de seção com 20pt (Title 3) */
+    --subtitle-size: calc(1.25rem * var(--font-scale, 1));
   }
 }
 main h2.text-xl.font-bold,
@@ -1462,3 +1467,97 @@ main h3.text-lg.font-bold {
 /* Altura do botão de voltar do cabeçalho (o círculo recolhido tem a mesma largura) */
 :root { --back-btn-h: 2.25rem; }
 @media (max-width: 1023px) { :root { --back-btn-h: 2.75rem; } }
+
+/* Modo claro: cards de idiomas, gêneros e coleções sem sombra atrás */
+html:not(.dark) main [class*="aspect-[16/9]"].rounded-3xl {
+  box-shadow: none !important;
+}
+
+/* ==========================================================================
+   DESTAQUES DE TOQUE E DE OPÇÕES VERMELHAS
+   ========================================================================== */
+/* Dentro dos pop-ups o destaque do toque já marca a opção: sem o escurecimento genérico de "pressionado"
+   (deixava as opções acinzentadas, principalmente no modo claro) */
+[data-popup-content] :is(button, [role="button"]):active,
+[data-player-sheet] :is(button, [role="button"]):active {
+  filter: none !important;
+}
+/* Modo claro: destaque cinza suave, sem o brilho branco do modo escuro */
+html:not(.dark) [data-popup-content] [data-touch-active],
+html:not(.dark) [data-player-sheet] [data-touch-active] {
+  background-color: rgb(100 116 139 / 0.16) !important;
+  border-color: rgb(100 116 139 / 0.22) !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+/* Opções e botões vermelhos (excluir, remover…): o destaque também é vermelho — ao tocar, ao segurar e ao
+   passar o mouse */
+:is([data-popup-content], [data-player-sheet], [data-mobile-confirm]) :is(button, [role="button"]).text-red-500[data-touch-active],
+:is(button, [role="button"]).text-red-500:active {
+  background-color: rgb(239 68 68 / 0.16) !important;
+  border-color: rgb(239 68 68 / 0.32) !important;
+  box-shadow: 0 0 6px rgb(239 68 68 / 0.18) !important;
+  color: rgb(239 68 68) !important;
+  filter: none !important;
+}
+html:not(.dark) :is([data-popup-content], [data-player-sheet], [data-mobile-confirm]) :is(button, [role="button"]).text-red-500[data-touch-active],
+html:not(.dark) :is(button, [role="button"]).text-red-500:active {
+  background-color: rgb(239 68 68 / 0.12) !important;
+  box-shadow: none !important;
+  color: rgb(220 38 38) !important;
+}
+@media (hover: hover) {
+  :is([data-popup-content], [data-player-sheet], [data-mobile-confirm]) :is(button, [role="button"]).text-red-500:hover {
+    background-color: rgb(239 68 68 / 0.15) !important;
+    border-color: rgb(239 68 68 / 0.3) !important;
+    box-shadow: 0 0 12px rgb(239 68 68 / 0.2) !important;
+    color: rgb(239 68 68) !important;
+  }
+  html:not(.dark) :is([data-popup-content], [data-player-sheet], [data-mobile-confirm]) :is(button, [role="button"]).text-red-500:hover {
+    background-color: rgb(239 68 68 / 0.1) !important;
+    box-shadow: none !important;
+    color: rgb(220 38 38) !important;
+  }
+}
+/* Um item que contém um pop-up aberto (ex.: linha do capítulo com o menu de opções) não escurece ao ser
+   pressionado: o filtro no "pai" desligava o desfoque de vidro do pop-up, que ficava transparente */
+:is(button, [role="button"], a, .cursor-pointer, .mobile-press):active:has([data-popup-content]) {
+  filter: none !important;
+}
+
+/* App instalado (tela de início do iPhone): o iOS desfoca a faixa logo abaixo da barra de status, que
+   alcançava o topo dos botões do cabeçalho; o cabeçalho desce 8px para ficar fora dela */
+html.standalone {
+  --app-header-top: max(20px, calc(var(--safe-top) + 20px));
+}
+
+/* ==========================================================================
+   CELULAR: TAMANHOS NO PADRÃO DO iOS (iPhone: 3 pixels por ponto; ex.: iPhone 17 com 402 x 874 pt)
+   Texto padrão sem redução (o menor texto do iOS é 11pt), título grande com 34pt em negrito,
+   títulos de seção com 20pt, opções de menu com 16-17pt e ícones dos botões do cabeçalho (44pt) com 20pt.
+   ========================================================================== */
+@media (max-width: 1023px) {
+  html[data-font-size="standard"] { --font-scale: 1; }
+  html[data-font-size="small"] { --font-scale: 0.92; }
+  html[data-font-size="large"] { --font-scale: 1.1; }
+
+  main h1.text-4xl {
+    font-size: calc(34px * var(--font-scale, 1)) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.005em;
+  }
+  /* Ícones dos botões do cabeçalho (voltar, ações, três pontinhos) no tamanho dos símbolos do iOS */
+  [data-app-header] :is(button, [role="button"]):not([data-popup-content] *) > svg,
+  [data-app-header] :is(button, [role="button"]):not([data-popup-content] *) > span > svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+/* Título de seção ao lado de um botão: uma linha só, com reticências se não couber (como no iOS) */
+main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h3.text-lg).font-bold {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

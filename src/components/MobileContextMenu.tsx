@@ -160,9 +160,12 @@ export function MobileContextMenu({
   targetRadius,
   estimatedMenuHeight = 340,
   sourceEl,
+  onPreviewClick,
   children,
 }: {
   sourceEl?: HTMLElement | null;
+  // Tocar no item em destaque (capa/foto) abre a página dele
+  onPreviewClick?: () => void;
   open: boolean;
   rect: DOMRect | null;
   preview: React.ReactNode;
@@ -243,7 +246,8 @@ export function MobileContextMenu({
 
   // Toque iniciado no fundo depois de o menu abrir (ver o onClick do fundo)
   const backdropArmedRef = useRef(false);
-  useEffect(() => { if (open) backdropArmedRef.current = false; }, [open]);
+  const previewArmedRef = useRef(false);
+  useEffect(() => { if (open) { backdropArmedRef.current = false; previewArmedRef.current = false; } }, [open]);
 
   // O item some do fundo enquanto aparece em destaque com o menu
   useEffect(() => {
@@ -283,7 +287,15 @@ export function MobileContextMenu({
           <motion.div
             key="ctx-preview"
             data-popup-content="true"
-            className="fixed z-[9991] pointer-events-none"
+            // Só abre com um toque que comece no destaque (não com o "clique" de soltar o toque longo)
+            onPointerDown={onPreviewClick ? () => { previewArmedRef.current = true; } : undefined}
+            onClick={onPreviewClick ? (e) => {
+              e.stopPropagation();
+              if (!previewArmedRef.current) return;
+              previewArmedRef.current = false;
+              onPreviewClick();
+            } : undefined}
+            className={`fixed z-[9991] ${onPreviewClick ? 'cursor-pointer' : 'pointer-events-none'}`}
             style={{ left: r.left, top: r.top, width: r.width, transformOrigin: 'center center' }}
             initial={{ scale: 1, y: 0 }}
             animate={{ scale: 1.04, x: layout.shiftX, y: layout.shiftY }}

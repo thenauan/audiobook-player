@@ -61,7 +61,7 @@ export interface BookDetailViewProps {
   isChapterCompleted: (bookId: string, chapId: any) => boolean;
   isChapterStarted: (bookId: string, chapId: any) => boolean;
   handleSelectAuthor: (authorId: string, authorName: string) => void;
-  handlePlayBookFromStart: (b: Audiobook, idx: number) => void;
+  handlePlayBookFromStart: (b: Audiobook, idx?: number) => void;
   handleBookCoverError: (b: Audiobook, e: any) => void;
   handleAddToQueue: (b: Audiobook, pos: 'next' | 'last') => void;
   formatTime: (secs: number) => string;
@@ -276,7 +276,7 @@ export default function BookDetailView({
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       if (isThisBookCurrent) setIsPlaying(!isPlaying);
-                      else handlePlayBookFromStart(activeBook, 0);
+                      else handlePlayBookFromStart(activeBook);
                     }}
                     className="h-11 px-8 min-w-[132px] rounded-full bg-winblue/20 border border-winblue/45 shadow-sm backdrop-blur-3xl text-winblue text-sm font-bold flex items-center justify-center gap-2"
                   >
@@ -323,13 +323,16 @@ export default function BookDetailView({
             {heroButtons}
           </div>
           <div className="md:hidden land:hidden relative mobile-bleed -mt-[calc(var(--app-header-top)+76px)]">
-            <div data-zoom-hero="true" className="relative w-full overflow-hidden" style={{ height: 'min(150vw, 74dvh)' }}>
+            <div data-zoom-hero="true" className="relative w-full" style={{ height: 'min(150vw, 74dvh)' }}>
+              {/* Camadas da capa: o esmaecimento continua ~72px abaixo do bloco, por trás do conteúdo,
+                  com curva suave (sem degrau nem linha reta entre a capa e a tela) */}
+              <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 72px)' }}>
               <img
                 src={heroCover}
                 onError={(e) => handleBookCoverError(activeBook, e)}
                 alt={activeBook.title}
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 55%, transparent 84%)', maskImage: 'linear-gradient(to bottom, black 55%, transparent 84%)' }}
+                style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 46.0%, rgba(0,0,0,0.972) 51.4%, rgba(0,0,0,0.896) 56.8%, rgba(0,0,0,0.784) 62.2%, rgba(0,0,0,0.648) 67.6%, rgba(0,0,0,0.500) 73.0%, rgba(0,0,0,0.352) 78.4%, rgba(0,0,0,0.216) 83.8%, rgba(0,0,0,0.104) 89.2%, rgba(0,0,0,0.028) 94.6%, rgba(0,0,0,0.000) 100.0%)', maskImage: 'linear-gradient(to bottom, black 0%, rgba(0,0,0,1.000) 46.0%, rgba(0,0,0,0.972) 51.4%, rgba(0,0,0,0.896) 56.8%, rgba(0,0,0,0.784) 62.2%, rgba(0,0,0,0.648) 67.6%, rgba(0,0,0,0.500) 73.0%, rgba(0,0,0,0.352) 78.4%, rgba(0,0,0,0.216) 83.8%, rgba(0,0,0,0.104) 89.2%, rgba(0,0,0,0.028) 94.6%, rgba(0,0,0,0.000) 100.0%)' }}
               />
               {/* Desfoque e sombra no topo (cabeçalho legível sobre a capa) */}
               <img
@@ -349,11 +352,11 @@ export default function BookDetailView({
                 aria-hidden="true"
                 className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 pointer-events-none"
                 style={{
-                  WebkitMaskImage: 'linear-gradient(to bottom, transparent 50%, black 66%, black 80%, transparent 96%)',
-                  maskImage: 'linear-gradient(to bottom, transparent 50%, black 66%, black 80%, transparent 96%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, transparent 44.0%, rgba(0,0,0,0.028) 46.2%, rgba(0,0,0,0.104) 48.4%, rgba(0,0,0,0.216) 50.6%, rgba(0,0,0,0.352) 52.8%, rgba(0,0,0,0.500) 55.0%, rgba(0,0,0,0.648) 57.2%, rgba(0,0,0,0.784) 59.4%, rgba(0,0,0,0.896) 61.6%, rgba(0,0,0,0.972) 63.8%, rgba(0,0,0,1.000) 66.0%, rgba(0,0,0,1.000) 74.0%, rgba(0,0,0,0.972) 76.6%, rgba(0,0,0,0.896) 79.2%, rgba(0,0,0,0.784) 81.8%, rgba(0,0,0,0.648) 84.4%, rgba(0,0,0,0.500) 87.0%, rgba(0,0,0,0.352) 89.6%, rgba(0,0,0,0.216) 92.2%, rgba(0,0,0,0.104) 94.8%, rgba(0,0,0,0.028) 97.4%, rgba(0,0,0,0.000) 100.0%)',
+                  maskImage: 'linear-gradient(to bottom, transparent 44.0%, rgba(0,0,0,0.028) 46.2%, rgba(0,0,0,0.104) 48.4%, rgba(0,0,0,0.216) 50.6%, rgba(0,0,0,0.352) 52.8%, rgba(0,0,0,0.500) 55.0%, rgba(0,0,0,0.648) 57.2%, rgba(0,0,0,0.784) 59.4%, rgba(0,0,0,0.896) 61.6%, rgba(0,0,0,0.972) 63.8%, rgba(0,0,0,1.000) 66.0%, rgba(0,0,0,1.000) 74.0%, rgba(0,0,0,0.972) 76.6%, rgba(0,0,0,0.896) 79.2%, rgba(0,0,0,0.784) 81.8%, rgba(0,0,0,0.648) 84.4%, rgba(0,0,0,0.500) 87.0%, rgba(0,0,0,0.352) 89.6%, rgba(0,0,0,0.216) 92.2%, rgba(0,0,0,0.104) 94.8%, rgba(0,0,0,0.028) 97.4%, rgba(0,0,0,0.000) 100.0%)',
                 }}
               />
-
+              </div>
               <div className="absolute inset-x-0 bottom-0 px-5 pb-4 flex flex-col items-center text-center text-[var(--text-main)]">
                 <h2 data-screen-title="true" className="text-[24px] font-bold leading-tight tracking-tight line-clamp-2">{activeBook.title}</h2>
                 <button
@@ -480,7 +483,7 @@ export default function BookDetailView({
                     if (isThisBookCurrent) {
                       setIsPlaying(!isPlaying);
                     } else {
-                      handlePlayBookFromStart(activeBook, 0);
+                      handlePlayBookFromStart(activeBook);
                     }
                   }}
                   className="h-10 px-5 max-md:h-12 max-md:w-full max-md:max-w-[280px] max-md:text-sm justify-center rounded-full bg-winblue/20 border border-winblue/45 shadow-xl backdrop-blur-3xl hover:bg-winblue/30 hover:border-winblue/75 hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.25),0_0_22px_rgba(var(--winblue-rgb),0.45)] text-winblue text-xs font-bold transition-all flex items-center gap-2"

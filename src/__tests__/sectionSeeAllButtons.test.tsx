@@ -46,14 +46,17 @@ describe('Conditional "See all" and section header action buttons', () => {
     // Favorite authors in Library
     expect(appFile).toMatch(/favoriteAuthorIds\.includes\(a\.id\)\)\.length > 6\s*&&/);
 
-    // Genres in Library (4 retangulares por linha)
-    expect(appFile).toMatch(/sortedGenres\.length > 4\s*&&/);
+    // Genres in Library: só quando há mais do que a seção mostra (6 no celular, 4 no computador)
+    expect(appFile).toMatch(/sortedGenres\.length > \(isMobile \? 6 : 4\)\s*&&/);
 
     // Authors in Library
     expect(appFile).toMatch(/sortedAuthors\.length > 6\s*&&/);
 
-    // Collections in Library (4 retangulares por linha)
-    expect(appFile).toMatch(/collections\.length > 4\s*&&/);
+    // Collections in Library: mesma regra
+    expect(appFile).toMatch(/collections\.length > \(isMobile \? 6 : 4\)\s*&&/);
+
+    // Languages in Library: mesma regra (com um idioma só, sem "Ver todos")
+    expect(appFile).toMatch(/sortedLanguages\.length > \(isMobile \? 6 : 4\)\s*&&/);
 
     // All audiobooks in Library
     expect(appFile).toMatch(/filteredBooks\.length > 6\s*&&/);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Minimize2, ChevronDown, SkipBack, SkipForward, Bookmark, Play, Copy, Share } from 'lucide-react';
+import { Minimize2, SkipBack, SkipForward, Bookmark, Play, Copy, Share } from 'lucide-react';
 import { BsPlayFill, BsPauseFill, BsArrowCounterclockwise, BsArrowClockwise } from 'react-icons/bs';
 import type { Audiobook, Chapter, Author, TranscriptLine } from '../data';
 import { AUTHORS_DATABASE } from '../data';
@@ -435,7 +435,7 @@ export default function FullscreenPlayer({
             aria-label={t('minimize_fullscreen')}
             className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl text-[var(--text-main)] backdrop-blur-3xl"
           >
-            <ChevronDown size={22} />
+            <Minimize2 size={18} />
           </motion.button>
         ) : (
         <motion.button 
@@ -829,6 +829,9 @@ export default function FullscreenPlayer({
           )}
         </AnimatePresence>
 
+        {/* Espaço da barra fixa abaixo da letra */}
+        {mobileLyrics && <div aria-hidden="true" className="shrink-0" style={{ height: 'calc(62px + var(--mobile-bar-bottom) - max(24px, env(safe-area-inset-bottom)) + 12px)' }} />}
+
         {/* Mobile com letra aberta: audiobook como no miniplayer (capa, dados e play/pause); tocar fecha a letra */}
         {mobileLyrics && (
           <motion.div
@@ -841,16 +844,25 @@ export default function FullscreenPlayer({
             tabIndex={0}
             onClick={() => onCloseTranscript?.()}
             onKeyDown={(e) => { if (e.key === 'Enter') onCloseTranscript?.(); }}
-            className="mobile-press w-full shrink-0 mt-3 flex items-center gap-3 py-2 cursor-pointer select-none"
+            // No lugar exato da barra de abas (mesmas margens, altura e vidro)
+            style={{
+              left: 'var(--mobile-bar-inset)',
+              right: 'var(--mobile-bar-inset)',
+              top: 'calc(var(--screen-h) - var(--mobile-bar-bottom) - 62px)',
+              height: 62,
+              borderRadius: 31,
+              boxShadow: '0 8px 24px -12px rgba(0, 0, 0, 0.35)',
+            }}
+            className="mobile-press fixed z-[5] flex items-center gap-3 pl-2.5 pr-2 cursor-pointer select-none bg-card/80 backdrop-blur-xl border border-[var(--button-secondary-bg)]"
           >
             <motion.img
               layoutId="player-cover"
               transition={{ type: "spring", stiffness: 460, damping: 44, mass: 0.6 }}
-              style={{ borderRadius: 10 }}
+              style={{ borderRadius: 8 }}
               src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)}
               onError={(e) => handleBookCoverError(currentBook, e)}
               alt=""
-              className="h-14 aspect-[1/1.6] object-cover shadow-md shrink-0"
+              className="h-11 aspect-[1/1.6] object-cover shadow-md shrink-0"
             />
             <div className="flex-1 min-w-0 text-left">
               <motion.p

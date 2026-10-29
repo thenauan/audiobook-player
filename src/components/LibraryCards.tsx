@@ -1026,6 +1026,7 @@ export function AuthorCard({
         )}
       </div>
       <MobileContextMenu
+        onPreviewClick={() => { handleClose(); openAuthorWithZoom(); }}
         open={showOptions && Boolean(contextRect)}
         rect={contextRect}
         sourceEl={contextElRef.current}
@@ -1103,7 +1104,7 @@ export function OtherAppCard({
   const longPress = useLongPress(openContextMenu);
   const contextPreview = (
     <div className="flex flex-col">
-      <div className="w-full aspect-square overflow-hidden shadow-2xl rounded-full bg-card/60">
+      <div className="w-full aspect-square rounded-[23%] drop-shadow-2xl">
         {!iconFailed && <img src={app.iconSrc} alt="" className="w-full h-full object-cover" />}
       </div>
       <div className="mt-2 px-0.5">
@@ -1212,9 +1213,10 @@ export function OtherAppCard({
           }
           onOpenUrl(app.url);
         }}
-        className="relative aspect-square w-full overflow-hidden mb-2 cursor-pointer shadow-md group-hover/appcard:shadow-xl transition-shadow rounded-full"
+        // Ícone no formato dos ícones da Apple (o próprio arquivo tem os cantos contínuos)
+        className="relative aspect-square w-full mb-2 cursor-pointer rounded-[23%] drop-shadow-md group-hover/appcard:drop-shadow-xl transition-[filter]"
       >
-        <div className="relative w-full h-full ring-2 ring-transparent group-hover/appcard:ring-winblue/40 transition-all overflow-hidden rounded-full bg-card/60">
+        <div className="relative w-full h-full ring-2 ring-transparent group-hover/appcard:ring-winblue/40 transition-all overflow-hidden rounded-[23%]">
           <div className="w-full h-full relative transition-transform duration-500 group-hover/appcard:scale-105">
             {!iconFailed && (
               <img
@@ -1229,7 +1231,7 @@ export function OtherAppCard({
         </div>
 
         {/* Botão de Ir para o App na Web no centro ao passar o mouse (estilo Play dos audiobooks) */}
-        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/appcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-20">
+        <div className="absolute inset-0 rounded-[23%] bg-black/30 opacity-0 group-hover/appcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-20">
           <motion.button
             whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.9 }}
@@ -1326,6 +1328,7 @@ export function OtherAppCard({
         </div>
       </div>
       <MobileContextMenu
+        onPreviewClick={() => { handleClose(); onOpenUrl(app.url); }}
         open={showOptions && Boolean(contextRect)}
         rect={contextRect}
         sourceEl={contextElRef.current}
@@ -1810,6 +1813,7 @@ export function BookCard({
         </div>
       </div>
       <MobileContextMenu
+        onPreviewClick={() => { handleClose(); openBookWithZoom(); }}
         open={showOptions && Boolean(contextRect)}
         rect={contextRect}
         sourceEl={contextElRef.current}
@@ -1910,12 +1914,15 @@ export function CollectionCard({
 }) {
   const [contextRect, setContextRect] = useState<DOMRect | null>(null);
   const contextElRef = useRef<HTMLElement | null>(null);
-  const close = () => setContextRect(null);
+  // Computador: menu pelos três pontinhos (ao passar o mouse) ou pelo clique direito
+  const [desktopMenu, setDesktopMenu] = useState(false);
+  const close = () => { setContextRect(null); setDesktopMenu(false); };
   useEffect(() => {
-    if (!contextRect) return;
+    if (!contextRect && !desktopMenu) return;
     window.addEventListener('close-all-popups', close);
     return () => window.removeEventListener('close-all-popups', close);
-  }, [contextRect]);
+  }, [contextRect, desktopMenu]);
+  useCloseOnOutsideScrollOrDrag(desktopMenu, close);
   const openContextMenu = (el: HTMLElement) => {
     if (selectionMode || !isMobileViewport() || menu.length === 0) return;
     window.dispatchEvent(new Event('close-all-popups'));
@@ -1956,18 +1963,67 @@ export function CollectionCard({
         onClick={onClick}
         // Toque longo (Android e navegadores que disparam o menu de contexto ao segurar)
         onContextMenu={(e) => {
-          if (!isMobileViewport()) return;
+          if (menu.length === 0 || selectionMode) return;
           e.preventDefault();
           e.stopPropagation();
-          openContextMenu(e.currentTarget as HTMLElement);
+          if (isMobileViewport()) { openContextMenu(e.currentTarget as HTMLElement); return; }
+          window.dispatchEvent(new Event('close-all-popups'));
+          setDesktopMenu(true);
         }}
-        className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
+        className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${desktopMenu ? 'z-50' : ''} ${
           selectionMode && selected
             ? 'border-winblue ring-2 ring-winblue shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
             : 'border-white/15 hover:border-white/30'
         }`}
       >
         {face}
+        {/* Computador: três pontinhos no canto ao passar o mouse; o menu nasce deles */}
+        {menu.length > 0 && !selectionMode && (
+          <div
+            className={`absolute top-3 right-3 rtl:right-auto rtl:left-3 z-20 w-8 h-8 max-md:hidden transition-opacity duration-200 ${desktopMenu ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {desktopMenu && <div className="fixed inset-0 z-40 cursor-default" {...getBackdropProps(close)} />}
+            <motion.button
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.92 }}
+              animate={morphTriggerAnimate(desktopMenu)}
+              onClick={(e) => {
+                e.stopPropagation();
+                const next = !desktopMenu;
+                window.dispatchEvent(new Event('close-all-popups'));
+                setDesktopMenu(next);
+              }}
+              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl border border-white/25 text-white bg-black/25 hover:bg-black/40 transition-all cursor-pointer"
+              aria-label="..."
+            >
+              <MoreHorizontal size={16} />
+            </motion.button>
+            <AnimatePresence>
+              {desktopMenu && (
+                <PopupMorphContainer
+                  key="collection-menu"
+                  activeKey="collection-options"
+                  direction={-1}
+                  targetWidth={200}
+                  targetRadius={20}
+                  originWidth={32}
+                  originHeight={32}
+                  style={{ transformOrigin: 'top right' }}
+                  className="absolute top-0 right-0 z-50"
+                >
+                  <PagedMenu className="flex flex-col p-2">
+                    {menu.map(entry => (
+                      <MenuOptionItem key={entry.id} icon={entry.icon} danger={entry.danger} onClick={() => { close(); entry.onSelect(); }}>
+                        <span>{entry.label}</span>
+                      </MenuOptionItem>
+                    ))}
+                  </PagedMenu>
+                </PopupMorphContainer>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
         {selectionMode && (
           <div className="absolute top-4 right-4 z-20">
             <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -1979,6 +2035,7 @@ export function CollectionCard({
         )}
       </motion.div>
       <MobileContextMenu
+        onPreviewClick={() => { close(); onClick(); }}
         open={Boolean(contextRect)}
         rect={contextRect}
         sourceEl={contextElRef.current}
