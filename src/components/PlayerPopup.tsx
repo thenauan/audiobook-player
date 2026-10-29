@@ -174,8 +174,9 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
   }
 );
 
-export const PlayerPopup = React.forwardRef<HTMLDivElement, MorphPopupProps>(function PlayerPopup(props, ref) {
-  const compact = useCompactPopups();
+// inPlace: o pop-up surge do próprio botão (ex.: botões do cabeçalho), também no celular
+export const PlayerPopup = React.forwardRef<HTMLDivElement, MorphPopupProps & { inPlace?: boolean }>(function PlayerPopup({ inPlace, ...props }, ref) {
+  const compact = useCompactPopups() && !inPlace;
   // Botão de origem guardado na abertura (o informado pelo pop-up ou o último tocado)
   const [source] = useState<HTMLElement | null>(() => ((props as any).anchor as HTMLElement) || lastPressedButton);
   if (!compact) {

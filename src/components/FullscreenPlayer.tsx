@@ -416,7 +416,7 @@ export default function FullscreenPlayer({
       {/* Cabeçalho do Player em Tela Cheia (distância superior = pt-6 = 24px) */}
       <motion.div
         data-app-header="true"
-        className="flex items-center justify-between z-20 relative shrink-0 h-9 max-md:h-11"
+        className="flex items-center justify-between z-20 max-md:z-40 relative shrink-0 h-9 max-md:h-11"
         initial={{ opacity: 0 }}
         animate={{ opacity: isIntroDone ? 1 : 0 }}
         exit={{ opacity: 0, transition: { duration: 0 } }}

@@ -8132,7 +8132,7 @@ export default function App() {
                 className="fixed inset-0 z-40 cursor-default" 
                 {...getBackdropProps(() => setShowAddTextPopup(false))}
               />
-              <PlayerPopup originWidth={36} originHeight={36} 
+              <PlayerPopup inPlace originWidth={36} originHeight={36} 
                 key="menu-fs-add-text"
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}

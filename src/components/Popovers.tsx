@@ -655,7 +655,9 @@ export const MORPH_CONTENT_MOTION = {
 export function morphTriggerAnimate(isOpen: boolean) {
   return isOpen
     ? { opacity: 0, scale: 1.12, pointerEvents: 'none' as const, transition: { opacity: { duration: 0.14 }, scale: MORPH_SPRING } }
-    : { opacity: 1, scale: 1, pointerEvents: 'auto' as const, transition: { opacity: { duration: 0.14, delay: 0.2 }, scale: { type: 'spring' as const, stiffness: 420, damping: 26, delay: 0.18 } } };
+    // Ao fechar, o botão volta logo, por baixo do pop-up que encolhe até ele (sem um instante vazio entre
+    // o pop-up sumir e o botão aparecer, que fazia os botões piscarem)
+    : { opacity: 1, scale: 1, pointerEvents: 'auto' as const, transition: { opacity: { duration: 0.12, delay: 0.03 }, scale: { duration: 0 } } };
 }
 
 type MorphPopupProps = Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'exit' | 'transition'> & {
