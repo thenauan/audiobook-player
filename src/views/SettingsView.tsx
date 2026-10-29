@@ -6,7 +6,7 @@ import {
   Palette, BookOpen, Bell, Settings as SettingsIcon, Moon, Sun, Laptop, Monitor, ChevronDown,
   Sliders, Type, ALargeSmall, Globe, FolderOpen, RefreshCw, Clock, Download, Upload,
   Gauge, Play, FileText, Activity, CheckCircle2, ListPlus, Database, Trash2, Info,
-  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight
+  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight, Cloud, X
 } from 'lucide-react';
 import { BsPlayFill, BsArrowClockwise, BsArrowCounterclockwise } from 'react-icons/bs';
 import {
@@ -95,6 +95,9 @@ export interface SettingsViewProps {
   isSyncingLibrary: boolean;
   handleSyncLibraryNow: () => void;
   handleSelectLibraryFolder: () => void;
+  altLibraryFolder: string;
+  handleConnectGoogleDrive: () => void;
+  handleDisconnectGoogleDrive: () => void;
   detectNewFiles: DetectNewFilesMode;
   setDetectNewFiles: React.Dispatch<React.SetStateAction<DetectNewFilesMode>>;
   checkOnStartup: boolean;
@@ -156,6 +159,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   isSyncingLibrary,
   handleSyncLibraryNow,
   handleSelectLibraryFolder,
+  altLibraryFolder,
+  handleConnectGoogleDrive,
+  handleDisconnectGoogleDrive,
   detectNewFiles,
   setDetectNewFiles,
   checkOnStartup,
@@ -238,6 +244,42 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
             
     </>
+  );
+  // Google Drive como pasta alternativa da biblioteca (app instalado, com o Google Drive para computador)
+  const actionControls_settings_gdrive = () => (
+    <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
+      {altLibraryFolder && (
+        <div
+          data-path-pill="true"
+          title={altLibraryFolder}
+          className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-xs text-winblue flex items-center max-w-[200px] md:max-w-xs truncate select-all"
+        >
+          <span className="truncate">{altLibraryFolder}</span>
+        </div>
+      )}
+      <motion.button
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
+        onClick={handleConnectGoogleDrive}
+        className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+        title={altLibraryFolder ? t('gdrive_change') : t('gdrive_connect')}
+      >
+        <span>{altLibraryFolder ? t('gdrive_change') : t('gdrive_connect')}</span>
+        <Cloud size={14} />
+      </motion.button>
+      {altLibraryFolder && (
+        <motion.button
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.94 }}
+          onClick={handleDisconnectGoogleDrive}
+          className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+          title={t('gdrive_disconnect')}
+        >
+          <span>{t('gdrive_disconnect')}</span>
+          <X size={14} />
+        </motion.button>
+      )}
+    </div>
   );
   const actionControls_export_library = () => (
     <>
@@ -406,6 +448,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   );
   const settingActionControls: Record<string, () => React.ReactNode> = {
     settings_lib_folder: actionControls_settings_lib_folder,
+    settings_gdrive: actionControls_settings_gdrive,
     export_library: actionControls_export_library,
     import_backup: actionControls_import_backup,
     settings_data_folder: actionControls_settings_data_folder,
@@ -734,6 +777,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               {/* Botões: no computador ficam na linha; no celular, só dentro da tela própria do ajuste */}
               <div className="max-md:hidden md:contents">{actionControls_settings_lib_folder()}</div>
+              <ChevronRight size={16} className="md:hidden text-[var(--text-muted)] shrink-0 rtl:rotate-180" />
+            </div>
+
+            {/* 1b. Google Drive como pasta alternativa (app instalado no computador) */}
+            <div data-setting-action="settings_gdrive" data-setting-title={t('settings_gdrive')} data-setting-subtitle={t('settings_gdrive_sub')} onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4`}><div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                  <Cloud size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-base text-[var(--text-main)]">{t('settings_gdrive')}</span>
+                  <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('settings_gdrive_sub')}</span>
+                </div>
+              </div>
+              <div className="max-md:hidden md:contents">{actionControls_settings_gdrive()}</div>
               <ChevronRight size={16} className="md:hidden text-[var(--text-muted)] shrink-0 rtl:rotate-180" />
             </div>
 

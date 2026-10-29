@@ -73,9 +73,36 @@ app.whenReady().then(() => {
     if (/^https?:\/\//i.test(String(url))) shell.openExternal(String(url));
   });
   ipcMain.handle('open-path', (_e, target) => shell.openPath(String(target || '')));
-  ipcMain.handle('select-folder', async () => {
-    const res = await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] });
+  ipcMain.handle('select-folder', async (_e, defaultPath) => {
+    const opts = { properties: ['openDirectory', 'createDirectory'] };
+    if (defaultPath && fs.existsSync(String(defaultPath))) opts.defaultPath = String(defaultPath);
+    const res = await dialog.showOpenDialog(opts);
     return res.canceled ? '' : res.filePaths[0];
+  });
+  // Google Drive para computador: o Drive aparece como uma pasta do sistema (G:\Meu Drive no Windows,
+  // ~/Library/CloudStorage/GoogleDrive-.../Meu Drive no Mac). Devolve as pastas do Drive encontradas;
+  // os arquivos são baixados pelo próprio Google Drive quando o app os lê.
+  ipcMain.handle('find-google-drive', async () => {
+    const MY_DRIVE = ['My Drive', 'Meu Drive', 'Mi unidad', 'Мой диск', 'Mon Drive', 'Meine Ablage', 'Il mio Drive'];
+    const found = [];
+    const addRoot = (root) => {
+      for (const name of MY_DRIVE) {
+        const p = path.join(root, name);
+        try { if (fs.statSync(p).isDirectory()) { found.push(p); return; } } catch {}
+      }
+    };
+    if (process.platform === 'win32') {
+      for (const letter of 'DEFGHIJKLMNOPQRSTUVWXYZ') addRoot(letter + ':' + path.sep);
+    } else if (process.platform === 'darwin') {
+      const cloud = path.join(app.getPath('home'), 'Library', 'CloudStorage');
+      try {
+        for (const entry of fs.readdirSync(cloud)) if (entry.startsWith('GoogleDrive')) addRoot(path.join(cloud, entry));
+      } catch {}
+    }
+    // Instalações antigas (Backup and Sync): pasta "Google Drive" na pasta do usuário
+    const legacy = path.join(app.getPath('home'), 'Google Drive');
+    try { if (fs.statSync(legacy).isDirectory()) found.push(legacy); } catch {}
+    return found;
   });
   ipcMain.handle('close-app', () => app.quit());
 

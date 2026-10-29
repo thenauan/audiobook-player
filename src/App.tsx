@@ -1611,7 +1611,11 @@ export default function App() {
         // App instalado: salva uma cópia do audiobook na pasta da biblioteca no disco.
         // No site, o áudio fica só guardado no navegador (acima), sem servidor.
         let realDiskPath = `${libraryFolder}\\${file.name}`;
-        if (desktop?.saveAudiobook) {
+        // Veio de uma pasta do computador (ex.: Google Drive): fica onde está, sem cópia na biblioteca
+        const sourceDiskPath = (file as any).__diskPath as string | undefined;
+        if (sourceDiskPath) {
+          realDiskPath = sourceDiskPath;
+        } else if (desktop?.saveAudiobook) {
           try {
             const saved = await desktop.saveAudiobook(file.name, libraryFolder, await file.arrayBuffer());
             if (saved) realDiskPath = saved;
@@ -1728,6 +1732,16 @@ export default function App() {
     }
     return saved;
   });
+  // Pasta alternativa da biblioteca (Google Drive para computador): os audiobooks são lidos de lá também
+  const [altLibraryFolder, setAltLibraryFolder] = useState<string>(() => {
+    try { return localStorage.getItem('app_alt_library_folder') || ''; } catch { return ''; }
+  });
+  useEffect(() => {
+    try {
+      if (altLibraryFolder) localStorage.setItem('app_alt_library_folder', altLibraryFolder);
+      else localStorage.removeItem('app_alt_library_folder');
+    } catch {}
+  }, [altLibraryFolder]);
   type DetectNewFilesMode = 'manual' | 'startup' | 'folder-select';
   const [detectNewFiles, setDetectNewFiles] = useState<DetectNewFilesMode>(() => {
     const saved = localStorage.getItem('app_detect_files');
@@ -1864,6 +1878,18 @@ export default function App() {
     try {
       if (!desktop?.scanLibraryFolder) throw new Error('not-installed');
       const data = await desktop.scanLibraryFolder(folder);
+      // Pasta do Google Drive (se conectada): seus audiobooks entram junto, lidos de lá (sem cópia)
+      const altFolder = altLibraryFolderRef.current;
+      if (data && altFolder && altFolder !== folder) {
+        try {
+          const alt = await desktop.scanLibraryFolder(altFolder);
+          if (alt?.exists && alt.files?.length) {
+            data.files = [...(data.files || []), ...alt.files.map((f: any) => ({ ...f, fromAlt: true }))];
+          }
+        } catch (err) {
+          console.warn('Não foi possível ler a pasta do Google Drive:', err);
+        }
+      }
       if (data) {
         if (data.files && data.files.length > 0) {
           const newEntries = data.files.filter((item: any) => {
@@ -1889,6 +1915,7 @@ export default function App() {
                   const ext = item.name.substring(item.name.lastIndexOf('.')).toLowerCase();
                   const mimeType = ext === '.mp3' ? 'audio/mpeg' : ext === '.m4b' || ext === '.m4a' || ext === '.mp4' ? 'audio/mp4' : ext === '.ogg' ? 'audio/ogg' : ext === '.wav' ? 'audio/wav' : ext === '.flac' ? 'audio/flac' : 'audio/*';
                   const file = new File([blob], item.name, { type: mimeType });
+                  if ((item as any).fromAlt) (file as any).__diskPath = item.path;
                   loadedFiles.push(file);
                 }
               } catch (err) {
@@ -1928,6 +1955,32 @@ export default function App() {
       handleSyncLibraryNow(libraryFolder, true);
     }
   }, []);
+
+  const altLibraryFolderRef = useRef(altLibraryFolder);
+  altLibraryFolderRef.current = altLibraryFolder;
+  // Conecta o Google Drive como pasta alternativa: abre o seletor já dentro do Drive (Google Drive para
+  // computador) para escolher a pasta dos audiobooks; sem o Drive instalado, explica como instalar
+  const handleConnectGoogleDrive = async () => {
+    if (!desktop?.selectFolder) return;
+    let drives: string[] = [];
+    try { drives = (await desktop.findGoogleDrive?.()) || []; } catch {}
+    if (drives.length === 0) {
+      showToast(t('gdrive_not_found'));
+      handleOpenExternalUrl('https://www.google.com/drive/download/');
+      return;
+    }
+    const folder = await desktop.selectFolder(drives[0]);
+    if (!folder) return;
+    setAltLibraryFolder(folder);
+    altLibraryFolderRef.current = folder;
+    showToast(t('gdrive_connected', { folder }));
+    await handleSyncLibraryNow(libraryFolder);
+  };
+  const handleDisconnectGoogleDrive = () => {
+    setAltLibraryFolder('');
+    altLibraryFolderRef.current = '';
+    showToast(t('gdrive_disconnected'));
+  };
 
   const handleSelectLibraryFolder = () => {
     handleSelectFolder(async (newPath) => {
@@ -4500,7 +4553,7 @@ export default function App() {
 
     const keysToRemove = [
       'app_theme_mode', 'app_accent_color', 'app_ui_density', 'app_font_size', 'app_language',
-      'app_library_folder', 'app_data_folder', 'app_detect_files', 'app_check_startup',
+      'app_library_folder', 'app_alt_library_folder', 'app_data_folder', 'app_detect_files', 'app_check_startup',
       'app_default_speed', 'app_seek_forward', 'app_seek_backward',
       'app_resume_playback', 'app_auto_show_text', 'app_notifications_enabled',
       'app_notify_chapter', 'app_notify_book', 'app_notify_added',
@@ -14354,6 +14407,9 @@ export default function App() {
                 isSyncingLibrary={isSyncingLibrary}
                 handleSyncLibraryNow={handleSyncLibraryNow}
                 handleSelectLibraryFolder={handleSelectLibraryFolder}
+                altLibraryFolder={altLibraryFolder}
+                handleConnectGoogleDrive={handleConnectGoogleDrive}
+                handleDisconnectGoogleDrive={handleDisconnectGoogleDrive}
                 detectNewFiles={detectNewFiles}
                 setDetectNewFiles={setDetectNewFiles}
                 checkOnStartup={checkOnStartup}
