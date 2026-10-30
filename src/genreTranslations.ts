@@ -1,4 +1,5 @@
 import type { SupportedLanguage } from './translations';
+import { splitGenreValues } from './genreData';
 
 export const GENRE_TRANSLATIONS: Record<string, Record<SupportedLanguage, string>> = {
   'ficcao': {
@@ -28,6 +29,13 @@ export const GENRE_TRANSLATIONS: Record<string, Record<SupportedLanguage, string
     es: 'Infantil y Juvenil',
     ru: 'Детская и подростковая',
     ar: 'للأطفال والناشئة',
+  },
+  'lgbtq': {
+    pt: 'LGBTQ+',
+    en: 'LGBTQ+',
+    es: 'LGBTQ+',
+    ru: 'ЛГБТК+',
+    ar: 'مجتمع الميم',
   },
   'outros': {
     pt: 'Outros',
@@ -146,6 +154,63 @@ export const SUBGENRE_TRANSLATIONS: Record<string, Record<SupportedLanguage, str
   'notícias e atualidades': { pt: 'Notícias e Atualidades', en: 'News & Current Affairs', es: 'Noticias y Actualidad', ru: 'Новости', ar: 'أخبار' },
   'noticias e atualidades': { pt: 'Notícias e Atualidades', en: 'News & Current Affairs', es: 'Noticias y Actualidad', ru: 'Новости', ar: 'أخبار' },
   'geral': { pt: 'Geral', en: 'General', es: 'General', ru: 'Общее', ar: 'عام' },
+  // Novos (gênero LGBTQ+ e mais opções)
+  "romantasia": { pt: "Romantasia", en: "Romantasy", es: "Romantasía", ru: "Романтическое фэнтези", ar: "فانتازيا رومانسية" },
+  "comédia romântica": { pt: "Comédia romântica", en: "Romantic Comedy", es: "Comedia romántica", ru: "Романтическая комедия", ar: "كوميديا رومانسية" },
+  "comedia romantica": { pt: "Comédia romântica", en: "Romantic Comedy", es: "Comedia romántica", ru: "Романтическая комедия", ar: "كوميديا رومانسية" },
+  "dark romance": { pt: "Dark Romance", en: "Dark Romance", es: "Dark Romance", ru: "Дарк-романс", ar: "رومانسية مظلمة" },
+  "ficção contemporânea": { pt: "Ficção contemporânea", en: "Contemporary Fiction", es: "Ficción contemporánea", ru: "Современная проза", ar: "خيال معاصر" },
+  "ficcao contemporanea": { pt: "Ficção contemporânea", en: "Contemporary Fiction", es: "Ficción contemporánea", ru: "Современная проза", ar: "خيال معاصر" },
+  "thriller psicológico": { pt: "Thriller psicológico", en: "Psychological Thriller", es: "Thriller psicológico", ru: "Психологический триллер", ar: "تشويق نفسي" },
+  "thriller psicologico": { pt: "Thriller psicológico", en: "Psychological Thriller", es: "Thriller psicológico", ru: "Психологический триллер", ar: "تشويق نفسي" },
+  "espionagem": { pt: "Espionagem", en: "Spy Fiction", es: "Espionaje", ru: "Шпионский роман", ar: "تجسس" },
+  "guerra": { pt: "Guerra", en: "War Fiction", es: "Bélica", ru: "Военная проза", ar: "حرب" },
+  "faroeste": { pt: "Faroeste", en: "Western", es: "Western", ru: "Вестерн", ar: "غرب أمريكي" },
+  "pós-apocalíptico": { pt: "Pós-apocalíptico", en: "Post-apocalyptic", es: "Postapocalíptico", ru: "Постапокалипсис", ar: "ما بعد الكارثة" },
+  "pos-apocaliptico": { pt: "Pós-apocalíptico", en: "Post-apocalyptic", es: "Postapocalíptico", ru: "Постапокалипсис", ar: "ما بعد الكارثة" },
+  "steampunk": { pt: "Steampunk", en: "Steampunk", es: "Steampunk", ru: "Стимпанк", ar: "ستيمبانك" },
+  "realismo mágico": { pt: "Realismo mágico", en: "Magical Realism", es: "Realismo mágico", ru: "Магический реализм", ar: "واقعية سحرية" },
+  "realismo magico": { pt: "Realismo mágico", en: "Magical Realism", es: "Realismo mágico", ru: "Магический реализм", ar: "واقعية سحرية" },
+  "gótico": { pt: "Gótico", en: "Gothic", es: "Gótico", ru: "Готика", ar: "قوطي" },
+  "gotico": { pt: "Gótico", en: "Gothic", es: "Gótico", ru: "Готика", ar: "قوطي" },
+  "true crime": { pt: "True crime", en: "True Crime", es: "True crime", ru: "Тру-крайм", ar: "جرائم حقيقية" },
+  "educação": { pt: "Educação", en: "Education", es: "Educación", ru: "Образование", ar: "تعليم" },
+  "educacao": { pt: "Educação", en: "Education", es: "Educación", ru: "Образование", ar: "تعليم" },
+  "feminismo": { pt: "Feminismo", en: "Feminism", es: "Feminismo", ru: "Феминизм", ar: "نسوية" },
+  "natureza e meio ambiente": { pt: "Natureza e Meio ambiente", en: "Nature & Environment", es: "Naturaleza y Medio ambiente", ru: "Природа и экология", ar: "الطبيعة والبيئة" },
+  "medicina": { pt: "Medicina", en: "Medicine", es: "Medicina", ru: "Медицина", ar: "طب" },
+  "direito": { pt: "Direito", en: "Law", es: "Derecho", ru: "Право", ar: "قانون" },
+  "astronomia": { pt: "Astronomia", en: "Astronomy", es: "Astronomía", ru: "Астрономия", ar: "علم الفلك" },
+  "produtividade": { pt: "Produtividade", en: "Productivity", es: "Productividad", ru: "Продуктивность", ar: "إنتاجية" },
+  "relacionamentos": { pt: "Relacionamentos", en: "Relationships", es: "Relaciones", ru: "Отношения", ar: "علاقات" },
+  "parentalidade": { pt: "Parentalidade", en: "Parenting", es: "Crianza", ru: "Воспитание детей", ar: "تربية الأبناء" },
+  "romantismo": { pt: "Romantismo", en: "Romanticism", es: "Romanticismo", ru: "Романтизм", ar: "الرومانسية الأدبية" },
+  "modernismo": { pt: "Modernismo", en: "Modernism", es: "Modernismo", ru: "Модернизм", ar: "الحداثة" },
+  "literatura portuguesa": { pt: "Literatura portuguesa", en: "Portuguese Literature", es: "Literatura portuguesa", ru: "Португальская литература", ar: "الأدب البرتغالي" },
+  "literatura latino-americana": { pt: "Literatura latino-americana", en: "Latin American Literature", es: "Literatura latinoamericana", ru: "Латиноамериканская литература", ar: "أدب أمريكا اللاتينية" },
+  "literatura africana": { pt: "Literatura africana", en: "African Literature", es: "Literatura africana", ru: "Африканская литература", ar: "الأدب الأفريقي" },
+  "literatura de cordel": { pt: "Literatura de cordel", en: "Cordel Literature", es: "Literatura de cordel", ru: "Литература кордель", ar: "أدب الكورديل" },
+  "romance juvenil": { pt: "Romance juvenil", en: "YA Romance", es: "Romance juvenil", ru: "Подростковый роман", ar: "رومانسية للناشئة" },
+  "distopia juvenil": { pt: "Distopia juvenil", en: "YA Dystopia", es: "Distopía juvenil", ru: "Подростковая антиутопия", ar: "ديستوبيا للناشئة" },
+  "mistério juvenil": { pt: "Mistério juvenil", en: "YA Mystery", es: "Misterio juvenil", ru: "Подростковый детектив", ar: "غموض للناشئة" },
+  "misterio juvenil": { pt: "Mistério juvenil", en: "YA Mystery", es: "Misterio juvenil", ru: "Подростковый детектив", ar: "غموض للناشئة" },
+  "quadrinhos e mangá": { pt: "Quadrinhos e Mangá", en: "Comics & Manga", es: "Cómics y Manga", ru: "Комиксы и манга", ar: "قصص مصورة ومانغا" },
+  "quadrinhos e manga": { pt: "Quadrinhos e Mangá", en: "Comics & Manga", es: "Cómics y Manga", ru: "Комиксы и манга", ar: "قصص مصورة ومانغا" },
+  "meditação": { pt: "Meditação", en: "Meditation", es: "Meditación", ru: "Медитация", ar: "تأمل" },
+  "meditacao": { pt: "Meditação", en: "Meditation", es: "Meditación", ru: "Медитация", ar: "تأمل" },
+  "podcasts": { pt: "Podcasts", en: "Podcasts", es: "Podcasts", ru: "Подкасты", ar: "بودكاست" },
+  "audiodrama": { pt: "Audiodrama", en: "Audio Drama", es: "Radioteatro", ru: "Аудиоспектакль", ar: "دراما صوتية" },
+  "palestras e cursos": { pt: "Palestras e Cursos", en: "Lectures & Courses", es: "Charlas y Cursos", ru: "Лекции и курсы", ar: "محاضرات ودورات" },
+  "romance lgbtq+": { pt: "Romance LGBTQ+", en: "LGBTQ+ Romance", es: "Romance LGBTQ+", ru: "ЛГБТК+ любовный роман", ar: "رومانسية مجتمع الميم" },
+  "ficção lgbtq+": { pt: "Ficção LGBTQ+", en: "LGBTQ+ Fiction", es: "Ficción LGBTQ+", ru: "ЛГБТК+ проза", ar: "خيال مجتمع الميم" },
+  "ficcao lgbtq+": { pt: "Ficção LGBTQ+", en: "LGBTQ+ Fiction", es: "Ficción LGBTQ+", ru: "ЛГБТК+ проза", ar: "خيال مجتمع الميم" },
+  "fantasia lgbtq+": { pt: "Fantasia LGBTQ+", en: "LGBTQ+ Fantasy", es: "Fantasía LGBTQ+", ru: "ЛГБТК+ фэнтези", ar: "فانتازيا مجتمع الميم" },
+  "young adult lgbtq+": { pt: "Young Adult LGBTQ+", en: "LGBTQ+ Young Adult", es: "Juvenil LGBTQ+", ru: "ЛГБТК+ для подростков", ar: "ناشئة مجتمع الميم" },
+  "memórias lgbtq+": { pt: "Memórias LGBTQ+", en: "LGBTQ+ Memoir", es: "Memorias LGBTQ+", ru: "ЛГБТК+ мемуары", ar: "مذكرات مجتمع الميم" },
+  "memorias lgbtq+": { pt: "Memórias LGBTQ+", en: "LGBTQ+ Memoir", es: "Memorias LGBTQ+", ru: "ЛГБТК+ мемуары", ar: "مذكرات مجتمع الميم" },
+  "não ficção lgbtq+": { pt: "Não ficção LGBTQ+", en: "LGBTQ+ Non-fiction", es: "No ficción LGBTQ+", ru: "ЛГБТК+ нон-фикшн", ar: "غير خيالي لمجتمع الميم" },
+  "nao ficcao lgbtq+": { pt: "Não ficção LGBTQ+", en: "LGBTQ+ Non-fiction", es: "No ficción LGBTQ+", ru: "ЛГБТК+ нон-фикшн", ar: "غير خيالي لمجتمع الميم" },
+  "poesia lgbtq+": { pt: "Poesia LGBTQ+", en: "LGBTQ+ Poetry", es: "Poesía LGBTQ+", ru: "ЛГБТК+ поэзия", ar: "شعر مجتمع الميم" },
   'outros': { pt: 'Outros', en: 'Others', es: 'Otros', ru: 'Другое', ar: 'أخرى' },
 };
 
@@ -160,6 +225,8 @@ function normalizeKey(str: string): string {
 
 export function getGenreName(genreIdOrName: string, lang: SupportedLanguage = 'pt'): string {
   if (!genreIdOrName) return '';
+  // Vários gêneros ("Ficção, Literatura"): cada um traduzido
+  if (/[,;]/.test(genreIdOrName)) return splitGenreValues(genreIdOrName).map(g => getGenreName(g, lang)).join(', ');
   const key = normalizeKey(genreIdOrName);
   
   // Mapeamentos diretos
@@ -182,6 +249,10 @@ export function getGenreName(genreIdOrName: string, lang: SupportedLanguage = 'p
     return GENRE_TRANSLATIONS['desconhecido']?.[lang] || 'Desconhecido';
   }
 
+  if (key === 'lgbtq+' || key === 'lgbtq' || key === 'lgbt') {
+    return GENRE_TRANSLATIONS['lgbtq']?.[lang] || 'LGBTQ+';
+  }
+
   // Procura no dicionário de gêneros
   const match = GENRE_TRANSLATIONS[key];
   if (match && match[lang]) return match[lang];
@@ -191,6 +262,7 @@ export function getGenreName(genreIdOrName: string, lang: SupportedLanguage = 'p
 
 export function getSubgenreName(subgenre: string, lang: SupportedLanguage = 'pt'): string {
   if (!subgenre) return '';
+  if (/[,;]/.test(subgenre)) return splitGenreValues(subgenre).map(g => getSubgenreName(g, lang)).join(', ');
   const clean = subgenre.trim().toLowerCase();
   
   if (SUBGENRE_TRANSLATIONS[clean]?.[lang]) {

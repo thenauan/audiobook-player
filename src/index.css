@@ -583,11 +583,11 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--bg-mica) 74%, transparent) 0%,
-    color-mix(in srgb, var(--bg-mica) 58%, transparent) 22%,
-    color-mix(in srgb, var(--bg-mica) 34%, transparent) 46%,
-    color-mix(in srgb, var(--bg-mica) 14%, transparent) 70%,
-    color-mix(in srgb, var(--bg-mica) 4%, transparent) 86%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 74%, transparent) 0%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 58%, transparent) 22%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 34%, transparent) 46%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 14%, transparent) 70%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 4%, transparent) 86%,
     transparent 100%
   );
 }
@@ -1629,20 +1629,20 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
   .apple-header-blur > .apple-blur-tint {
     background: linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--bg-mica) 74%, transparent) 0,
-      color-mix(in srgb, var(--bg-mica) 58%, transparent) var(--app-header-top),
-      color-mix(in srgb, var(--bg-mica) 57.5%, transparent) calc(var(--app-header-top) + 8.66667px),
-      color-mix(in srgb, var(--bg-mica) 54.7%, transparent) calc(var(--app-header-top) + 17.3333px),
-      color-mix(in srgb, var(--bg-mica) 48.7%, transparent) calc(var(--app-header-top) + 26px),
-      color-mix(in srgb, var(--bg-mica) 39.8%, transparent) calc(var(--app-header-top) + 34.6667px),
-      color-mix(in srgb, var(--bg-mica) 29.4%, transparent) calc(var(--app-header-top) + 43.3333px),
-      color-mix(in srgb, var(--bg-mica) 19.1%, transparent) calc(var(--app-header-top) + 52px),
-      color-mix(in srgb, var(--bg-mica) 10.6%, transparent) calc(var(--app-header-top) + 60.6667px),
-      color-mix(in srgb, var(--bg-mica) 4.8%, transparent) calc(var(--app-header-top) + 69.3333px),
-      color-mix(in srgb, var(--bg-mica) 1.5%, transparent) calc(var(--app-header-top) + 78px),
-      color-mix(in srgb, var(--bg-mica) 0.3%, transparent) calc(var(--app-header-top) + 86.6667px),
-      color-mix(in srgb, var(--bg-mica) 0.0%, transparent) calc(var(--app-header-top) + 95.3333px),
-      color-mix(in srgb, var(--bg-mica) 0.0%, transparent) calc(var(--app-header-top) + 104px)
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 74%, transparent) 0,
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 58%, transparent) var(--app-header-top),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 57.5%, transparent) calc(var(--app-header-top) + 8.66667px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 54.7%, transparent) calc(var(--app-header-top) + 17.3333px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 48.7%, transparent) calc(var(--app-header-top) + 26px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 39.8%, transparent) calc(var(--app-header-top) + 34.6667px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 29.4%, transparent) calc(var(--app-header-top) + 43.3333px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 19.1%, transparent) calc(var(--app-header-top) + 52px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 10.6%, transparent) calc(var(--app-header-top) + 60.6667px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 4.8%, transparent) calc(var(--app-header-top) + 69.3333px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 1.5%, transparent) calc(var(--app-header-top) + 78px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.3%, transparent) calc(var(--app-header-top) + 86.6667px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.0%, transparent) calc(var(--app-header-top) + 95.3333px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.0%, transparent) calc(var(--app-header-top) + 104px)
     );
   }
 }

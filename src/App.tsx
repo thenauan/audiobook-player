@@ -221,6 +221,54 @@ const transicaoConteudo: any = {
   },
 };
 
+// Paleta da capa: agrupa os pixels por matiz (24 faixas) e escolhe a cor dominante mais marcante (quantidade
+// x saturação), em vez da média de todos os pixels (que transformava capas de duas cores em um tom
+// acinzentado). Também devolve uma segunda cor marcante, bem diferente da primeira, quando houver.
+// Capas quase sem cor (preto e branco, cinzas) ficam com o tom neutro médio.
+function extractCoverPalette(data: Uint8ClampedArray): { primary: string; secondary?: string } | null {
+  const BINS = 24;
+  const bins = Array.from({ length: BINS }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
+  let nr = 0, ng = 0, nb = 0, nw = 0, vividWeight = 0, totalWeight = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+    if (a < 128) continue;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const l = (max + min) / 510;
+    const d = (max - min) / 255;
+    const sat = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+    totalWeight += 1;
+    nr += r; ng += g; nb += b; nw += 1;
+    if (sat < 0.18 || l < 0.1 || l > 0.93) continue;
+    let h = 0;
+    if (max === r) h = ((g - b) / (max - min)) % 6;
+    else if (max === g) h = (b - r) / (max - min) + 2;
+    else h = (r - g) / (max - min) + 4;
+    h = (h * 60 + 360) % 360;
+    const w = 0.4 + sat * 1.6;
+    const bin = bins[Math.floor(h / (360 / BINS)) % BINS];
+    bin.w += w; bin.r += r * w; bin.g += g * w; bin.b += b * w;
+    vividWeight += 1;
+  }
+  if (totalWeight === 0) return null;
+  const toHex = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
+  // Pouca cor na capa: o tom neutro médio
+  if (vividWeight / totalWeight < 0.06) return { primary: `#${toHex(nr / nw)}${toHex(ng / nw)}${toHex(nb / nw)}` };
+  // Junta cada faixa com as vizinhas (cores parecidas ficam no mesmo grupo)
+  const score = bins.map((_, i) => bins[i].w + 0.5 * (bins[(i + BINS - 1) % BINS].w + bins[(i + 1) % BINS].w));
+  const colorOf = (i: number) => {
+    const group = [bins[(i + BINS - 1) % BINS], bins[i], bins[(i + 1) % BINS]];
+    const w = group.reduce((acc, x) => acc + x.w, 0) || 1;
+    return `#${toHex(group.reduce((a, x) => a + x.r, 0) / w)}${toHex(group.reduce((a, x) => a + x.g, 0) / w)}${toHex(group.reduce((a, x) => a + x.b, 0) / w)}`;
+  };
+  const order = score.map((v, i) => [v, i] as const).sort((a, b) => b[0] - a[0]);
+  const first = order[0][1];
+  const primary = colorOf(first);
+  // Segunda cor: pelo menos 60° de distância e com presença relevante (>= 18% da principal)
+  const dist = (a: number, b: number) => { const d = Math.abs(a - b) % BINS; return Math.min(d, BINS - d) * (360 / BINS); };
+  const second = order.find(([v, i]) => i !== first && dist(i, first) >= 60 && v >= order[0][0] * 0.18);
+  return { primary, secondary: second ? colorOf(second[1]) : undefined };
+}
+
 // Fila para gravar no aparelho: sem a cópia do livro inteiro e sem a capa em cada item (eram gravados de
 // novo a cada mudança da fila); ao abrir, a fila é reconectada aos livros da biblioteca
 function slimQueueForStorage(queue: any[]): any[] {
@@ -3164,7 +3212,9 @@ export default function App() {
 
   const [customCoverColors, setCustomCoverColors] = useState<Record<string, string>>(() => {
     try {
-      const saved = localStorage.getItem('app_custom_cover_colors_v1');
+      // v2: cor dominante pela paleta da capa (a v1 era a média dos pixels, que misturava as cores)
+      try { localStorage.removeItem('app_custom_cover_colors_v1'); } catch {}
+      const saved = localStorage.getItem('app_custom_cover_colors_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object') return parsed;
@@ -3177,6 +3227,20 @@ export default function App() {
     if (!url || url.startsWith('data:image/svg')) return undefined;
     return customCoverColors[url] || customCoverColors[getCoverColorCacheKey(url)];
   }, [customCoverColors, getCoverColorCacheKey]);
+
+  // Segunda cor marcante da capa (capas com duas cores fortes, ex.: azul e laranja)
+  const [secondaryCoverColors, setSecondaryCoverColors] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('app_cover_secondary_colors_v1');
+      const parsed = saved ? JSON.parse(saved) : null;
+      if (parsed && typeof parsed === 'object') return parsed;
+    } catch {}
+    return {};
+  });
+  const getSecondaryCoverColor = useCallback((url?: string): string | undefined => {
+    if (!url || url.startsWith('data:image/svg')) return undefined;
+    return secondaryCoverColors[getCoverColorCacheKey(url)] || secondaryCoverColors[url];
+  }, [secondaryCoverColors, getCoverColorCacheKey]);
 
   useEffect(() => {
     const detailBook: Audiobook | undefined = (activeScreen.id === 'book-detail' || activeScreen.id === 'book-synopsis')
@@ -3217,28 +3281,23 @@ export default function App() {
           if (!ctx) return;
           ctx.drawImage(img, 0, 0, size, size);
           const data = ctx.getImageData(0, 0, size, size).data;
-          let rSum = 0, gSum = 0, bSum = 0, weightSum = 0;
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-            if (a < 128) continue;
-            const max = Math.max(r, g, b);
-            const min = Math.min(r, g, b);
-            const sat = max === 0 ? 0 : (max - min) / max;
-            const lum = (r + g + b) / (3 * 255);
-            const weight = (lum > 0.08 && lum < 0.92) ? (1 + sat * 4) : 0.25;
-            rSum += r * weight;
-            gSum += g * weight;
-            bSum += b * weight;
-            weightSum += weight;
-          }
-          if (weightSum > 0) {
-            const toHex = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
-            const hex = `#${toHex(rSum / weightSum)}${toHex(gSum / weightSum)}${toHex(bSum / weightSum)}`;
+          const palette = extractCoverPalette(data);
+          if (palette) {
+            const { primary: hex, secondary } = palette;
             setCustomCoverColors(prev => {
               if (prev[cacheKey] === hex) return prev;
               const next = { ...prev, [cacheKey]: hex };
               try {
-                localStorage.setItem('app_custom_cover_colors_v1', JSON.stringify(next));
+                localStorage.setItem('app_custom_cover_colors_v2', JSON.stringify(next));
+              } catch {}
+              return next;
+            });
+            setSecondaryCoverColors(prev => {
+              const value = secondary || '';
+              if ((prev[cacheKey] || '') === value) return prev;
+              const next = { ...prev, [cacheKey]: value };
+              try {
+                localStorage.setItem('app_cover_secondary_colors_v1', JSON.stringify(next));
               } catch {}
               return next;
             });
@@ -3256,6 +3315,8 @@ export default function App() {
     }
     return getCustomCoverColor(currentBook.cover) || getGenericCoverColor(currentBook.cover, currentBook.title, currentBook.author);
   }, [currentBook?.cover, currentBook?.title, currentBook?.author, getCustomCoverColor]);
+
+  const currentCoverSecondaryHex = useMemo(() => getSecondaryCoverColor(currentBook?.cover) || '', [currentBook?.cover, getSecondaryCoverColor]);
 
   const currentBookHighlight = useMemo(() => {
     return getBookHighlightTheme(currentCoverHex, resolvedTheme === 'dark');
@@ -3297,6 +3358,16 @@ export default function App() {
     const tonePastel = hslToHex(h, isLowSat ? s : Math.min(72, Math.max(25, baseS * 0.7)), 82);
     const toneWhiteTint = hslToHex(h, isLowSat ? s : Math.min(50, Math.max(16, baseS * 0.5)), 94);
 
+    // Segunda cor da capa (se houver): entra em parte do fundo, para o player refletir as duas cores
+    let toneSecondary = toneLight;
+    let toneSecondarySoft = isDark ? toneDeep : tonePastel;
+    if (currentCoverSecondaryHex) {
+      const s2 = hexToHsl(currentCoverSecondaryHex);
+      const sat2 = s2.s < 12 ? s2.s : Math.min(85, Math.max(35, s2.s));
+      toneSecondary = isDark ? hslToHex(s2.h, sat2, Math.min(56, Math.max(38, s2.l))) : hslToHex(s2.h, Math.min(80, sat2 * 0.9), 66);
+      toneSecondarySoft = isDark ? hslToHex(s2.h, Math.min(70, sat2 * 0.8), 22) : hslToHex(s2.h, Math.min(65, sat2 * 0.7), 84);
+    }
+
     return {
       tonePrimary,
       toneMedium,
@@ -3306,9 +3377,11 @@ export default function App() {
       toneVeryDark,
       tonePastel,
       toneWhiteTint,
+      toneSecondary,
+      toneSecondarySoft,
       isDark,
     };
-  }, [currentCoverHex, resolvedTheme]);
+  }, [currentCoverHex, currentCoverSecondaryHex, resolvedTheme]);
 
   const miniplayerAmbientStyle = useMemo<React.CSSProperties>(() => {
     const hex = currentCoverHex || '#0086F0';
@@ -3415,6 +3488,14 @@ export default function App() {
     }
     return null;
   }, [activeScreen.id, activeScreen.data, selectedBook, books, authors, isEditingBook, editBookCover, editCoverColor, isEditingAuthor, editAuthorPicture, editAuthorColor, getCustomCoverColor, resolvedTheme]);
+
+  const headerTintColor = useMemo(() => {
+    if (!sidebarHighlight) return '';
+    const { h, s: sat } = hexToHsl(sidebarHighlight.hex);
+    return resolvedTheme === 'dark'
+      ? hslToHex(h, Math.min(55, sat * 0.7), 13)
+      : hslToHex(h, Math.min(60, sat * 0.6), 90);
+  }, [sidebarHighlight, resolvedTheme]);
 
   // Título da tela/menu/submenu atual para exibição no cabeçalho ao rolar
   // ===== Mobile: ações do cabeçalho (ação rápida + três pontinhos) por tela =====
@@ -10011,7 +10092,9 @@ export default function App() {
           ref={headerBlurRef}
           aria-hidden="true"
           className="apple-header-blur fixed inset-x-0 top-0"
-          style={{ ['--header-blur' as any]: 0 }}
+          // Páginas de audiobook e de autor (capa/foto colorida no topo): o véu do desfoque usa um tom da cor
+          // da capa, e não o cinza/branco do fundo do app (que fazia uma faixa "suja" sobre a capa)
+          style={{ ['--header-blur' as any]: 0, ...(headerTintColor ? { ['--header-tint' as any]: headerTintColor } : {}) }}
         >
           <div className="apple-blur-layer" />
           <div className="apple-blur-layer" />
@@ -13387,8 +13470,8 @@ export default function App() {
                               );
                               if (activeSubgenres.length === 0) return null;
                               return (
-                                <div className="space-y-4 mb-10">
-                                  <h3 className="text-base font-bold text-[var(--text-main)]">{t('subgenres')}</h3>
+                                <div className="mb-10">
+                                  <h2 className="text-xl font-bold text-[var(--text-main)]">{t('subgenres')}</h2>
                                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-4 mobile-grid-3">
                                     <AnimatePresence>
                                       {activeSubgenres.slice().sort((a, b) => {
@@ -13461,7 +13544,7 @@ export default function App() {
                             })()}
                             
                             <div>
-                              <h3 className="text-base font-bold text-[var(--text-main)] mb-6">{t('all_books_of_genre', { genre: getGenreName(genreData.id, resolvedLanguage) })}</h3>
+                              <h2 className="text-xl font-bold text-[var(--text-main)]">{t('all_books_of_genre', { genre: getGenreName(genreData.id, resolvedLanguage) })}</h2>
                               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-4 mobile-grid-3">
                                 {renderBookGrid(books.filter(b => isBookInGenre(b, genreData)))}
                               </div>
@@ -14274,7 +14357,7 @@ export default function App() {
               </div>
 
               <div className="w-full">
-                <h3 className="text-lg font-bold text-[var(--text-main)] mb-6 px-2">{t('author_titles')}</h3>
+                <h2 className="text-xl font-bold text-[var(--text-main)]">{t('author_titles')}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-4 mobile-row">
                   <AnimatePresence>
                     {authorBooks.map((book) => (

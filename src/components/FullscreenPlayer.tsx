@@ -57,6 +57,8 @@ export interface FullscreenPlayerProps {
     tonePastel: string;
     toneVeryDark: string;
     toneWhiteTint: string;
+    toneSecondary: string;
+    toneSecondarySoft: string;
   };
   showTranscript: boolean;
   hasTranscript: boolean;
@@ -319,15 +321,15 @@ export default function FullscreenPlayer({
             y: ['12%', '-18%', '16%', '12%'],
             scale: [1.12, 0.88, 1.24, 1.12],
             backgroundColor: fullscreenAmbientColors.isDark ? [
+              fullscreenAmbientColors.toneSecondary,
               fullscreenAmbientColors.toneVeryLight,
-              '#ffffff',
               fullscreenAmbientColors.toneLight,
-              fullscreenAmbientColors.toneVeryLight,
+              fullscreenAmbientColors.toneSecondary,
             ] : [
-              fullscreenAmbientColors.toneLight,
+              fullscreenAmbientColors.toneSecondary,
               fullscreenAmbientColors.tonePastel,
               fullscreenAmbientColors.tonePrimary,
-              fullscreenAmbientColors.toneLight,
+              fullscreenAmbientColors.toneSecondary,
             ],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}

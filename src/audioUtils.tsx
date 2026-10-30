@@ -4,7 +4,7 @@ import {
   Globe
 } from 'lucide-react';
 import type { Chapter, TranscriptLine, TranscriptWord } from './data';
-import { resolveGenreAndSubgenre, GENRE_HIERARCHY } from './genreData';
+import { resolveGenreList, GENRE_HIERARCHY } from './genreData';
 import { autoCropImageToEbookCover } from './imageProcessing';
 import { normalizeAudiobookLanguage } from './translations';
 
@@ -1531,7 +1531,7 @@ export async function parseAudioMetadata(file: File): Promise<{
         duration: i === chapterCount - 1 ? durationSec - i * chapDuration : chapDuration
       }));
 
-  const resolved = resolveGenreAndSubgenre(rawCategory, rawSubgenre);
+  const resolved = resolveGenreList(rawCategory, rawSubgenre);
   const resolvedLanguage = normalizeAudiobookLanguage(rawLanguage);
   const authorNationality = rawAuthorNationality.trim() || 'Desconhecido';
   const validatedTranscript = validateAndNormalizeTranscript(extractedTranscript, durationSec);

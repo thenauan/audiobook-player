@@ -29,6 +29,18 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Distopia',
       'Ficção histórica',
       'Sobrenatural',
+      'Romantasia',
+      'Comédia romântica',
+      'Dark Romance',
+      'Ficção contemporânea',
+      'Thriller psicológico',
+      'Espionagem',
+      'Guerra',
+      'Faroeste',
+      'Pós-apocalíptico',
+      'Steampunk',
+      'Realismo mágico',
+      'Gótico',
       'Outros'
     ],
     gradient: 'from-blue-600 via-indigo-600 to-violet-700'
@@ -55,6 +67,16 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Saúde e Bem-estar',
       'Sociologia',
       'Espiritualidade',
+      'True crime',
+      'Educação',
+      'Feminismo',
+      'Natureza e Meio ambiente',
+      'Medicina',
+      'Direito',
+      'Astronomia',
+      'Produtividade',
+      'Relacionamentos',
+      'Parentalidade',
       'Outros'
     ],
     gradient: 'from-emerald-600 via-teal-600 to-cyan-700'
@@ -75,6 +97,12 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Realismo',
       'Literatura brasileira',
       'Literatura estrangeira',
+      'Romantismo',
+      'Modernismo',
+      'Literatura portuguesa',
+      'Literatura latino-americana',
+      'Literatura africana',
+      'Literatura de cordel',
       'Outros'
     ],
     gradient: 'from-amber-600 via-orange-600 to-rose-700'
@@ -92,9 +120,27 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Aventura juvenil',
       'Educativo infantil',
       'Histórias de dormir',
+      'Romance juvenil',
+      'Distopia juvenil',
+      'Mistério juvenil',
       'Outros'
     ],
     gradient: 'from-pink-500 via-rose-500 to-purple-600'
+  },
+  'lgbtq+': {
+    id: 'lgbtq',
+    name: 'LGBTQ+',
+    subgenres: [
+      'Romance LGBTQ+',
+      'Ficção LGBTQ+',
+      'Fantasia LGBTQ+',
+      'Young Adult LGBTQ+',
+      'Memórias LGBTQ+',
+      'Não ficção LGBTQ+',
+      'Poesia LGBTQ+',
+      'Outros'
+    ],
+    gradient: 'from-red-500 via-yellow-500 to-violet-600'
   },
   'outros': {
     id: 'outros',
@@ -110,6 +156,11 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Idiomas e Aprendizado',
       'Notícias e Atualidades',
       'Geral',
+      'Quadrinhos e Mangá',
+      'Meditação',
+      'Podcasts',
+      'Audiodrama',
+      'Palestras e Cursos',
       'Outros'
     ],
     gradient: 'from-purple-600 via-violet-600 to-indigo-800'
@@ -216,6 +267,62 @@ export const SUBGENRE_GRADIENTS: Record<string, string> = {
   'geral': 'from-slate-600 via-gray-700 to-zinc-800',
   'outros': 'from-purple-600 via-violet-600 to-indigo-800',
   'outro': 'from-purple-600 via-violet-600 to-indigo-800',
+  'romantasia': 'from-rose-600 via-fuchsia-700 to-violet-800',
+  'comédia romântica': 'from-pink-400 via-rose-500 to-amber-400',
+  'comedia romantica': 'from-pink-400 via-rose-500 to-amber-400',
+  'dark romance': 'from-zinc-900 via-rose-950 to-red-900',
+  'ficção contemporânea': 'from-sky-600 via-slate-600 to-indigo-700',
+  'ficcao contemporanea': 'from-sky-600 via-slate-600 to-indigo-700',
+  'thriller psicológico': 'from-slate-900 via-purple-950 to-zinc-900',
+  'thriller psicologico': 'from-slate-900 via-purple-950 to-zinc-900',
+  'espionagem': 'from-slate-700 via-zinc-800 to-neutral-900',
+  'guerra': 'from-stone-700 via-green-900 to-zinc-900',
+  'faroeste': 'from-amber-700 via-orange-800 to-stone-800',
+  'pós-apocalíptico': 'from-lime-800 via-stone-800 to-zinc-900',
+  'pos-apocaliptico': 'from-lime-800 via-stone-800 to-zinc-900',
+  'steampunk': 'from-amber-800 via-orange-900 to-stone-900',
+  'realismo mágico': 'from-emerald-600 via-teal-700 to-amber-600',
+  'realismo magico': 'from-emerald-600 via-teal-700 to-amber-600',
+  'gótico': 'from-zinc-900 via-purple-950 to-black',
+  'gotico': 'from-zinc-900 via-purple-950 to-black',
+  'true crime': 'from-red-900 via-zinc-900 to-slate-900',
+  'educação': 'from-blue-600 via-indigo-600 to-sky-700',
+  'educacao': 'from-blue-600 via-indigo-600 to-sky-700',
+  'feminismo': 'from-fuchsia-600 via-purple-600 to-pink-600',
+  'natureza e meio ambiente': 'from-green-600 via-emerald-700 to-lime-700',
+  'medicina': 'from-cyan-600 via-teal-600 to-blue-700',
+  'direito': 'from-slate-700 via-stone-700 to-amber-900',
+  'astronomia': 'from-indigo-900 via-blue-950 to-violet-900',
+  'produtividade': 'from-teal-500 via-cyan-600 to-blue-600',
+  'relacionamentos': 'from-rose-500 via-pink-600 to-orange-500',
+  'parentalidade': 'from-amber-500 via-orange-500 to-rose-500',
+  'romantismo': 'from-rose-600 via-pink-700 to-purple-700',
+  'modernismo': 'from-indigo-600 via-blue-700 to-teal-700',
+  'literatura portuguesa': 'from-green-700 via-red-700 to-yellow-700',
+  'literatura latino-americana': 'from-yellow-600 via-orange-600 to-red-700',
+  'literatura africana': 'from-amber-600 via-orange-700 to-green-800',
+  'literatura de cordel': 'from-amber-700 via-yellow-700 to-stone-700',
+  'romance juvenil': 'from-pink-500 via-rose-500 to-fuchsia-600',
+  'distopia juvenil': 'from-zinc-700 via-slate-700 to-orange-700',
+  'mistério juvenil': 'from-indigo-700 via-blue-800 to-slate-800',
+  'misterio juvenil': 'from-indigo-700 via-blue-800 to-slate-800',
+  'quadrinhos e mangá': 'from-yellow-500 via-red-500 to-blue-600',
+  'quadrinhos e manga': 'from-yellow-500 via-red-500 to-blue-600',
+  'meditação': 'from-teal-400 via-cyan-500 to-indigo-500',
+  'meditacao': 'from-teal-400 via-cyan-500 to-indigo-500',
+  'podcasts': 'from-purple-600 via-fuchsia-600 to-pink-600',
+  'audiodrama': 'from-violet-700 via-purple-800 to-indigo-900',
+  'palestras e cursos': 'from-sky-600 via-blue-700 to-indigo-700',
+  'romance lgbtq+': 'from-pink-500 via-purple-600 to-sky-500',
+  'ficção lgbtq+': 'from-red-500 via-amber-500 to-violet-600',
+  'ficcao lgbtq+': 'from-red-500 via-amber-500 to-violet-600',
+  'fantasia lgbtq+': 'from-violet-600 via-fuchsia-600 to-sky-500',
+  'young adult lgbtq+': 'from-fuchsia-500 via-violet-500 to-cyan-500',
+  'memórias lgbtq+': 'from-amber-500 via-rose-500 to-purple-600',
+  'memorias lgbtq+': 'from-amber-500 via-rose-500 to-purple-600',
+  'não ficção lgbtq+': 'from-teal-500 via-blue-600 to-violet-600',
+  'nao ficcao lgbtq+': 'from-teal-500 via-blue-600 to-violet-600',
+  'poesia lgbtq+': 'from-rose-500 via-pink-500 to-indigo-500',
   'desconhecido': 'from-slate-700 via-zinc-700 to-neutral-800'
 };
 
@@ -227,6 +334,8 @@ export const GENRE_EMOJIS: Record<string, string> = {
   'literatura': '📖',
   'infantil-e-juvenil': '🧸',
   'infantil e juvenil': '🧸',
+  'lgbtq': '🏳️‍🌈',
+  'lgbtq+': '🏳️‍🌈',
   'outros': '🧩',
   'desconhecido': '🎧'
 };
@@ -322,6 +431,62 @@ export const SUBGENRE_EMOJIS: Record<string, string> = {
   'notícias e atualidades': '📢',
   'geral': '📦',
   'outros': '🧩',
+  'romantasia': '🌹',
+  'comédia romântica': '💞',
+  'comedia romantica': '💞',
+  'dark romance': '🖤',
+  'ficção contemporânea': '🏙️',
+  'ficcao contemporanea': '🏙️',
+  'thriller psicológico': '🧠',
+  'thriller psicologico': '🧠',
+  'espionagem': '🕵️',
+  'guerra': '🎖️',
+  'faroeste': '🤠',
+  'pós-apocalíptico': '☢️',
+  'pos-apocaliptico': '☢️',
+  'steampunk': '⚙️',
+  'realismo mágico': '🦋',
+  'realismo magico': '🦋',
+  'gótico': '🦇',
+  'gotico': '🦇',
+  'true crime': '🔎',
+  'educação': '🎓',
+  'educacao': '🎓',
+  'feminismo': '♀️',
+  'natureza e meio ambiente': '🌿',
+  'medicina': '🩺',
+  'direito': '⚖️',
+  'astronomia': '🔭',
+  'produtividade': '⏱️',
+  'relacionamentos': '🤝',
+  'parentalidade': '👨‍👩‍👧',
+  'romantismo': '🌸',
+  'modernismo': '🎨',
+  'literatura portuguesa': '🇵🇹',
+  'literatura latino-americana': '🌎',
+  'literatura africana': '🌍',
+  'literatura de cordel': '🪕',
+  'romance juvenil': '💌',
+  'distopia juvenil': '🏹',
+  'mistério juvenil': '🔦',
+  'misterio juvenil': '🔦',
+  'quadrinhos e mangá': '💬',
+  'quadrinhos e manga': '💬',
+  'meditação': '🧘',
+  'meditacao': '🧘',
+  'podcasts': '🎙️',
+  'audiodrama': '🎭',
+  'palestras e cursos': '🎤',
+  'romance lgbtq+': '🏳️‍🌈',
+  'ficção lgbtq+': '🌈',
+  'ficcao lgbtq+': '🌈',
+  'fantasia lgbtq+': '🦄',
+  'young adult lgbtq+': '💜',
+  'memórias lgbtq+': '📔',
+  'memorias lgbtq+': '📔',
+  'não ficção lgbtq+': '📣',
+  'nao ficcao lgbtq+': '📣',
+  'poesia lgbtq+': '✒️',
   'outro': '🧩',
   'desconhecido': '🎧'
 };
@@ -339,6 +504,35 @@ export function getSubgenreEmoji(subgenreName: string): string {
 export function getSubgenreGradient(subgenreName: string): string {
   const key = subgenreName.toLowerCase().trim();
   return SUBGENRE_GRADIENTS[key] || 'from-slate-600 via-gray-700 to-zinc-800';
+}
+
+// Vários gêneros/subgêneros num audiobook, separados por vírgula ou ponto e vírgula
+export function splitGenreValues(raw?: string | null): string[] {
+  const seen = new Set<string>();
+  return String(raw || '').split(/\s*[,;]\s*/).map(v => v.trim()).filter(v => {
+    if (!v || seen.has(v.toLowerCase())) return false;
+    seen.add(v.toLowerCase());
+    return true;
+  });
+}
+
+// Resolve listas: cada valor resolvido; o resultado volta como lista separada por vírgula
+export function resolveGenreList(rawCategory?: string, rawSubgenre?: string): { category: string; subgenre: string } {
+  const cats = splitGenreValues(rawCategory);
+  const subs = splitGenreValues(rawSubgenre);
+  if (cats.length <= 1 && subs.length <= 1) return resolveGenreAndSubgenre(rawCategory, rawSubgenre);
+  const outCats: string[] = [];
+  const outSubs: string[] = [];
+  const push = (list: string[], v: string) => { if (v && !list.some(x => x.toLowerCase() === v.toLowerCase())) list.push(v); };
+  // Cada subgênero com o gênero dele; gêneros sem subgênero entram sozinhos
+  subs.forEach(sub => {
+    const r = resolveGenreAndSubgenre(cats.length === 1 ? cats[0] : '', sub);
+    push(outCats, r.category);
+    push(outSubs, r.subgenre);
+  });
+  cats.forEach(cat => push(outCats, resolveGenreAndSubgenre(cat, '').category));
+  const cleanSubs = outSubs.filter(sg => sg.toLowerCase() !== 'outros' || outSubs.length === 1);
+  return { category: outCats.join(', ') || 'Outros', subgenre: cleanSubs.join(', ') || 'Outros' };
 }
 
 export function resolveGenreAndSubgenre(rawCategory?: string, rawSubgenre?: string): { category: string; subgenre: string } {
@@ -462,7 +656,51 @@ export function resolveGenreAndSubgenre(rawCategory?: string, rawSubgenre?: stri
     'esportes': { category: 'Outros', subgenre: 'Esportes' },
     'culinária': { category: 'Outros', subgenre: 'Culinária e Gastronomia' },
     'culinaria': { category: 'Outros', subgenre: 'Culinária e Gastronomia' },
-    'viagens': { category: 'Outros', subgenre: 'Viagens e Guias' }
+    'viagens': { category: 'Outros', subgenre: 'Viagens e Guias' },
+    'lgbt': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'lgbtq': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'lgbtq+': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'lgbtqia+': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'lgbtqia': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'queer': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'gay': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'lésbico': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'lesbian': { category: 'LGBTQ+', subgenre: 'Ficção LGBTQ+' },
+    'gay romance': { category: 'LGBTQ+', subgenre: 'Romance LGBTQ+' },
+    'mm romance': { category: 'LGBTQ+', subgenre: 'Romance LGBTQ+' },
+    'm/m romance': { category: 'LGBTQ+', subgenre: 'Romance LGBTQ+' },
+    'romantasy': { category: 'Ficção', subgenre: 'Romantasia' },
+    'rom-com': { category: 'Ficção', subgenre: 'Comédia romântica' },
+    'romcom': { category: 'Ficção', subgenre: 'Comédia romântica' },
+    'romantic comedy': { category: 'Ficção', subgenre: 'Comédia romântica' },
+    'dark romance': { category: 'Ficção', subgenre: 'Dark Romance' },
+    'western': { category: 'Ficção', subgenre: 'Faroeste' },
+    'post-apocalyptic': { category: 'Ficção', subgenre: 'Pós-apocalíptico' },
+    'magical realism': { category: 'Ficção', subgenre: 'Realismo mágico' },
+    'gothic': { category: 'Ficção', subgenre: 'Gótico' },
+    'espionage': { category: 'Ficção', subgenre: 'Espionagem' },
+    'spy': { category: 'Ficção', subgenre: 'Espionagem' },
+    'war': { category: 'Ficção', subgenre: 'Guerra' },
+    'psychological thriller': { category: 'Ficção', subgenre: 'Thriller psicológico' },
+    'contemporary': { category: 'Ficção', subgenre: 'Ficção contemporânea' },
+    'true crime': { category: 'Não ficção', subgenre: 'True crime' },
+    'education': { category: 'Não ficção', subgenre: 'Educação' },
+    'feminism': { category: 'Não ficção', subgenre: 'Feminismo' },
+    'nature': { category: 'Não ficção', subgenre: 'Natureza e Meio ambiente' },
+    'medicine': { category: 'Não ficção', subgenre: 'Medicina' },
+    'law': { category: 'Não ficção', subgenre: 'Direito' },
+    'astronomy': { category: 'Não ficção', subgenre: 'Astronomia' },
+    'productivity': { category: 'Não ficção', subgenre: 'Produtividade' },
+    'relationships': { category: 'Não ficção', subgenre: 'Relacionamentos' },
+    'parenting': { category: 'Não ficção', subgenre: 'Parentalidade' },
+    'comics': { category: 'Outros', subgenre: 'Quadrinhos e Mangá' },
+    'manga': { category: 'Outros', subgenre: 'Quadrinhos e Mangá' },
+    'mangá': { category: 'Outros', subgenre: 'Quadrinhos e Mangá' },
+    'quadrinhos': { category: 'Outros', subgenre: 'Quadrinhos e Mangá' },
+    'meditation': { category: 'Outros', subgenre: 'Meditação' },
+    'podcast': { category: 'Outros', subgenre: 'Podcasts' },
+    'audio drama': { category: 'Outros', subgenre: 'Audiodrama' },
+    'radio drama': { category: 'Outros', subgenre: 'Audiodrama' }
   };
 
   // 1. Try resolving via subgenre directly

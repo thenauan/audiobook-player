@@ -115,10 +115,35 @@ export const INITIAL_COLLECTIONS: Collection[] = [
 
 
 export * from './genreData';
-import { GenreItem, resolveGenreAndSubgenre } from './genreData';
+import { GenreItem, resolveGenreAndSubgenre, splitGenreValues } from './genreData';
 
+
+// Um audiobook pode ter vários gêneros e subgêneros (separados por vírgula): ele aparece em cada um.
+// As regras abaixo valem para cada combinação gênero × subgênero.
+const genrePairs = (b: Partial<Audiobook>) => {
+  const cats = splitGenreValues(b.category);
+  const subs = splitGenreValues(b.subgenre);
+  const cs = cats.length ? cats : [''];
+  const ss = subs.length ? subs : [''];
+  return cs.flatMap(category => ss.map(subgenre => ({ category, subgenre })));
+};
 
 export function isBookInGenre(b: Partial<Audiobook>, genreData: GenreItem): boolean {
+  return genrePairs(b).some(pair => isPairInGenre(pair, genreData));
+}
+
+export function isBookInSubgenre(b: Partial<Audiobook>, genreData: GenreItem, subgenreName: string): boolean {
+  const pairs = genrePairs(b).filter(pair => isPairInGenre(pair, genreData));
+  if (pairs.length === 0) return false;
+  const target = subgenreName.toLowerCase().trim();
+  // "Outros": nenhum dos subgêneros do audiobook é um subgênero específico deste gênero
+  if (target === 'outros' || target === 'outro' || target === 'desconhecido') {
+    return pairs.every(pair => isPairInSubgenre(pair, genreData, subgenreName));
+  }
+  return pairs.some(pair => isPairInSubgenre(pair, genreData, subgenreName));
+}
+
+function isPairInGenre(b: Partial<Audiobook>, genreData: GenreItem): boolean {
   const cat = (b.category || '').toLowerCase().trim();
   const id = (genreData.id || '').toLowerCase().trim();
   const name = (genreData.name || '').toLowerCase().trim();
@@ -131,8 +156,7 @@ export function isBookInGenre(b: Partial<Audiobook>, genreData: GenreItem): bool
   );
 }
 
-export function isBookInSubgenre(b: Partial<Audiobook>, genreData: GenreItem, subgenreName: string): boolean {
-  if (!isBookInGenre(b, genreData)) return false;
+function isPairInSubgenre(b: Partial<Audiobook>, genreData: GenreItem, subgenreName: string): boolean {
 
   const targetSub = subgenreName.toLowerCase().trim();
   const resolved = resolveGenreAndSubgenre(b.category, b.subgenre);
