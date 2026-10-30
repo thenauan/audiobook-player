@@ -10,16 +10,9 @@ contextBridge.exposeInMainWorld('electron', {
   installerLanguage,
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   openPath: (target) => ipcRenderer.invoke('open-path', target),
-  selectFolder: (defaultPath) => ipcRenderer.invoke('select-folder', defaultPath),
+  selectFolder: () => ipcRenderer.invoke('select-folder'),
   saveAudiobook: (fileName, folder, data) => ipcRenderer.invoke('save-audiobook', fileName, folder, data),
   scanLibraryFolder: (folder) => ipcRenderer.invoke('scan-library-folder', folder),
   readAudioFile: (filePath) => ipcRenderer.invoke('read-audio-file', filePath),
-  gdriveList: (kind, id) => ipcRenderer.invoke('gdrive-list', kind, id),
-  gdriveDownload: (id, folder) => ipcRenderer.invoke('gdrive-download', id, folder),
-  onGdriveProgress: (cb) => {
-    const handler = (_e, p) => cb(p);
-    ipcRenderer.on('gdrive-progress', handler);
-    return () => ipcRenderer.removeListener('gdrive-progress', handler);
-  },
   closeApp: () => ipcRenderer.invoke('close-app'),
 });

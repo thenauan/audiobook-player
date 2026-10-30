@@ -1210,67 +1210,6 @@ export const HELP_THEMES: HelpTheme[] = [
         },
       },
       {
-        id: 'sub-gdrive-import',
-        title: "Importar do Google Drive",
-        subtitle: "Cole o link de um arquivo ou pasta do Drive e o app baixa os audiobooks",
-        emoji: '☁️',
-        gradient: 'from-sky-500 via-blue-600 to-indigo-700',
-        article: {
-          id: 'art-gdrive-import',
-          title: "Importar do Google Drive",
-          subtitle: "Cole o link de um arquivo ou pasta do Drive e o app baixa os audiobooks",
-          emoji: '☁️',
-          overview: "Audiobooks guardados no Google Drive podem entrar na biblioteca direto pelo link, no celular e no computador. Funciona com um arquivo de áudio ou com uma pasta inteira (inclusive subpastas).",
-          steps: [
-              { number: '1', title: "Compartilhe no Drive", desc: "No Google Drive, abra o compartilhamento do arquivo ou da pasta e escolha \"Qualquer pessoa com o link\". Copie o link." },
-              { number: '2', title: "Abra a importação", desc: "Celular: na Biblioteca, toque em ⋯ e em \"Importar do Google Drive\". Computador: botão de nuvem no topo da Biblioteca." },
-              { number: '3', title: "Cole e importe", desc: "Cole o link (ou toque no ícone de colar) e toque na seta de baixar. O progresso de cada arquivo aparece no próprio pop-up." }
-          ],
-          tip: { title: "Chave pessoal", text: "No navegador, cada pessoa usa a própria chave gratuita da API do Google Drive (veja \"Chave da API do Google Drive\"). O app para computador não precisa de chave." },
-        },
-      },
-      {
-        id: 'sub-gdrive-folder',
-        title: "Pasta do Google Drive",
-        subtitle: "Use uma pasta do Drive, pelo link, como biblioteca alternativa",
-        emoji: '🗂️',
-        gradient: 'from-emerald-500 via-teal-600 to-cyan-700',
-        article: {
-          id: 'art-gdrive-folder',
-          title: "Pasta do Google Drive",
-          subtitle: "Use uma pasta do Drive, pelo link, como biblioteca alternativa",
-          emoji: '🗂️',
-          overview: "Conecte uma pasta do Google Drive pelo link e ela passa a funcionar como uma segunda biblioteca: ao sincronizar, os audiobooks novos da pasta são baixados e entram na biblioteca. Funciona no celular e no computador.",
-          steps: [
-              { number: '1', title: "Compartilhe a pasta", desc: "No Google Drive, compartilhe a pasta como \"Qualquer pessoa com o link\" e copie o link." },
-              { number: '2', title: "Conecte nos Ajustes", desc: "Em Ajustes > Biblioteca > Pasta do Google Drive, cole o link e confirme. O app já baixa os audiobooks da pasta." },
-              { number: '3', title: "Sincronize quando quiser", desc: "Colocou audiobooks novos na pasta? Use \"Sincronizar agora\" no mesmo ajuste: só os novos são baixados." }
-          ],
-          tip: { title: "Trocar ou desconectar", text: "Use \"Trocar pasta\" para colar outro link ou \"Desconectar\" para parar de usar a pasta. Os audiobooks já baixados continuam na biblioteca." },
-        },
-      },
-      {
-        id: 'sub-gdrive-key',
-        title: "Chave da API do Google Drive",
-        subtitle: "Sua chave pessoal e gratuita para baixar do Drive pelo navegador",
-        emoji: '🔑',
-        gradient: 'from-violet-500 via-purple-600 to-fuchsia-700',
-        article: {
-          id: 'art-gdrive-key',
-          title: "Chave da API do Google Drive",
-          subtitle: "Sua chave pessoal e gratuita para baixar do Drive pelo navegador",
-          emoji: '🔑',
-          overview: "Pelo navegador (site ou atalho no celular), o Google só permite baixar do Drive com uma chave de API. Cada pessoa usa a própria chave, criada na própria conta Google, de graça. Ela fica salva só no seu aparelho; o app não tem chave nem conta própria.",
-          steps: [
-              { number: '1', title: "Crie um projeto", desc: "Entre em console.cloud.google.com com a sua conta Google e crie um projeto (é grátis)." },
-              { number: '2', title: "Ative a Google Drive API", desc: "Em \"APIs e serviços > Biblioteca\", procure \"Google Drive API\" e toque em Ativar." },
-              { number: '3', title: "Crie a chave", desc: "Em \"Credenciais\", escolha \"Criar credenciais > Chave de API\" e copie a chave." },
-              { number: '4', title: "Cole no app", desc: "No pop-up do Google Drive (ou em Ajustes > Biblioteca > Pasta do Google Drive), cole a chave e confirme. O app testa a chave antes de salvar." }
-          ],
-          tip: { title: "Mais segurança", text: "Nas restrições da chave, limite-a à Google Drive API e ao endereço do app. Assim, mesmo que alguém veja a chave, ela só funciona aqui." },
-        },
-      },
-      {
         id: 'sub-word-highlight',
         title: "Destaque de frase e palavra",
         subtitle: "O texto sincronizado destaca a frase e a palavra lida ao mesmo tempo",

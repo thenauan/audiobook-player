@@ -1,5 +1,4 @@
 import { IS_INSTALLED_APP } from '../desktopBridge';
-import { DriveImportPanel, type DriveImportStatus } from '../components/DriveImportDialog';
 import { APP_VERSION } from '../version';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -7,7 +6,7 @@ import {
   Palette, BookOpen, Bell, Settings as SettingsIcon, Moon, Sun, Laptop, Monitor, ChevronDown,
   Sliders, Type, ALargeSmall, Globe, FolderOpen, RefreshCw, Clock, Download, Upload,
   Gauge, Play, FileText, Activity, CheckCircle2, ListPlus, Database, Trash2, Info,
-  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight, Cloud, X
+  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight
 } from 'lucide-react';
 import { BsPlayFill, BsArrowClockwise, BsArrowCounterclockwise } from 'react-icons/bs';
 import {
@@ -96,12 +95,6 @@ export interface SettingsViewProps {
   isSyncingLibrary: boolean;
   handleSyncLibraryNow: () => void;
   handleSelectLibraryFolder: () => void;
-  driveFolderLink: string;
-  driveImportStatus: DriveImportStatus;
-  handleConnectDriveFolder: (link: string) => void;
-  handleSyncDriveFolder: () => void;
-  handleDisconnectDriveFolder: () => void;
-  openDriveFolderPopup: (anchor: HTMLElement) => void;
   detectNewFiles: DetectNewFilesMode;
   setDetectNewFiles: React.Dispatch<React.SetStateAction<DetectNewFilesMode>>;
   checkOnStartup: boolean;
@@ -163,12 +156,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   isSyncingLibrary,
   handleSyncLibraryNow,
   handleSelectLibraryFolder,
-  driveFolderLink,
-  driveImportStatus,
-  handleConnectDriveFolder,
-  handleSyncDriveFolder,
-  handleDisconnectDriveFolder,
-  openDriveFolderPopup,
   detectNewFiles,
   setDetectNewFiles,
   checkOnStartup,
@@ -252,68 +239,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             
     </>
   );
-  // Pasta do Google Drive (por link) como biblioteca alternativa. Computador: botões na linha (conectar
-  // abre o pop-up do link, que nasce do botão); celular: na tela própria do ajuste, o painel do link e os botões
-  const driveFolderId = ((driveFolderLink || '').match(/folders\/([\w-]+)/) || [])[1] || '';
-  const actionControls_settings_gdrive = (inScreen?: boolean) => {
-    const connectedPill = driveFolderLink ? (
-      <a
-        data-path-pill="true"
-        href={driveFolderLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={driveFolderLink}
-        onClick={(e) => e.stopPropagation()}
-        className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-xs text-winblue flex items-center gap-1.5 max-w-[200px] md:max-w-xs truncate"
-      >
-        <Cloud size={13} className="shrink-0" />
-        <span className="truncate">{t('gdrive_folder_short', { id: driveFolderId.slice(-6) })}</span>
-      </a>
-    ) : null;
-    const syncButton = driveFolderLink ? (
-      <motion.button whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }} onClick={(e) => { e.stopPropagation(); handleSyncDriveFolder(); }} className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer" title={t('sync_now')}>
-        <span>{t('sync_now')}</span>
-        <RefreshCw size={14} className={isSyncingLibrary ? 'animate-spin text-winblue' : ''} />
-      </motion.button>
-    ) : null;
-    const disconnectButton = driveFolderLink ? (
-      <motion.button whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.94 }} onClick={(e) => { e.stopPropagation(); handleDisconnectDriveFolder(); }} className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer" title={t('gdrive_disconnect')}>
-        <span>{t('gdrive_disconnect')}</span>
-        <X size={14} />
-      </motion.button>
-    ) : null;
-    if (inScreen) {
-      return (
-        <div className="flex flex-col gap-3">
-          <div className="rounded-[28px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 overflow-hidden">
-            <DriveImportPanel mode="folder" hideHeader status={driveImportStatus} onImport={handleConnectDriveFolder} t={t} />
-          </div>
-          {driveFolderLink && (
-            <div className="settings-action-panel flex flex-col items-stretch gap-3 [&_a]:!h-12 [&_a]:!max-w-full [&_a]:!justify-center [&_button]:!h-12 [&_button]:!w-full [&_button]:!justify-center [&_button]:!text-sm [&_button]:!rounded-full">
-              {connectedPill}{syncButton}{disconnectButton}
-            </div>
-          )}
-        </div>
-      );
-    }
-    return (
-      <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
-        {connectedPill}
-        {syncButton}
-        <motion.button
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.94 }}
-          onClick={(e) => { e.stopPropagation(); openDriveFolderPopup(e.currentTarget); }}
-          className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-          title={driveFolderLink ? t('gdrive_change') : t('gdrive_folder_connect')}
-        >
-          <span>{driveFolderLink ? t('gdrive_change') : t('gdrive_folder_connect')}</span>
-          <Cloud size={14} />
-        </motion.button>
-        {disconnectButton}
-      </div>
-    );
-  };
   const actionControls_export_library = () => (
     <>
 
@@ -479,9 +404,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               
     </>
   );
-  const settingActionControls: Record<string, (inScreen?: boolean) => React.ReactNode> = {
+  const settingActionControls: Record<string, () => React.ReactNode> = {
     settings_lib_folder: actionControls_settings_lib_folder,
-    settings_gdrive: actionControls_settings_gdrive,
     export_library: actionControls_export_library,
     import_backup: actionControls_import_backup,
     settings_data_folder: actionControls_settings_data_folder,
@@ -519,9 +443,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <p className="text-sm leading-relaxed text-[var(--text-muted)] md:mt-2">{text}</p>
             ) : null;
           })()}
-          {/* Importar do Drive tem layout próprio (campo + botão lado a lado); os demais ajustes viram botões largos */}
-          <div className={activeScreen.data.key === 'settings_gdrive' ? "mt-8 max-md:mt-6" : "settings-action-panel mt-8 max-md:mt-6 flex flex-col items-stretch gap-3 [&_div]:flex-col [&_div]:items-stretch [&_div]:w-full [&_div]:max-w-full [&_div]:gap-3 [&_button]:!h-12 [&_button]:!w-full [&_button]:!justify-center [&_button]:!text-sm [&_button]:!rounded-full [&_label]:!h-12 [&_label]:!w-full [&_label]:!justify-center [&_label]:!text-sm"}>
-            {settingActionControls[activeScreen.data.key](true)}
+          <div className={"settings-action-panel mt-8 max-md:mt-6 flex flex-col items-stretch gap-3 [&_div]:flex-col [&_div]:items-stretch [&_div]:w-full [&_div]:max-w-full [&_div]:gap-3 [&_button]:!h-12 [&_button]:!w-full [&_button]:!justify-center [&_button]:!text-sm [&_button]:!rounded-full [&_label]:!h-12 [&_label]:!w-full [&_label]:!justify-center [&_label]:!text-sm"}>
+            {settingActionControls[activeScreen.data.key]()}
           </div>
         </motion.div>
       )}
@@ -811,20 +734,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               {/* Botões: no computador ficam na linha; no celular, só dentro da tela própria do ajuste */}
               <div className="max-md:hidden md:contents">{actionControls_settings_lib_folder()}</div>
-              <ChevronRight size={16} className="md:hidden text-[var(--text-muted)] shrink-0 rtl:rotate-180" />
-            </div>
-
-            {/* 1b. Pasta do Google Drive (por link) como biblioteca alternativa — celular e computador */}
-            <div data-setting-action="settings_gdrive" data-setting-title={t('settings_gdrive')} data-setting-subtitle={t('settings_gdrive_sub')} onClick={handleSettingRowClick} className={`settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4`}><div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
-                  <Cloud size={20} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-semibold text-base text-[var(--text-main)]">{t('settings_gdrive')}</span>
-                  <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('settings_gdrive_sub')}</span>
-                </div>
-              </div>
-              <div className="max-md:hidden md:contents">{actionControls_settings_gdrive()}</div>
               <ChevronRight size={16} className="md:hidden text-[var(--text-muted)] shrink-0 rtl:rotate-180" />
             </div>
 

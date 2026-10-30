@@ -43,8 +43,6 @@ self.addEventListener('fetch', (event) => {
   if (
     request.method !== 'GET' ||
     request.url.startsWith('blob:') ||
-    // Google Drive (importar por link): direto da rede, sem passar pelo cache
-    request.url.startsWith('https://www.googleapis.com/') ||
     request.url.includes('/@vite/') ||
     request.url.includes('/@fs/') ||
     request.url.includes('/@id/') ||
