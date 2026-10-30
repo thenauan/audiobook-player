@@ -850,16 +850,15 @@ export default function FullscreenPlayer({
             tabIndex={0}
             onClick={() => onCloseTranscript?.()}
             onKeyDown={(e) => { if (e.key === 'Enter') onCloseTranscript?.(); }}
-            // No lugar exato da barra de abas (mesmas margens, altura e vidro)
+            // No lugar da barra de abas (mesmas margens e altura), sem fundo de vidro: o player em tela cheia
+            // não tem outro conteúdo passando por baixo, então não há o que destacar
             style={{
               left: 'var(--mobile-bar-inset)',
               right: 'var(--mobile-bar-inset)',
               top: 'calc(var(--screen-h) - var(--mobile-bar-bottom) - 62px)',
               height: 62,
-              borderRadius: 31,
-              boxShadow: '0 8px 24px -12px rgba(0, 0, 0, 0.35)',
             }}
-            className="mobile-press fixed z-[5] flex items-center gap-3 pl-2.5 pr-2 cursor-pointer select-none bg-card/80 backdrop-blur-xl border border-[var(--button-secondary-bg)]"
+            className="fixed z-[5] flex items-center gap-3 pl-2.5 pr-2 cursor-pointer select-none bg-transparent"
           >
             <motion.img
               layoutId="player-cover"
@@ -888,22 +887,22 @@ export default function FullscreenPlayer({
                 {currentBook.title} • {currentBook.author}
               </motion.p>
             </div>
-            {/* Deitado há espaço: os controles principais aparecem junto do play/pause */}
+            {/* Deitado há espaço: o capítulo anterior aparece também */}
             {isLandFs && (
-              <>
-                <motion.button layoutId="player-prev" whileTap={{ scale: 0.9 }} title={t('previous_chapter')}
-                  onClick={(e) => { e.stopPropagation(); if (handlePrevChapter) handlePrevChapter(); else handleSeek(currentChapter.startTime); }}
-                  className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
-                  <SkipBack size={17} />
-                </motion.button>
-                <motion.button layoutId="player-seek-back" whileTap={{ scale: 0.9 }} title={t('seek_backward', { sec: seekBackwardTime })}
-                  onClick={(e) => { e.stopPropagation(); handleSeek(Math.max(0, currentTime - seekBackwardTime)); }}
-                  className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
-                  <BsArrowCounterclockwise size={20} />
-                  <span className="absolute text-[7px] font-bold mt-[1px]">{seekBackwardTime}</span>
-                </motion.button>
-              </>
+              <motion.button layoutId="player-prev" whileTap={{ scale: 0.9 }} title={t('previous_chapter')}
+                onClick={(e) => { e.stopPropagation(); if (handlePrevChapter) handlePrevChapter(); else handleSeek(currentChapter.startTime); }}
+                className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
+                <SkipBack size={17} />
+              </motion.button>
             )}
+            {/* Voltar alguns segundos, à esquerda do play/pause (em pé e deitado) */}
+            <motion.button layoutId="player-seek-back" whileTap={{ scale: 0.9 }} title={t('seek_backward', { sec: seekBackwardTime })}
+              aria-label={t('seek_backward', { sec: seekBackwardTime })}
+              onClick={(e) => { e.stopPropagation(); handleSeek(Math.max(0, currentTime - seekBackwardTime)); }}
+              className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
+              <BsArrowCounterclockwise size={20} />
+              <span className="absolute text-[7px] font-bold mt-[1px]">{seekBackwardTime}</span>
+            </motion.button>
             <motion.button
               layoutId="player-play"
               transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }}
