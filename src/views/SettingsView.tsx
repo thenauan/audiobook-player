@@ -1,4 +1,5 @@
 import { IS_INSTALLED_APP } from '../desktopBridge';
+import { morphTriggerAnimate } from '../components/Popovers';
 import { APP_VERSION } from '../version';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -540,6 +541,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
                 whileTap={{ scale: 0.94 }}
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'theme')}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (activeSettingSelector?.id === 'theme') {
@@ -582,6 +584,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
                 whileTap={{ scale: 0.94 }}
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'accent-color')}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (activeSettingSelector?.id === 'accent-color') {
@@ -625,6 +628,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
                 whileTap={{ scale: 0.94 }}
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'font-size')}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (activeSettingSelector?.id === 'font-size') {
@@ -666,6 +670,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
                 whileTap={{ scale: 0.94 }}
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'app-language')}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (activeSettingSelector?.id === 'app-language') {
@@ -751,6 +756,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
                 whileTap={{ scale: 0.94 }}
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'detect-new-files')}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (activeSettingSelector?.id === 'detect-new-files') {
@@ -858,6 +864,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
                 whileTap={{ scale: 0.94 }}
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'default-speed')}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (activeSettingSelector?.id === 'default-speed') {
@@ -906,6 +913,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
                 whileTap={{ scale: 0.94 }}
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'seek-forward-setting')}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (activeSettingSelector?.id === 'seek-forward-setting') {
@@ -949,6 +957,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
                 whileTap={{ scale: 0.94 }}
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'seek-backward-setting')}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (activeSettingSelector?.id === 'seek-backward-setting') {

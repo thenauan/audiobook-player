@@ -660,14 +660,24 @@ export const MORPH_CONTENT_MOTION = {
 };
 
 // Variante de animação do botão gatilho: some quando o pop-up assume o lugar dele e volta quando o pop-up encolhe
-// O botão cresce um pouco enquanto se funde no menu que nasce dele; ao fechar, ressurge do menu recolhido
+// Ao abrir, o botão some na forma do pop-up que nasce exatamente sobre ele; já invisível, fica um pouco maior.
+// Ao fechar, no instante em que o pop-up termina de encolher para dentro dele, o botão reaparece maior e
+// "volta para o lugar" com uma mola até o tamanho normal (o pop-up parece entrar no botão)
+export const TRIGGER_RETURN_SCALE = 1.2;
+export const TRIGGER_RETURN_SPRING = { type: 'spring' as const, stiffness: 420, damping: 20, mass: 0.7 };
 export function morphTriggerAnimate(isOpen: boolean) {
   return isOpen
-    // Ao abrir, o botão dá lugar à forma do pop-up que nasce exatamente sobre ele (sem crescer à parte)
-    ? { opacity: 0, scale: 1, pointerEvents: 'none' as const, transition: { opacity: { duration: 0.1 }, scale: { duration: 0 } } }
-    // Ao fechar, o botão reaparece quando o pop-up termina de encolher no formato dele: os dois se cruzam
-    // (um surge enquanto o outro some), sem um instante vazio que faria o botão piscar
-    : { opacity: 1, scale: 1, pointerEvents: 'auto' as const, transition: { opacity: { duration: MORPH_HANDOFF.fade, delay: MORPH_HANDOFF.at - 0.04 }, scale: { duration: 0 } } };
+    ? {
+        opacity: 0, scale: TRIGGER_RETURN_SCALE, pointerEvents: 'none' as const,
+        transition: { opacity: { duration: 0.1 }, scale: { duration: 0, delay: 0.1 } },
+      }
+    : {
+        opacity: 1, scale: 1, pointerEvents: 'auto' as const,
+        transition: {
+          opacity: { duration: MORPH_HANDOFF.fade, delay: MORPH_HANDOFF.at - 0.05 },
+          scale: { ...TRIGGER_RETURN_SPRING, delay: MORPH_HANDOFF.at - 0.05 },
+        },
+      };
 }
 
 type MorphPopupProps = Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'exit' | 'transition'> & {

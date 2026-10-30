@@ -11123,6 +11123,7 @@ export default function App() {
                                   ref={authorCollectionBtnRef}
                                   whileHover={{ scale: 1.12 }} 
                                   whileTap={{ scale: 0.92 }} 
+                                  animate={morphTriggerAnimate(showAuthorCollectionPopup)}
                                   title={t('add_to_collection')}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -11222,6 +11223,7 @@ export default function App() {
                                   ref={bookCollectionBtnRef}
                                   whileHover={{ scale: 1.12 }} 
                                   whileTap={{ scale: 0.92 }} 
+                                  animate={morphTriggerAnimate(showBookCollectionPopup)}
                                   title={t('add_to_collection')}
                                   onClick={(e) => {
                                     e.stopPropagation();
