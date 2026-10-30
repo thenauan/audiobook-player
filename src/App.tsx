@@ -4411,8 +4411,13 @@ export default function App() {
       const headerBottomY = containerRect.top + 68;
 
       // Considera só títulos visíveis (no mobile, a versão de computador da página fica oculta)
+      // (ignora a tela que está saindo: na troca ela fica por cima, posicionada como "absolute")
+      const isLeaving = (el: HTMLElement) => {
+        const screen = Array.from(container.children).find(c => c.contains(el)) as HTMLElement | undefined;
+        return Boolean(screen && getComputedStyle(screen).position === 'absolute');
+      };
       const titleEl = Array.from(container.querySelectorAll<HTMLElement>('h1, h2.text-4xl, h2.text-5xl, [data-screen-title="true"]'))
-        .find(el => el.getClientRects().length > 0) || null;
+        .find(el => el.getClientRects().length > 0 && !isLeaving(el)) || null;
       if (titleEl) {
         const titleRect = titleEl.getBoundingClientRect();
         // O título no cabeçalho ressurge quando o título grande da página desaparece
@@ -4433,6 +4438,7 @@ export default function App() {
     };
     // Depois de trocas de tela (restauração da posição de rolagem), confere de novo
     const recheckTimer = window.setTimeout(handleScroll, 450);
+    const recheckTimer2 = window.setTimeout(handleScroll, 900);
 
     rafId = requestAnimationFrame(handleScroll);
     container.addEventListener('scroll', handleScroll, { passive: true });
@@ -4440,6 +4446,7 @@ export default function App() {
     return () => {
       cancelAnimationFrame(rafId);
       window.clearTimeout(recheckTimer);
+      window.clearTimeout(recheckTimer2);
       container.removeEventListener('scroll', handleScroll);
       document.removeEventListener('scroll', handleAnyScroll, { capture: true } as any);
     };
