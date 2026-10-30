@@ -3550,6 +3550,19 @@ export default function App() {
 
   // ===== Ajustes iniciais no celular: um tema por vez (como as opções dos ajustes), com voltar e prosseguir =====
   const [onboardingPage, setOnboardingPage] = useState(0);
+  // Celular: ao rolar os ajustes iniciais, o título da página aparece pequeno no cabeçalho (com desfoque),
+  // como nas telas do app
+  const onboardingScrollRef = useRef<HTMLDivElement>(null);
+  const [onboardingHeaderProgress, setOnboardingHeaderProgress] = useState(0);
+  const handleOnboardingScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const p = Math.max(0, Math.min(1, (e.currentTarget.scrollTop - 24) / 36));
+    setOnboardingHeaderProgress(prev => (Math.abs(prev - p) < 0.02 && p !== 0 && p !== 1 ? prev : p));
+  };
+  useEffect(() => {
+    // Nova página ou etapa: volta ao topo (título grande)
+    if (onboardingScrollRef.current) onboardingScrollRef.current.scrollTop = 0;
+    setOnboardingHeaderProgress(0);
+  }, [onboardingPage, onboardingStep]);
   const renderOnboardingSettings = () => {
     type OnbOption = { value: any; label: string; description?: string; icon?: React.ReactNode; colorPreview?: string };
     type OnbSetting = { id: string; title: string; subtitle: string; value: any; options: OnbOption[]; onSelect: (v: any) => void };
@@ -3631,6 +3644,26 @@ export default function App() {
         exit="saindo"
         className="flex-1 w-full flex flex-col min-h-full"
       >
+        {/* Celular: cabeçalho com o título da página quando a tela rola (desfoque atrás, esmaecendo para baixo) */}
+        <div
+          aria-hidden={onboardingHeaderProgress < 0.5}
+          className="md:hidden fixed inset-x-0 top-0 z-30 pointer-events-none"
+          style={{ height: 'calc(var(--app-header-top) + 44px + 40px)', opacity: onboardingHeaderProgress }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(to bottom, rgba(4,7,15,0.62), rgba(4,7,15,0.38) 60%, rgba(4,7,15,0))',
+              WebkitBackdropFilter: 'blur(18px) saturate(150%)',
+              backdropFilter: 'blur(18px) saturate(150%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%)',
+              maskImage: 'linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%)',
+            }}
+          />
+          <div className="absolute inset-x-0 flex items-center justify-center px-16" style={{ top: 'var(--app-header-top)', height: 44 }}>
+            <span className="text-[17px] font-semibold text-white truncate">{page.title}</span>
+          </div>
+        </div>
         <div className="flex-1 w-full max-w-xl md:max-w-5xl mx-auto px-4 md:px-10 pt-8 md:pt-14 pb-36 md:pb-44 flex flex-col">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -3697,7 +3730,19 @@ export default function App() {
         </div>
 
         {/* Voltar (com o nome da página anterior), bolinhas das páginas e prosseguir/concluir (com o nome da próxima) */}
-        <div className="fixed inset-x-0 bottom-0 z-20 px-4 md:px-10 pb-[max(20px,env(safe-area-inset-bottom))] pt-8 bg-gradient-to-t from-black/55 to-transparent">
+        <div className="fixed inset-x-0 bottom-0 z-20 px-4 md:px-10 pb-[max(20px,env(safe-area-inset-bottom))] pt-8 md:bg-gradient-to-t md:from-black/55 md:to-transparent">
+          {/* Celular: desfoque no rodapé, atrás dos botões, esmaecendo para cima */}
+          <div
+            aria-hidden="true"
+            className="md:hidden absolute inset-x-0 bottom-0 -top-6 -z-10 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to top, rgba(4,7,15,0.6), rgba(4,7,15,0.35) 55%, rgba(4,7,15,0))',
+              WebkitBackdropFilter: 'blur(18px) saturate(150%)',
+              backdropFilter: 'blur(18px) saturate(150%)',
+              WebkitMaskImage: 'linear-gradient(to top, #000 0%, #000 50%, transparent 100%)',
+              maskImage: 'linear-gradient(to top, #000 0%, #000 50%, transparent 100%)',
+            }}
+          />
           <div className="max-w-xl md:max-w-5xl mx-auto md:px-10 flex items-center justify-between gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -14672,7 +14717,7 @@ export default function App() {
             </div>
 
             {/* Conteúdo das etapas (1. Boas-vindas / 2. Ajustes iniciais) */}
-            <div className="safe-area-pad relative z-10 flex-1 w-full h-full overflow-y-auto custom-scrollbar flex flex-col">
+            <div ref={onboardingScrollRef} onScroll={handleOnboardingScroll} className="safe-area-pad relative z-10 flex-1 w-full h-full overflow-y-auto custom-scrollbar flex flex-col">
               <AnimatePresence mode="wait">
                 {onboardingStep === 'welcome' ? (
                   <motion.div
