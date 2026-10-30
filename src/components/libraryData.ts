@@ -1,3 +1,4 @@
+import { splitAuthorNames } from '../authorUtils';
 // Extraído do App.tsx (conteúdo sem alterações)
 import { Audiobook, Author, AUTHORS_DATABASE, BOOKS_DATABASE, Collection, INITIAL_COLLECTIONS } from '../data';
 import { getGenericBookCover, getAuthorAvatar, getGenericCoverColor, getGenericAuthorColor } from '../audioUtils';
@@ -265,7 +266,7 @@ export function loadAuthorsFromJson(saved: string | null): Author[] {
             try { return JSON.parse(localStorage.getItem('app_books') || '[]') as Audiobook[]; } catch { return []; }
           })().filter(b => !isTestBookId(b.id));
           const usedAuthorIds = new Set(userBooks.map(b => b.authorId));
-          const usedAuthorNames = new Set(userBooks.map(b => (b.author || '').trim().toLowerCase()));
+          const usedAuthorNames = new Set(userBooks.flatMap(b => splitAuthorNames(b.author).map(n => n.trim().toLowerCase())));
           return updated.filter((a: Author) =>
             !isTestAuthorId(a.id) || usedAuthorIds.has(a.id) || usedAuthorNames.has((a.name || '').trim().toLowerCase())
           );

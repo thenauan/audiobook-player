@@ -35,6 +35,8 @@ export type Audiobook = {
   title: string;
   author: string;
   authorId: string;
+  // Todos os autores, quando o campo de autor tem mais de um nome ("A & B", "A, B")
+  authorIds?: string[];
   narrator: string;
   cover: string;
   category: string;

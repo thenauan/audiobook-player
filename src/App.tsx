@@ -34,6 +34,7 @@ import { ScreenErrorBoundary } from './components/ScreenErrorBoundary';
 import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
+import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './authorUtils';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
 import { installTouchMenus } from './components/touchMenu';
 import { installScrollFades } from './components/scrollFade';
@@ -664,7 +665,7 @@ export default function App() {
 
     setAuthors(prev => prev.map(a => a.id === target.id ? updated : a));
     if (newName !== target.name) {
-      setBooks(prev => prev.map(b => b.authorId === target.id ? { ...b, author: newName } : b));
+      setBooks(prev => prev.map(b => bookHasAuthor(b, target) ? { ...b, author: renameAuthorInField(b.author, target.name, newName) } : b));
     }
     setActiveScreen(prev => ({ ...prev, data: updated }));
     setAuthorCropImage(null);
@@ -761,7 +762,7 @@ export default function App() {
     if (!book) return null;
     const byId = book.authorId ? authors.find(a => a.id === book.authorId) : undefined;
     if (byId) return byId.id;
-    const name = (book.author || '').trim().toLowerCase();
+    const name = (getBookAuthorNames(book)[0] || '').trim().toLowerCase();
     const byName = name ? authors.find(a => a.name.trim().toLowerCase() === name) : undefined;
     return byName ? byName.id : null;
   };
@@ -1583,19 +1584,23 @@ export default function App() {
           continue;
         }
 
-        let authorObj = authors.find(a => a.name.toLowerCase() === meta.author.toLowerCase());
-        let authorId = authorObj?.id;
-        if (!authorObj && meta.author && meta.author !== 'Autor Desconhecido') {
-          authorId = 'a_' + Date.now() + '_' + i;
+        // Vários autores ("A, B & C"): cada nome é um autor próprio
+        const metaAuthorNames = meta.author && meta.author !== 'Autor Desconhecido' ? splitAuthorNames(meta.author) : [];
+        const bookAuthorIds: string[] = [];
+        metaAuthorNames.forEach((name, n) => {
+          const existing = authors.find(a => a.name.toLowerCase() === name.toLowerCase());
+          if (existing) { bookAuthorIds.push(existing.id); return; }
           const newAuthor: Author = {
-            id: authorId,
-            name: meta.author,
-            nationality: meta.authorNationality || 'Desconhecido',
-            picture: getAuthorAvatar(meta.author),
+            id: 'a_' + Date.now() + '_' + i + '_' + n,
+            name,
+            nationality: (metaAuthorNames.length === 1 && meta.authorNationality) || 'Desconhecido',
+            picture: getAuthorAvatar(name),
             bio: ''
           };
+          bookAuthorIds.push(newAuthor.id);
           setAuthors(prev => prev.some(a => a.name.toLowerCase() === newAuthor.name.toLowerCase()) ? prev : [...prev, newAuthor]);
-        }
+        });
+        const authorId = bookAuthorIds[0];
 
         const now = Date.now();
         const bookId = 'book_' + now + '_' + i;
@@ -1626,6 +1631,7 @@ export default function App() {
           title: meta.title,
           author: meta.author,
           authorId: authorId || 'a1',
+          authorIds: bookAuthorIds.length > 1 ? bookAuthorIds : undefined,
           narrator: meta.narrator || '',
           cover: meta.cover,
           category: meta.category,
@@ -1982,7 +1988,7 @@ export default function App() {
     }
     // Remove os dados de teste (audiobooks, autores e coleções de exemplo); os do usuário ficam
     setBooks(prev => prev.filter(b => !isTestBookId(b.id)));
-    setAuthors(prev => prev.filter(a => !isTestAuthorId(a.id) || books.some(b => !isTestBookId(b.id) && (b.authorId === a.id || b.author?.toLowerCase() === a.name?.toLowerCase()))));
+    setAuthors(prev => prev.filter(a => !isTestAuthorId(a.id) || books.some(b => !isTestBookId(b.id) && bookHasAuthor(b, a))));
     setCollections(prev => prev.filter(c => !TEST_COLLECTION_IDS.has(c.id)));
     setDevMockInjected(false);
     try {
@@ -2224,6 +2230,9 @@ export default function App() {
 
 
   const handleSelectAuthor = (authorId?: string, authorName?: string) => {
+    // Campo com vários autores: abre o primeiro (cada nome tem o próprio link na página do audiobook)
+    const names = splitAuthorNames(authorName);
+    if (names.length > 1) authorName = names[0];
     const found = authors.find(a => (authorId && a.id === authorId) || (authorName && a.name.toLowerCase() === authorName.toLowerCase()));
     if (found) {
       navigateTo('author-detail', found);
@@ -3038,9 +3047,9 @@ export default function App() {
       buf.genreSeconds[subg] = (buf.genreSeconds[subg] || 0) + deltaSec;
     }
 
-    const auth = (book.author || '').toLowerCase().trim();
-    if (auth && auth !== 'desconhecido') {
-      buf.authorSeconds[auth] = (buf.authorSeconds[auth] || 0) + deltaSec;
+    for (const name of getBookAuthorNames(book)) {
+      const auth = name.toLowerCase().trim();
+      if (auth && auth !== 'desconhecido') buf.authorSeconds[auth] = (buf.authorSeconds[auth] || 0) + deltaSec;
     }
 
     buf.totalSeconds += deltaSec;
@@ -5961,7 +5970,7 @@ export default function App() {
         score += 3600;
       }
 
-      const aBooks = books.filter(b => b.authorId === a.id || (b.author || '').toLowerCase().trim() === aName);
+      const aBooks = books.filter(b => bookHasAuthor(b, a));
       aBooks.forEach(b => {
         if (isBookCompleted(b)) score += 2400;
         if (favoriteBookIds.includes(b.id)) score += 1800;
@@ -6238,7 +6247,7 @@ export default function App() {
 
       for (const aEntry of userListeningProfile.topAuthors) {
         const others = books.filter(b => 
-          (b.authorId === aEntry.authorId || b.author.toLowerCase() === aEntry.name.toLowerCase()) && 
+          bookHasAuthor(b, { id: aEntry.authorId, name: aEntry.name }) && 
           !isBookCompleted(b) && 
           !inProgressBooks.some(ip => ip.id === b.id)
         );
@@ -6325,15 +6334,16 @@ export default function App() {
 
     // 8. Audiobooks ainda não ouvidos de autores favoritos
     if (favoriteAuthorIds.length > 0) {
-      const unstartedFromFavAuthors = books.filter(b => 
-        favoriteAuthorIds.includes(b.authorId) && 
+      const favAuthors = authors.filter(a => favoriteAuthorIds.includes(a.id));
+      const unstartedFromFavAuthors = books.filter(b =>
+        favAuthors.some(a => bookHasAuthor(b, a)) &&  
         !isBookStarted(b) && 
         !isBookCompleted(b)
       );
       if (unstartedFromFavAuthors.length > 0) {
         const topFavAuthor = authors.find(a => 
           favoriteAuthorIds.includes(a.id) && 
-          unstartedFromFavAuthors.some(b => b.authorId === a.id)
+          unstartedFromFavAuthors.some(b => bookHasAuthor(b, a))
         );
         const authorName = topFavAuthor?.name || unstartedFromFavAuthors[0]?.author;
         const authorId = topFavAuthor?.id || unstartedFromFavAuthors[0]?.authorId;
@@ -6621,27 +6631,62 @@ export default function App() {
     />
   );
 
+  // Audiobooks com vários autores no campo ("A & B", "A, B"): cada nome vira um autor cadastrado e o
+  // audiobook fica ligado a todos. Vale para os que já estavam na biblioteca e para os editados depois.
+  useEffect(() => {
+    const known = new Map(authors.map(a => [a.name.trim().toLowerCase(), a] as const));
+    const missing: Author[] = [];
+    let changed = false;
+    const next = books.map(b => {
+      const names = splitAuthorNames(b.author);
+      if (names.length < 2) {
+        if (!b.authorIds) return b;
+        changed = true;
+        const { authorIds: _drop, ...rest } = b;
+        return rest as Audiobook;
+      }
+      const ids = names.map((name, k) => {
+        const key = name.trim().toLowerCase();
+        let a = known.get(key);
+        if (!a) {
+          a = { id: `a_${Date.now()}_${k}_${Math.random().toString(36).slice(2, 7)}`, name, nationality: 'Desconhecido', picture: getAuthorAvatar(name), bio: '' };
+          known.set(key, a);
+          missing.push(a);
+        }
+        return a.id;
+      });
+      if (b.authorId === ids[0] && (b.authorIds || []).join('|') === ids.join('|')) return b;
+      changed = true;
+      return { ...b, authorId: ids[0], authorIds: ids };
+    });
+    if (missing.length > 0) {
+      setAuthors(prev => [...prev, ...missing.filter(m => !prev.some(a => a.name.trim().toLowerCase() === m.name.trim().toLowerCase()))]);
+    }
+    if (changed) setBooks(next);
+  }, [books, authors]);
+
   const sortedAuthors = useMemo(() => {
     // Apenas autores que possuem pelo menos 1 audiobook correspondente na biblioteca
     const matchingAuthors = authors.filter(a =>
-      books.some(bk => bk.authorId === a.id || (a.name && (bk.author || '').trim().toLowerCase() === a.name.trim().toLowerCase()))
+      books.some(bk => bookHasAuthor(bk, a))
     );
 
     // Inclui autores presentes nos audiobooks que porventura ainda não estejam cadastrados em 'authors'
     const existingNames = new Set(matchingAuthors.map(a => a.name.trim().toLowerCase()));
     const extraAuthors: Author[] = [];
     books.forEach(bk => {
-      const authName = (bk.author || '').trim();
+      getBookAuthorNames(bk).forEach((authName, n) => {
       if (authName && !existingNames.has(authName.toLowerCase())) {
         existingNames.add(authName.toLowerCase());
         extraAuthors.push({
-          id: bk.authorId || `author_${authName.toLowerCase().replace(/\s+/g, '_')}`,
+          id: (n === 0 && bk.authorId && !splitAuthorNames(bk.author).slice(1).length ? bk.authorId : '') || `author_${authName.toLowerCase().replace(/\s+/g, '_')}`,
           name: authName,
           nationality: 'Desconhecido',
           picture: getAuthorAvatar(authName),
           bio: ''
         });
       }
+      });
     });
 
     const allValidAuthors = [...matchingAuthors, ...extraAuthors];
@@ -6653,29 +6698,29 @@ export default function App() {
         case 'name-desc':
           return b.name.localeCompare(a.name, resolvedLanguage, { sensitivity: 'base' });
         case 'year-desc': {
-          const aBooks = books.filter(bk => bk.authorId === a.id || (bk.author || '').toLowerCase() === a.name.toLowerCase());
-          const bBooks = books.filter(bk => bk.authorId === b.id || (bk.author || '').toLowerCase() === b.name.toLowerCase());
+          const aBooks = books.filter(bk => bookHasAuthor(bk, a));
+          const bBooks = books.filter(bk => bookHasAuthor(bk, b));
           const aYear = Math.max(0, ...aBooks.map(bk => parseInt(bk.year) || 0));
           const bYear = Math.max(0, ...bBooks.map(bk => parseInt(bk.year) || 0));
           return bYear - aYear;
         }
         case 'year-asc': {
-          const aBooks = books.filter(bk => bk.authorId === a.id || (bk.author || '').toLowerCase() === a.name.toLowerCase());
-          const bBooks = books.filter(bk => bk.authorId === b.id || (bk.author || '').toLowerCase() === b.name.toLowerCase());
+          const aBooks = books.filter(bk => bookHasAuthor(bk, a));
+          const bBooks = books.filter(bk => bookHasAuthor(bk, b));
           const aYear = Math.min(9999, ...aBooks.map(bk => parseInt(bk.year) || 9999));
           const bYear = Math.min(9999, ...bBooks.map(bk => parseInt(bk.year) || 9999));
           return aYear - bYear;
         }
         case 'duration-desc': {
-          const aBooks = books.filter(bk => bk.authorId === a.id || (bk.author || '').toLowerCase() === a.name.toLowerCase());
-          const bBooks = books.filter(bk => bk.authorId === b.id || (bk.author || '').toLowerCase() === b.name.toLowerCase());
+          const aBooks = books.filter(bk => bookHasAuthor(bk, a));
+          const bBooks = books.filter(bk => bookHasAuthor(bk, b));
           const aDur = aBooks.reduce((sum, bk) => sum + (bk.chapters || []).reduce((s, c) => s + (c.duration || 0), 0), 0);
           const bDur = bBooks.reduce((sum, bk) => sum + (bk.chapters || []).reduce((s, c) => s + (c.duration || 0), 0), 0);
           return bDur - aDur;
         }
         case 'duration-asc': {
-          const aBooks = books.filter(bk => bk.authorId === a.id || (bk.author || '').toLowerCase() === a.name.toLowerCase());
-          const bBooks = books.filter(bk => bk.authorId === b.id || (bk.author || '').toLowerCase() === b.name.toLowerCase());
+          const aBooks = books.filter(bk => bookHasAuthor(bk, a));
+          const bBooks = books.filter(bk => bookHasAuthor(bk, b));
           const aDur = aBooks.reduce((sum, bk) => sum + (bk.chapters || []).reduce((s, c) => s + (c.duration || 0), 0), 0);
           const bDur = bBooks.reduce((sum, bk) => sum + (bk.chapters || []).reduce((s, c) => s + (c.duration || 0), 0), 0);
           return aDur - bDur;
@@ -9085,7 +9130,7 @@ export default function App() {
     // 2. Authors
     authors.forEach(author => {
       const authorBooks = books.filter(
-        b => b.authorId === author.id || (author.name && (b.author || '').toLowerCase() === author.name.toLowerCase())
+        b => bookHasAuthor(b, author)
       );
 
       const bestMatch = evaluateGroups([
@@ -9550,7 +9595,7 @@ export default function App() {
             >
               <p className="text-sm font-bold text-[var(--text-main)] truncate">{author.name}</p>
               <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
-                {t('author_label')} • {getNationalityDisplayName(author.nationality, resolvedLanguage)} • {books.filter(b => b.authorId === author.id).length} {books.filter(b => b.authorId === author.id).length === 1 ? t('audiobook_single') : t('audiobooks_plural')}
+                {t('author_label')} • {getNationalityDisplayName(author.nationality, resolvedLanguage)} • {books.filter(b => bookHasAuthor(b, author)).length} {books.filter(b => bookHasAuthor(b, author)).length === 1 ? t('audiobook_single') : t('audiobooks_plural')}
               </p>
             </div>
 
@@ -10538,9 +10583,14 @@ export default function App() {
                                             } else if (isAuthorsScreen) {
                                               const count = selectedAuthors.length;
                                               const authorNames = sortedAuthors.filter(a => selectedAuthors.includes(a.id)).map(a => a.name.trim().toLowerCase());
-                                              const booksToDelete = books.filter(b => selectedAuthors.includes(b.authorId) || authorNames.includes((b.author || '').trim().toLowerCase()));
+                                              // O audiobook só sai se todos os autores dele forem excluídos (coautoria fica)
+                                              const allAuthorsDeleted = (b: Audiobook) => {
+                                                const names = getBookAuthorNames(b).map(n => n.trim().toLowerCase());
+                                                return names.length > 0 ? names.every(n => authorNames.includes(n)) : selectedAuthors.includes(b.authorId);
+                                              };
+                                              const booksToDelete = books.filter(allAuthorsDeleted);
                                               cleanupDeletedBooks(booksToDelete.map(b => b.id));
-                                              setBooks(books.filter(b => !selectedAuthors.includes(b.authorId) && !authorNames.includes((b.author || '').trim().toLowerCase())));
+                                              setBooks(books.filter(b => !allAuthorsDeleted(b)));
                                               setAuthors(prev => prev.filter(a => !selectedAuthors.includes(a.id)));
                                               setIsSelectionMode(false);
                                               setSelectedAuthors([]);
@@ -10740,9 +10790,14 @@ export default function App() {
                                             } else if (isAuthorsScreen) {
                                               const count = selectedAuthors.length;
                                               const authorNames = sortedAuthors.filter(a => selectedAuthors.includes(a.id)).map(a => a.name.trim().toLowerCase());
-                                              const booksToDelete = books.filter(b => selectedAuthors.includes(b.authorId) || authorNames.includes((b.author || '').trim().toLowerCase()));
+                                              // O audiobook só sai se todos os autores dele forem excluídos (coautoria fica)
+                                              const allAuthorsDeleted = (b: Audiobook) => {
+                                                const names = getBookAuthorNames(b).map(n => n.trim().toLowerCase());
+                                                return names.length > 0 ? names.every(n => authorNames.includes(n)) : selectedAuthors.includes(b.authorId);
+                                              };
+                                              const booksToDelete = books.filter(allAuthorsDeleted);
                                               cleanupDeletedBooks(booksToDelete.map(b => b.id));
-                                              setBooks(books.filter(b => !selectedAuthors.includes(b.authorId) && !authorNames.includes((b.author || '').trim().toLowerCase())));
+                                              setBooks(books.filter(b => !allAuthorsDeleted(b)));
                                               setAuthors(prev => prev.filter(a => !selectedAuthors.includes(a.id)));
                                               setIsSelectionMode(false);
                                               setSelectedAuthors([]);
@@ -13934,7 +13989,7 @@ export default function App() {
           {/* SCREEN: AUTHOR DETAIL */}
           {activeScreen.id === 'author-detail' && activeScreen.data && (() => {
             const authorData: Author = authors.find(a => a.id === activeScreen.data.id) || activeScreen.data;
-            const authorBooks = books.filter(b => b.authorId === authorData.id || (authorData.name && b.author?.toLowerCase() === authorData.name?.toLowerCase()));
+            const authorBooks = books.filter(b => bookHasAuthor(b, authorData));
             const authorGenres: string[] = [];
             authorBooks.forEach(b => {
               const cat = b.category?.trim();

@@ -29,6 +29,7 @@ import type {
   TranscriptLine,
 } from '../data';
 import { resolveNarratorAndLanguage } from '../data';
+import { splitAuthorNames } from '../authorUtils';
 import {
   getGenericBookCover,
   getGenericCoverColor,
@@ -39,6 +40,36 @@ import { getGenreName, getSubgenreName } from '../genreTranslations';
 import { getLanguageDisplayName, SupportedLanguage, useI18n } from '../translations';
 
 const ImageCropperSquare = React.lazy(() => import('../ImageCropperSquare'));
+
+// Autores do audiobook: cada nome ("A, B & C") é um link para a página daquele autor
+function AuthorLinks({ raw, authorId, onSelect, className = '', linkClassName = '' }: {
+  raw: string;
+  authorId?: string;
+  onSelect: (authorId?: string, authorName?: string) => void;
+  className?: string;
+  linkClassName?: string;
+}) {
+  const names = splitAuthorNames(raw);
+  if (names.length <= 1) {
+    return (
+      <button type="button" onClick={() => onSelect(authorId, raw)} className={`mobile-press ${linkClassName} ${className}`}>
+        {raw}
+      </button>
+    );
+  }
+  return (
+    <span className={className}>
+      {names.map((name, i) => (
+        <React.Fragment key={name}>
+          <button type="button" onClick={() => onSelect(undefined, name)} className={`mobile-press ${linkClassName}`}>
+            {name}
+          </button>
+          {i < names.length - 1 && <span>{i === names.length - 2 ? ' & ' : ', '}</span>}
+        </React.Fragment>
+      ))}
+    </span>
+  );
+}
 
 export interface BookDetailViewProps {
   // Celular/tablet: marcações abrem como submenu em tela cheia
@@ -60,7 +91,7 @@ export interface BookDetailViewProps {
   isBookStarted: (b: Audiobook) => boolean;
   isChapterCompleted: (bookId: string, chapId: any) => boolean;
   isChapterStarted: (bookId: string, chapId: any) => boolean;
-  handleSelectAuthor: (authorId: string, authorName: string) => void;
+  handleSelectAuthor: (authorId?: string, authorName?: string) => void;
   handlePlayBookFromStart: (b: Audiobook, idx?: number) => void;
   handleBookCoverError: (b: Audiobook, e: any) => void;
   handleAddToQueue: (b: Audiobook, pos: 'next' | 'last') => void;
@@ -309,12 +340,12 @@ export default function BookDetailView({
               />
               <div className="flex-1 min-w-0 flex flex-col items-start text-left rtl:text-right">
                 <h2 data-screen-title="true" className="text-[19px] font-bold leading-tight tracking-tight line-clamp-3 text-[var(--text-main)]">{activeBook.title}</h2>
-                <button
-                  onClick={() => handleSelectAuthor(activeBook.authorId, activeBook.author)}
-                  className="mobile-press text-[14px] font-semibold text-[var(--text-muted)] mt-1 text-left rtl:text-right"
-                >
-                  {activeBook.author}
-                </button>
+                <AuthorLinks
+                  raw={activeBook.author}
+                  authorId={activeBook.authorId}
+                  onSelect={handleSelectAuthor}
+                  className="text-[14px] font-semibold text-[var(--text-muted)] mt-1 text-left rtl:text-right"
+                />
                 {heroMeta.length > 0 && (
                   <p className="text-[11px] font-semibold text-[var(--text-main)]/70 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{heroMeta.join(' • ')}</p>
                 )}
@@ -359,12 +390,12 @@ export default function BookDetailView({
               </div>
               <div className="absolute inset-x-0 bottom-0 px-5 pb-4 flex flex-col items-center text-center text-[var(--text-main)]">
                 <h2 data-screen-title="true" className="text-[24px] font-bold leading-tight tracking-tight line-clamp-2">{activeBook.title}</h2>
-                <button
-                  onClick={() => handleSelectAuthor(activeBook.authorId, activeBook.author)}
-                  className="mobile-press text-[15px] font-semibold text-[var(--text-main)]/80 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]"
-                >
-                  {activeBook.author}
-                </button>
+                <AuthorLinks
+                  raw={activeBook.author}
+                  authorId={activeBook.authorId}
+                  onSelect={handleSelectAuthor}
+                  className="text-[15px] font-semibold text-[var(--text-main)]/80 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]"
+                />
                 {heroMeta.length > 0 && (
                   <p className="text-[11px] font-semibold text-[var(--text-main)]/70 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{heroMeta.join(' • ')}</p>
                 )}
@@ -408,11 +439,8 @@ export default function BookDetailView({
                 <div className="flex items-center gap-3 max-md:justify-center">
                   <h2 className="text-4xl md:text-5xl max-md:text-[26px] max-md:leading-tight font-semibold text-[var(--text-main)] tracking-tight">{activeBook.title}</h2>
                 </div>
-                <h3 
-                  className="text-xl max-md:text-base font-semibold text-[var(--text-muted)] hover:text-winblue transition-colors mt-1 cursor-pointer"
-                  onClick={() => handleSelectAuthor(activeBook.authorId, activeBook.author)}
-                >
-                  {activeBook.author}
+                <h3 className="text-xl max-md:text-base font-semibold text-[var(--text-muted)] mt-1">
+                  <AuthorLinks raw={activeBook.author} authorId={activeBook.authorId} onSelect={handleSelectAuthor} linkClassName="hover:text-winblue transition-colors cursor-pointer" />
                 </h3>
                 {(() => {
                   const genreParts: string[] = [];
