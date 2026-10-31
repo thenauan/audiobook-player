@@ -1756,3 +1756,12 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
     pointer-events: none;
   }
 }
+
+/* Pop-ups de opções sempre na frente de tudo: enquanto houver um pop-up aberto dentro da tela, a área dela
+   sobe acima do cabeçalho, da barra de abas e do miniplayer (nada da interface cobre o pop-up) */
+main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
+  z-index: 150 !important;
+}
+.app-scroll:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
+  z-index: 60 !important;
+}

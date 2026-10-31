@@ -12118,7 +12118,7 @@ export default function App() {
               className="space-y-6"
             >
               {isMobile && searchQuery.length > 0 && (
-                <div ref={setMobileSearchSlot} data-popup-content="true" className="w-full" />
+                <div ref={setMobileSearchSlot} data-popup-content="true" data-search-slot="true" className="w-full" />
               )}
               <div className={isMobile && searchQuery.length > 0 ? 'hidden' : ''}>
                 <div className="flex items-center justify-between mb-4">
