@@ -1935,11 +1935,20 @@ export function CollectionCard({
     setContextRect(el.getBoundingClientRect());
   };
   const longPress = useLongPress(openContextMenu);
+  const gradientRef = useRef<HTMLDivElement>(null);
+  // Abre a coleção com a expansão a partir do card (o degradê dele vira a página)
+  const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
+    if (!selectionMode) {
+      const fill = gradientRef.current ? getComputedStyle(gradientRef.current).backgroundImage : undefined;
+      emitZoomOrigin(e.currentTarget, undefined, 24, `collection-${col.id}`, fill && fill !== 'none' ? fill : undefined);
+    }
+    onClick();
+  };
 
   const face = (
     <>
       <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
-        <div className={`absolute inset-0 bg-gradient-to-br ${col.gradient} ${selectionMode && selected ? 'opacity-70' : ''}`} />
+        <div ref={gradientRef} className={`absolute inset-0 bg-gradient-to-br ${col.gradient} ${selectionMode && selected ? 'opacity-70' : ''}`} />
         <div className="absolute inset-0 bg-black/20" />
         <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
           {col.emoji}
@@ -1965,7 +1974,8 @@ export function CollectionCard({
         exit={{ opacity: 0, scale: 0.92, filter: 'blur(4px)' }}
         transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
         whileTap={{ scale: 0.97 }}
-        onClick={onClick}
+        onClick={handleOpen}
+        data-zoom-key={`collection-${col.id}`}
         // Toque longo (Android e navegadores que disparam o menu de contexto ao segurar)
         onContextMenu={(e) => {
           if (menu.length === 0 || selectionMode) return;

@@ -14,6 +14,7 @@ type ZoomRect = { left: number; top: number; width: number; height: number };
 interface ZoomReturnEntry {
   rect: ZoomRect;
   image?: string;
+  fill?: string;
   radius: number;
   scrollTop: number;
   // Tela em que o card estava quando a página foi aberta
@@ -31,6 +32,14 @@ export function canZoomCloseTo(key: string, destinationScreenKey: string) {
 
 interface ZoomCloseDetail {
   key: string;
+  // Gesto de voltar: a página já está encolhida pelo dedo; a animação parte desse retângulo
+  fromRect?: ZoomRect;
+  fromRadius?: number;
+}
+
+// Retângulo do card de onde a página foi aberta (o gesto de voltar encolhe a página na direção dele)
+export function getZoomReturnRect(key: string): ZoomRect | null {
+  return returnMap.get(key)?.rect || null;
 }
 
 const OPEN_SPRING = { type: 'spring' as const, stiffness: 620, damping: 50, mass: 0.6 };
@@ -39,9 +48,9 @@ const CLOSE_SPRING = { type: 'spring' as const, stiffness: 660, damping: 52, mas
 const TRACK_MS = 600;
 const FIND_TIMEOUT_MS = 900;
 
-export function requestZoomClose(key: string) {
+export function requestZoomClose(key: string, from?: { rect: ZoomRect; radius: number }) {
   if (typeof window === 'undefined') return;
-  window.dispatchEvent(new CustomEvent<ZoomCloseDetail>('zoom-close', { detail: { key } }));
+  window.dispatchEvent(new CustomEvent<ZoomCloseDetail>('zoom-close', { detail: { key, fromRect: from?.rect, fromRadius: from?.radius } }));
 }
 
 // A página (com o fundo desfocado da capa) ocupa a tela inteira, inclusive atrás do menu lateral
@@ -80,7 +89,7 @@ export default function ZoomTransitionLayer({
   // Chamado quando a página está 50% recolhida para dentro do card (ou se o fechamento for cancelado)
   onCloseMidway?: () => void;
 }) {
-  const [phase, setPhase] = useState<{ id: number; image?: string; hero?: boolean } | null>(null);
+  const [phase, setPhase] = useState<{ id: number; image?: string; fill?: string; hero?: boolean } | null>(null);
   const left = useMotionValue(0);
   const top = useMotionValue(0);
   const width = useMotionValue(0);
@@ -159,6 +168,7 @@ export default function ZoomTransitionLayer({
         returnMap.set(detail.key, {
           rect: detail.rect,
           image: detail.image,
+          fill: detail.fill,
           radius: detail.radius,
           scrollTop: getScrollRef.current()?.scrollTop || 0,
           screenKey: getScreenKeyRef.current(),
@@ -171,7 +181,7 @@ export default function ZoomTransitionLayer({
       imageOpacity.set(1);
       layerOpacity.set(1);
       const heroMode = Boolean(detail.image && canUseHero(detail.key));
-      setPhase({ id: runId, image: detail.image, hero: heroMode });
+      setPhase({ id: runId, image: detail.image, fill: detail.fill, hero: heroMode });
 
       if (heroMode) {
         // A capa não some: cresce até a posição da capa grande da página e então se dissolve nela
@@ -186,8 +196,8 @@ export default function ZoomTransitionLayer({
     };
 
     const onClose = (e: Event) => {
-      const { key } = (e as CustomEvent<ZoomCloseDetail>).detail || ({} as ZoomCloseDetail);
-      const from = getScreenRect();
+      const { key, fromRect, fromRadius } = (e as CustomEvent<ZoomCloseDetail>).detail || ({} as ZoomCloseDetail);
+      const from = fromRect || getScreenRect();
       const entry = key ? returnMap.get(key) : undefined;
       if (!key || !from || !entry) {
         onCloseMidwayRef.current?.();
@@ -202,10 +212,10 @@ export default function ZoomTransitionLayer({
       const heroRect = heroEl ? heroEl.getBoundingClientRect() : null;
       const heroMode = Boolean(heroRect && heroRect.bottom > 0 && entry.image);
       setRect(heroMode && heroRect ? { left: heroRect.left, top: heroRect.top, width: heroRect.width, height: heroRect.height } : from);
-      radius.set(0);
+      radius.set(heroMode ? 0 : (fromRadius || 0));
       imageOpacity.set(heroMode ? 1 : 0);
       layerOpacity.set(1);
-      setPhase({ id: runId, image: entry.image, hero: heroMode });
+      setPhase({ id: runId, image: entry.image, fill: entry.fill, hero: heroMode });
 
       // Progresso do recolhimento (pela largura) para trocar a cor do menu lateral aos 50%
       let midwayFired = false;
@@ -337,6 +347,9 @@ export default function ZoomTransitionLayer({
         willChange: 'left, top, width, height, border-radius, opacity',
       }}
     >
+      {!phase.image && phase.fill && (
+        <motion.div className="absolute inset-0" style={{ backgroundImage: phase.fill, opacity: imageOpacity }} />
+      )}
       {phase.image && (
         <>
           {/* Fundo desfocado da capa, como o ambiente da página */}

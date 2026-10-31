@@ -732,14 +732,16 @@ export interface ZoomOriginDetail {
   radius: number;
   // Identifica o card (data-zoom-key) para a animação inversa ao voltar
   key?: string;
+  // Sem imagem: fundo do card (ex.: o degradê de uma coleção), que se dissolve na página
+  fill?: string;
 }
 
-export function emitZoomOrigin(el: Element | null | undefined, image?: string, radius = 24, key?: string) {
+export function emitZoomOrigin(el: Element | null | undefined, image?: string, radius = 24, key?: string, fill?: string) {
   if (!el || typeof window === 'undefined') return;
   const r = el.getBoundingClientRect();
   if (r.width <= 0 || r.height <= 0) return;
   window.dispatchEvent(new CustomEvent<ZoomOriginDetail>('zoom-origin', {
-    detail: { rect: { left: r.left, top: r.top, width: r.width, height: r.height }, image, radius, key },
+    detail: { rect: { left: r.left, top: r.top, width: r.width, height: r.height }, image, radius, key, fill },
   }));
 }
 

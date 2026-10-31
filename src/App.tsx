@@ -39,7 +39,7 @@ import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInFiel
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
 import { installTouchMenus } from './components/touchMenu';
 import { installScrollFades } from './components/scrollFade';
-import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo } from './components/ZoomTransitionLayer';
+import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo, getZoomReturnRect } from './components/ZoomTransitionLayer';
 const loadImageCropperSquare = () => import('./ImageCropperSquare');
 const loadHelpCenterView = () => import('./views/HelpCenterView');
 const loadSettingsView = () => import('./views/SettingsView');
@@ -2399,6 +2399,20 @@ export default function App() {
     return () => window.removeEventListener('open-app-info', onOpenAppInfo);
   }, []);
 
+  // Card (capa, foto ou coleção) de onde a tela atual foi aberta, se ele está na tela anterior
+  const getZoomBackKey = (): string | null => {
+    if (historyStack.length === 0) return null;
+    const prev = historyStack[historyStack.length - 1];
+    const key = activeScreen.id === 'book-detail'
+      ? `book-${(activeScreen.data || selectedBook)?.id}`
+      : activeScreen.id === 'author-detail' ? `author-${activeScreen.data?.id}`
+      : activeScreen.id.startsWith('library-colecao-') ? `collection-${activeScreen.id.replace('library-colecao-', '')}`
+      : null;
+    return key && canZoomCloseTo(key, getScreenKey(prev)) ? key : null;
+  };
+  const getZoomBackKeyRef = useRef(getZoomBackKey);
+  getZoomBackKeyRef.current = getZoomBackKey;
+
   const goBack = () => {
     captureExitScroll(mainScrollRef.current);
     setIsEditingBook(false);
@@ -2419,13 +2433,17 @@ export default function App() {
       const prev = historyStack[historyStack.length - 1];
       setNavDirection('pop');
       // Volta para dentro do ícone só se o card estava na tela de destino; senão, transição padrão
-      const leavingId = activeScreen.id === 'book-detail'
-        ? (activeScreen.data || selectedBook)?.id
-        : activeScreen.id === 'author-detail' ? activeScreen.data?.id : undefined;
-      if (leavingId) {
-        const zoomKey = `${activeScreen.id === 'book-detail' ? 'book' : 'author'}-${leavingId}`;
-        if (canZoomCloseTo(zoomKey, getScreenKey(prev))) {
-          setSidebarHighlightHold({ value: sidebarHighlight });
+      const zoomKey = getZoomBackKey();
+      if (zoomKey) {
+        setSidebarHighlightHold({ value: sidebarHighlight });
+        const swipe = zoomSwipeRef.current;
+        if (swipe && Date.now() - swipe.at < 1500) {
+          // Gesto da borda: a página já encolheu pelo dedo; a camada continua dali até o card e a tela
+          // anterior aparece na hora por baixo
+          zoomSwipeRef.current = null;
+          setNavDirection('instant');
+          requestZoomClose(zoomKey, swipe.from);
+        } else {
           setNavDirection('tab');
           requestZoomClose(zoomKey);
         }
@@ -3543,8 +3561,13 @@ export default function App() {
         : (getCustomCoverColor(effectivePic) || getGenericAuthorColor(effectivePic, targetAuthor.name));
       return getBookHighlightTheme(rawHex, resolvedTheme === 'dark');
     }
+    if (activeScreen.id.startsWith('library-colecao-')) {
+      const colId = activeScreen.id.replace('library-colecao-', '');
+      const col = collections.find(c => c.id === colId) || (activeScreen.data as Collection | undefined);
+      return col?.color ? getBookHighlightTheme(col.color, resolvedTheme === 'dark') : null;
+    }
     return null;
-  }, [activeScreen.id, activeScreen.data, selectedBook, books, authors, isEditingBook, editBookCover, editCoverColor, isEditingAuthor, editAuthorPicture, editAuthorColor, getCustomCoverColor, resolvedTheme]);
+  }, [activeScreen.id, activeScreen.data, selectedBook, books, authors, collections, isEditingBook, editBookCover, editCoverColor, isEditingAuthor, editAuthorPicture, editAuthorColor, getCustomCoverColor, resolvedTheme]);
 
   const headerTintColor = useMemo(() => {
     if (!sidebarHighlight) return '';
@@ -10234,6 +10257,8 @@ export default function App() {
   // No Safari, arrastar da borda também faz o navegador voltar sozinho: sem isso, a tela voltava duas
   // vezes (indo parar no menu principal) e as duas animações se sobrepunham.
   const edgeSwipeRef = useRef({ pendingBack: false, backAt: 0, edgeTouchAt: 0 });
+  // Gesto da borda numa tela aberta de um card: onde a página encolhida estava ao soltar
+  const zoomSwipeRef = useRef<{ at: number; from: { rect: { left: number; top: number; width: number; height: number }; radius: number } } | null>(null);
   useEffect(() => {
     const onPop = () => {
       if (ignorePopRef.current > 0) {
@@ -10275,6 +10300,10 @@ export default function App() {
     pendingSwipeResetRef.current = null;
     el.style.transition = '';
     el.style.transform = '';
+    el.style.borderRadius = '';
+    el.style.transformOrigin = '';
+    el.style.overflow = '';
+    el.style.opacity = '';
   }, [activeScreen]);
   const navDepthRef = useRef(navDepth);
   navDepthRef.current = navDepth;
@@ -10283,6 +10312,8 @@ export default function App() {
     let start: { x: number; y: number; t: number } | null = null;
     let active = false;
     let target: HTMLElement | null = null;
+    // Tela aberta de um card (audiobook, autor, coleção): encolhe na direção dele em vez de deslizar
+    let zoomKey: string | null = null;
     const EDGE = 24;
     const isRtl = () => document.documentElement.dir === 'rtl';
     const reset = (animateBack: boolean) => {
@@ -10291,9 +10322,9 @@ export default function App() {
         target.style.transform = '';
         target.style.borderRadius = '';
         const el = target;
-        setTimeout(() => { el.style.transition = ''; }, 300);
+        setTimeout(() => { el.style.transition = ''; el.style.transformOrigin = ''; el.style.overflow = ''; }, 300);
       }
-      start = null; active = false; target = null;
+      start = null; active = false; target = null; zoomKey = null;
     };
     const onStart = (e: TouchEvent) => {
       if (navDepthRef.current === 0 || e.touches.length !== 1) return;
@@ -10314,9 +10345,28 @@ export default function App() {
         if (dx < 10) return;
         active = true;
         target = (document.querySelector('[data-fullscreen-player="true"]') as HTMLElement) || mainScrollRef.current;
+        zoomKey = target === mainScrollRef.current ? getZoomBackKeyRef.current() : null;
+        const card = zoomKey ? getZoomReturnRect(zoomKey) : null;
+        if (target && zoomKey && card) {
+          // A página encolhe em direção ao card de onde foi aberta
+          const box = target.getBoundingClientRect();
+          const ox = Math.min(box.width, Math.max(0, card.left + card.width / 2 - box.left));
+          const oy = Math.min(box.height, Math.max(0, card.top + card.height / 2 - box.top));
+          target.style.transformOrigin = `${ox}px ${oy}px`;
+          target.style.overflow = 'hidden';
+        } else {
+          zoomKey = null;
+        }
       }
       if (e.cancelable) e.preventDefault();
       if (!target) return;
+      if (zoomKey) {
+        // Como o player ao minimizar: encolhe e arredonda as bordas acompanhando o dedo
+        const progress = Math.min(1, Math.max(0, dx) / window.innerWidth);
+        target.style.transform = `scale(${1 - progress * 0.45})`;
+        target.style.borderRadius = `${Math.round(progress * 64)}px`;
+        return;
+      }
       if (target !== mainScrollRef.current) {
         // Player em tela cheia: não desliza como uma página; encolhe um pouco em direção ao miniplayer
         const progress = Math.min(1, Math.max(0, dx) / window.innerWidth);
@@ -10337,7 +10387,26 @@ export default function App() {
         const el = target;
         start = null; active = false; target = null;
         const isScreen = el === mainScrollRef.current;
-        if (isScreen && el) {
+        const releasedZoomKey = zoomKey;
+        zoomKey = null;
+        if (isScreen && el && releasedZoomKey) {
+          // Recolhe para dentro do card: a camada parte de onde a página encolhida está
+          const r = el.getBoundingClientRect();
+          zoomSwipeRef.current = {
+            at: Date.now(),
+            from: { rect: { left: r.left, top: r.top, width: r.width, height: r.height }, radius: parseFloat(el.style.borderRadius) || 0 },
+          };
+          el.style.transition = '';
+          el.style.opacity = '0';
+          pendingSwipeResetRef.current = el;
+          if (IS_APPLE_TOUCH) {
+            systemBackRef.current();
+          } else {
+            edgeSwipeRef.current.pendingBack = true;
+            edgeSwipeRef.current.backAt = Date.now();
+            window.history.back();
+          }
+        } else if (isScreen && el) {
           // A tela atual continua saindo a partir da posição do dedo (pela animação da troca de telas)
           setSwipeRelease(Math.max(0, dx * 0.85), el.clientWidth);
           setNavDirection('popSwipe');
@@ -12186,6 +12255,23 @@ export default function App() {
                 </motion.div>
               );
             })()}
+            {activeScreen.id.startsWith('library-colecao-') && (() => {
+              const colId = activeScreen.id.replace('library-colecao-', '');
+              const col = collections.find(c => c.id === colId) || (activeScreen.data as Collection | undefined);
+              if (!col) return null;
+              return (
+                <motion.div
+                  key={`collection-bg-${col.id}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${col.gradient} opacity-[0.16] dark:opacity-[0.28] dark:mix-blend-screen`} />
+                </motion.div>
+              );
+            })()}
           </AnimatePresence>
 
           {/* Viewport de Conteúdo com Scroll */}
@@ -12696,10 +12782,7 @@ export default function App() {
                             key={col.id}
                             col={col}
                             menu={collectionMenu(col)}
-                            onClick={() => {
-                              setHistoryStack([{ id: 'library' }, { id: 'library-colecoes' }]);
-                              setActiveScreen({ id: 'library-colecao-' + col.id, data: col });
-                            }}
+                            onClick={() => navigateTo('library-colecao-' + col.id, col)}
                           />
                         ))}
                       </AnimatePresence>
@@ -13100,8 +13183,43 @@ export default function App() {
                 </>
               ) : (
                 <>
+                  {/* Coleção: o próprio card (degradê, ícone, nome e descrição) é o título da tela. No celular
+                      fica de ponta a ponta no topo, como a foto dos autores, mas sem desfoque */}
+                  {activeScreen.id.startsWith('library-colecao-') && (() => {
+                    const colId = activeScreen.id.replace('library-colecao-', '');
+                    const c = collections.find(item => item.id === colId) || (activeScreen.data as Collection);
+                    if (!c) return null;
+                    const desc = c.description?.trim();
+                    const fade = 'linear-gradient(to bottom, black 0%, black calc(100% - 120px), rgba(0,0,0,0.82) calc(100% - 96px), rgba(0,0,0,0.5) calc(100% - 64px), rgba(0,0,0,0.18) calc(100% - 32px), transparent 100%)';
+                    return (
+                      <>
+                        <div className="md:hidden land:hidden relative mobile-bleed -mt-[calc(var(--app-header-top)+76px)] mb-6">
+                          <div data-zoom-hero-collection="true" className="relative w-full" style={{ height: 'min(92vw, 50dvh)' }}>
+                            {/* O degradê continua 120px abaixo do bloco, dissolvendo na tela */}
+                            <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 120px)', WebkitMaskImage: fade, maskImage: fade }}>
+                              <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient}`} />
+                              <div className="absolute inset-0 bg-black/20" />
+                              <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/35 to-transparent" />
+                            </div>
+                            <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 text-[150px] leading-none opacity-40 select-none pointer-events-none">{c.emoji}</span>
+                            <div className="absolute inset-x-0 bottom-0 px-5 pb-6 flex flex-col items-start text-left rtl:items-end rtl:text-right text-white">
+                              <h2 data-screen-title="true" className="text-[30px] font-bold leading-tight tracking-tight line-clamp-2 drop-shadow-md">{c.name}</h2>
+                              {desc && <p className="text-[14px] font-medium text-white/85 mt-1 line-clamp-2 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{desc}</p>}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="max-md:hidden land:flex relative isolate overflow-hidden rounded-[32px] border border-white/15 shadow-xl mb-8 min-h-[220px] p-8 flex flex-col justify-end">
+                          <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${c.gradient}`} />
+                          <div className="absolute inset-0 -z-10 bg-black/20" />
+                          <span aria-hidden="true" className="absolute -bottom-6 right-4 rtl:right-auto rtl:left-4 text-[170px] leading-none opacity-40 select-none pointer-events-none">{c.emoji}</span>
+                          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight drop-shadow-md">{c.name}</h1>
+                          {desc && <p className="text-sm md:text-base font-medium text-white/85 mt-2 max-w-2xl">{desc}</p>}
+                        </div>
+                      </>
+                    );
+                  })()}
                   {/* Título grande fora do cabeçalho, no mesmo padrão dos menus principais */}
-                  <h1 className="text-4xl md:text-5xl font-semibold text-[var(--text-main)] mb-8 tracking-tight">
+                  <h1 className={`text-4xl md:text-5xl font-semibold text-[var(--text-main)] mb-8 tracking-tight ${activeScreen.id.startsWith('library-colecao-') ? 'hidden' : ''}`}>
                     {(() => {
                       if (activeScreen.id === 'home-continuar-ouvindo') return t('section_continue_listening');
                       if (activeScreen.id === 'home-ouvidos-recentemente') return t('section_recently_listened');
@@ -13158,15 +13276,6 @@ export default function App() {
                     })()}
                   </h1>
 
-                  {/* Subtítulo da coleção: só a descrição */}
-                  {activeScreen.id.startsWith('library-colecao-') && (() => {
-                    const colId = activeScreen.id.replace('library-colecao-', '');
-                    const c = collections.find(item => item.id === colId) || (activeScreen.data as Collection);
-                    if (!c?.description?.trim()) return null;
-                    return (
-                      <p className="text-sm font-medium text-[var(--text-muted)] -mt-6 mb-8">{c.description.trim()}</p>
-                    );
-                  })()}
 
                   {/* Active Filter Indicator Chip */}
                   {statusFilter !== 'all' && activeScreen.id !== 'library-autores' && activeScreen.id !== 'library-autores-favoritos' && (
