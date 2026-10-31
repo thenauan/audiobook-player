@@ -121,7 +121,7 @@ export default function MiniPlayer({
       <motion.div
         layoutId="player-shell"
         aria-hidden="true"
-        transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }}
+        transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
         className="absolute inset-0 -z-10 pointer-events-none backdrop-blur-3xl border shadow-2xl"
         style={{ ...miniplayerAmbientStyle, borderRadius: 28 }}
       />
@@ -130,7 +130,7 @@ export default function MiniPlayer({
       <div className="shrink-0 flex items-center gap-1.5">
         <motion.button
                     layoutId="player-prev"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
           whileTap={{ scale: 0.92 }} 
           onClick={() => {
@@ -150,7 +150,7 @@ export default function MiniPlayer({
 
         <motion.button
                     layoutId="player-seek-back"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
           whileTap={{ scale: 0.92 }} 
           onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
@@ -163,7 +163,7 @@ export default function MiniPlayer({
 
         <motion.button
                     layoutId="player-play"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
           whileTap={{ scale: 0.92 }} 
           onClick={() => setIsPlaying(!isPlaying)}
@@ -175,7 +175,7 @@ export default function MiniPlayer({
 
         <motion.button
                     layoutId="player-seek-fwd"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
           whileTap={{ scale: 0.92 }} 
           onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
@@ -188,7 +188,7 @@ export default function MiniPlayer({
 
         <motion.button
                     layoutId="player-next"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
           whileTap={{ scale: 0.92 }} 
           onClick={() => {
@@ -217,7 +217,7 @@ export default function MiniPlayer({
         {/* Capa do Audiobook */}
         <motion.img 
           layoutId="player-cover"
-          transition={{ type: "spring", stiffness: 460, damping: 44, mass: 0.6 }}
+          transition={{ type: "spring", stiffness: 680, damping: 52, mass: 0.5 }}
           style={{ borderRadius: 8 }}
           src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)} 
           onError={(e) => handleBookCoverError(currentBook, e)}
@@ -245,7 +245,7 @@ export default function MiniPlayer({
             <motion.h4
               layoutId="player-chapter-title"
               layout="position"
-              transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }}
+              transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
               className="text-xs font-bold text-[var(--text-main)] truncate cursor-pointer hover:text-winblue transition-colors" 
               title={`${t('view_chapter_in_book')} (${currentChapter.title})`}
               onClick={(e) => {
@@ -262,7 +262,7 @@ export default function MiniPlayer({
           </div>
 
           {/* Linha 2: Título do livro e nome do autor abaixo do capítulo */}
-          <motion.div layoutId="player-book-line" layout="position" transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] truncate min-w-0 w-full mt-0.5">
+          <motion.div layoutId="player-book-line" layout="position" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] truncate min-w-0 w-full mt-0.5">
             <span 
               className="truncate hover:text-winblue cursor-pointer transition-colors font-medium"
               title={currentBook.title}
@@ -290,7 +290,7 @@ export default function MiniPlayer({
           </motion.div>
 
           {/* Linha 3: Faixa de progressão com minutos corridos alinhados com o título */}
-          <motion.div layoutId="player-progress" transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} className="w-full flex items-center gap-2 group mt-1">
+          <motion.div layoutId="player-progress" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="w-full flex items-center gap-2 group mt-1">
             <span className="text-[8px] text-[var(--text-muted)] shrink-0 whitespace-nowrap text-left">{formatTime(chapterElapsed)}</span>
             <div className="relative flex-1 flex items-center h-3.5">
               <input 
@@ -336,7 +336,7 @@ export default function MiniPlayer({
 // ===== Mobile: miniplayer simplificado (estilo Apple Music / Audible no iOS) =====
 // Capa, capítulo, "Audiobook • Autor" e play/pause. Fica acima da barra de abas e, quando a barra
 // se recolhe, desliza para o espaço entre os dois botões redondos. Tocar abre o player em tela cheia.
-const MORPH_LAYOUT = { layout: { type: 'spring' as const, stiffness: 460, damping: 44, mass: 0.6 } };
+const MORPH_LAYOUT = { layout: { type: 'spring' as const, stiffness: 680, damping: 52, mass: 0.5 } };
 
 export interface MobileMiniPlayerProps {
   currentBook: Audiobook;
@@ -447,7 +447,7 @@ export function MobileMiniPlayer({
       >
         <motion.img
           layoutId="player-cover"
-          transition={{ type: "spring", stiffness: 460, damping: 44, mass: 0.6 }}
+          transition={{ type: "spring", stiffness: 680, damping: 52, mass: 0.5 }}
           style={{ borderRadius: 8 }}
           src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)}
           onError={(e) => handleBookCoverError(currentBook, e)}

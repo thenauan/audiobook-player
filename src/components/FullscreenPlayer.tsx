@@ -268,8 +268,8 @@ export default function FullscreenPlayer({
       onPointerDownCapture={onPlayerPointerDownCapture}
       initial={{ clipPath: miniClip, opacity: 1 }}
       animate={{ clipPath: FULLSCREEN_CLIP, opacity: 1 }}
-      exit={{ clipPath: miniClip, opacity: 0, transition: { clipPath: { type: "spring", stiffness: 520, damping: 46, mass: 0.6 }, opacity: { duration: 0.14, delay: 0.14 } } }}
-      transition={{ clipPath: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 }, opacity: { duration: 0.12, ease: "easeOut" } }}
+      exit={{ clipPath: miniClip, opacity: 0, transition: { clipPath: { type: "spring", stiffness: 720, damping: 54, mass: 0.5 }, opacity: { duration: 0.1, delay: 0.08 } } }}
+      transition={{ clipPath: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 }, opacity: { duration: 0.12, ease: "easeOut" } }}
       style={{ willChange: 'clip-path, opacity' }}
       onAnimationComplete={() => setIsIntroDone(true)}
       className="fixed inset-x-0 top-0 h-[var(--screen-h)] z-[200] px-4 sm:px-8 md:px-10 pt-[max(24px,calc(var(--safe-top)+8px))] pb-[max(24px,env(safe-area-inset-bottom))] max-md:pt-[var(--app-header-top)] max-md:pb-[max(16px,env(safe-area-inset-bottom))] fs-safe flex flex-col justify-between overflow-hidden text-[var(--text-main)] transform-gpu"
@@ -277,7 +277,7 @@ export default function FullscreenPlayer({
       {/* Fundo Animado com Blur dinâmico se movendo e mudando de cores (tons da capa + luz e escuridão no escuro / fusão com branco no claro) */}
       <motion.div
         layoutId="player-shell"
-        transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }}
+        transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
         style={{ borderRadius: 0 }}
         className="absolute inset-0 z-0 pointer-events-none overflow-hidden transform-gpu bg-white dark:bg-[#03060c]"
       >
@@ -475,7 +475,7 @@ export default function FullscreenPlayer({
             <div className="fs-cover-box md:contents">
               <motion.img 
               layoutId="player-cover"
-              transition={{ type: "spring", stiffness: 460, damping: 44, mass: 0.6 }}
+              transition={{ type: "spring", stiffness: 680, damping: 52, mass: 0.5 }}
               style={{ borderRadius: 24 }}
               src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)} 
               onError={(e) => handleBookCoverError(currentBook, e)}
@@ -504,7 +504,7 @@ export default function FullscreenPlayer({
                 <motion.h2
                   layoutId="player-chapter-title"
                   layout="position"
-                  transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }}
+                  transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
                   className="fs-title text-lg sm:text-xl font-bold text-black dark:text-white hover:text-winblue transition-colors cursor-pointer text-center max-w-full truncate px-4 mb-1 dark:drop-shadow-md"
                   title={`${t('view_chapter_in_book')} (${currentChapter.title})`}
                   onClick={(e) => {
@@ -520,7 +520,7 @@ export default function FullscreenPlayer({
                   {currentChapter.title}
                 </motion.h2>
 
-                <motion.div layoutId="player-book-line" layout="position" transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} className="fs-bookline flex items-center justify-center gap-1.5 text-xs sm:text-sm text-slate-800 dark:text-[var(--text-muted)] max-w-full px-4 truncate font-medium">
+                <motion.div layoutId="player-book-line" layout="position" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="fs-bookline flex items-center justify-center gap-1.5 text-xs sm:text-sm text-slate-800 dark:text-[var(--text-muted)] max-w-full px-4 truncate font-medium">
                   <span 
                     className="truncate text-slate-800 dark:text-[var(--text-muted)] hover:text-winblue cursor-pointer transition-colors font-semibold dark:drop-shadow-sm"
                     title={currentBook.title}
@@ -555,7 +555,7 @@ export default function FullscreenPlayer({
               {/* Controles Principais */}
               <div className="w-full shrink-0 max-w-sm sm:max-w-md">
                 {/* Barra de Progresso com grupo para hover da bolinha */}
-                <motion.div layoutId="player-progress" transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} className="w-full flex items-center gap-2.5 group mb-3.5">
+                <motion.div layoutId="player-progress" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="w-full flex items-center gap-2.5 group mb-3.5">
                   <span className="text-[10px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 text-right shrink-0">{formatTime(chapterElapsed)}</span>
                   <div className="relative flex-1 flex items-center h-5 [@media(pointer:coarse)]:h-7">
                     <input 
@@ -625,7 +625,7 @@ export default function FullscreenPlayer({
                   {/* Capítulo anterior */}
                   <motion.button
                     layoutId="player-prev"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.12 }} 
                     whileTap={{ scale: 0.92 }} 
                     onClick={() => {
@@ -646,7 +646,7 @@ export default function FullscreenPlayer({
                   {/* Voltar */}
                   <motion.button
                     layoutId="player-seek-back"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.12 }} 
                     whileTap={{ scale: 0.92 }} 
                     onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
@@ -660,7 +660,7 @@ export default function FullscreenPlayer({
                   {/* Play/Pause MAIOR que os demais (destaque visual como no miniplayer) */}
                   <motion.button
                     layoutId="player-play"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.08 }} 
                     whileTap={{ scale: 0.94 }} 
                     onClick={() => setIsPlaying(!isPlaying)}
@@ -677,7 +677,7 @@ export default function FullscreenPlayer({
                   {/* Avançar */}
                   <motion.button
                     layoutId="player-seek-fwd"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.12 }} 
                     whileTap={{ scale: 0.92 }} 
                     onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
@@ -691,7 +691,7 @@ export default function FullscreenPlayer({
                   {/* Próximo capítulo */}
                   <motion.button
                     layoutId="player-next"
-                    transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }} 
+                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.12 }} 
                     whileTap={{ scale: 0.92 }} 
                     onClick={() => {
@@ -876,22 +876,24 @@ export default function FullscreenPlayer({
               <div className="apple-blur-layer" />
               <div className="apple-blur-tint" />
             </div>
-            {/* Rodapé: o mesmo desfoque do rodapé dos ajustes iniciais, atrás da barra do audiobook */}
+            {/* Rodapé: o mesmo desfoque do cabeçalho, espelhado — cobre a barra do audiobook e esmaece logo acima */}
             <div
               aria-hidden="true"
-              className="pointer-events-none fixed inset-x-0 bottom-0 z-[4]"
+              className="apple-header-blur apple-footer-blur pointer-events-none"
               style={{
-                height: 'calc(62px + var(--mobile-bar-bottom) + 48px)',
-                background: fullscreenAmbientColors.isDark
-                  ? 'linear-gradient(to top, rgba(4,7,15,0.6), rgba(4,7,15,0.35) 55%, rgba(4,7,15,0))'
-                  : 'linear-gradient(to top, rgba(255,255,255,0.6), rgba(255,255,255,0.35) 55%, rgba(255,255,255,0))',
-                WebkitBackdropFilter: 'blur(18px) saturate(150%)',
-                backdropFilter: 'blur(18px) saturate(150%)',
-                WebkitMaskImage: 'linear-gradient(to top, #000 0%, #000 50%, transparent 100%)',
-                maskImage: 'linear-gradient(to top, #000 0%, #000 50%, transparent 100%)',
-                transform: 'translateZ(0)',
+                zIndex: 4,
+                ['--header-blur' as any]: 1,
+                ['--header-tint' as any]: fullscreenAmbientColors.isDark ? '#04070f' : '#ffffff',
               }}
-            />
+            >
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-tint" />
+            </div>
           </>
         )}
 
@@ -919,7 +921,7 @@ export default function FullscreenPlayer({
           >
             <motion.img
               layoutId="player-cover"
-              transition={{ type: "spring", stiffness: 460, damping: 44, mass: 0.6 }}
+              transition={{ type: "spring", stiffness: 680, damping: 52, mass: 0.5 }}
               style={{ borderRadius: 8 }}
               src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)}
               onError={(e) => handleBookCoverError(currentBook, e)}
@@ -930,7 +932,7 @@ export default function FullscreenPlayer({
               <motion.p
                 layoutId="player-chapter-title"
                 layout="position"
-                transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }}
+                transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
                 className="text-sm font-bold text-[var(--text-main)] truncate"
               >
                 {currentChapter.title}
@@ -938,7 +940,7 @@ export default function FullscreenPlayer({
               <motion.p
                 layoutId="player-book-line"
                 layout="position"
-                transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }}
+                transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
                 className="text-xs text-[var(--text-muted)] truncate mt-0.5"
               >
                 {currentBook.title} • {currentBook.author}
@@ -962,7 +964,7 @@ export default function FullscreenPlayer({
             </motion.button>
             <motion.button
               layoutId="player-play"
-              transition={{ layout: { type: "spring", stiffness: 460, damping: 44, mass: 0.6 } }}
+              transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
               whileTap={{ scale: 0.9 }}
               onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }}
               aria-label={isPlaying ? t('pause') : t('listen')}

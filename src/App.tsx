@@ -3915,6 +3915,8 @@ export default function App() {
   // ===== Compartilhar (imagem no formato de story) =====
   const shareBlobRef = useRef<Blob | null>(null);
   const [lyricsSelection, setLyricsSelection] = useState<number[]>([]);
+  // Busca dentro do texto ao compartilhar um trecho
+  const [lyricsSearch, setLyricsSearch] = useState('');
   const [isGeneratingShare, setIsGeneratingShare] = useState(false);
   const [sharePreview, setSharePreview] = useState<{ url: string; fileName: string; title: string } | null>(null);
   const closeSharePreview = () => setSharePreview(prev => { if (prev) URL.revokeObjectURL(prev.url); return null; });
@@ -3964,6 +3966,7 @@ export default function App() {
   };
   const openShareLyrics = (book: Audiobook, preselect: number[] = []) => {
     setLyricsSelection(preselect.slice(0, MAX_SHARE_LINES));
+    setLyricsSearch('');
     openMobileSheet({ kind: 'share-lyrics', bookId: book.id });
   };
 
@@ -4103,8 +4106,31 @@ export default function App() {
         body: (
           <div className="flex flex-col gap-3 pt-1">
             <p className="text-[13px] text-[var(--text-muted)] text-center px-2">{t('share_lines_hint', { count: MAX_SHARE_LINES })}</p>
+            {/* Buscar um trecho no texto (as linhas marcadas continuam marcadas ao filtrar) */}
+            <div className="h-11 rounded-full bg-[var(--button-secondary-bg)]/60 border border-[var(--text-main)]/10 flex items-center gap-2 px-3.5">
+              <Search size={15} className="text-[var(--text-muted)] shrink-0" />
+              <input
+                type="search"
+                value={lyricsSearch}
+                onChange={(e) => setLyricsSearch(e.target.value)}
+                placeholder={t('share_search_placeholder')}
+                enterKeyHint="search"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+                style={{ WebkitUserSelect: 'text', userSelect: 'text' }}
+                className="flex-1 min-w-0 bg-transparent outline-none text-[16px] text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
+              />
+              {lyricsSearch && (
+                <button type="button" onClick={() => setLyricsSearch('')} aria-label={t('clear_search')} className="w-7 h-7 -mr-1.5 rounded-full flex items-center justify-center text-[var(--text-muted)]">
+                  <X size={15} />
+                </button>
+              )}
+            </div>
             <div className={SCREEN_GROUP_CLASS}>
               {transcript.map((line, idx) => {
+                const query = normalizeSearchStr(lyricsSearch.trim());
+                if (query && !normalizeSearchStr(transcriptLineText(line)).includes(query)) return null;
                 const selected = lyricsSelection.includes(idx);
                 return (
                   <button
@@ -9056,7 +9082,10 @@ export default function App() {
 
   type SearchItem = {
     id: string;
-    type: 'book' | 'author';
+    type: 'book' | 'author' | 'chapter' | 'bookmark' | 'collection';
+    chapter?: Chapter;
+    bookmark?: { id: string; text: string; timestamp?: number };
+    collection?: Collection;
     tier: number;
     fieldPriority: number;
     subScore: number;
@@ -9282,6 +9311,61 @@ export default function App() {
       }
     });
 
+    // 3. Capítulos (pelo título), marcações do usuário (pelo texto) e coleções (pelo nome)
+    books.forEach(book => {
+      (book.chapters || []).forEach(chapter => {
+        const chapterMatch = evaluateGroups([{ priority: 1, terms: [chapter.title], allowFuzzy: false }]);
+        if (chapterMatch) {
+          results.push({
+            id: `chapter-${book.id}-${chapter.id}`,
+            type: 'chapter',
+            tier: chapterMatch.tier,
+            fieldPriority: chapterMatch.fieldPriority,
+            subScore: chapterMatch.subScore,
+            score: chapterMatch.tier * 100 + chapterMatch.fieldPriority * 10 + chapterMatch.subScore,
+            title: chapter.title,
+            book,
+            chapter,
+          });
+        }
+        const marks = ((chapter as any).bookmarks || (chapter as any).comments || []) as { id: string; text: string; timestamp?: number }[];
+        marks.forEach(mark => {
+          const markMatch = evaluateGroups([{ priority: 1, terms: [mark.text], allowFuzzy: false }]);
+          if (!markMatch) return;
+          results.push({
+            id: `bookmark-${book.id}-${chapter.id}-${mark.id}`,
+            type: 'bookmark',
+            tier: markMatch.tier,
+            fieldPriority: markMatch.fieldPriority,
+            subScore: markMatch.subScore,
+            score: markMatch.tier * 100 + markMatch.fieldPriority * 10 + markMatch.subScore,
+            title: mark.text,
+            book,
+            chapter,
+            bookmark: mark,
+          });
+        });
+      });
+    });
+    collections.forEach(collection => {
+      const colMatch = evaluateGroups([
+        { priority: 1, terms: [collection.name] },
+        { priority: 2, terms: [(collection as any).description], allowFuzzy: false },
+      ]);
+      if (colMatch) {
+        results.push({
+          id: `collection-${collection.id}`,
+          type: 'collection',
+          tier: colMatch.tier,
+          fieldPriority: colMatch.fieldPriority,
+          subScore: colMatch.subScore,
+          score: colMatch.tier * 100 + colMatch.fieldPriority * 10 + colMatch.subScore,
+          title: collection.name,
+          collection,
+        });
+      }
+    });
+
     // Ordem de prioridade:
     // 1. Posição da correspondência: começam pelas letras (1) -> meio das palavras (2) -> final das palavras (3) -> algo semelhante (4)
     // 2. Tipo: Audiobooks (1) sempre priorizados sobre Autores (2)
@@ -9290,6 +9374,9 @@ export default function App() {
     const typePriority: Record<string, number> = {
       book: 1,
       author: 2,
+      collection: 3,
+      chapter: 4,
+      bookmark: 5,
     };
 
     results.sort((a, b) => {
@@ -9303,7 +9390,7 @@ export default function App() {
     });
 
     return results;
-  }, [searchQuery, books, authors, resolvedLanguage, availableLanguages]);
+  }, [searchQuery, books, authors, collections, resolvedLanguage, availableLanguages]);
 
   const handleSelectSearchItem = (item: SearchItem) => {
     addToSearchHistory(searchQuery);
@@ -9311,6 +9398,15 @@ export default function App() {
       navigateTo('book-detail', item.book);
     } else if (item.type === 'author' && item.author) {
       navigateTo('author-detail', item.author);
+    } else if ((item.type === 'chapter' || item.type === 'bookmark') && item.book && item.chapter) {
+      // Capítulo ou marcação: abre a página do audiobook já no capítulo
+      pendingChapterScrollRef.current = true;
+      targetScrollChapterIdRef.current = `${item.book.id}-${item.chapter.id}`;
+      setSelectedBook(item.book);
+      setShouldScrollToCurrentChapter(Date.now());
+      navigateTo('book-detail', item.book);
+    } else if (item.type === 'collection' && item.collection) {
+      navigateTo(`library-colecao-${item.collection.id}`, item.collection);
     }
     setSearchQuery('');
     setActiveSearchMenuId(null);
@@ -9671,6 +9767,45 @@ export default function App() {
               document.body
             )}
           </div>
+          </motion.div>
+        );
+      }
+
+      // C. CAPÍTULO, MARCAÇÃO E COLEÇÃO
+      if (item.type === 'chapter' || item.type === 'bookmark' || item.type === 'collection') {
+        const kindLabel = item.type === 'chapter' ? t('search_kind_chapter') : item.type === 'bookmark' ? t('search_kind_bookmark') : t('search_kind_collection');
+        const subtitle = item.type === 'collection'
+          ? kindLabel
+          : `${kindLabel} • ${item.type === 'bookmark' ? `${item.chapter?.title || ''} • ` : ''}${item.book?.title || ''}`;
+        const cover = item.book ? (item.book.cover || getGenericBookCover(item.book.title, item.book.author)) : '';
+        return (
+          <motion.div
+            key={item.id}
+            id={`search-result-item-${index}`}
+            onMouseEnter={() => setSearchSelectedIndex(index)}
+            onClick={() => handleSelectSearchItem(item)}
+            className={`group/searchitem relative flex items-center gap-3.5 py-2.5 pl-2.5 pr-[18px] rtl:pl-[18px] rtl:pr-2.5 rounded-3xl cursor-pointer transition-all border ${
+              isSelected ? 'bg-[var(--button-secondary-bg)]/50 border-transparent shadow-sm' : 'border-transparent hover:bg-[var(--button-secondary-bg)]/50'
+            }`}
+          >
+            <div className="relative w-12 h-12 shrink-0 rounded-[14px] overflow-hidden shadow-sm bg-winblue/15 text-winblue flex items-center justify-center">
+              {item.type === 'collection' ? (
+                <FolderOpen size={20} />
+              ) : (
+                <>
+                  <img src={cover} alt="" draggable={false} className="w-full h-full object-cover" />
+                  <span className="absolute right-0.5 bottom-0.5 w-5 h-5 rounded-full bg-card/90 border border-[var(--text-main)]/10 flex items-center justify-center text-[var(--text-main)]">
+                    {item.type === 'bookmark' ? <Bookmark size={11} /> : <ListMusic size={11} />}
+                  </span>
+                </>
+              )}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className={`text-sm font-semibold text-[var(--text-main)] ${item.type === 'bookmark' ? 'line-clamp-2' : 'truncate'}`}>
+                {item.type === 'bookmark' ? `“${item.title}”` : item.title}
+              </p>
+              <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{subtitle}</p>
+            </div>
           </motion.div>
         );
       }
@@ -15307,6 +15442,13 @@ export default function App() {
           if (oldUrl?.startsWith('blob:')) { try { URL.revokeObjectURL(oldUrl); } catch {} }
           audioUrlsRef.current.delete(bookId);
           loadAudioForBook(bookId, true);
+        }}
+        // iPhone: o áudio só carrega no primeiro play; a posição salva é aplicada assim que ele começa
+        onPlay={() => {
+          if (pendingSeekRef.current !== null && audioRef.current && audioRef.current.readyState >= 1) {
+            audioRef.current.currentTime = pendingSeekRef.current;
+            pendingSeekRef.current = null;
+          }
         }}
         onLoadedMetadata={() => {
           if (pendingSeekRef.current !== null && audioRef.current) {
