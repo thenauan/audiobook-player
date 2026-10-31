@@ -1,6 +1,7 @@
 import { IS_INSTALLED_APP } from '../desktopBridge';
 import { morphTriggerAnimate } from '../components/Popovers';
 import { APP_VERSION } from '../version';
+import { getDiagText, clearDiag } from '../playbackDiag';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -330,6 +331,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               
     </>
   );
+  const actionControls_playback_diag = () => (
+    <div className="flex items-center gap-2 shrink-0">
+      <motion.button
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
+        onClick={async () => {
+          const text = getDiagText();
+          try { await navigator.clipboard.writeText(text); showToast(t('settings_diag_copied')); }
+          catch {
+            // sem acesso à área de transferência: mostra o texto para copiar à mão
+            window.prompt(t('settings_diag_title'), text);
+          }
+        }}
+        className="h-8 px-4 rounded-full text-winblue bg-winblue/10 hover:bg-winblue/20 border border-winblue/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+      >
+        <span>{t('settings_diag_copy')}</span>
+      </motion.button>
+      <motion.button
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
+        onClick={() => { clearDiag(); showToast(t('settings_diag_cleared')); }}
+        className="h-8 px-4 rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+      >
+        <span>{t('settings_diag_clear')}</span>
+      </motion.button>
+    </div>
+  );
   // Celular: a licença aparece direto na tela do ajuste, no lugar do botão
   const actionControls_version_label_inline = () => (
     <section className="settings-license-inline w-full text-left rtl:text-right p-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 space-y-3 text-sm text-[var(--text-muted)] leading-relaxed select-text">
@@ -411,6 +439,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     import_backup: actionControls_import_backup,
     settings_data_folder: actionControls_settings_data_folder,
     settings_clear_cache: actionControls_settings_clear_cache,
+    playback_diag: actionControls_playback_diag,
     version_label: actionControls_version_label_inline,
   };
 
@@ -1172,6 +1201,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               {/* Botões: no computador ficam na linha; no celular, só dentro da tela própria do ajuste */}
               <div className="max-md:hidden md:contents">{actionControls_settings_clear_cache()}</div>
+              <ChevronRight size={16} className="md:hidden text-[var(--text-muted)] shrink-0 rtl:rotate-180" />
+            </div>
+
+              {/* Diagnóstico da reprodução (registro do caminho da posição, para enviar ao desenvolvedor) */}
+              <div data-setting-action="playback_diag" data-setting-title={t('settings_diag_title')} data-setting-subtitle={t('settings_diag_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                    <Activity size={20} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-base text-[var(--text-main)]">{t('settings_diag_title')}</span>
+                    <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('settings_diag_sub')}</span>
+                  </div>
+                </div>
+              <div className="max-md:hidden md:contents">{actionControls_playback_diag()}</div>
               <ChevronRight size={16} className="md:hidden text-[var(--text-muted)] shrink-0 rtl:rotate-180" />
             </div>
 
