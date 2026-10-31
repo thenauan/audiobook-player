@@ -11,7 +11,7 @@ import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar } from '
 import { MenuOptionItem, PagedMenu, useCompactPopups, PopupMorphContainer, checkChapterMenuShouldOpenUp, checkIsLeftEdgeCard, MorphPopup, morphTriggerAnimate, emitZoomOrigin } from './Popovers';
 import { getNationalityDisplayName } from '../nationalityTranslations';
 import { useI18n } from '../translations';
-import { Play, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star, StarOff, FolderPlus, FolderMinus, Plus } from 'lucide-react';
+import { Play, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star, StarOff, FolderPlus, FolderMinus, Plus, Bookmark } from 'lucide-react';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './popupUtils';
 import { MobileConfirmCard } from './MobileConfirm';
 import { MobileContextMenu, useLongPress, isMobileViewport, useIsMobile } from './MobileContextMenu';
@@ -352,7 +352,7 @@ export function PopupSearchField({
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <div className="flex items-center gap-2 px-1 pb-1">
-      <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 focus-within:bg-white/15 focus-within:border-winblue/40 focus-within:shadow-[0_0_14px_rgba(var(--winblue-rgb),0.25)] text-[var(--text-main)] transition-all">
+      <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] focus-within:bg-white/15 focus-within:border-winblue/40 focus-within:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.3)] text-[var(--text-main)] transition-all backdrop-blur-3xl">
         <Search size={13} className="text-[var(--text-muted)] group-focus-within/popsearch:text-winblue transition-colors shrink-0" />
         <input
           ref={inputRef}
@@ -1544,6 +1544,13 @@ export function BookCard({
                     <MenuOptionItem icon={<User size={14} />} onClick={() => { if (onSelectAuthor) onSelectAuthor(book.authorId, book.author); else onSelect(); handleClose(); }}>
                       <span>{t('go_to_author')}</span>
                     </MenuOptionItem>
+
+                    {/* Marcações de todo o audiobook (quando houver) */}
+                    {(book.chapters || []).some((c: any) => (c.bookmarks || c.comments || []).length > 0) && (
+                      <MenuOptionItem icon={<Bookmark size={14} />} onClick={() => { handleClose(); window.dispatchEvent(new CustomEvent('open-book-bookmarks', { detail: book.id })); }}>
+                        <span>{t('all_bookmarks')}</span>
+                      </MenuOptionItem>
+                    )}
 
                     {/* Excluir */}
                     <MenuOptionItem 

@@ -955,6 +955,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Biblioteca
     settings_lib_folder: 'Pasta da biblioteca',
     settings_lib_folder_sub: 'Local onde seus arquivos de áudio são buscados',
+    all_bookmarks: 'Marcações do audiobook',
+    no_bookmarks_in_book: 'Este audiobook ainda não tem marcações.',
     search_kind_chapter: 'Capítulo',
     search_kind_bookmark: 'Marcação',
     search_kind_collection: 'Coleção',
@@ -1633,6 +1635,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Biblioteca
     settings_lib_folder: 'Library folder',
     settings_lib_folder_sub: 'Location where audiobooks are scanned',
+    all_bookmarks: 'Audiobook bookmarks',
+    no_bookmarks_in_book: 'This audiobook has no bookmarks yet.',
     search_kind_chapter: 'Chapter',
     search_kind_bookmark: 'Bookmark',
     search_kind_collection: 'Collection',
@@ -2311,6 +2315,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Biblioteca
     settings_lib_folder: 'Carpeta de la biblioteca',
     settings_lib_folder_sub: 'Ubicación donde se buscan tus audiolibros',
+    all_bookmarks: 'Marcadores del audiolibro',
+    no_bookmarks_in_book: 'Este audiolibro aún no tiene marcadores.',
     search_kind_chapter: 'Capítulo',
     search_kind_bookmark: 'Marcador',
     search_kind_collection: 'Colección',
@@ -2989,6 +2995,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Biblioteca
     settings_lib_folder: 'Папка библиотеки',
     settings_lib_folder_sub: 'Директория с вашими аудиокнигами',
+    all_bookmarks: 'Закладки аудиокниги',
+    no_bookmarks_in_book: 'В этой аудиокниге пока нет закладок.',
     search_kind_chapter: 'Глава',
     search_kind_bookmark: 'Закладка',
     search_kind_collection: 'Коллекция',
@@ -3667,6 +3675,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Biblioteca
     settings_lib_folder: 'مجلد المكتبة',
     settings_lib_folder_sub: 'المجلد الذي يتم البحث فيه عن الكتب الصوتية',
+    all_bookmarks: 'علامات الكتاب الصوتي',
+    no_bookmarks_in_book: 'لا توجد علامات في هذا الكتاب الصوتي بعد.',
     search_kind_chapter: 'فصل',
     search_kind_bookmark: 'علامة',
     search_kind_collection: 'مجموعة',

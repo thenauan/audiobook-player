@@ -84,7 +84,7 @@ import {
 import { Text, Headphones, ExternalLink, Share, Download, Quote, Play, Pause, ListPlus, FileText, FilePlus2, Info, MoreHorizontal, Edit3, Maximize2, Upload, ArrowDownAZ, ArrowUpZA, Calendar, CalendarClock, Clock, Timer, BookOpen, User, Gauge, FolderOpen, ChevronRight, ChevronDown, Check, Database, FileAudio, HardDrive, Star, StarOff, Palette, Type, RotateCcw, Bell, RefreshCw, Bookmark, ArrowUpDown, Code2, Globe, Turtle, Rabbit, Clock3, Clock6, Clock9, Clock12, Dog, Bird, FolderPlus, Plus, Sun, Laptop, Monitor, Hand, ALargeSmall } from 'lucide-react';
 import { normalizeSearchStr, toPhoneticSearchStr, evaluateSearchTermMatch, matchesNationality } from './components/searchScoring';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './components/popupUtils';
-import { _FavoriteChapterCard, CollectionCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, AuthorCard, OtherAppCard, _FavoriteAuthorCard, BookCard, ScreenSelectableRow, SCREEN_GROUP_CLASS } from './components/LibraryCards';
+import { _FavoriteChapterCard, CollectionCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, AuthorCard, OtherAppCard, _FavoriteAuthorCard, BookCard, ScreenSelectableRow, SCREEN_GROUP_CLASS, PopupSearchField } from './components/LibraryCards';
 import { MOCK_DEV_AUTHORS, MOCK_DEV_AUDIOBOOKS, normalizeBookCompareStr, extractNormalizedFileName, isSameAudiobook, deduplicateAudiobooks, loadBooksFromJson, loadAuthorsFromJson, loadCollectionsFromJson, safeLocalGet, isTestBookId, isTestAuthorId, TEST_COLLECTION_IDS } from './components/libraryData';
 
 const getSpeedIcon = (s: number) => {
@@ -2367,6 +2367,12 @@ export default function App() {
   // Detalhes de outro app no celular: abrem como submenu em tela cheia
   const navigateToRef = useRef(navigateTo);
   navigateToRef.current = navigateTo;
+  const openMobileSheetRef = useRef<(sheet: any) => void>(() => {});
+  useEffect(() => {
+    const onOpenBookBookmarks = (e: Event) => openMobileSheetRef.current({ kind: 'book-bookmarks', bookId: (e as CustomEvent).detail });
+    window.addEventListener('open-book-bookmarks', onOpenBookBookmarks);
+    return () => window.removeEventListener('open-book-bookmarks', onOpenBookBookmarks);
+  }, []);
   useEffect(() => {
     const onOpenAppInfo = (e: Event) => navigateToRef.current('app-info', (e as CustomEvent).detail);
     window.addEventListener('open-app-info', onOpenAppInfo);
@@ -3899,6 +3905,7 @@ export default function App() {
     | { kind: 'collection-picker'; itemType: 'book' | 'author'; itemId: string }
     | { kind: 'collection-add-items'; collectionId: string }
     | { kind: 'bookmarks'; bookId: string; chapterId: any }
+    | { kind: 'book-bookmarks'; bookId: string }
     | { kind: 'share-lyrics'; bookId: string }
     | { kind: 'collection-form-items'; mode: 'authors' | 'books' };
   const [mobileSheet, setMobileSheet] = useState<MobileSheetState | null>(null);
@@ -3982,6 +3989,7 @@ export default function App() {
     sheetOrderRef.current = order;
     setMobileSheet(sheet);
   };
+  openMobileSheetRef.current = openMobileSheet;
   const renderMobileSheetContent = (): { title: string; subtitle?: string; body: React.ReactNode; footer?: React.ReactNode } | null => {
     if (!mobileSheet) return null;
     if (mobileSheet.kind === 'collection-picker') {
@@ -4087,6 +4095,49 @@ export default function App() {
         ),
       };
     }
+    // Todas as marcações do audiobook, por capítulo; tocar numa abre as marcações daquele capítulo (onde se
+    // edita e apaga)
+    if (mobileSheet.kind === 'book-bookmarks') {
+      const bk = books.find(b => b.id === mobileSheet.bookId);
+      if (!bk) return null;
+      const groups = (bk.chapters || [])
+        .map(chapter => ({ chapter, marks: (((chapter as any).bookmarks || (chapter as any).comments || []) as any[]) }))
+        .filter(g => g.marks.length > 0);
+      return {
+        title: t('all_bookmarks'),
+        subtitle: bk.title,
+        body: (
+          <div className="flex flex-col gap-5 pt-1">
+            {groups.length === 0 && (
+              <p className="text-sm text-[var(--text-muted)] text-center py-10">{t('no_bookmarks_in_book')}</p>
+            )}
+            {groups.map(({ chapter, marks }) => (
+              <section key={String(chapter.id)} className="flex flex-col gap-2">
+                <h3 className="px-1 text-[13px] font-semibold text-[var(--text-muted)] truncate">{chapter.title}</h3>
+                <div className={SCREEN_GROUP_CLASS}>
+                  {marks.map((mark: any) => (
+                    <button
+                      key={mark.id}
+                      type="button"
+                      onClick={() => openMobileSheet({ kind: 'bookmarks', bookId: bk.id, chapterId: chapter.id })}
+                      className="w-full flex items-start gap-3 px-3 py-2.5 text-left rtl:text-right rounded-[24px] border border-transparent transition-colors hover:bg-white/10"
+                    >
+                      <span className="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-winblue/15 text-winblue">
+                        <Bookmark size={13} />
+                      </span>
+                      <span className="flex-1 min-w-0 text-[15px] leading-snug text-[var(--text-main)] line-clamp-3">{mark.text}</span>
+                      {mark.timestamp !== undefined && mark.timestamp >= 0 && (
+                        <span className="text-[11px] text-[var(--text-muted)] shrink-0 mt-1">{formatTime(mark.timestamp)}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        ),
+      };
+    }
     if (mobileSheet.kind === 'share-lyrics') {
       const bk = books.find(b => b.id === mobileSheet.bookId);
       if (!bk) return null;
@@ -4106,27 +4157,9 @@ export default function App() {
         body: (
           <div className="flex flex-col gap-3 pt-1">
             <p className="text-[13px] text-[var(--text-muted)] text-center px-2">{t('share_lines_hint', { count: MAX_SHARE_LINES })}</p>
-            {/* Buscar um trecho no texto (as linhas marcadas continuam marcadas ao filtrar) */}
-            <div className="h-11 rounded-full bg-[var(--button-secondary-bg)]/60 border border-[var(--text-main)]/10 flex items-center gap-2 px-3.5">
-              <Search size={15} className="text-[var(--text-muted)] shrink-0" />
-              <input
-                type="search"
-                value={lyricsSearch}
-                onChange={(e) => setLyricsSearch(e.target.value)}
-                placeholder={t('share_search_placeholder')}
-                enterKeyHint="search"
-                autoCapitalize="off"
-                autoCorrect="off"
-                spellCheck={false}
-                style={{ WebkitUserSelect: 'text', userSelect: 'text' }}
-                className="flex-1 min-w-0 bg-transparent outline-none text-[16px] text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
-              />
-              {lyricsSearch && (
-                <button type="button" onClick={() => setLyricsSearch('')} aria-label={t('clear_search')} className="w-7 h-7 -mr-1.5 rounded-full flex items-center justify-center text-[var(--text-muted)]">
-                  <X size={15} />
-                </button>
-              )}
-            </div>
+            {/* Buscar um trecho no texto, no mesmo padrão da pesquisa do app (brilho ao digitar e X fora da
+                barra); as linhas marcadas continuam marcadas ao filtrar */}
+            <PopupSearchField value={lyricsSearch} onChange={setLyricsSearch} placeholder={t('share_search_placeholder')} autoFocus={false} />
             <div className={SCREEN_GROUP_CLASS}>
               {transcript.map((line, idx) => {
                 const query = normalizeSearchStr(lyricsSearch.trim());
@@ -4269,6 +4302,7 @@ export default function App() {
             { id: 'share', icon: <Share size={14} />, label: t('share_audiobook'), onClick: () => { openShareImage('book', books.find(b => b.id === target.id) || target); } },
             ...((books.find(b => b.id === target.id) || target).transcript?.length ? [{ id: 'share-lyrics', icon: <Quote size={14} />, label: t('share_excerpt'), onClick: () => openShareLyrics(books.find(b => b.id === target.id) || target) }] : []),
             { id: 'collection', icon: <FolderPlus size={14} />, label: t('add_to_collection'), onClick: () => openMobileSheet({ kind: 'collection-picker', itemType: 'book', itemId: target.id }) },
+            { id: 'all-bookmarks', icon: <Bookmark size={14} />, label: t('all_bookmarks'), onClick: () => openMobileSheet({ kind: 'book-bookmarks', bookId: target.id }) },
             { id: 'details', icon: <Info size={14} />, label: t('more_details'), onClick: () => { closeAllPopups(); navigateTo('book-info', target); } },
             { id: 'edit', icon: <Edit3 size={14} />, label: t('edit_audiobook'), onClick: () => handleStartEditBook() },
             {
@@ -9406,7 +9440,10 @@ export default function App() {
       navigateTo('book-detail', item.book);
     } else if (item.type === 'author' && item.author) {
       navigateTo('author-detail', item.author);
-    } else if ((item.type === 'chapter' || item.type === 'bookmark') && item.book && item.chapter) {
+    } else if (item.type === 'bookmark' && item.book) {
+      // Marcação: abre a lista de marcações do audiobook
+      openMobileSheet({ kind: 'book-bookmarks', bookId: item.book.id });
+    } else if (item.type === 'chapter' && item.book && item.chapter) {
       // Capítulo ou marcação: abre a página do audiobook já no capítulo
       pendingChapterScrollRef.current = true;
       targetScrollChapterIdRef.current = `${item.book.id}-${item.chapter.id}`;
