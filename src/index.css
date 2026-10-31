@@ -1680,10 +1680,10 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
 
 /* Celular: desfoque do rodapé igual ao do cabeçalho, espelhado (letra no player em tela cheia). A "linha"
    coberta pelo desfoque forte é a barra do audiobook; o desfoque esmaece logo acima dela.
-   --footer-blur-top: distância da base da tela até 44pt abaixo do topo da barra */
+   --footer-blur-top: o desfoque forte passa um pouco da borda de cima da barra e esmaece acima dela */
 @media (max-width: 1023px) {
   .apple-header-blur.apple-footer-blur {
-    --footer-blur-top: calc(var(--mobile-bar-bottom) + 18px);
+    --footer-blur-top: calc(var(--mobile-bar-bottom) + 50px);
     top: auto !important;
     bottom: 0;
     height: calc(var(--footer-blur-top) + 104px) !important;

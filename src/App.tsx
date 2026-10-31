@@ -5700,6 +5700,14 @@ export default function App() {
   const handleAudioTimeUpdate = () => {
     const audio = audioRef.current;
     if (!audio) return;
+    // Enquanto a posição salva ainda não foi aplicada (ou o arquivo ainda não carregou), o áudio informa 0:
+    // ignora, senão a tela voltava ao capítulo 1 e o 0 era gravado por cima de onde a pessoa parou
+    if (audio.readyState < 1) return;
+    if (pendingSeekRef.current !== null) {
+      audio.currentTime = pendingSeekRef.current;
+      pendingSeekRef.current = null;
+      return;
+    }
 
     const currentSec = audio.currentTime;
     // Desempenho: a tela (todo o app) só re-renderiza quando o segundo exibido muda (~1x/s em vez de ~4x/s).
