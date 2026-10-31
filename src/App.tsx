@@ -4034,7 +4034,6 @@ export default function App() {
                       }
                       title={col.name}
                       subtitle={col.description || undefined}
-                      unselectedTrailing={<Plus size={16} />}
                     />
                   );
                 })}
@@ -4166,17 +4165,20 @@ export default function App() {
                 if (query && !normalizeSearchStr(transcriptLineText(line)).includes(query)) return null;
                 const selected = lyricsSelection.includes(idx);
                 return (
+                  // Mesmo padrão de seleção dos Ajustes: linha destacada e ✓ à direita
                   <button
                     key={idx}
                     type="button"
                     onClick={() => toggle(idx)}
-                    className={`w-full flex items-start gap-3 px-3 py-2.5 text-left rtl:text-right rounded-[24px] border transition-colors select-none ${selected ? 'bg-winblue/15 border-winblue/30' : 'border-transparent'}`}
+                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] border transition-colors select-none ${selected ? 'bg-winblue/15 border-winblue/30' : 'border-transparent hover:bg-white/10'}`}
                   >
-                    <span className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center shrink-0 border ${selected ? 'bg-winblue border-winblue text-white' : 'border-[var(--text-main)]/25 text-transparent'}`}>
-                      <Check size={14} strokeWidth={3} />
+                    <span className="flex-1 min-w-0 flex flex-col">
+                      <span className={`text-[15px] leading-snug ${selected ? 'text-winblue font-semibold' : 'text-[var(--text-main)]'}`}>{transcriptLineText(line)}</span>
+                      <span className="text-xs text-[var(--text-muted)] mt-0.5">{formatTime(line.start)}</span>
                     </span>
-                    <span className={`flex-1 text-[15px] leading-snug ${selected ? 'text-[var(--text-main)] font-semibold' : 'text-[var(--text-main)]/85'}`}>{transcriptLineText(line)}</span>
-                    <span className="text-[11px] text-[var(--text-muted)] shrink-0 mt-1">{formatTime(line.start)}</span>
+                    <span className="shrink-0 w-6 flex items-center justify-center text-winblue">
+                      {selected && <BsCheck2 size={18} />}
+                    </span>
                   </button>
                 );
               })}
@@ -9461,6 +9463,48 @@ export default function App() {
     setSearchSelectedIndex(-1);
   };
 
+  // Celular: segurar um resultado abre as opções dele (como o clique direito no computador). O clique que
+  // vem ao soltar o dedo não abre o item.
+  const searchLongPressRef = useRef<{ timer: ReturnType<typeof setTimeout> | null; fired: boolean; x: number; y: number }>({ timer: null, fired: false, x: 0, y: 0 });
+  const openSearchItemMenu = (el: HTMLElement, itemId: string) => {
+    const btn = (el.querySelector('button') as HTMLElement) || el;
+    closeAllPopups();
+    clearButtonCoverAnchorCache(btn);
+    setSearchMenuAnchor(btn);
+    setActiveSearchMenuId(itemId);
+  };
+  const searchLongPressProps = (itemId: string) => ({
+    onTouchStart: (e: React.TouchEvent<HTMLElement>) => {
+      const st = searchLongPressRef.current;
+      if (st.timer) clearTimeout(st.timer);
+      st.fired = false;
+      st.x = e.touches[0].clientX;
+      st.y = e.touches[0].clientY;
+      const el = e.currentTarget;
+      st.timer = setTimeout(() => {
+        st.timer = null;
+        st.fired = true;
+        try { navigator.vibrate?.(8); } catch { /* sem vibração */ }
+        openSearchItemMenu(el, itemId);
+      }, 450);
+    },
+    onTouchMove: (e: React.TouchEvent<HTMLElement>) => {
+      const st = searchLongPressRef.current;
+      if (st.timer && Math.hypot(e.touches[0].clientX - st.x, e.touches[0].clientY - st.y) > 8) {
+        clearTimeout(st.timer);
+        st.timer = null;
+      }
+    },
+    onTouchEnd: () => {
+      const st = searchLongPressRef.current;
+      if (st.timer) { clearTimeout(st.timer); st.timer = null; }
+    },
+    onClickCapture: (e: React.MouseEvent<HTMLElement>) => {
+      const st = searchLongPressRef.current;
+      if (st.fired) { st.fired = false; e.stopPropagation(); e.preventDefault(); }
+    },
+  });
+
   const renderSearchResultsList = () => {
     if (computedSearchResults.length === 0) {
       return (
@@ -9483,6 +9527,8 @@ export default function App() {
             key={item.id} 
             id={`search-result-item-${index}`}
             onMouseEnter={() => setSearchSelectedIndex(index)}
+            data-popup-option="true"
+            {...searchLongPressProps(item.id)}
             onClick={() => handleSelectSearchItem(item)}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -9828,6 +9874,7 @@ export default function App() {
             key={item.id}
             id={`search-result-item-${index}`}
             onMouseEnter={() => setSearchSelectedIndex(index)}
+            data-popup-option="true"
             onClick={() => handleSelectSearchItem(item)}
             className={`group/searchitem relative flex items-center gap-3.5 py-2.5 pl-2.5 pr-[18px] rtl:pl-[18px] rtl:pr-2.5 rounded-3xl cursor-pointer transition-all border ${
               isSelected ? 'bg-[var(--button-secondary-bg)]/50 border-transparent shadow-sm' : 'border-transparent hover:bg-[var(--button-secondary-bg)]/50'
@@ -9864,6 +9911,8 @@ export default function App() {
             key={item.id} 
             id={`search-result-item-${index}`}
             onMouseEnter={() => setSearchSelectedIndex(index)}
+            data-popup-option="true"
+            {...searchLongPressProps(item.id)}
             onClick={() => handleSelectSearchItem(item)}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -10586,6 +10635,7 @@ export default function App() {
 <motion.div
                             data-popup-content="true"
                             data-search-dropdown="true"
+                            data-scroll-list="true"
                             initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={isMobile ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}

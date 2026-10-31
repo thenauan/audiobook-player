@@ -461,7 +461,6 @@ export function CollectionItemsPickerContent({
             leading={<img src={getEffectiveAuthorAvatar(item.author.name, item.author.picture)} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />}
             title={item.author.name}
             subtitle={t('author_label')}
-            unselectedTrailing={<Plus size={16} />}
           />
         );
       }
@@ -485,7 +484,6 @@ export function CollectionItemsPickerContent({
           }
           title={book.title}
           subtitle={book.author}
-          unselectedTrailing={<Plus size={16} />}
         />
       );
     };

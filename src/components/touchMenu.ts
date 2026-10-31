@@ -107,7 +107,8 @@ export function installTouchMenus(): () => void {
     popup = option.closest('[data-popup-content="true"]');
     start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     dragging = false;
-    scrollable = popup ? scrollsVertically(option, popup) : false;
+    // Listas longas dentro da tela (ex.: resultados da pesquisa): o arrasto vertical rola a tela
+    scrollable = popup ? (Boolean(option.closest('[data-scroll-list]')) || scrollsVertically(option, popup)) : false;
     setActive(option);
   };
 
