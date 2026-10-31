@@ -743,7 +743,7 @@ export default function FullscreenPlayer({
               // Celular: a letra ocupa a tela inteira (passa por baixo do cabeçalho e da barra da base, com
               // desfoque nos dois), e só rola na vertical
               className={mobileLyrics
-                ? "fs-transcript fixed inset-0 z-0 flex flex-col overflow-hidden"
+                ? "fs-transcript fixed left-0 top-0 w-screen h-[var(--screen-h)] z-0 flex flex-col overflow-hidden"
                 : "fs-transcript flex max-md:flex-1 max-md:w-full max-md:min-h-0 md:max-w-2xl lg:max-w-3xl h-full flex-col min-w-0 overflow-hidden transform-gpu md:shrink-0"}
             >
               <div 
@@ -848,30 +848,27 @@ export default function FullscreenPlayer({
               </div>
               {mobileLyrics && (
                 <>
-                  {/* Desfoque do cabeçalho sobre a letra (atrás dos botões) */}
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-x-0 top-0"
-                    style={{
-                      height: 'calc(var(--app-header-top) + 44px + 36px)',
-                      WebkitBackdropFilter: 'blur(14px)',
-                      backdropFilter: 'blur(14px)',
-                      WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%)',
-                      maskImage: 'linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%)',
-                    }}
-                  />
-                  {/* Desfoque do rodapé sobre a letra (atrás da barra do audiobook) */}
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-x-0 bottom-0"
-                    style={{
-                      height: 'calc(62px + var(--mobile-bar-bottom) + 40px)',
-                      WebkitBackdropFilter: 'blur(14px)',
-                      backdropFilter: 'blur(14px)',
-                      WebkitMaskImage: 'linear-gradient(to top, #000 0%, #000 55%, transparent 100%)',
-                      maskImage: 'linear-gradient(to top, #000 0%, #000 55%, transparent 100%)',
-                    }}
-                  />
+                  {/* Desfoque do cabeçalho e do rodapé sobre a letra (atrás dos botões e da barra), igual ao rodapé
+                      dos ajustes iniciais: desfoque com saturação, véu degradê na cor do fundo e máscara suave */}
+                  {(['top', 'bottom'] as const).map(edge => {
+                    const veil = fullscreenAmbientColors.isDark ? '4,7,15' : '255,255,255';
+                    const dir = edge === 'top' ? 'to bottom' : 'to top';
+                    return (
+                      <div
+                        key={edge}
+                        aria-hidden="true"
+                        className={`pointer-events-none absolute inset-x-0 z-10 ${edge === 'top' ? 'top-0' : 'bottom-0'}`}
+                        style={{
+                          height: edge === 'top' ? 'calc(var(--app-header-top) + 44px + 40px)' : 'calc(62px + var(--mobile-bar-bottom) + 48px)',
+                          background: `linear-gradient(${dir}, rgba(${veil},0.6), rgba(${veil},0.35) 55%, rgba(${veil},0))`,
+                          WebkitBackdropFilter: 'blur(18px) saturate(150%)',
+                          backdropFilter: 'blur(18px) saturate(150%)',
+                          WebkitMaskImage: `linear-gradient(${dir}, #000 0%, #000 50%, transparent 100%)`,
+                          maskImage: `linear-gradient(${dir}, #000 0%, #000 50%, transparent 100%)`,
+                        }}
+                      />
+                    );
+                  })}
                 </>
               )}
             </motion.div>

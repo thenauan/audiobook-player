@@ -1215,6 +1215,9 @@ export default function App() {
   });
 
   const [isPlaying, setIsPlaying] = useState(false);
+  // Último tempo conhecido (estado), para quando o elemento de áudio ainda não carregou o arquivo
+  const currentTimeRef = useRef(currentTime);
+  currentTimeRef.current = currentTime;
   
   // Estados de Conclusão de Capítulos e Audiobooks
   const [completedChapters, setCompletedChapters] = useState<string[]>(() => {
@@ -2869,8 +2872,36 @@ export default function App() {
     if (isPlaying && currentBook && currentChapter) {
       const id = `${currentBook.id}-${currentChapter.id}`;
       setStartedChapters(prev => prev.includes(id) ? prev : [...prev, id]);
+      // Ouvindo de novo um capítulo concluído (longe do fim dele): ele volta para "ouvindo"
+      const chapEnd = (currentChapter.startTime || 0) + (currentChapter.duration || 0);
+      if (chapEnd - getLivePlaybackTime() > 5) {
+        setCompletedChapters(prev => prev.includes(id) ? prev.filter(x => x !== id) : prev);
+      }
     }
   }, [isPlaying, currentBook, currentChapter]);
+
+  // Marca um capítulo como concluído (ouvido até o fim)
+  const markChapterCompleted = useCallback((bookId: string, chapterId: string | number) => {
+    if (!bookId || bookId === EMPTY_BOOK.id) return;
+    const id = `${bookId}-${chapterId}`;
+    setCompletedChapters(prev => prev.includes(id) ? prev : [...prev, id]);
+    setStartedChapters(prev => prev.includes(id) ? prev : [...prev, id]);
+  }, []);
+  // Último ponto ouvido (para saber se o fim do capítulo foi alcançado ouvindo, e não pulando)
+  const lastHeardRef = useRef<{ bookId: string; time: number } | null>(null);
+  const checkChapterFinished = (bookId: string, time: number) => {
+    const prev = lastHeardRef.current;
+    lastHeardRef.current = { bookId, time };
+    if (!prev || prev.bookId !== bookId || time <= prev.time || time - prev.time > 4) return;
+    const book = currentBook;
+    if (!book || book.id !== bookId) return;
+    for (const chap of book.chapters || []) {
+      const end = (chap.startTime || 0) + (chap.duration || 0);
+      if (!chap.duration) continue;
+      // Cruzou o fim do capítulo (ou chegou a menos de 1 s dele) ouvindo
+      if (prev.time < end - 1 && time >= end - 1) markChapterCompleted(bookId, chap.id);
+    }
+  };
 
   const formatTime = (secs: number) => {
     const h = Math.floor(secs / 3600);
@@ -5673,6 +5704,7 @@ export default function App() {
         accrueListeningSeconds(currentBook, delta);
       }
       lastTrackedAudioTimeRef.current = currentSec;
+      checkChapterFinished(currentBook.id, currentSec);
     }
 
     updateMediaSessionPosition(currentSec, totalDuration, playbackSpeed, false);
@@ -5699,18 +5731,28 @@ export default function App() {
     }
   };
 
+  // Posição atual de verdade. Enquanto o áudio ainda carrega (ao abrir o app, ao trocar de livro) o elemento
+  // de áudio está em 0: usa a posição restaurada/pendente, para não gravar 0 por cima de onde parou (era o
+  // que fazia o play voltar ao primeiro capítulo depois de abrir o app)
+  const getLivePlaybackTime = useCallback(() => {
+    if (pendingSeekRef.current !== null) return pendingSeekRef.current;
+    const a = audioRef.current;
+    if (a && a.currentSrc && a.readyState >= 1) return a.currentTime;
+    return currentTimeRef.current;
+  }, []);
+
   // Salva posição imediatamente ao pausar ou ao fechar a janela
   useEffect(() => {
-    if (!isPlaying && audioRef.current && currentBook?.id && currentBook.id !== EMPTY_BOOK.id) {
-      savePlaybackPosition(audioRef.current.currentTime, currentBook.id, true);
+    if (!isPlaying && currentBook?.id && currentBook.id !== EMPTY_BOOK.id) {
+      savePlaybackPosition(getLivePlaybackTime(), currentBook.id, true);
     }
-  }, [isPlaying, currentBook?.id, savePlaybackPosition]);
+  }, [isPlaying, currentBook?.id, savePlaybackPosition, getLivePlaybackTime]);
 
   useEffect(() => {
     // Só salva a posição: sair do app (ou trocar de app no celular) não interrompe o áudio
     const handleUnload = () => {
-      if (audioRef.current && currentBook?.id && currentBook.id !== EMPTY_BOOK.id) {
-        savePlaybackPosition(audioRef.current.currentTime, currentBook.id, true);
+      if (currentBook?.id && currentBook.id !== EMPTY_BOOK.id) {
+        savePlaybackPosition(getLivePlaybackTime(), currentBook.id, true);
       }
     };
     const handleVisibility = () => {
@@ -5728,10 +5770,11 @@ export default function App() {
       window.removeEventListener('pagehide', handleUnload);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [currentBook?.id, savePlaybackPosition]);
+  }, [currentBook?.id, savePlaybackPosition, getLivePlaybackTime]);
 
   // Handler para quando a faixa de áudio termina
   const handleAudioEnded = () => {
+    if (currentBook && currentChapter) markChapterCompleted(currentBook.id, currentChapter.id);
     if (playbackQueue.length > 0) {
       const nextItem = playbackQueue[0];
       setPlaybackQueue(prev => prev.slice(1));
@@ -5772,6 +5815,7 @@ export default function App() {
         }
 
         if (chapEnd > 0 && nextTime >= chapEnd) {
+          if (currentBook && currentChapter) markChapterCompleted(currentBook.id, currentChapter.id);
           if (playbackQueue.length > 0) {
             const nextItem = playbackQueue[0];
             setPlaybackQueue(prev => prev.slice(1));
@@ -5860,7 +5904,7 @@ export default function App() {
       : (chapterElapsed !== null ? (chosenChapter!.startTime || 0) + chapterElapsed : null);
     // Antes de pular para outro capítulo do mesmo livro, guarda onde parou no atual
     if (currentBook?.id === book.id && book.id !== EMPTY_BOOK.id) {
-      savePlaybackPosition(audioRef.current?.currentTime ?? currentTime, book.id, true);
+      savePlaybackPosition(getLivePlaybackTime(), book.id, true);
     }
     const resumeIdx = resumeTime !== null
       ? Math.max(0, (book.chapters || []).findIndex((chap, i) => {

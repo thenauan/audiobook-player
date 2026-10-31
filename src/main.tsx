@@ -13,6 +13,31 @@ import {
 import App from './App';
 import './index.css';
 
+// App instalado (tela de início): ao voltar para o app, confere se há uma versão nova publicada e, se nada
+// estiver tocando, recarrega para usá-la (o app aberto em segundo plano não recarrega sozinho)
+if (typeof document !== 'undefined' && window.location.protocol.startsWith('http')) {
+  const currentScript = () => document.querySelector<HTMLScriptElement>('script[type="module"][src*="assets/"]')?.getAttribute('src') || '';
+  let checking = false;
+  const checkForUpdate = async () => {
+    if (checking || document.visibilityState !== 'visible') return;
+    checking = true;
+    try {
+      const res = await fetch(`./index.html?v=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) return;
+      const html = await res.text();
+      const latest = (html.match(/<script[^>]+type="module"[^>]+src="([^"]*assets\/[^"]+)"/) || [])[1];
+      const mine = currentScript();
+      if (!latest || !mine || latest === mine) return;
+      const audio = document.querySelector('audio');
+      if (audio && !audio.paused) return; // não interrompe o que está tocando
+      window.location.reload();
+    } catch { /* sem conexão: fica na versão atual */ } finally {
+      checking = false;
+    }
+  };
+  document.addEventListener('visibilitychange', checkForUpdate);
+}
+
 // Barras de rolagem aparecem só enquanto algo é rolado e somem logo depois
 if (typeof document !== 'undefined') {
   const scrollTimers = new WeakMap<Element, ReturnType<typeof setTimeout>>();
