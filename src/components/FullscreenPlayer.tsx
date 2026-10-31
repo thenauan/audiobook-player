@@ -846,37 +846,54 @@ export default function FullscreenPlayer({
                   <div className="h-[25vh] shrink-0" />
                 </div>
               </div>
-              {mobileLyrics && (
-                <>
-                  {/* Desfoque do cabeçalho e do rodapé sobre a letra (atrás dos botões e da barra), igual ao rodapé
-                      dos ajustes iniciais: desfoque com saturação, véu degradê na cor do fundo e máscara suave */}
-                  {(['top', 'bottom'] as const).map(edge => {
-                    const veil = fullscreenAmbientColors.isDark ? '4,7,15' : '255,255,255';
-                    const dir = edge === 'top' ? 'to bottom' : 'to top';
-                    return (
-                      <div
-                        key={edge}
-                        aria-hidden="true"
-                        className={`pointer-events-none absolute inset-x-0 z-10 ${edge === 'top' ? 'top-0' : 'bottom-0'}`}
-                        style={{
-                          height: edge === 'top' ? 'calc(var(--app-header-top) + 44px + 40px)' : 'calc(62px + var(--mobile-bar-bottom) + 48px)',
-                          background: `linear-gradient(${dir}, rgba(${veil},0.6), rgba(${veil},0.35) 55%, rgba(${veil},0))`,
-                          WebkitBackdropFilter: 'blur(18px) saturate(150%)',
-                          backdropFilter: 'blur(18px) saturate(150%)',
-                          WebkitMaskImage: `linear-gradient(${dir}, #000 0%, #000 50%, transparent 100%)`,
-                          maskImage: `linear-gradient(${dir}, #000 0%, #000 50%, transparent 100%)`,
-                        }}
-                      />
-                    );
-                  })}
-                </>
-              )}
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Espaço da barra fixa abaixo da letra */}
 
+
+        {/* Celular com letra aberta: desfoque do cabeçalho e do rodapé por cima da letra (atrás dos botões do
+            cabeçalho e da barra do audiobook), igual ao rodapé dos ajustes iniciais. Ficam fora da área que rola:
+            no iPhone, a área com rolagem pode ser desenhada por cima de camadas dentro dela */}
+        {mobileLyrics && (
+          <>
+            {/* Cabeçalho: o mesmo desfoque progressivo do cabeçalho da interface ao rolar (6 camadas + véu) */}
+            <div
+              aria-hidden="true"
+              className="apple-header-blur pointer-events-none"
+              style={{
+                zIndex: 4,
+                ['--header-blur' as any]: 1,
+                ['--header-tint' as any]: fullscreenAmbientColors.isDark ? '#04070f' : '#ffffff',
+              }}
+            >
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-layer" />
+              <div className="apple-blur-tint" />
+            </div>
+            {/* Rodapé: o mesmo desfoque do rodapé dos ajustes iniciais, atrás da barra do audiobook */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-x-0 bottom-0 z-[4]"
+              style={{
+                height: 'calc(62px + var(--mobile-bar-bottom) + 48px)',
+                background: fullscreenAmbientColors.isDark
+                  ? 'linear-gradient(to top, rgba(4,7,15,0.6), rgba(4,7,15,0.35) 55%, rgba(4,7,15,0))'
+                  : 'linear-gradient(to top, rgba(255,255,255,0.6), rgba(255,255,255,0.35) 55%, rgba(255,255,255,0))',
+                WebkitBackdropFilter: 'blur(18px) saturate(150%)',
+                backdropFilter: 'blur(18px) saturate(150%)',
+                WebkitMaskImage: 'linear-gradient(to top, #000 0%, #000 50%, transparent 100%)',
+                maskImage: 'linear-gradient(to top, #000 0%, #000 50%, transparent 100%)',
+                transform: 'translateZ(0)',
+              }}
+            />
+          </>
+        )}
 
         {/* Mobile com letra aberta: audiobook como no miniplayer (capa, dados e play/pause); tocar fecha a letra */}
         {mobileLyrics && (
