@@ -5639,8 +5639,12 @@ export default function App() {
 
     if (currentAudioSrc) {
       if (audio.src !== currentAudioSrc) {
+        // Nova fonte: a posição só pode ser aplicada depois que o arquivo carregar (o iPhone ignora antes e o
+        // áudio começava do 0, no capítulo 1). Fica pendente e é aplicada em onLoadedMetadata/onPlay/timeupdate.
+        const resumeAt = pendingSeekRef.current ?? currentTimeRef.current;
+        if (resumeAt > 0) pendingSeekRef.current = resumeAt;
         audio.src = currentAudioSrc;
-        audio.currentTime = currentTime;
+        if (resumeAt > 0) { try { audio.currentTime = resumeAt; } catch { /* aplicada ao carregar */ } }
         if (isPlaying) {
           audio.play().catch(e => console.warn('Erro ao iniciar áudio:', e));
         }
