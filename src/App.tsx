@@ -4849,6 +4849,7 @@ export default function App() {
 
   // Função centralizada para busca e sincronização do tempo de áudio
   const handleSeek = useCallback((newTime: number) => {
+    if (latestBookIdRef.current) resumeCheckedBooksRef.current.add(latestBookIdRef.current);
     const clamped = Math.max(0, Math.min(totalDuration || 999999, newTime));
     setCurrentTime(clamped);
     lastTrackedAudioTimeRef.current = clamped;
@@ -5686,12 +5687,30 @@ export default function App() {
     };
   }, [currentAudioSrc, isPlaying]);
 
+  // Primeiro play de cada livro na sessão: se o áudio vai começar antes de onde a pessoa parou (e ela não
+  // escolheu outro ponto), volta para a posição salva — garantia contra o iPhone começar do capítulo 1
+  const resumeCheckedBooksRef = useRef<Set<string>>(new Set());
+  const ensureResumePosition = (audio: HTMLAudioElement) => {
+    const bookId = currentBook?.id;
+    if (!resumePlayback || !bookId || bookId === EMPTY_BOOK.id || resumeCheckedBooksRef.current.has(bookId)) return;
+    resumeCheckedBooksRef.current.add(bookId);
+    let saved = NaN;
+    try { saved = Number(JSON.parse(localStorage.getItem('audiobook_playback_positions') || '{}')[bookId]); } catch {}
+    if (!isFinite(saved) || saved <= 1) return;
+    const now = pendingSeekRef.current ?? (audio.readyState >= 1 ? audio.currentTime : currentTimeRef.current);
+    if (saved - now < 3) return;
+    setCurrentTime(saved);
+    if (audio.readyState >= 1) { audio.currentTime = saved; pendingSeekRef.current = null; }
+    else pendingSeekRef.current = saved;
+  };
+
   // Sincronização de Play/Pause com o elemento HTML5 Audio
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !currentAudioSrc) return;
 
     if (isPlaying) {
+      ensureResumePosition(audio);
       setupWebAudioGraph();
       if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
         audioContextRef.current.resume().catch(() => {});
@@ -5959,6 +5978,7 @@ export default function App() {
   // Tocar um audiobook. Com um capítulo escolhido, começa nele; sem capítulo (botão "Ouvir", play do card),
   // continua de onde parou: o livro atual só retoma (ou pausa) e outro livro volta à posição salva dele
   const handlePlayBookFromStart = (book: Audiobook, chapterIndex = -1) => {
+    if (chapterIndex >= 0) resumeCheckedBooksRef.current.add(book.id); // capítulo escolhido pela pessoa
     if (chapterIndex < 0 && currentBook?.id === book.id && book.id !== EMPTY_BOOK.id) {
       if (isPlaying) {
         setIsPlaying(false);
@@ -9884,9 +9904,9 @@ export default function App() {
               isSelected ? 'bg-[var(--button-secondary-bg)]/50 border-transparent shadow-sm' : 'border-transparent hover:bg-[var(--button-secondary-bg)]/50'
             }`}
           >
-            <div className="relative w-12 h-12 shrink-0 rounded-[14px] overflow-hidden shadow-sm bg-winblue/15 text-winblue flex items-center justify-center">
+            <div className={`relative w-12 h-12 shrink-0 rounded-[14px] overflow-hidden shadow-sm flex items-center justify-center ${item.type === 'collection' ? `bg-gradient-to-br ${item.collection?.gradient || 'from-slate-600 to-zinc-800'}` : 'bg-winblue/15 text-winblue'}`}>
               {item.type === 'collection' ? (
-                <FolderOpen size={20} />
+                <span className="text-2xl leading-none drop-shadow-sm">{item.collection?.emoji || <FolderOpen size={20} className="text-white" />}</span>
               ) : (
                 <>
                   <img src={cover} alt="" draggable={false} className="w-full h-full object-cover" />
