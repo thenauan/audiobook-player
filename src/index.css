@@ -1396,6 +1396,8 @@ html.standalone #root {
 }
 /* Letra do player em tela cheia e folhas: transição mais longa, como no Apple Music */
 .fullscreen-transcript { --fade-size: 110px; }
+/* Celular: letra em tela cheia, com desfoque no cabeçalho e no rodapé no lugar do esmaecimento */
+.fullscreen-transcript[data-lyrics-full] { --fade-size: 0px; }
 [data-mobile-sheet] .overflow-y-auto { --fade-size: 32px; }
 [data-scroll-fade="search"] { --fade-size: 28px; }
 

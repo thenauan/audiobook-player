@@ -740,11 +740,24 @@ export default function FullscreenPlayer({
                 '--book-accent': currentBookHighlight.hex,
                 '--book-accent-rgb': currentBookHighlight.rgb,
               } as React.CSSProperties}
-              className="fs-transcript flex max-md:flex-1 max-md:w-full max-md:min-h-0 md:max-w-2xl lg:max-w-3xl h-full flex-col min-w-0 overflow-hidden transform-gpu md:shrink-0"
+              // Celular: a letra ocupa a tela inteira (passa por baixo do cabeçalho e da barra da base, com
+              // desfoque nos dois), e só rola na vertical
+              className={mobileLyrics
+                ? "fs-transcript fixed inset-0 z-0 flex flex-col overflow-hidden"
+                : "fs-transcript flex max-md:flex-1 max-md:w-full max-md:min-h-0 md:max-w-2xl lg:max-w-3xl h-full flex-col min-w-0 overflow-hidden transform-gpu md:shrink-0"}
             >
               <div 
                 ref={fsTranscriptScrollRef}
-                className="flex-1 overflow-y-auto custom-scrollbar pl-8 md:pl-12 pr-6 md:pr-10 py-8 max-md:px-2 max-md:py-4 flex flex-col fullscreen-transcript w-full md:w-[min(48vw,680px)] md:shrink-0"
+                data-lyrics-full={mobileLyrics ? 'true' : undefined}
+                style={mobileLyrics ? {
+                  paddingTop: 'calc(var(--app-header-top) + 44px + 20px)',
+                  paddingBottom: 'calc(62px + var(--mobile-bar-bottom) + 28px)',
+                  paddingLeft: 'max(var(--page-margin), var(--safe-left))',
+                  paddingRight: 'max(var(--page-margin), var(--safe-right))',
+                  touchAction: 'pan-y',
+                  overscrollBehaviorX: 'none',
+                } : undefined}
+                className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pl-8 md:pl-12 pr-6 md:pr-10 py-8 max-md:px-2 max-md:py-4 flex flex-col fullscreen-transcript w-full md:w-[min(48vw,680px)] md:shrink-0"
               >
                 <div
                   className="my-auto space-y-6 select-none"
@@ -833,12 +846,40 @@ export default function FullscreenPlayer({
                   <div className="h-[25vh] shrink-0" />
                 </div>
               </div>
+              {mobileLyrics && (
+                <>
+                  {/* Desfoque do cabeçalho sobre a letra (atrás dos botões) */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 top-0"
+                    style={{
+                      height: 'calc(var(--app-header-top) + 44px + 36px)',
+                      WebkitBackdropFilter: 'blur(14px)',
+                      backdropFilter: 'blur(14px)',
+                      WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%)',
+                      maskImage: 'linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%)',
+                    }}
+                  />
+                  {/* Desfoque do rodapé sobre a letra (atrás da barra do audiobook) */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 bottom-0"
+                    style={{
+                      height: 'calc(62px + var(--mobile-bar-bottom) + 40px)',
+                      WebkitBackdropFilter: 'blur(14px)',
+                      backdropFilter: 'blur(14px)',
+                      WebkitMaskImage: 'linear-gradient(to top, #000 0%, #000 55%, transparent 100%)',
+                      maskImage: 'linear-gradient(to top, #000 0%, #000 55%, transparent 100%)',
+                    }}
+                  />
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Espaço da barra fixa abaixo da letra */}
-        {mobileLyrics && <div aria-hidden="true" className="shrink-0" style={{ height: 'calc(62px + var(--mobile-bar-bottom) - max(24px, env(safe-area-inset-bottom)) + 12px)' }} />}
+
 
         {/* Mobile com letra aberta: audiobook como no miniplayer (capa, dados e play/pause); tocar fecha a letra */}
         {mobileLyrics && (

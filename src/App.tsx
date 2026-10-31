@@ -7908,7 +7908,7 @@ export default function App() {
                         </div>
                       </div>
                     ) : (
-                      <PagedMenu className="space-y-0.5 overflow-y-auto custom-scrollbar max-h-72">
+                      <div className="space-y-0.5">
                         <button
                           onClick={() => {
                             setSleepTimerMode('end-of-chapter');
@@ -7954,7 +7954,7 @@ export default function App() {
                             </div>
                           </button>
                         ))}
-                      </PagedMenu>
+                      </div>
                     )}
                   </SmoothSubMorph>
                 </div>
@@ -8635,7 +8635,7 @@ export default function App() {
                           </div>
                         </div>
                       ) : (
-                        <PagedMenu className="space-y-0.5 overflow-y-auto custom-scrollbar max-h-72">
+                        <div className="space-y-0.5">
                           <button
                             onClick={() => {
                               setSleepTimerMode('end-of-chapter');
@@ -8681,7 +8681,7 @@ export default function App() {
                               </div>
                             </button>
                           ))}
-                        </PagedMenu>
+                        </div>
                       )}
                     </SmoothSubMorph>
                   </div>
@@ -9919,8 +9919,9 @@ export default function App() {
     const isRtl = () => document.documentElement.dir === 'rtl';
     const reset = (animateBack: boolean) => {
       if (target) {
-        target.style.transition = animateBack ? 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)' : '';
+        target.style.transition = animateBack ? 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.28s ease' : '';
         target.style.transform = '';
+        target.style.borderRadius = '';
         const el = target;
         setTimeout(() => { el.style.transition = ''; }, 300);
       }
@@ -9947,7 +9948,16 @@ export default function App() {
         target = (document.querySelector('[data-fullscreen-player="true"]') as HTMLElement) || mainScrollRef.current;
       }
       if (e.cancelable) e.preventDefault();
-      if (target) target.style.transform = `translateX(${(isRtl() ? -1 : 1) * Math.max(0, dx) * 0.85}px)`;
+      if (!target) return;
+      if (target !== mainScrollRef.current) {
+        // Player em tela cheia: não desliza como uma página; encolhe um pouco em direção ao miniplayer
+        const progress = Math.min(1, Math.max(0, dx) / window.innerWidth);
+        target.style.transformOrigin = '50% 100%';
+        target.style.transform = `scale(${1 - progress * 0.12})`;
+        target.style.borderRadius = `${Math.round(progress * 40)}px`;
+        return;
+      }
+      target.style.transform = `translateX(${(isRtl() ? -1 : 1) * Math.max(0, dx) * 0.85}px)`;
     };
     const onEnd = (e: TouchEvent) => {
       if (!start || !active) { reset(false); return; }
@@ -9972,19 +9982,16 @@ export default function App() {
             window.history.back();
           }
         } else {
-          // Player em tela cheia: termina de deslizar e minimiza
-          if (el) { el.style.transition = 'transform 0.2s ease-out'; el.style.transform = `translateX(${isRtl() ? '-' : ''}100%)`; }
+          // Player em tela cheia: minimiza na hora, com a mesma animação de minimizar (encolhe até o
+          // miniplayer), em vez da animação de voltar das páginas
+          if (el) { el.style.transition = ''; el.style.transform = ''; el.style.borderRadius = ''; el.style.transformOrigin = ''; }
           edgeSwipeRef.current.backAt = Date.now() + 200;
-          setTimeout(() => {
-            if (IS_APPLE_TOUCH) {
-              systemBackRef.current();
-              requestAnimationFrame(() => { if (el) { el.style.transition = ''; el.style.transform = ''; } });
-              return;
-            }
+          if (IS_APPLE_TOUCH) {
+            systemBackRef.current();
+          } else {
             edgeSwipeRef.current.pendingBack = true;
             window.history.back();
-            requestAnimationFrame(() => { if (el) { el.style.transition = ''; el.style.transform = ''; } });
-          }, 190);
+          }
         }
       } else {
         reset(true);
