@@ -89,7 +89,7 @@ export function _FavoriteChapterCard({
         <div className="max-md:hidden absolute inset-0 bg-black/30 opacity-0 group-hover/favchap:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
           <motion.button 
             whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.9 }}
+            data-press="true"
             onClick={(e) => { e.stopPropagation(); onPlay(); }} 
             className="w-13 h-13 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-2xl border border-white/30 hover:border-white/75 shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto hover:shadow-[0_0_25px_rgba(255,255,255,0.65)]"
             title={t('listen_chapter')}
@@ -134,7 +134,7 @@ export function _FavoriteChapterCard({
           <motion.button 
             key="btn"
             whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.92 }}
+            data-press="true"
             animate={morphTriggerAnimate(showOptions)}
             onClick={(e) => { 
               e.stopPropagation(); 
@@ -381,7 +381,7 @@ export function PopupSearchField({
             exit={{ opacity: 0, scale: 0.55, width: 0, marginLeft: -8 }}
             transition={{ type: "spring", stiffness: 520, damping: 38, mass: 0.5 }}
             whileHover={{ scale: 1.12 }}
-            whileTap={{ scale: 0.92 }}
+            data-press="true"
             onClick={(e) => {
               e.stopPropagation();
               onChange('');
@@ -652,7 +652,7 @@ export function CollectionPickerPopupContent({
         {onBack && (
           <motion.button
             whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            data-press="true"
             onClick={(e) => {
               e.stopPropagation();
               onBack();
@@ -981,7 +981,7 @@ export function AuthorCard({
             <motion.button
               key="btn"
               whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.92 }}
+              data-press="true"
               animate={morphTriggerAnimate(showOptions)}
               onClick={(e) => {
                 e.stopPropagation();
@@ -1149,7 +1149,7 @@ export function OtherAppCard({
                     <div className="flex items-center gap-2.5 pb-0.5">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        data-press="true"
                         onClick={(e) => {
                           e.stopPropagation();
                           setShowDetails(false);
@@ -1232,7 +1232,7 @@ export function OtherAppCard({
         <div className="absolute inset-0 rounded-[23%] bg-black/30 opacity-0 group-hover/appcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-20">
           <motion.button
             whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.9 }}
+            data-press="true"
             onClick={(e) => {
               e.stopPropagation();
               onOpenUrl(app.url);
@@ -1283,7 +1283,7 @@ export function OtherAppCard({
           <motion.button
             key="btn"
             whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.92 }}
+            data-press="true"
             animate={morphTriggerAnimate(showOptions)}
             onClick={(e) => {
               e.stopPropagation();
@@ -1608,7 +1608,7 @@ export function BookCard({
                     <div className="flex items-center justify-end gap-2.5 pt-1">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        data-press="true"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleClose();
@@ -1621,7 +1621,7 @@ export function BookCard({
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        data-press="true"
                         onClick={(e) => {
                           e.stopPropagation();
                           setMenuMode('options');
@@ -1711,7 +1711,7 @@ export function BookCard({
           <div className="max-md:hidden absolute inset-0 bg-black/30 opacity-0 group-hover/bookcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
             <motion.button 
               whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.9 }}
+              data-press="true"
               onClick={(e) => { e.stopPropagation(); onPlay(); }} 
               className="w-13 h-13 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-2xl border border-white/30 hover:border-white/75 shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto hover:shadow-[0_0_25px_rgba(255,255,255,0.65)]"
               title={isBookPlaying ? t('pause') : t('listen')}
@@ -1776,7 +1776,7 @@ export function BookCard({
           <motion.button 
             key="btn"
             whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.92 }}
+            data-press="true"
             animate={morphTriggerAnimate(showOptions)}
             onClick={(e) => { 
               e.stopPropagation(); 
@@ -1861,7 +1861,7 @@ export function BookCard({
                     <div className="flex items-center justify-end gap-2.5 pt-1">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        data-press="true"
                         onClick={(e) => {
                           e.stopPropagation();
                           setMobileDeleteOpen(false);
@@ -1874,7 +1874,7 @@ export function BookCard({
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        data-press="true"
                         onClick={(e) => {
                           e.stopPropagation();
                           setMobileDeleteOpen(false);
@@ -2001,7 +2001,7 @@ export function CollectionCard({
             {desktopMenu && <div className="fixed inset-0 z-40 cursor-default" {...getBackdropProps(close)} />}
             <motion.button
               whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.92 }}
+              data-press="true"
               animate={morphTriggerAnimate(desktopMenu)}
               onClick={(e) => {
                 e.stopPropagation();

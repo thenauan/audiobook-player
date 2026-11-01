@@ -215,7 +215,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.94 }}
+                  data-press="true"
                   onClick={() => handleSyncLibraryNow()}
                   className={`h-8 px-4 rounded-full backdrop-blur-3xl font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
                     isSyncingLibrary
@@ -229,7 +229,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.94 }}
+                  data-press="true"
                   onClick={handleSelectLibraryFolder}
                   className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                   title={t('select_folder')}
@@ -246,7 +246,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
               <motion.button
                 whileHover={{ scale: 1.06 }}
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 onClick={handleExportLibraryBackup}
                 className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
                 title={t('export_library_btn')}
@@ -275,7 +275,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               />
               <motion.button
                 whileHover={{ scale: 1.06 }}
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 onClick={() => backupFileInputRef.current?.click()}
                 className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
                 title={t('import_backup_btn')}
@@ -304,7 +304,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.94 }}
+                    data-press="true"
                     onClick={handleOpenDataFolder}
                     className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                     title={t('settings_open_folder')}
@@ -321,7 +321,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
                 <motion.button
                   whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.94 }}
+                  data-press="true"
                   onClick={() => showToast(t('settings_cache_cleared'))}
                   className="self-start sm:self-center h-8 px-4 rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 font-semibold text-xs transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer"
                 >
@@ -335,7 +335,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     <div className="flex items-center gap-2 shrink-0">
       <motion.button
         whileHover={{ scale: 1.06 }}
-        whileTap={{ scale: 0.94 }}
+        data-press="true"
         onClick={async () => {
           const text = getDiagText();
           try { await navigator.clipboard.writeText(text); showToast(t('settings_diag_copied')); }
@@ -350,7 +350,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       </motion.button>
       <motion.button
         whileHover={{ scale: 1.06 }}
-        whileTap={{ scale: 0.94 }}
+        data-press="true"
         onClick={() => { clearDiag(); showToast(t('settings_diag_cleared')); }}
         className="h-8 px-4 rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
@@ -383,7 +383,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                         layoutId="license-popup-morph"
                         layout
                         whileHover={{ scale: 1.06 }}
-                        whileTap={{ scale: 0.94 }}
+                        data-press="true"
                         transition={{ type: "spring", stiffness: 450, damping: 32 }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -569,7 +569,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'theme')}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -612,7 +612,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'accent-color')}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -656,7 +656,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'font-size')}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -698,7 +698,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'app-language')}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -784,7 +784,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'detect-new-files')}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -892,7 +892,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'default-speed')}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -941,7 +941,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'seek-forward-setting')}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -985,7 +985,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <motion.button 
                 whileHover={{ scale: 1.06 }} 
-                whileTap={{ scale: 0.94 }}
+                data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'seek-backward-setting')}
                 onClick={(e) => {
                   e.stopPropagation();

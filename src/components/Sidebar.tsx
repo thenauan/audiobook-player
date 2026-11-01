@@ -202,6 +202,11 @@ export function useMiniPresent(): boolean {
 
 const BAR_SPRING = { type: 'spring' as const, stiffness: 620, damping: 46, mass: 0.55 };
 const ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 40, mass: 0.55 };
+// iOS 26: ao tocar, a barra cresce um pouco e o destaque "levanta" (fica maior que a barra, como uma lente);
+// ao soltar, ele assenta com uma mola elástica e o ícone escolhido dá um pulinho
+const PRESS_SPRING = { type: 'spring' as const, stiffness: 520, damping: 22, mass: 0.6 };
+const PILL_MOVE_SPRING = { type: 'spring' as const, stiffness: 430, damping: 30, mass: 0.7 };
+const ICON_BOUNCE = { duration: 0.46, times: [0, 0.32, 0.68, 1], ease: 'easeOut' as const };
 
 export interface MobileBottomBarProps {
   currentRoot: string;
@@ -236,8 +241,16 @@ export function MobileBottomBar({
   ];
   const activeIndex = Math.max(0, tabs.findIndex(tab => tab.active));
   const activeTab = tabs[activeIndex];
+  // Pulinho do ícone da aba escolhida (muda a cada toque)
+  const [bounce, setBounce] = React.useState<{ id: string; n: number } | null>(null);
+  React.useEffect(() => {
+    if (!bounce) return;
+    const timer = setTimeout(() => setBounce(null), 520);
+    return () => clearTimeout(timer);
+  }, [bounce]);
   const go = (id: string) => {
     tabBarStore.set(false);
+    setBounce(b => ({ id, n: (b?.n || 0) + 1 }));
     navigateTo(id);
     if (id === 'search' && onFocusSearch) setTimeout(onFocusSearch, 60);
   };
@@ -295,6 +308,7 @@ export function MobileBottomBar({
     setDragIndex(null);
   };
   const pillIndex = dragIndex ?? activeIndex;
+  const pressed = dragIndex !== null;
   // Ícones compartilhados entre a barra e os botões redondos: ao reabrir, cada ícone sai do botão de onde estava
   const iconLayoutId = (id: string) => `mobile-tab-icon-${id}`;
 
@@ -324,8 +338,8 @@ export function MobileBottomBar({
         <motion.div
           className={cn("relative", split && !hasMini && "mx-auto")}
           initial={false}
-          animate={{ scale: shrunk ? MOBILE_SHRINK_SCALE : 1 }}
-          transition={BAR_SPRING}
+          animate={{ scale: shrunk ? MOBILE_SHRINK_SCALE : pressed ? 1.04 : 1 }}
+          transition={pressed ? PRESS_SPRING : BAR_SPRING}
           style={{
             height: size,
             width: split && !hasMini ? 'min(100%, 440px)' : '100%',
@@ -377,10 +391,12 @@ export function MobileBottomBar({
                     {i === pillIndex && (
                       <motion.span
                         layoutId="mobile-tab-pill"
-                        transition={BAR_SPRING}
+                        initial={false}
+                        animate={{ scaleX: pressed ? 1.16 : 1, scaleY: pressed ? 1.3 : 1 }}
+                        transition={{ layout: PILL_MOVE_SPRING, default: PRESS_SPRING }}
                         className={cn(
-                          "absolute inset-0 rounded-full bg-winblue/15",
-                          dragIndex !== null && "bg-winblue/25"
+                          "absolute inset-0 rounded-full bg-winblue/15 transition-[background-color,box-shadow] duration-200",
+                          pressed && "bg-winblue/20 shadow-[0_4px_18px_rgba(var(--winblue-rgb),0.28),inset_0_0_0_1px_rgba(255,255,255,0.25)]"
                         )}
                       />
                     )}
@@ -395,7 +411,17 @@ export function MobileBottomBar({
                         animate={{ opacity: 1, scale: 1 }}
                         className="relative z-10 flex items-center justify-center"
                       >
-                        {tab.icon}
+                        <motion.span
+                          key={bounce && bounce.id === tab.id ? `b${bounce.n}` : 'b0'}
+                          initial={false}
+                          animate={bounce && bounce.id === tab.id
+                            ? { scale: [1, 1.3, 0.92, 1], y: [0, -3, 0, 0] }
+                            : { scale: pressed && i === pillIndex ? 1.12 : 1, y: 0 }}
+                          transition={bounce && bounce.id === tab.id ? ICON_BOUNCE : PRESS_SPRING}
+                          className="flex items-center justify-center"
+                        >
+                          {tab.icon}
+                        </motion.span>
                       </motion.span>
                     )}
                   </button>

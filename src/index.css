@@ -1336,6 +1336,20 @@ body {
   margin-right: calc(-1 * max(var(--page-margin), var(--safe-right)));
 }
 
+/* Cabeçalho da coleção (o card dela) de ponta a ponta no topo, por baixo do cabeçalho do app */
+.collection-hero {
+  margin-left: calc(-1 * max(var(--page-margin), var(--safe-left)));
+  margin-right: calc(-1 * max(var(--page-margin), var(--safe-right)));
+  margin-top: calc(-1 * (var(--app-header-top) + 76px));
+}
+@media (min-width: 1024px) {
+  .collection-hero {
+    margin-left: -2rem;
+    margin-right: -2rem;
+    margin-top: calc(-1 * (var(--app-header-top) + 60px));
+  }
+}
+
 /* Telas de ajuste no celular: em todos os botões, o ícone fica à esquerda e o texto à direita */
 .settings-action-panel button > svg:last-child:not(:first-child),
 .settings-action-panel label > svg:last-child:not(:first-child),
@@ -1395,11 +1409,12 @@ html.standalone #root {
   --fade-bottom: var(--fade-size);
 }
 /* Letra do player em tela cheia e folhas: transição mais longa, como no Apple Music */
-.fullscreen-transcript { --fade-size: 110px; }
+/* (:not(#_) só aumenta a prioridade: a regra geral acima, com :is(...), é mais forte que uma classe) */
+.fullscreen-transcript:not(#_) { --fade-size: 110px; }
 /* Celular: letra em tela cheia, com desfoque no cabeçalho e no rodapé no lugar do esmaecimento */
-.fullscreen-transcript[data-lyrics-full] { --fade-size: 0px; }
-[data-mobile-sheet] .overflow-y-auto { --fade-size: 32px; }
-[data-scroll-fade="search"] { --fade-size: 28px; }
+.fullscreen-transcript[data-lyrics-full]:not(#_) { --fade-size: 0px; }
+[data-mobile-sheet] .overflow-y-auto:not(#_) { --fade-size: 32px; }
+[data-scroll-fade="search"]:not(#_) { --fade-size: 28px; }
 
 /* ==========================================================================
    SUBTÍTULOS DAS SEÇÕES: mesma altura e mesmo espaço até o conteúdo em todas as telas,

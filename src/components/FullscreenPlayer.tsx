@@ -429,7 +429,7 @@ export default function FullscreenPlayer({
         {isMobileFs ? (
           // Celular: botão redondo no mesmo padrão e alinhamento dos botões do cabeçalho do app
           <motion.button
-            whileTap={{ scale: 0.92 }}
+            data-press="true"
             onClick={() => {
               closeAllPopups();
               setIsFullScreen(false);
@@ -442,7 +442,7 @@ export default function FullscreenPlayer({
         ) : (
         <motion.button 
           whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.94 }}
+          data-press="true"
           onClick={() => {
             closeAllPopups();
             setIsFullScreen(false);
@@ -627,7 +627,7 @@ export default function FullscreenPlayer({
                     layoutId="player-prev"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.12 }} 
-                    whileTap={{ scale: 0.92 }} 
+                    data-press="true" 
                     onClick={() => {
                       if (handlePrevChapter) {
                         handlePrevChapter();
@@ -648,7 +648,7 @@ export default function FullscreenPlayer({
                     layoutId="player-seek-back"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.12 }} 
-                    whileTap={{ scale: 0.92 }} 
+                    data-press="true" 
                     onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
                     title={t('seek_backward', { sec: seekBackwardTime })}
@@ -662,7 +662,7 @@ export default function FullscreenPlayer({
                     layoutId="player-play"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.08 }} 
-                    whileTap={{ scale: 0.94 }} 
+                    data-press="true" 
                     onClick={() => setIsPlaying(!isPlaying)}
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/20 hover:border-black/20 dark:hover:border-white/40 hover:shadow-xl dark:hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] transition-all shadow-lg shrink-0"
                     title={isPlaying ? t('pause') : t('listen')}
@@ -679,7 +679,7 @@ export default function FullscreenPlayer({
                     layoutId="player-seek-fwd"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.12 }} 
-                    whileTap={{ scale: 0.92 }} 
+                    data-press="true" 
                     onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
                     title={t('seek_forward', { sec: seekForwardTime })}
@@ -693,7 +693,7 @@ export default function FullscreenPlayer({
                     layoutId="player-next"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
                     whileHover={{ scale: 1.12 }} 
-                    whileTap={{ scale: 0.92 }} 
+                    data-press="true" 
                     onClick={() => {
                       if (handleNextChapter) {
                         handleNextChapter();
@@ -794,6 +794,14 @@ export default function FullscreenPlayer({
                           const isActive = currentTime >= line.start && currentTime <= line.end;
                           const isPast = currentTime > line.end;
                           const hasWords = Boolean(line.words && line.words.length > 0);
+                          // Palavra sendo lida: a última que já começou na frase ativa (continua destacada nos
+                          // pequenos silêncios entre uma palavra e outra, sem piscar)
+                          let activeWordIdx = -1;
+                          if (isActive && hasWords) {
+                            for (let wi = 0; wi < line.words!.length; wi++) {
+                              if (line.words![wi].start <= currentTime) activeWordIdx = wi; else break;
+                            }
+                          }
                           return (
                             <p 
                               key={idx}
@@ -809,8 +817,8 @@ export default function FullscreenPlayer({
                             >
                               {hasWords ? (
                                 line.words!.map((w, wIdx) => {
-                                  const isWordActive = currentTime >= w.start && currentTime <= w.end;
-                                  const isWordPast = currentTime > w.end;
+                                  const isWordActive = wIdx === activeWordIdx;
+                                  const isWordPast = activeWordIdx >= 0 && wIdx < activeWordIdx;
                                   return (
                                     <span
                                       key={wIdx}
@@ -948,14 +956,14 @@ export default function FullscreenPlayer({
             </div>
             {/* Deitado há espaço: o capítulo anterior aparece também */}
             {isLandFs && (
-              <motion.button layoutId="player-prev" whileTap={{ scale: 0.9 }} title={t('previous_chapter')}
+              <motion.button layoutId="player-prev" data-press="true" title={t('previous_chapter')}
                 onClick={(e) => { e.stopPropagation(); if (handlePrevChapter) handlePrevChapter(); else handleSeek(currentChapter.startTime); }}
                 className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
                 <SkipBack size={17} />
               </motion.button>
             )}
             {/* Voltar alguns segundos, à esquerda do play/pause (em pé e deitado) */}
-            <motion.button layoutId="player-seek-back" whileTap={{ scale: 0.9 }} title={t('seek_backward', { sec: seekBackwardTime })}
+            <motion.button layoutId="player-seek-back" data-press="true" title={t('seek_backward', { sec: seekBackwardTime })}
               aria-label={t('seek_backward', { sec: seekBackwardTime })}
               onClick={(e) => { e.stopPropagation(); handleSeek(Math.max(0, currentTime - seekBackwardTime)); }}
               className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
@@ -965,7 +973,7 @@ export default function FullscreenPlayer({
             <motion.button
               layoutId="player-play"
               transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
-              whileTap={{ scale: 0.9 }}
+              data-press="true"
               onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }}
               aria-label={isPlaying ? t('pause') : t('listen')}
               className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0"
@@ -974,13 +982,13 @@ export default function FullscreenPlayer({
             </motion.button>
             {isLandFs && (
               <>
-                <motion.button layoutId="player-seek-fwd" whileTap={{ scale: 0.9 }} title={t('seek_forward', { sec: seekForwardTime })}
+                <motion.button layoutId="player-seek-fwd" data-press="true" title={t('seek_forward', { sec: seekForwardTime })}
                   onClick={(e) => { e.stopPropagation(); handleSeek(Math.min(totalDuration, currentTime + seekForwardTime)); }}
                   className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
                   <BsArrowClockwise size={20} />
                   <span className="absolute text-[7px] font-bold mt-[1px]">{seekForwardTime}</span>
                 </motion.button>
-                <motion.button layoutId="player-next" whileTap={{ scale: 0.9 }} title={t('next_chapter')}
+                <motion.button layoutId="player-next" data-press="true" title={t('next_chapter')}
                   onClick={(e) => { e.stopPropagation(); handleNextChapter?.(); }}
                   className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
                   <SkipForward size={17} />

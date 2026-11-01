@@ -295,7 +295,7 @@ export default function BookDetailView({
         const heroButtons = (
                 <div className="mt-4 w-full flex items-center justify-center land:justify-start gap-5">
                   <motion.button
-                    whileTap={{ scale: 0.9 }}
+                    data-press="true"
                     onClick={toggleCompleted}
                     aria-label={bookCompleted ? t('mark_as_unstarted') : t('mark_as_completed')}
                     title={bookCompleted ? t('mark_as_unstarted') : t('mark_as_completed')}
@@ -304,7 +304,7 @@ export default function BookDetailView({
                     {bookCompleted ? <Headphones size={18} /> : <CheckCircle2 size={18} />}
                   </motion.button>
                   <motion.button
-                    whileTap={{ scale: 0.95 }}
+                    data-press="true"
                     onClick={() => {
                       if (isThisBookCurrent) setIsPlaying(!isPlaying);
                       else handlePlayBookFromStart(activeBook);
@@ -315,7 +315,7 @@ export default function BookDetailView({
                     <span>{isBookPlaying ? t('pause') : t('listen')}</span>
                   </motion.button>
                   <motion.button
-                    whileTap={{ scale: 0.9 }}
+                    data-press="true"
                     onClick={() => handleAddToQueue(activeBook, 'next')}
                     aria-label={t('next_in_queue')}
                     title={t('next_in_queue')}
@@ -506,7 +506,7 @@ export default function BookDetailView({
               <div className="flex flex-wrap items-center gap-3 pt-2 max-md:flex-col max-md:w-full max-md:gap-3">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  data-press="true"
                   onClick={() => {
                     if (isThisBookCurrent) {
                       setIsPlaying(!isPlaying);
@@ -525,7 +525,7 @@ export default function BookDetailView({
                 {!isThisBookCurrent && (
                   <>
                     <motion.button 
-                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05 }} data-press="true"
                       onClick={() => handleAddToQueue(activeBook, 'next')}
                       className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
                     >
@@ -533,7 +533,7 @@ export default function BookDetailView({
                       <span>{t('next_in_queue')}</span>
                     </motion.button>
                     <motion.button 
-                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05 }} data-press="true"
                       onClick={() => handleAddToQueue(activeBook, 'last')}
                       className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
                     >
@@ -545,7 +545,7 @@ export default function BookDetailView({
 
                 <motion.button 
                   whileHover={{ scale: 1.05 }} 
-                  whileTap={{ scale: 0.95 }}
+                  data-press="true"
                   onClick={() => {
                     const isCompleted = isBookCompleted(activeBook);
                     const chapIds = (activeBook.chapters || []).map((c: any) => `${activeBook.id}-${c.id}`);
@@ -610,7 +610,7 @@ export default function BookDetailView({
                       <motion.button 
                         type="button"
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        data-press="true"
                         onClick={handleRemoveBookCover}
                         className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl border border-red-500/35 text-red-400 shadow-xl flex items-center gap-2 text-xs font-semibold hover:bg-red-500/20 hover:border-red-500/60 hover:text-red-300 transition-all cursor-pointer"
                       >
@@ -620,7 +620,7 @@ export default function BookDetailView({
                     )}
                     <motion.label 
                       whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      data-press="true"
                       className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl border border-white/20 shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-white/20 hover:border-white/30 transition-all cursor-pointer"
                       title={t('choose_cover_computer')}
                     >
@@ -814,7 +814,7 @@ export default function BookDetailView({
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.06 }}
-                        whileTap={{ scale: 0.94 }}
+                        data-press="true"
                         onClick={() => {
                           setEditBookTranscript([]);
                           setEditBookTranscriptSource(undefined);
@@ -832,7 +832,7 @@ export default function BookDetailView({
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.06 }}
-                        whileTap={{ scale: 0.94 }}
+                        data-press="true"
                         onClick={() => editBookTextInputRef.current?.click()}
                         title={t('change_text')}
                         aria-label={t('change_text')}
@@ -846,7 +846,7 @@ export default function BookDetailView({
                     <motion.button
                       type="button"
                       whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
+                      data-press="true"
                       onClick={() => editBookTextInputRef.current?.click()}
                       className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                     >
@@ -891,7 +891,7 @@ export default function BookDetailView({
               {isSynopsisTruncated && (
                 <motion.button 
                   whileHover={{ scale: 1.06 }} 
-                  whileTap={{ scale: 0.94 }}
+                  data-press="true"
                   onClick={() => navigateTo('book-synopsis', activeBook)} 
                   className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer shrink-0 ml-3"
                 >
@@ -1031,7 +1031,7 @@ export default function BookDetailView({
                           type="button"
                           key="btn-chap-comments"
                           whileHover={{ scale: 1.08 }}
-                          whileTap={{ scale: 0.92 }}
+                          data-press="true"
                           animate={morphTriggerAnimate(isThisChapterCommentsOpen)}
                           title={t('bookmarks_count', { count: cap.bookmarks?.length || cap.comments?.length || 0 }) || t('comments_count', { count: cap.bookmarks?.length || cap.comments?.length || 0 })}
                           onClick={(e) => {
@@ -1122,7 +1122,7 @@ export default function BookDetailView({
                     <motion.button
                       key="btn"
                       whileHover={{ scale: 1.15 }}
-                      whileTap={{ scale: 0.92 }}
+                      data-press="true"
                       animate={activeChapterMenuId === `${activeBook.id}-${cap.id}` 
                         ? morphTriggerAnimate(true) 
                         : morphTriggerAnimate(false)

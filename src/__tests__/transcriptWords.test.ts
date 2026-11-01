@@ -35,4 +35,20 @@ describe('texto sincronizado por frase e por palavra', () => {
     expect(res.lines[0].text).toBe('No princípio era o Verbo.');
     expect(res.lines[0].words).toHaveLength(5);
   });
+
+  it('JSON com frases e palavras em listas separadas (sync.json)', async () => {
+    const json = JSON.stringify({
+      audio: 'a.mp3',
+      segments: [{ start: 0, end: 1.5, text: 'Era uma vez.' }, { start: 1.6, end: 3, text: 'Um rei.' }],
+      words: [
+        { start: 0, end: 0.4, text: 'Era' }, { start: 0.5, end: 0.9, text: 'uma' }, { start: 1, end: 1.5, text: 'vez.' },
+        { start: 1.6, end: 2.1, text: 'Um' }, { start: 2.2, end: 3, text: 'rei.' },
+      ],
+    });
+    const res: any = await parse('livro.sync.json', json);
+    expect(res.ok).toBe(true);
+    expect(res.lines).toHaveLength(2);
+    expect(res.lines[0].words.map((w: any) => w.text)).toEqual(['Era', 'uma', 'vez.']);
+    expect(res.lines[1].words.map((w: any) => w.text)).toEqual(['Um', 'rei.']);
+  });
 });

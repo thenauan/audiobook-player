@@ -338,7 +338,7 @@ export function QueueItemRow({
             <motion.button 
               type="button"
               whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.92 }}
+              data-press="true"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove();

@@ -132,7 +132,7 @@ export default function MiniPlayer({
                     layoutId="player-prev"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
-          whileTap={{ scale: 0.92 }} 
+          data-press="true" 
           onClick={() => {
             if (handlePrevChapter) {
               handlePrevChapter();
@@ -152,7 +152,7 @@ export default function MiniPlayer({
                     layoutId="player-seek-back"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
-          whileTap={{ scale: 0.92 }} 
+          data-press="true" 
           onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
           className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
           title={t('seek_backward', { sec: seekBackwardTime })}
@@ -165,7 +165,7 @@ export default function MiniPlayer({
                     layoutId="player-play"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
-          whileTap={{ scale: 0.92 }} 
+          data-press="true" 
           onClick={() => setIsPlaying(!isPlaying)}
           className="w-[38px] h-[38px] rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/20 hover:border-black/20 dark:hover:border-white/40 hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all shadow-sm shrink-0"
           title={isPlaying ? t('pause') : t('listen')}
@@ -177,7 +177,7 @@ export default function MiniPlayer({
                     layoutId="player-seek-fwd"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
-          whileTap={{ scale: 0.92 }} 
+          data-press="true" 
           onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
           className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
           title={t('seek_forward', { sec: seekForwardTime })}
@@ -190,7 +190,7 @@ export default function MiniPlayer({
                     layoutId="player-next"
                     transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
           whileHover={{ scale: 1.12 }} 
-          whileTap={{ scale: 0.92 }} 
+          data-press="true" 
           onClick={() => {
             if (handleNextChapter) {
               handleNextChapter();
@@ -475,7 +475,7 @@ export function MobileMiniPlayer({
         <motion.button
           layoutId="player-play"
           transition={MORPH_LAYOUT}
-          whileTap={{ scale: 0.9 }}
+          data-press="true"
           onClick={(e) => {
             e.stopPropagation();
             setIsPlaying(!isPlaying);

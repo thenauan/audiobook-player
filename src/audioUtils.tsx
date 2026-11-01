@@ -1828,7 +1828,9 @@ function parseJsonTranscript(jsonText: string): TranscriptLine[] {
           ? data.lines
           : Array.isArray(data?.cues)
             ? data.cues
-            : null;
+            : Array.isArray(data?.sentences)
+              ? data.sentences
+              : null;
 
   if (segmentsArr && segmentsArr.length > 0) {
     // Check if the array is actually a flat array of single words
@@ -1876,7 +1878,14 @@ function parseJsonTranscript(jsonText: string): TranscriptLine[] {
         });
       }
     }
-    if (result.length > 0) return result;
+    if (result.length > 0) {
+      // Frases e palavras em listas separadas no mesmo arquivo ({ segments: [...], words: [...] }, como o
+      // .sync.json do Audiobook Generator): cada palavra vai para a frase em que ela começa
+      if (Array.isArray(data?.words) && data.words.length > 0 && !result.some(r => r.words && r.words.length > 0)) {
+        attachWordsToSegments(result, parseWordList(data.words));
+      }
+      return result;
+    }
   }
 
   // Case 2: { "words": [ { "start": 0.0, "end": 0.35, "text": "Era" }, ... ] }
@@ -1894,6 +1903,40 @@ function parseJsonTranscript(jsonText: string): TranscriptLine[] {
   }
 
   return [];
+}
+
+function parseWordList(list: any[]): TranscriptWord[] {
+  return list
+    .map((w: any) => {
+      const ws = parseTimeValueToSeconds(w?.start ?? w?.startTime ?? w?.begin);
+      if (ws === null) return null;
+      const we = parseTimeValueToSeconds(w?.end ?? w?.endTime) ?? (ws + 0.35);
+      const wt = String(w?.text ?? w?.word ?? '').trim();
+      return wt ? { start: ws, end: Math.max(ws, we), text: wt } : null;
+    })
+    .filter(Boolean) as TranscriptWord[];
+}
+
+// Distribui palavras (com tempo) pelas frases: cada palavra fica na frase em que começa (com pequena
+// tolerância no início). Frases sem palavras continuam só com o destaque da frase.
+function attachWordsToSegments(lines: TranscriptLine[], words: TranscriptWord[]) {
+  if (words.length === 0 || lines.length === 0) return;
+  const order = lines.map((_, i) => i).sort((a, b) => lines[a].start - lines[b].start);
+  const sorted = [...words].sort((a, b) => a.start - b.start);
+  const TOL = 0.12;
+  let wi = 0;
+  order.forEach((li, k) => {
+    const line = lines[li];
+    const nextStart = k + 1 < order.length ? lines[order[k + 1]].start : Infinity;
+    const bucket: TranscriptWord[] = [];
+    // palavras antes desta frase (entre frases) ficam de fora
+    while (wi < sorted.length && sorted[wi].start < line.start - TOL) wi++;
+    while (wi < sorted.length && sorted[wi].start < nextStart - TOL) {
+      bucket.push(sorted[wi]);
+      wi++;
+    }
+    if (bucket.length > 0) line.words = bucket;
+  });
 }
 
 // Texto com marcas de tempo por palavra dentro da frase (VTT "<00:00:01.200>", LRC estendido "<01:02.30>"):

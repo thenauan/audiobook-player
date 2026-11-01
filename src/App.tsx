@@ -34,6 +34,7 @@ import { ScreenErrorBoundary } from './components/ScreenErrorBoundary';
 import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
+import { installTapBounce } from './components/tapBounce';
 import { diag } from './playbackDiag';
 import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './authorUtils';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
@@ -3697,7 +3698,7 @@ export default function App() {
                                                       </div>
                                                       {IS_INSTALLED_APP && (<motion.button
                                                         whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
+                                                        data-press="true"
                                                         onClick={(e) => {
                                                           e.stopPropagation();
                                                           handleOpenBookInFolder(activeBk);
@@ -3916,7 +3917,7 @@ export default function App() {
           <div className="max-w-xl md:max-w-5xl mx-auto md:px-10 flex items-center justify-between gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              data-press="true"
               onClick={goPrev}
               className={`${navBtn} pl-2.5 pr-4 md:pl-3 md:pr-5 bg-white/10 border-white/20 text-white transition-[background-color,border-color,box-shadow] hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_20px_rgba(255,255,255,0.22)]`}
             >
@@ -3930,7 +3931,7 @@ export default function App() {
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              data-press="true"
               onClick={goNext}
               className={`${navBtn} pl-4 pr-2.5 md:pl-5 md:pr-3 bg-winblue/30 border-winblue text-winblue transition-[background-color,box-shadow] hover:bg-winblue/40 hover:shadow-[0_0_24px_rgba(var(--winblue-rgb),0.45)]`}
             >
@@ -4231,7 +4232,7 @@ export default function App() {
         footer: (
           <div className="flex items-center justify-center">
             <motion.button
-              whileTap={{ scale: 0.96 }}
+              data-press="true"
               disabled={lyricsSelection.length === 0 || isGeneratingShare}
               onClick={() => openShareImage('quote', bk, lyricsSelection.map(i => transcriptLineText(transcript[i])))}
               className="h-12 px-7 rounded-full bg-winblue/20 border border-winblue/45 text-winblue shadow-sm text-[15px] font-bold flex items-center justify-center gap-2 disabled:opacity-40"
@@ -4616,7 +4617,8 @@ export default function App() {
 
     const handleScroll = () => {
       const st = container.scrollTop;
-      // Mobile: rolar para baixo recolhe a barra de abas; rolar para cima (ou voltar ao topo) expande
+      // Mobile: rolar para baixo recolhe a barra de abas; como no iOS, ela só volta a expandir sozinha ao
+      // chegar ao topo (rolar para cima não expande; tocar nela expande)
       const lastSt = lastScrollTopRef.current;
       lastScrollTopRef.current = st;
       // Só a rolagem do usuário mexe na barra (não as do app durante a troca de telas, nem saltos)
@@ -4624,7 +4626,6 @@ export default function App() {
       if (!frozen) {
         if (st < 24) tabBarStore.set(false);
         else if (st > lastSt + 6) tabBarStore.set(true);
-        else if (st < lastSt - 10) tabBarStore.set(false);
       }
       // O desfoque surge desde o primeiro pixel e atinge a intensidade total aos 28px, como no iOS
       setHeaderBlurProgress(st);
@@ -5111,7 +5112,7 @@ export default function App() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.12 } }}
           whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.94 }}
+          data-press="true"
           transition={{ type: "spring", stiffness: 520, damping: 32, mass: 0.5 }}
           onClick={(e) => {
             e.stopPropagation();
@@ -7615,7 +7616,7 @@ export default function App() {
           {showBackToOptions && !isMobile && (
             <motion.button
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              data-press="true"
               onClick={(e) => {
                 e.stopPropagation();
                 setActiveChapterMenuMode('options');
@@ -7677,7 +7678,7 @@ export default function App() {
                   <div className="flex items-center gap-2.5">
                     <motion.button 
                       whileHover={{ scale: 1.06 }} 
-                      whileTap={{ scale: 0.94 }} 
+                      data-press="true" 
                       onClick={() => { setIsAddingComment(false); setAddingCommentText(''); }} 
                       className="h-7 px-3 rounded-full bg-card/75 border border-[var(--text-main)]/15 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.22)] flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                     >
@@ -7686,7 +7687,7 @@ export default function App() {
                     </motion.button>
                     <motion.button 
                       whileHover={{ scale: 1.06 }} 
-                      whileTap={{ scale: 0.94 }} 
+                      data-press="true" 
                       onClick={handleSaveComment} 
                       className="h-7 px-3 rounded-full bg-card/75 border border-winblue/40 shadow-sm text-xs font-semibold text-winblue hover:bg-winblue/15 hover:border-winblue/60 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)] flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                     >
@@ -7748,7 +7749,7 @@ export default function App() {
                               <div className="flex items-center gap-2.5">
                                 <motion.button 
                                   whileHover={{ scale: 1.06 }} 
-                                  whileTap={{ scale: 0.94 }} 
+                                  data-press="true" 
                                   onClick={() => { setEditingCommentId(null); setEditingCommentText(''); }} 
                                   className="h-7 px-3 rounded-full bg-card/75 border border-[var(--text-main)]/15 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.22)] flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                                 >
@@ -7757,7 +7758,7 @@ export default function App() {
                                 </motion.button>
                                 <motion.button 
                                   whileHover={{ scale: 1.06 }} 
-                                  whileTap={{ scale: 0.94 }} 
+                                  data-press="true" 
                                   onClick={() => handleSaveEditComment(com.id)} 
                                   className="h-7 px-3 rounded-full bg-card/75 border border-winblue/40 shadow-sm text-xs font-semibold text-winblue hover:bg-winblue/15 hover:border-winblue/60 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)] flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                                 >
@@ -7773,7 +7774,7 @@ export default function App() {
                             <div className="flex items-center gap-3 py-1 px-2">
                               <motion.button 
                                 whileHover={{ scale: 1.06 }} 
-                                whileTap={{ scale: 0.94 }} 
+                                data-press="true" 
                                 onClick={() => handleDeleteComment(com.id)} 
                                 className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-sm hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-[background-color,border-color,color,box-shadow] font-semibold text-xs flex items-center gap-1.5"
                               >
@@ -7782,7 +7783,7 @@ export default function App() {
                               </motion.button>
                               <motion.button 
                                 whileHover={{ scale: 1.06 }} 
-                                whileTap={{ scale: 0.94 }} 
+                                data-press="true" 
                                 onClick={() => setDeletingCommentId(null)} 
                                 className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/15 shadow-sm hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.22)] text-[var(--text-main)] transition-[background-color,border-color,color,box-shadow] font-semibold text-xs flex items-center gap-1.5"
                               >
@@ -7798,7 +7799,7 @@ export default function App() {
                                 <motion.button
                                   type="button"
                                   whileHover={{ scale: 1.08 }}
-                                  whileTap={{ scale: 0.94 }}
+                                  data-press="true"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleJumpToComment(liveBook, liveChapter, com.timestamp);
@@ -7817,7 +7818,7 @@ export default function App() {
                               <div className="flex items-center gap-2 py-1 px-1.5 -my-0.5 -mr-0.5">
                                 <motion.button 
                                   whileHover={{ scale: 1.12 }}
-                                  whileTap={{ scale: 0.9 }}
+                                  data-press="true"
                                   onClick={() => { setDeletingCommentId(null); setEditingCommentId(com.id); setEditingCommentText(com.text); }} 
                                   className="w-7 h-7 rounded-full bg-card/75 border border-[var(--text-main)]/15 shadow-sm flex items-center justify-center text-[var(--text-main)] hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] transition-[background-color,border-color,color,box-shadow]"
                                   title={t('edit_bookmark') || t('edit_comment')}
@@ -7826,7 +7827,7 @@ export default function App() {
                                 </motion.button>
                                 <motion.button 
                                   whileHover={{ scale: 1.12 }}
-                                  whileTap={{ scale: 0.9 }}
+                                  data-press="true"
                                   onClick={() => {
                                     setEditingCommentId(null);
                                     if (isMobile || isTouchDevice) {
@@ -7906,7 +7907,7 @@ export default function App() {
         <motion.button 
           key="btn-fs-comments"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={morphTriggerAnimate(showCommentsPopover)}
           onClick={(e) => { 
             e.stopPropagation(); 
@@ -7960,7 +7961,7 @@ export default function App() {
         <motion.button 
           key="btn-fs-speed"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={morphTriggerAnimate(showSpeedMenu)}
           onClick={(e) => { 
             e.stopPropagation(); 
@@ -8045,7 +8046,7 @@ export default function App() {
         <motion.button 
           key="btn-fs-sleep"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={morphTriggerAnimate(showSleepTimerMenu)}
           onClick={(e) => { 
             e.stopPropagation(); 
@@ -8111,7 +8112,7 @@ export default function App() {
                         <div className="w-full flex items-center gap-2 mt-2">
                           <motion.button
                             whileHover={{ scale: 1.04 }}
-                            whileTap={{ scale: 0.96 }}
+                            data-press="true"
                             onClick={() => {
                               setIsSleepTimerPaused(!isSleepTimerPaused);
                               showToast(!isSleepTimerPaused ? t('sleep_timer_paused') : t('sleep_timer_resume'));
@@ -8124,7 +8125,7 @@ export default function App() {
 
                           <motion.button
                             whileHover={{ scale: 1.04 }}
-                            whileTap={{ scale: 0.96 }}
+                            data-press="true"
                             onClick={() => {
                               setSleepTimerRemaining(null);
                               setSleepTimerMode(null);
@@ -8201,7 +8202,7 @@ export default function App() {
         <motion.button 
           key="btn-fs-queue"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={showQueuePopup 
             ? morphTriggerAnimate(true) 
             : (isQueuePulse 
@@ -8395,7 +8396,7 @@ export default function App() {
         <motion.button 
           key="btn-fs-vol"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={morphTriggerAnimate(showVolumePopup)}
           onClick={(e) => { 
             e.stopPropagation(); 
@@ -8504,7 +8505,7 @@ export default function App() {
             <motion.button 
               key="btn-fs-text"
               whileHover={{ scale: 1.12 }}
-              whileTap={{ scale: 0.92 }}
+              data-press="true"
               onClick={() => setShowTranscript(prev => !prev)}
               className={`w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl ${
                 showTranscript 
@@ -8519,7 +8520,7 @@ export default function App() {
             <motion.button 
               key="btn-fs-add-text"
               whileHover={{ scale: 1.12 }}
-              whileTap={{ scale: 0.92 }}
+              data-press="true"
               animate={morphTriggerAnimate(showAddTextPopup)}
               onClick={(e) => {
                 e.stopPropagation();
@@ -8599,7 +8600,7 @@ export default function App() {
           ref={miniCommentsBtnRef}
           key="btn-mini-comments"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={morphTriggerAnimate(showCommentsPopover)}
           onClick={(e) => { 
             e.stopPropagation(); 
@@ -8667,7 +8668,7 @@ export default function App() {
           ref={miniSpeedBtnRef}
           key="btn-mini-speed"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={morphTriggerAnimate(showSpeedMenu)}
           onClick={(e) => { 
             e.stopPropagation(); 
@@ -8761,7 +8762,7 @@ export default function App() {
           ref={miniSleepBtnRef}
           key="btn-mini-sleep"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={morphTriggerAnimate(showSleepTimerMenu)}
           onClick={(e) => { 
             e.stopPropagation(); 
@@ -8835,7 +8836,7 @@ export default function App() {
                             {/* Pausar/Retomar à ESQUERDA com design dos botões da interface */}
                             <motion.button
                               whileHover={{ scale: 1.04 }}
-                              whileTap={{ scale: 0.96 }}
+                              data-press="true"
                               onClick={() => {
                                 setIsSleepTimerPaused(!isSleepTimerPaused);
                                 showToast(!isSleepTimerPaused ? t('sleep_timer_paused') : t('sleep_timer_resume'));
@@ -8850,7 +8851,7 @@ export default function App() {
                             {/* Cancelar à DIREITA com design dos botões da interface */}
                             <motion.button
                               whileHover={{ scale: 1.04 }}
-                              whileTap={{ scale: 0.96 }}
+                              data-press="true"
                               onClick={() => {
                                 setSleepTimerRemaining(null);
                                 setSleepTimerMode(null);
@@ -8931,7 +8932,7 @@ export default function App() {
           ref={miniQueueBtnRef}
           key="btn-mini-queue"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={showQueuePopup 
             ? morphTriggerAnimate(true) 
             : (isQueuePulse 
@@ -9138,7 +9139,7 @@ export default function App() {
           ref={miniVolumeBtnRef}
           key="btn-mini-volume"
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           animate={morphTriggerAnimate(showVolumePopup)}
           onClick={(e) => { 
             e.stopPropagation(); 
@@ -9228,7 +9229,7 @@ export default function App() {
       {!isFullScreenMode && (
         <motion.button 
           whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           onClick={() => {
             closeAllPopups();
             setIsFullScreen(true);
@@ -9709,7 +9710,7 @@ export default function App() {
             }`}>
               <motion.button 
                 whileHover={{ scale: 1.12 }}
-                whileTap={{ scale: 0.92 }}
+                data-press="true"
                 animate={morphTriggerAnimate(isMenuOpen)}
                 onClick={(e) => { 
                   e.stopPropagation(); 
@@ -9937,7 +9938,7 @@ export default function App() {
                             <div className="flex items-center justify-end gap-2.5 pt-1">
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                data-press="true"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDeleteBook(book.id);
@@ -9955,7 +9956,7 @@ export default function App() {
                               </motion.button>
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                data-press="true"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setConfirmDeleteSearchId(null);
@@ -10081,7 +10082,7 @@ export default function App() {
             }`}>
               <motion.button 
                 whileHover={{ scale: 1.12 }}
-                whileTap={{ scale: 0.92 }}
+                data-press="true"
                 animate={morphTriggerAnimate(isMenuOpen)}
                 onClick={(e) => { 
                   e.stopPropagation(); 
@@ -10288,6 +10289,8 @@ export default function App() {
 
   // Pop-ups no toque: destaque na opção tocada e escolha por arrasto (solta para escolher)
   useEffect(() => installTouchMenus(), []);
+  // Botões crescem ao pressionar e dão um pulinho ao soltar (como nos sistemas da Apple)
+  useEffect(() => installTapBounce(), []);
   // Áreas com rolagem: bordas que se dissolvem (sem corte seco)
   useEffect(() => installScrollFades(), []);
 
@@ -10569,7 +10572,7 @@ export default function App() {
                     exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.08 } }}
                     transition={{ type: 'spring', stiffness: 520, damping: 36, mass: 0.55 }}
                     whileHover={{ scale: 1.12 }}
-                    whileTap={{ scale: 0.92 }}
+                    data-press="true"
                     onClick={goBack}
                     // Celular: ao rolar, a pílula encolhe suavemente até virar um círculo só com a seta
                     // (o texto se recolhe e some), e volta ao subir
@@ -10881,7 +10884,7 @@ export default function App() {
                         exit={{ opacity: 0, scale: 0.55, x: resolvedLanguage === 'ar' ? 18 : -18 }}
                         transition={{ type: "spring", stiffness: 480, damping: 34, mass: 0.55 }}
                         whileHover={{ scale: 1.12 }}
-                        whileTap={{ scale: 0.92 }}
+                        data-press="true"
                         onClick={() => {
                           setSearchQuery('');
                           setActiveSearchMenuId(null);
@@ -10922,7 +10925,7 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.85, x: -10 }}
                     whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    data-press="true"
                     onClick={handleExitDevMode}
                     title={t('exit_dev_mode')}
                     className="max-md:hidden h-9 px-3.5 rounded-full bg-gradient-to-r from-amber-500/25 via-amber-500/20 to-orange-500/25 border border-amber-500/50 text-amber-400 hover:text-amber-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all backdrop-blur-3xl font-bold text-xs flex items-center gap-1.5 shrink-0 shadow-lg cursor-pointer select-none"
@@ -10964,7 +10967,7 @@ export default function App() {
                               <motion.button 
                                 key="btn"
                                 whileHover={{ scale: 1.12 }}
-                                whileTap={{ scale: 0.92 }}
+                                data-press="true"
                                 animate={morphTriggerAnimate(showDeleteSelectionConfirm)}
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -11100,7 +11103,7 @@ export default function App() {
                                       <div className="flex items-center justify-end gap-2.5 pt-1">
                                         <motion.button
                                           whileHover={{ scale: 1.05 }}
-                                          whileTap={{ scale: 0.95 }}
+                                          data-press="true"
                                           onClick={() => {
                                             if (isCollectionsScreen) {
                                               setCollections(prev => prev.filter(c => !selectedCollectionIds.includes(c.id)));
@@ -11168,7 +11171,7 @@ export default function App() {
                                         </motion.button>
                                         <motion.button
                                           whileHover={{ scale: 1.05 }}
-                                          whileTap={{ scale: 0.95 }}
+                                          data-press="true"
                                           onClick={() => {
                                             setShowDeleteSelectionConfirm(false);
                                             setIsSelectionMode(false);
@@ -11307,7 +11310,7 @@ export default function App() {
                                       <div className="flex items-center justify-end gap-2.5 pt-1">
                                         <motion.button
                                           whileHover={{ scale: 1.05 }}
-                                          whileTap={{ scale: 0.95 }}
+                                          data-press="true"
                                           onClick={() => {
                                             if (isCollectionsScreen) {
                                               setCollections(prev => prev.filter(c => !selectedCollectionIds.includes(c.id)));
@@ -11375,7 +11378,7 @@ export default function App() {
                                         </motion.button>
                                         <motion.button
                                           whileHover={{ scale: 1.05 }}
-                                          whileTap={{ scale: 0.95 }}
+                                          data-press="true"
                                           onClick={() => {
                                             setShowDeleteSelectionConfirm(false);
                                             setIsSelectionMode(false);
@@ -11401,7 +11404,7 @@ export default function App() {
                       </div>
                       <motion.button 
                         whileHover={{ scale: 1.12 }}
-                        whileTap={{ scale: 0.92 }}
+                        data-press="true"
                         animate={showDeleteSelectionConfirm
                           ? { scale: 0.85, opacity: 0, pointerEvents: 'none', transition: { duration: 0.14 } }
                           : { scale: 1, opacity: 1, pointerEvents: 'auto', transition: { type: "spring", stiffness: 500, damping: 30 } }
@@ -11436,7 +11439,7 @@ export default function App() {
                         <div className="flex items-center gap-2.5">
                           <motion.button 
                             whileHover={{ scale: 1.08 }} 
-                            whileTap={{ scale: 0.95 }} 
+                            data-press="true" 
                             title={t('save')} 
                             onClick={handleSaveCollectionForm}
                             className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 border border-winblue/45 shadow-[0_0_15px_rgba(var(--winblue-rgb),0.15)] hover:bg-winblue/30 hover:border-winblue/75 hover:shadow-[0_0_22px_rgba(var(--winblue-rgb),0.45)] text-winblue transition-all backdrop-blur-3xl font-semibold text-xs cursor-pointer"
@@ -11446,7 +11449,7 @@ export default function App() {
                           </motion.button>
                           <motion.button 
                             whileHover={{ scale: 1.12 }} 
-                            whileTap={{ scale: 0.92 }} 
+                            data-press="true" 
                             title={t('cancel')} 
                             onClick={goBack}
                             className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs cursor-pointer"
@@ -11466,7 +11469,7 @@ export default function App() {
                               <div className={`relative w-9 h-9 shrink-0 ${showCollectionHeaderAddPopup ? 'z-50' : 'z-10'}`}>
                                 <motion.button
                                   whileHover={{ scale: 1.12 }}
-                                  whileTap={{ scale: 0.92 }}
+                                  data-press="true"
                                   animate={morphTriggerAnimate(showCollectionHeaderAddPopup)}
                                   title={t('add_to_collection')}
                                   onClick={(e) => {
@@ -11512,7 +11515,7 @@ export default function App() {
 
                               <motion.button
                                 whileHover={{ scale: 1.12 }}
-                                whileTap={{ scale: 0.92 }}
+                                data-press="true"
                                 title={t('edit_collection')}
                                 onClick={() => handleStartEditCurrentCollection()}
                                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
@@ -11525,7 +11528,7 @@ export default function App() {
                                 <motion.button 
                                   ref={sortBtnRef}
                                   whileHover={{ scale: 1.12 }}
-                                  whileTap={{ scale: 0.92 }}
+                                  data-press="true"
                                   animate={morphTriggerAnimate(showSortMenu)}
                                   transition={{ type: "spring", stiffness: 600, damping: 30 }}
                                   title={t('sort_by')} 
@@ -11551,7 +11554,7 @@ export default function App() {
                               <div className={`relative w-9 h-9 shrink-0 ${showDeleteCurrentCollectionConfirm ? 'z-50' : 'z-10'}`}>
                                 <motion.button
                                   whileHover={{ scale: 1.12 }}
-                                  whileTap={{ scale: 0.92 }}
+                                  data-press="true"
                                   animate={morphTriggerAnimate(showDeleteCurrentCollectionConfirm)}
                                   title={t('delete_collection')}
                                   onClick={(e) => {
@@ -11599,7 +11602,7 @@ export default function App() {
                                         <div className="flex items-center justify-end gap-2.5 pt-1">
                                           <motion.button
                                             whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                            data-press="true"
                                             onClick={() => {
                                               setShowDeleteCurrentCollectionConfirm(false);
                                               handleDeleteCollection(headerCol.id);
@@ -11611,7 +11614,7 @@ export default function App() {
                                           </motion.button>
                                           <motion.button
                                             whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                            data-press="true"
                                             onClick={() => setShowDeleteCurrentCollectionConfirm(false)}
                                             className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                                           >
@@ -11631,7 +11634,7 @@ export default function App() {
                         <>
                           <motion.button 
                             whileHover={{ scale: 1.12 }} 
-                            whileTap={{ scale: 0.92 }} 
+                            data-press="true" 
                             title={t('add_collection')} 
                             onClick={() => handleStartCreateCollection()}
                             className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
@@ -11643,7 +11646,7 @@ export default function App() {
                             <motion.button 
                               ref={sortBtnRef}
                               whileHover={{ scale: 1.12 }}
-                              whileTap={{ scale: 0.92 }}
+                              data-press="true"
                               animate={morphTriggerAnimate(showSortMenu)}
                               transition={{ type: "spring", stiffness: 600, damping: 30 }}
                               title={t('sort_by')} 
@@ -11667,7 +11670,7 @@ export default function App() {
                           {collections.length > 0 && (
                             <motion.button 
                               whileHover={{ scale: 1.12 }} 
-                              whileTap={{ scale: 0.92 }} 
+                              data-press="true" 
                               title={t('delete_collections')} 
                               onClick={() => {
                                 setIsSelectionMode(true);
@@ -11686,7 +11689,7 @@ export default function App() {
                             <>
                               <motion.button 
                                 whileHover={{ scale: 1.12 }}
-                                whileTap={{ scale: 0.92 }}
+                                data-press="true"
                                 title={t('upload_audiobooks')}
                                 onClick={() => fileInputRef.current?.click()} 
                                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
@@ -11696,7 +11699,7 @@ export default function App() {
                               {IS_INSTALLED_APP && activeScreen.id.startsWith('library') && (
                                 <motion.button
                                   whileHover={{ scale: 1.12 }}
-                                  whileTap={{ scale: 0.92 }}
+                                  data-press="true"
                                   title={t('sync_now')}
                                   onClick={() => handleSyncLibraryNow()}
                                   className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl cursor-pointer ${
@@ -11712,7 +11715,7 @@ export default function App() {
                                 <motion.button 
                                   ref={sortBtnRef}
                                   whileHover={{ scale: 1.12 }}
-                                  whileTap={{ scale: 0.92 }}
+                                  data-press="true"
                                   animate={morphTriggerAnimate(showSortMenu)}
                                   transition={{ type: "spring", stiffness: 600, damping: 30 }}
                                   title={t('sort_by')} 
@@ -11735,7 +11738,7 @@ export default function App() {
                               </div>
                               <motion.button 
                                 whileHover={{ scale: 1.12 }}
-                                whileTap={{ scale: 0.92 }}
+                                data-press="true"
                                 title={t('delete_multiple')}
                                 onClick={() => setIsSelectionMode(true)} 
                                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl"
@@ -11757,7 +11760,7 @@ export default function App() {
                                 <motion.button 
                                   ref={authorCollectionBtnRef}
                                   whileHover={{ scale: 1.12 }} 
-                                  whileTap={{ scale: 0.92 }} 
+                                  data-press="true" 
                                   animate={morphTriggerAnimate(showAuthorCollectionPopup)}
                                   title={t('add_to_collection')}
                                   onClick={(e) => {
@@ -11788,7 +11791,7 @@ export default function App() {
 
                               <motion.button 
                                 whileHover={{ scale: 1.12 }} 
-                                whileTap={{ scale: 0.92 }} 
+                                data-press="true" 
                                 title={favoriteAuthorIds.includes(activeScreen.data?.id) ? t('remove_favorite_author') : t('favorite_author')}
                                 onClick={() => {
                                   if (activeScreen.data?.id) toggleFavoriteAuthor(activeScreen.data.id);
@@ -11803,7 +11806,7 @@ export default function App() {
                               </motion.button>
                               <motion.button 
                                 whileHover={{ scale: 1.12 }} 
-                                whileTap={{ scale: 0.92 }} 
+                                data-press="true" 
                                 title={t('edit_author')} 
                                 onClick={handleStartEditAuthor}
                                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
@@ -11812,7 +11815,7 @@ export default function App() {
                               </motion.button>
                               <motion.button 
                                 whileHover={{ scale: 1.12 }}
-                                whileTap={{ scale: 0.92 }} 
+                                data-press="true" 
                                 title={t('delete_multiple')}
                                 onClick={() => setIsSelectionMode(true)} 
                                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl"
@@ -11824,7 +11827,7 @@ export default function App() {
                             <div className="flex items-center gap-2.5">
                               <motion.button 
                                 whileHover={{ scale: 1.08 }} 
-                                whileTap={{ scale: 0.95 }} 
+                                data-press="true" 
                                 title={t('save_changes')} 
                                 onClick={handleSaveAuthorEdits}
                                 className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 border border-winblue/45 shadow-[0_0_15px_rgba(var(--winblue-rgb),0.15)] hover:bg-winblue/30 hover:border-winblue/75 hover:shadow-[0_0_22px_rgba(var(--winblue-rgb),0.45)] text-winblue transition-all backdrop-blur-3xl font-semibold text-xs"
@@ -11834,7 +11837,7 @@ export default function App() {
                               </motion.button>
                               <motion.button 
                                 whileHover={{ scale: 1.12 }} 
-                                whileTap={{ scale: 0.92 }} 
+                                data-press="true" 
                                 title={t('cancel_edit')} 
                                 onClick={handleCancelAuthorEdits}
                                 className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
@@ -11857,7 +11860,7 @@ export default function App() {
                                 <motion.button 
                                   ref={bookCollectionBtnRef}
                                   whileHover={{ scale: 1.12 }} 
-                                  whileTap={{ scale: 0.92 }} 
+                                  data-press="true" 
                                   animate={morphTriggerAnimate(showBookCollectionPopup)}
                                   title={t('add_to_collection')}
                                   onClick={(e) => {
@@ -11889,7 +11892,7 @@ export default function App() {
 
                               <motion.button 
                                 whileHover={{ scale: 1.12 }} 
-                                whileTap={{ scale: 0.92 }} 
+                                data-press="true" 
                                 title={favoriteBookIds.includes((activeScreen.data || selectedBook)?.id) ? t('remove_from_favorites') : t('favorite')} 
                                 onClick={() => {
                                   const target = activeScreen.data || selectedBook;
@@ -11905,7 +11908,7 @@ export default function App() {
                               </motion.button>
                               <motion.button 
                                 whileHover={{ scale: 1.12 }} 
-                                whileTap={{ scale: 0.92 }} 
+                                data-press="true" 
                                 title={t('edit_audiobook')} 
                                 onClick={handleStartEditBook}
                                 className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
@@ -11917,7 +11920,7 @@ export default function App() {
                                 <motion.button
                                   key="btn"
                                   whileHover={{ scale: 1.12 }}
-                                  whileTap={{ scale: 0.92 }}
+                                  data-press="true"
                                   animate={morphTriggerAnimate(showShareBookMenu)}
                                   title={t('share')}
                                   onClick={(e) => {
@@ -11968,7 +11971,7 @@ export default function App() {
                                 <motion.button 
                                   key="btn"
                                   whileHover={{ scale: 1.12 }} 
-                                  whileTap={{ scale: 0.92 }} 
+                                  data-press="true" 
                                   animate={morphTriggerAnimate(showBookDetailsPopup)}
                                   title={t('more_details')} 
                                   onClick={(e) => {
@@ -12004,7 +12007,7 @@ export default function App() {
                                 <motion.button 
                                   key="btn"
                                   whileHover={{ scale: 1.12 }} 
-                                  whileTap={{ scale: 0.92 }} 
+                                  data-press="true" 
                                   animate={morphTriggerAnimate(showDeleteBookDetailConfirm)}
                                   title={t('delete')} 
                                   onClick={(e) => {
@@ -12058,7 +12061,7 @@ export default function App() {
                                         <div className="flex items-center justify-end gap-2.5 pt-1">
                                           <motion.button
                                             whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                            data-press="true"
                                             onClick={() => {
                                               const target = activeScreen.data || selectedBook;
                                               if (target) {
@@ -12076,7 +12079,7 @@ export default function App() {
                                           </motion.button>
                                           <motion.button
                                             whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                            data-press="true"
                                             onClick={() => setShowDeleteBookDetailConfirm(false)}
                                             className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                           >
@@ -12094,7 +12097,7 @@ export default function App() {
                             <div className="flex items-center gap-2.5">
                               <motion.button 
                                 whileHover={{ scale: 1.08 }} 
-                                whileTap={{ scale: 0.95 }} 
+                                data-press="true" 
                                 title={t('save_changes')} 
                                 onClick={handleSaveBookEdits}
                                 className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 border border-winblue/45 shadow-[0_0_15px_rgba(var(--winblue-rgb),0.15)] hover:bg-winblue/30 hover:border-winblue/75 hover:shadow-[0_0_22px_rgba(var(--winblue-rgb),0.45)] text-winblue transition-all backdrop-blur-3xl font-semibold text-xs"
@@ -12104,7 +12107,7 @@ export default function App() {
                               </motion.button>
                               <motion.button 
                                 whileHover={{ scale: 1.12 }} 
-                                whileTap={{ scale: 0.92 }} 
+                                data-press="true" 
                                 title={t('cancel_edit')} 
                                 onClick={handleCancelBookEdits}
                                 className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
@@ -12124,7 +12127,7 @@ export default function App() {
                             <motion.button 
                               key="btn-reset-settings"
                               whileHover={{ scale: 1.12 }}
-                              whileTap={{ scale: 0.92 }}
+                              data-press="true"
                               animate={morphTriggerAnimate(showResetSettingsConfirm)}
                               title={t('settings_reset')} 
                               onClick={(e) => { 
@@ -12160,7 +12163,7 @@ export default function App() {
                                     <div className="flex items-center justify-end gap-2.5 pt-1">
                                       <motion.button
                                         whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        data-press="true"
                                         onClick={() => {
                                           handleResetSettings();
                                           setShowResetSettingsConfirm(false);
@@ -12172,7 +12175,7 @@ export default function App() {
                                       </motion.button>
                                       <motion.button
                                         whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        data-press="true"
                                         onClick={() => setShowResetSettingsConfirm(false)}
                                         className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                       >
@@ -12188,7 +12191,7 @@ export default function App() {
 
                           <motion.button 
                             whileHover={{ scale: 1.12 }}
-                            whileTap={{ scale: 0.92 }}
+                            data-press="true"
                             onClick={() => {
                               if ((window as any).electron) {
                                 (window as any).electron.closeApp();
@@ -12305,7 +12308,7 @@ export default function App() {
                       <motion.button
                         key="btn-clear-history"
                         whileHover={{ scale: 1.12 }}
-                        whileTap={{ scale: 0.92 }}
+                        data-press="true"
                         animate={morphTriggerAnimate(showDeleteSearchHistoryConfirm)}
                         title={t('clear_search_history')}
                         onClick={(e) => {
@@ -12331,7 +12334,7 @@ export default function App() {
                               <div className="flex items-center justify-end gap-2.5 pt-1">
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
+                                  data-press="true"
                                   onClick={() => {
                                     setSearchHistory([]);
                                     try {
@@ -12347,7 +12350,7 @@ export default function App() {
                                 </motion.button>
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
+                                  data-press="true"
                                   onClick={() => setShowDeleteSearchHistoryConfirm(false)}
                                   className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                 >
@@ -12378,7 +12381,7 @@ export default function App() {
                               <div className="flex items-center justify-end gap-2.5 pt-1">
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
+                                  data-press="true"
                                   onClick={() => {
                                     setSearchHistory([]);
                                     try {
@@ -12394,7 +12397,7 @@ export default function App() {
                                 </motion.button>
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
+                                  data-press="true"
                                   onClick={() => setShowDeleteSearchHistoryConfirm(false)}
                                   className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                 >
@@ -12472,7 +12475,7 @@ export default function App() {
                   </p>
                   <motion.button
                     whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.94 }}
+                    data-press="true"
                     onClick={() => fileInputRef.current?.click()}
                     className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/20 shadow-xl hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_24px_rgba(255,255,255,0.3)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
                   >
@@ -12502,7 +12505,7 @@ export default function App() {
                         {section.buttonLabel && section.onButtonClick && (
                           <motion.button 
                             whileHover={{ scale: 1.06 }} 
-                            whileTap={{ scale: 0.94 }}
+                            data-press="true"
                             onClick={section.onButtonClick}
                             className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all shrink-0 ml-3"
                           >
@@ -12588,7 +12591,7 @@ export default function App() {
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     {IS_INSTALLED_APP && (<motion.button
                       whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
+                      data-press="true"
                       onClick={() => handleSyncLibraryNow()}
                       className={`h-11 px-6 rounded-full backdrop-blur-3xl font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer ${
                         isSyncingLibrary
@@ -12601,7 +12604,7 @@ export default function App() {
                     </motion.button>)}
                     <motion.button
                       whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
+                      data-press="true"
                       onClick={() => fileInputRef.current?.click()}
                       className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/20 shadow-xl hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_24px_rgba(255,255,255,0.3)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
                     >
@@ -12653,7 +12656,7 @@ export default function App() {
                       {books.filter(b => favoriteBookIds.includes(b.id)).length > 6 && (
                         <motion.button 
                           whileHover={{ scale: 1.06 }} 
-                          whileTap={{ scale: 0.94 }}
+                          data-press="true"
                           onClick={() => navigateTo('library-audiobooks-favoritos')} 
                           className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
@@ -12723,7 +12726,7 @@ export default function App() {
                       {sortedAuthors.filter(a => favoriteAuthorIds.includes(a.id)).length > 6 && (
                         <motion.button 
                           whileHover={{ scale: 1.06 }} 
-                          whileTap={{ scale: 0.94 }}
+                          data-press="true"
                           onClick={() => navigateTo('library-autores-favoritos')} 
                           className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
@@ -12766,7 +12769,7 @@ export default function App() {
                       {collections.length > (isMobile ? 6 : 4) && (
                         <motion.button 
                           whileHover={{ scale: 1.06 }} 
-                          whileTap={{ scale: 0.94 }}
+                          data-press="true"
                           onClick={() => navigateTo('library-colecoes')} 
                           className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer"
                         >
@@ -12807,7 +12810,7 @@ export default function App() {
                       {sortedGenres.length > (isMobile ? 6 : 4) && (
                         <motion.button 
                           whileHover={{ scale: 1.06 }} 
-                          whileTap={{ scale: 0.94 }}
+                          data-press="true"
                           onClick={() => navigateTo('library-gêneros')} 
                           className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
@@ -12869,7 +12872,7 @@ export default function App() {
                       {sortedAuthors.length > 6 && (
                         <motion.button 
                           whileHover={{ scale: 1.06 }} 
-                          whileTap={{ scale: 0.94 }}
+                          data-press="true"
                           onClick={() => navigateTo('library-autores')} 
                           className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
@@ -12912,7 +12915,7 @@ export default function App() {
                       {sortedLanguages.length > (isMobile ? 6 : 4) && (
                       <motion.button 
                         whileHover={{ scale: 1.06 }} 
-                        whileTap={{ scale: 0.94 }}
+                        data-press="true"
                         onClick={() => navigateTo('library-idiomas')} 
                         className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
                       >
@@ -12971,7 +12974,7 @@ export default function App() {
                   {filteredBooks.length > 6 && (
                     <motion.button 
                       whileHover={{ scale: 1.06 }} 
-                      whileTap={{ scale: 0.94 }}
+                      data-press="true"
                       onClick={() => navigateTo('library-títulos')} 
                       className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
                     >
@@ -13193,27 +13196,20 @@ export default function App() {
                     const fade = 'linear-gradient(to bottom, black 0%, black calc(100% - 120px), rgba(0,0,0,0.82) calc(100% - 96px), rgba(0,0,0,0.5) calc(100% - 64px), rgba(0,0,0,0.18) calc(100% - 32px), transparent 100%)';
                     return (
                       <>
-                        <div className="md:hidden land:hidden relative mobile-bleed -mt-[calc(var(--app-header-top)+76px)] mb-6">
-                          <div data-zoom-hero-collection="true" className="relative w-full" style={{ height: 'min(92vw, 50dvh)' }}>
+                        <div className="collection-hero relative mb-6 md:mb-10">
+                          <div data-zoom-hero-collection="true" className="relative w-full h-[min(92vw,50dvh)] md:h-[min(52vh,440px)]">
                             {/* O degradê continua 120px abaixo do bloco, dissolvendo na tela */}
                             <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 120px)', WebkitMaskImage: fade, maskImage: fade }}>
                               <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient}`} />
                               <div className="absolute inset-0 bg-black/20" />
                               <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/35 to-transparent" />
                             </div>
-                            <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 text-[150px] leading-none opacity-40 select-none pointer-events-none">{c.emoji}</span>
-                            <div className="absolute inset-x-0 bottom-0 px-5 pb-6 flex flex-col items-start text-left rtl:items-end rtl:text-right text-white">
-                              <h2 data-screen-title="true" className="text-[30px] font-bold leading-tight tracking-tight line-clamp-2 drop-shadow-md">{c.name}</h2>
-                              {desc && <p className="text-[14px] font-medium text-white/85 mt-1 line-clamp-2 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{desc}</p>}
+                            <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 md:right-10 md:bottom-4 text-[150px] md:text-[220px] leading-none opacity-40 select-none pointer-events-none">{c.emoji}</span>
+                            <div className="absolute inset-x-0 bottom-0 px-5 pb-6 md:px-8 md:pb-10 flex flex-col items-start text-left rtl:items-end rtl:text-right text-white">
+                              <h2 data-screen-title="true" className="text-[30px] md:text-5xl font-bold leading-tight tracking-tight line-clamp-2 drop-shadow-md">{c.name}</h2>
+                              {desc && <p className="text-[14px] md:text-base font-medium text-white/85 mt-1 md:mt-2 line-clamp-2 max-w-2xl [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{desc}</p>}
                             </div>
                           </div>
-                        </div>
-                        <div className="max-md:hidden land:flex relative isolate overflow-hidden rounded-[32px] border border-white/15 shadow-xl mb-8 min-h-[220px] p-8 flex flex-col justify-end">
-                          <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${c.gradient}`} />
-                          <div className="absolute inset-0 -z-10 bg-black/20" />
-                          <span aria-hidden="true" className="absolute -bottom-6 right-4 rtl:right-auto rtl:left-4 text-[170px] leading-none opacity-40 select-none pointer-events-none">{c.emoji}</span>
-                          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight drop-shadow-md">{c.name}</h1>
-                          {desc && <p className="text-sm md:text-base font-medium text-white/85 mt-2 max-w-2xl">{desc}</p>}
                         </div>
                       </>
                     );
@@ -13570,7 +13566,7 @@ export default function App() {
                     <p className="text-sm text-[var(--text-muted)] max-w-sm mb-6">{t('no_collections_sub')}</p>
                     <motion.button
                       whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
+                      data-press="true"
                       onClick={() => handleStartCreateCollection()}
                       className="h-10 px-5 rounded-full bg-winblue text-white font-semibold text-xs shadow-lg hover:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.4)] transition-all flex items-center gap-2 cursor-pointer"
                     >
@@ -13651,7 +13647,7 @@ export default function App() {
                             {colAuthors.length > 6 && (
                               <motion.button
                                 whileHover={{ scale: 1.06 }}
-                                whileTap={{ scale: 0.94 }}
+                                data-press="true"
                                 onClick={() => navigateTo('library-col-autores-' + currentCollection.id, currentCollection)}
                                 className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
                               >
@@ -13676,7 +13672,7 @@ export default function App() {
                             {colBooks.length > 6 && (
                               <motion.button
                                 whileHover={{ scale: 1.06 }}
-                                whileTap={{ scale: 0.94 }}
+                                data-press="true"
                                 onClick={() => navigateTo('library-col-audiobooks-' + currentCollection.id, currentCollection)}
                                 className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
                               >
@@ -13703,7 +13699,7 @@ export default function App() {
                           <p className="text-sm text-[var(--text-muted)] max-w-sm mb-6">{t('no_items_in_collection_sub')}</p>
                           <motion.button
                             whileHover={{ scale: 1.06 }}
-                            whileTap={{ scale: 0.94 }}
+                            data-press="true"
                             onClick={() => handleStartEditCurrentCollection(currentCollection)}
                             className="h-10 px-5 rounded-full bg-winblue text-white font-semibold text-xs shadow-lg hover:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.4)] transition-all flex items-center gap-2 cursor-pointer"
                           >
@@ -14231,7 +14227,7 @@ export default function App() {
                   <div className={`relative shrink-0 ${showAddAuthorPopup ? 'z-50' : 'z-10'}`}>
                     <motion.button
                       whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
+                      data-press="true"
                       animate={morphTriggerAnimate(showAddAuthorPopup)}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -14310,7 +14306,7 @@ export default function App() {
                           </div>
                           <motion.button
                             whileHover={{ scale: 1.15 }}
-                            whileTap={{ scale: 0.92 }}
+                            data-press="true"
                             onClick={() => setColSelectedAuthorIds(prev => prev.filter(id => id !== author.id))}
                             className={removeButtonClass}
                             title={t('remove')}
@@ -14333,7 +14329,7 @@ export default function App() {
                   <div className={`relative shrink-0 ${showAddBookPopup ? 'z-50' : 'z-10'}`}>
                     <motion.button
                       whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
+                      data-press="true"
                       animate={morphTriggerAnimate(showAddBookPopup)}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -14417,7 +14413,7 @@ export default function App() {
                           </div>
                           <motion.button
                             whileHover={{ scale: 1.15 }}
-                            whileTap={{ scale: 0.92 }}
+                            data-press="true"
                             onClick={() => setColSelectedBookIds(prev => prev.filter(id => id !== book.id))}
                             className={removeButtonClass}
                             title={t('remove')}
@@ -14704,7 +14700,7 @@ export default function App() {
                               <motion.button 
                                 type="button"
                                 whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                data-press="true"
                                 onClick={handleRemoveAuthorPicture}
                                 className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl border border-red-500/35 text-red-400 shadow-xl flex items-center gap-2 text-xs font-semibold hover:bg-red-500/20 hover:border-red-500/60 hover:text-red-300 transition-all cursor-pointer"
                               >
@@ -14714,7 +14710,7 @@ export default function App() {
                             )}
                             <motion.label 
                               whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
+                              data-press="true"
                               className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl border border-white/20 shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-white/20 hover:border-white/30 transition-all cursor-pointer"
                               title={t('choose_photo_computer')}
                             >
@@ -15393,7 +15389,7 @@ export default function App() {
 
                       <motion.button
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        data-press="true"
                         animate={morphTriggerAnimate(activeSettingSelector?.id === 'app-language')}
                         transition={{ type: "spring", stiffness: 600, damping: 30 }}
                         onClick={(e) => {
@@ -15441,7 +15437,7 @@ export default function App() {
                     <div className="w-full max-w-md mt-6 flex flex-col sm:flex-row items-center gap-3">
                       <motion.button
                         whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.96 }}
+                        data-press="true"
                         onClick={completeOnboarding}
                         className="w-full sm:flex-1 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 border border-winblue text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all shadow-[0_0_20px_rgba(var(--winblue-rgb),0.25)] hover:shadow-[0_0_28px_rgba(var(--winblue-rgb),0.4)] backdrop-blur-3xl cursor-pointer"
                       >
@@ -15451,7 +15447,7 @@ export default function App() {
 
                       <motion.button
                         whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.96 }}
+                        data-press="true"
                         onClick={() => {
                           setActiveSettingSelector(null);
                           setOnboardingStep('settings');
@@ -15819,7 +15815,7 @@ export default function App() {
               >
                 <div className="w-full flex items-center shrink-0 h-11">
                   <motion.button
-                    whileTap={{ scale: 0.92 }}
+                    data-press="true"
                     onClick={closeSharePreview}
                     aria-label={t('back')}
                     className="w-11 h-11 rounded-full flex items-center justify-center bg-white/10 border border-white/15 text-white backdrop-blur-3xl"
@@ -15839,7 +15835,7 @@ export default function App() {
                 </div>
                 <div className="shrink-0 flex items-center justify-center gap-2.5 pb-1">
                   <motion.button
-                    whileTap={{ scale: 0.96 }}
+                    data-press="true"
                     onClick={() => { if (shareBlobRef.current) downloadShareBlob(shareBlobRef.current, sharePreview.fileName); }}
                     className="h-10 px-4 rounded-full bg-white/10 border border-white/15 text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap backdrop-blur-3xl"
                   >
@@ -15847,7 +15843,7 @@ export default function App() {
                     <span>{t('save_image')}</span>
                   </motion.button>
                   <motion.button
-                    whileTap={{ scale: 0.96 }}
+                    data-press="true"
                     onClick={async () => {
                       if (!shareBlobRef.current) return;
                       const result = await shareStoryBlob(shareBlobRef.current, sharePreview.fileName, sharePreview.title);
@@ -15875,7 +15871,7 @@ export default function App() {
                 {mobileConfirm.preview && <div className="mb-4">{mobileConfirm.preview}</div>}
                 <div className="flex items-center justify-end gap-2.5 pt-1">
                   <motion.button
-                    whileTap={{ scale: 0.95 }}
+                    data-press="true"
                     onClick={(e) => { e.stopPropagation(); const c = mobileConfirm; setMobileConfirm(null); c.onConfirm(); }}
                     className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md text-red-500 font-semibold text-xs flex items-center gap-1.5"
                   >
@@ -15883,7 +15879,7 @@ export default function App() {
                     <span>{mobileConfirm.confirmLabel}</span>
                   </motion.button>
                   <motion.button
-                    whileTap={{ scale: 0.95 }}
+                    data-press="true"
                     onClick={(e) => { e.stopPropagation(); setMobileConfirm(null); }}
                     className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] font-semibold text-xs flex items-center gap-1.5"
                   >

@@ -38,7 +38,7 @@ function ConfirmView({ action, onCancel }: { action: MobileHeaderAction; onCance
       {c.description && <p className="text-xs text-[var(--text-muted)] px-1 mb-4">{c.description}</p>}
       <div className="flex items-center justify-end gap-2.5 pt-1">
         <motion.button
-          whileTap={{ scale: 0.95 }}
+          data-press="true"
           onClick={(e) => { e.stopPropagation(); c.onConfirm(); onCancel(); }}
           className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md text-red-500 font-semibold text-xs flex items-center gap-1.5"
         >
@@ -46,7 +46,7 @@ function ConfirmView({ action, onCancel }: { action: MobileHeaderAction; onCance
           <span>{c.confirmLabel}</span>
         </motion.button>
         <motion.button
-          whileTap={{ scale: 0.95 }}
+          data-press="true"
           onClick={(e) => { e.stopPropagation(); onCancel(); }}
           className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] font-semibold text-xs flex items-center gap-1.5"
         >
@@ -81,7 +81,7 @@ function QuickActionButton({ action, inPill = false }: { action: MobileHeaderAct
     <div className={`relative w-11 h-11 shrink-0 ${open ? 'z-50' : 'z-10'}`}>
       <motion.button
         ref={btnRef}
-        whileTap={{ scale: 0.9 }}
+        data-press="true"
         animate={morphTriggerAnimate(open)}
         aria-label={action.label}
         title={action.label}
@@ -179,7 +179,7 @@ export function MobileHeaderActions({
   const dotsButton = (
     <motion.button
       ref={btnRef}
-      whileTap={{ scale: 0.9 }}
+      data-press="true"
       animate={asPill ? undefined : morphTriggerAnimate(open)}
       aria-label={t('more_options')}
       title={t('more_options')}
@@ -204,7 +204,7 @@ export function MobileHeaderActions({
           {asPill && quick ? (
             <motion.div ref={pillRef} animate={morphTriggerAnimate(open)} className={pillShell}>
               <motion.button
-                whileTap={{ scale: 0.9 }}
+                data-press="true"
                 aria-label={quick.label}
                 title={quick.label}
                 onClick={(e) => { e.stopPropagation(); runAction(quick, false); }}

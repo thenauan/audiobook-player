@@ -257,7 +257,7 @@ export const ImageCropperSquare: React.FC<ImageCropperSquareProps> = ({
         <motion.button
           type="button"
           whileHover={{ scale: 1.15 }}
-          whileTap={{ scale: 0.9 }}
+          data-press="true"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.preventDefault();
@@ -272,7 +272,7 @@ export const ImageCropperSquare: React.FC<ImageCropperSquareProps> = ({
         <motion.button
           type="button"
           whileHover={{ scale: 1.15 }}
-          whileTap={{ scale: 0.9 }}
+          data-press="true"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.preventDefault();
@@ -296,7 +296,7 @@ export const ImageCropperSquare: React.FC<ImageCropperSquareProps> = ({
         <motion.button
           type="button"
           whileHover={{ scale: 1.15 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           onClick={(e) => {
             e.stopPropagation();
             handleSaveCrop();
@@ -311,7 +311,7 @@ export const ImageCropperSquare: React.FC<ImageCropperSquareProps> = ({
         <motion.button
           type="button"
           whileHover={{ scale: 1.15 }}
-          whileTap={{ scale: 0.92 }}
+          data-press="true"
           onClick={(e) => {
             e.stopPropagation();
             onCancel();
