@@ -1969,7 +1969,7 @@ export function CollectionCard({
         {...longPress}
         style={{ WebkitTouchCallout: 'none' }}
         layout="position"
-        initial={{ opacity: 0, scale: 0.94, filter: 'blur(4px)' }}
+        initial={false}
         animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
         exit={{ opacity: 0, scale: 0.92, filter: 'blur(4px)' }}
         transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}

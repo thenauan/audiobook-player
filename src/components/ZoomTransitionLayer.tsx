@@ -112,13 +112,13 @@ export default function ZoomTransitionLayer({
   const hiddenCardsRef = useRef<HTMLElement[]>([]);
   // Já revelada nesta animação (não esconde de novo ao continuar acompanhando o card)
   const cardsRevealedRef = useRef(false);
-  const showHiddenCards = () => {
+  const showHiddenCards = (fade = 0.16) => {
     cardsRevealedRef.current = true;
-    // A capa surge no card com um fade-in suave
+    // A capa surge no card com um fade-in rápido (por visibilidade: a animação de entrada do card mexe na
+    // opacidade e, escondendo por ela, a capa aparecia antes da hora ou piscava)
     hiddenCardsRef.current.forEach(el => {
-      el.style.transition = 'opacity 0.2s ease-out';
-      el.style.opacity = '';
-      setTimeout(() => { if (!el.style.opacity) el.style.transition = ''; }, 260);
+      el.style.visibility = '';
+      try { el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: fade * 1000, easing: 'ease-out' }); } catch { /* sem animação */ }
     });
     hiddenCardsRef.current = [];
   };
@@ -211,9 +211,18 @@ export default function ZoomTransitionLayer({
       const heroEl = canUseHero(key) ? document.querySelector('[data-zoom-hero="true"]') : null;
       const heroRect = heroEl ? heroEl.getBoundingClientRect() : null;
       const heroMode = Boolean(heroRect && heroRect.bottom > 0 && entry.image);
-      setRect(heroMode && heroRect ? { left: heroRect.left, top: heroRect.top, width: heroRect.width, height: heroRect.height } : from);
-      radius.set(heroMode ? 0 : (fromRadius || 0));
-      imageOpacity.set(heroMode ? 1 : 0);
+      // Coleção: o cabeçalho da página é o próprio card (degradê); a camada parte dele, já com o degradê
+      const fillEl = !entry.image && entry.fill ? document.querySelector('[data-zoom-hero-collection="true"]') : null;
+      const fillRect = fillEl ? fillEl.getBoundingClientRect() : null;
+      const fillHero = Boolean(fillRect && fillRect.bottom > 40 && !fromRect);
+      const startRect = heroMode && heroRect
+        ? { left: heroRect.left, top: heroRect.top, width: heroRect.width, height: heroRect.height }
+        : fillHero && fillRect
+          ? { left: fillRect.left, top: Math.max(0, fillRect.top), width: fillRect.width, height: fillRect.bottom - Math.max(0, fillRect.top) }
+          : from;
+      setRect(startRect);
+      radius.set(heroMode || fillHero ? 0 : (fromRadius || 0));
+      imageOpacity.set(heroMode || fillHero || (!entry.image && entry.fill) ? 1 : 0);
       layerOpacity.set(1);
       setPhase({ id: runId, image: entry.image, fill: entry.fill, hero: heroMode });
 
@@ -238,8 +247,7 @@ export default function ZoomTransitionLayer({
         // A capa no card só aparece quando a animação de voltar terminar de encaixar nela
         if (!cardsRevealedRef.current) els.forEach(el => {
           if (!hiddenCardsRef.current.includes(el)) {
-            el.style.transition = 'none';
-            el.style.opacity = '0';
+            el.style.visibility = 'hidden';
             hiddenCardsRef.current.push(el);
           }
         });
@@ -263,13 +271,13 @@ export default function ZoomTransitionLayer({
         if (!unsubscribeProgress) {
           unsubscribeProgress = width.on('change', (w) => {
             const target = current || r;
-            const startW = heroMode && heroRect ? heroRect.width : from.width;
+            const startW = startRect.width;
             const total = startW - target.width;
             const progress = total > 0 ? (startW - w) / total : 0;
             if (progress >= 0.5) fireMidway();
             // A capa volta a aparecer no card quando a animação está 95% concluída
-            if (progress >= 0.95) {
-              showHiddenCards();
+            if (progress >= 0.92) {
+              showHiddenCards(0.12);
               unsubscribeProgress?.();
             }
           });
@@ -285,7 +293,7 @@ export default function ZoomTransitionLayer({
           if (!foundAt) {
             foundAt = now;
             animate(radius, entry.radius, CLOSE_SPRING);
-            if (!heroMode) controlsRef.current.push(animate(imageOpacity, 1, { duration: 0.2, delay: 0.04, ease: 'easeIn' }));
+            if (!heroMode && imageOpacity.get() < 1) controlsRef.current.push(animate(imageOpacity, 1, { duration: 0.16, ease: 'easeOut' }));
             goTo(r);
           } else if (current && !sameRect(current, r)) {
             // O card ainda está se acomodando (animação de entrada): segue o movimento dele
@@ -312,7 +320,7 @@ export default function ZoomTransitionLayer({
           if (runIdRef.current !== runId) return;
           fireMidway();
           showHiddenCards();
-          finish(runId, 0.14);
+          finish(runId, 0.1);
         });
       };
       rafRef.current = requestAnimationFrame(tick);
