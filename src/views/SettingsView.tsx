@@ -592,7 +592,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setThemeMode(val)
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{themeMode === 'system' ? t('theme_system') : themeMode === 'light' ? t('theme_light') : t('theme_dark')}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -635,7 +635,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setAccentColor(val)
                   });
                 }}
-                className="h-8 pl-3 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <div className="w-3.5 h-3.5 rounded-full border border-black/10 dark:border-white/20 shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#0086F0' }} />
                 <span>{t('color_' + accentColor) || ACCENT_COLORS[accentColor]?.name || 'Azul'}</span>
@@ -678,7 +678,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setFontSize(val)
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{fontSize === 'large' ? t('font_large') : t('font_standard')}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -729,7 +729,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setAppLanguage(val)
                   });
                 }}
-                className={`h-8 pl-3.5 pr-2.5 max-md:px-0 max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none max-md:!text-[var(--text-muted)] rounded-full backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer ${
+                className={`h-8 pl-3.5 pr-2.5 max-md:px-0 max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none max-md:!text-[var(--text-muted)] rounded-full backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 text-[var(--text-main)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer ${
                   activeSettingSelector?.id === 'app-language'
                     ? 'bg-card/95 border-white/20'
                     : 'bg-card/75 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]'
@@ -921,7 +921,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     }
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{defaultPlaybackSpeed.toFixed(2).replace('.00', '').replace('.', ',')}×</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -965,7 +965,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setSeekForwardTime(val)
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{seekForwardTime >= 60 ? '1m' : `${seekForwardTime}s`}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -1009,7 +1009,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setSeekBackwardTime(val)
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{seekBackwardTime >= 60 ? '1m' : `${seekBackwardTime}s`}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
