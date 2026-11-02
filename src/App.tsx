@@ -35,6 +35,7 @@ import { APP_VERSION } from './version';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
 import { installTapBounce } from './components/tapBounce';
+import { getSystemInfo } from './liteMode';
 import { diag } from './playbackDiag';
 import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './authorUtils';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
@@ -10355,6 +10356,21 @@ export default function App() {
   useEffect(() => installTouchMenus(), []);
   // Botões crescem ao pressionar e dão um pulinho ao soltar (como nos sistemas da Apple)
   useEffect(() => installTapBounce(), []);
+  // Aparelho simples com o modo leve desligado: sugere uma vez (depois de o app abrir e assentar)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getSystemInfo().then(info => {
+        if (!info?.weak) return;
+        try {
+          if (localStorage.getItem('app_lite_mode') === 'true' || localStorage.getItem('app_lite_suggested_v1')) return;
+          localStorage.setItem('app_lite_suggested_v1', 'true');
+        } catch { return; }
+        showToast(t('toast_lite_suggest'));
+      });
+    }, 9000);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Áreas com rolagem: bordas que se dissolvem (sem corte seco)
   useEffect(() => installScrollFades(), []);
 

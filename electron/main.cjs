@@ -78,6 +78,16 @@ app.whenReady().then(() => {
     return res.canceled ? '' : res.filePaths[0];
   });
   ipcMain.handle('close-app', () => app.quit());
+  // Configuração do computador (para recomendar o modo leve)
+  ipcMain.handle('get-system-info', () => {
+    const os = require('os');
+    const cpus = os.cpus() || [];
+    return {
+      cores: cpus.length,
+      cpuModel: (cpus[0]?.model || '').replace(/\s+/g, ' ').trim(),
+      ramGB: os.totalmem() / (1024 ** 3),
+    };
+  });
 
   // ----- Biblioteca no disco (só no app instalado; o site nunca acessa arquivos sem o usuário escolher) -----
   const AUDIO_EXTS = new Set(['.mp3', '.m4a', '.m4b', '.mp4', '.aac', '.wav', '.flac', '.ogg', '.opus', '.wma', '.webm']);

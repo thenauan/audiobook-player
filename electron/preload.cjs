@@ -15,4 +15,5 @@ contextBridge.exposeInMainWorld('electron', {
   scanLibraryFolder: (folder) => ipcRenderer.invoke('scan-library-folder', folder),
   readAudioFile: (filePath) => ipcRenderer.invoke('read-audio-file', filePath),
   closeApp: () => ipcRenderer.invoke('close-app'),
+  getSystemInfo: () => ipcRenderer.invoke('get-system-info'),
 });

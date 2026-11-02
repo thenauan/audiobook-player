@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import App from './App';
 import './index.css';
+// Modo leve: aplicado antes de desenhar a interface (sem piscar o desfoque ao abrir)
+import './liteMode';
 
 // App instalado (tela de início): ao voltar para o app, confere se há uma versão nova publicada e, se nada
 // estiver tocando, recarrega para usá-la (o app aberto em segundo plano não recarrega sozinho)

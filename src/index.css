@@ -1780,3 +1780,42 @@ main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-sear
 .app-scroll:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
   z-index: 60 !important;
 }
+
+/* ===== Modo leve (Ajustes › Sistema): sem desfoque de fundo, cards e pop-ups opacos ===== */
+/* (o tema escuro também põe .dark no contêiner do app, que redefine as cores translúcidas: vale para os dois) */
+html.lite,
+html.lite .dark {
+  --bg-card-50: var(--bg-card);
+  --bg-card-60: var(--bg-card);
+  --bg-card-75: var(--bg-card);
+  --bg-card-80: var(--bg-card);
+  --bg-card-85: var(--bg-card);
+  --bg-card-90: var(--bg-card);
+  --bg-card-95: var(--bg-card);
+}
+html.lite [class*="backdrop-blur"],
+html.lite .apple-header-blur > .apple-blur-layer {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+/* Cabeçalho e rodapé desfocados: só a faixa de cor (sem as camadas de desfoque) */
+html.lite .apple-header-blur > .apple-blur-layer {
+  display: none !important;
+}
+/* Fundos e halos desfocados (capa atrás das páginas e do player, brilhos): sem o desfoque pesado */
+html.lite :is([class^="blur-"], [class*=" blur-"]):not([class*="backdrop"]) {
+  display: none !important;
+}
+/* Brilhos ao redor de botões, selos e ícones */
+html.lite [class*="shadow-[0_0_"],
+html.lite .group:hover [class*="group-hover:shadow-[0_0_"] {
+  box-shadow: none !important;
+}
+html.lite [class*="drop-shadow-[0_0_"],
+html.lite [class*="drop-shadow-[0_2px_12px"] {
+  filter: none !important;
+}
+/* Entradas de cards e pop-ups sem o desfoque animado (só aparecem, mais leve para a placa de vídeo) */
+html.lite [style*="blur("] {
+  filter: none !important;
+}

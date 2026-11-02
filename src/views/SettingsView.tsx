@@ -2,13 +2,14 @@ import { IS_INSTALLED_APP } from '../desktopBridge';
 import { morphTriggerAnimate } from '../components/Popovers';
 import { APP_VERSION } from '../version';
 import { getDiagText, clearDiag } from '../playbackDiag';
+import { useLiteMode, setLiteMode, useSystemInfo } from '../liteMode';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Palette, BookOpen, Bell, Settings as SettingsIcon, Moon, Sun, Laptop, Monitor, ChevronDown,
   Sliders, Type, ALargeSmall, Globe, FolderOpen, RefreshCw, Clock, Download, Upload,
   Gauge, Play, FileText, Activity, CheckCircle2, ListPlus, Database, Trash2, Info,
-  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight
+  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight, Feather
 } from 'lucide-react';
 import { BsPlayFill, BsArrowClockwise, BsArrowCounterclockwise } from 'react-icons/bs';
 import {
@@ -442,6 +443,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     playback_diag: actionControls_playback_diag,
     version_label: actionControls_version_label_inline,
   };
+
+  // Modo leve e configuração do aparelho (Sistema)
+  const liteMode = useLiteMode();
+  const systemInfo = useSystemInfo();
+  const deviceSummary = systemInfo
+    ? [
+        systemInfo.cpuName,
+        systemInfo.cores ? t('settings_device_cores', { n: systemInfo.cores }) : '',
+        systemInfo.ramGB ? t('settings_device_ram', { n: Math.round(systemInfo.ramGB) }) : '',
+      ].filter(Boolean).join(' · ')
+    : '';
+  const liteSubtitle = [
+    t('settings_lite_mode_sub'),
+    deviceSummary ? t(systemInfo?.isPhone || !IS_INSTALLED_APP ? 'settings_device_this' : 'settings_device_this_pc', { info: deviceSummary }) : '',
+    systemInfo?.weak ? t('settings_lite_recommended') : '',
+  ].filter(Boolean).join(' ');
 
   // Tocar em qualquer parte da linha aciona o controle dela (quando há um único controle)
   const handleSettingRowClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -1174,6 +1191,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="space-y-6">
             <div className="space-y-2.5">
+              {/* Modo leve: sem desfoque e brilhos, para aparelhos mais simples (com a configuração do aparelho) */}
+              <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                    <Feather size={20} />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-semibold text-base text-[var(--text-main)] flex items-center gap-2 flex-wrap">
+                      {t('settings_lite_mode')}
+                      {systemInfo?.weak && !liteMode && (
+                        <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-winblue/15 text-winblue">{t('settings_lite_badge')}</span>
+                      )}
+                    </span>
+                    <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{liteSubtitle}</span>
+                  </div>
+                </div>
+                <SettingToggle checked={liteMode} onChange={setLiteMode} />
+              </div>
+
               {/* Pasta de dados — só no computador (no celular/tablet os dados ficam dentro do próprio navegador) */}
               <div data-setting-action="settings_data_folder" data-setting-title={t('settings_data_folder')} data-setting-subtitle={t('settings_data_folder_sub')} onClick={handleSettingRowClick} className="max-md:hidden [@media(pointer:coarse)]:hidden settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
