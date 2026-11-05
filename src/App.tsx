@@ -169,6 +169,9 @@ function centerLyricLine(container: HTMLElement, el: HTMLElement) {
   [50, 200, 450].forEach(ms => setTimeout(() => { container.scrollTop = target(); }, ms));
 }
 
+// iPhone/iPad em chave própria: versões anteriores gravaram 85% lá, o que ligaria o processamento de áudio sem pedir
+const VOLUME_KEY = IS_APPLE_TOUCH ? 'app_volume_ios' : 'app_volume';
+
 type NavDirection = 'push' | 'pop' | 'tab' | 'popSwipe' | 'instant';
 let navDirection: NavDirection = 'tab';
 let popSwipeAt = 0;
@@ -911,11 +914,11 @@ export default function App() {
   }, []);
 
   // Web Audio API Setup
-  const setupWebAudioGraph = useCallback(() => {
-    // iPhone/iPad: o áudio toca direto, sem o Web Audio. Lá o processamento fica "interrompido" depois de uma
-    // pausa ou de outro app tocar som (o áudio travava até fechar o app), e o que se ouve pode se desencontrar
-    // do tempo informado pelo áudio (pulos e letra fora do lugar)
-    if (IS_APPLE_TOUCH) return;
+  const setupWebAudioGraph = useCallback((forVolume = false) => {
+    // iPhone/iPad: o áudio toca direto, sem o Web Audio, e só passa por ele quando o volume do app fica abaixo de
+    // 100% (o sistema não deixa mudar o volume de outro jeito). Lá o processamento pode ficar "interrompido" depois
+    // de uma pausa ou de outro app tocar som, e o que se ouve pode se desencontrar do tempo informado pelo áudio.
+    if (IS_APPLE_TOUCH && !forVolume && volumeRef.current >= 1) return;
     if (!audioRef.current || audioContextRef.current) return;
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -963,6 +966,7 @@ export default function App() {
       voiceFilter.connect(compressor);
       compressor.connect(gain);
       gain.connect(ctx.destination);
+      if (ctx.state !== 'running') ctx.resume().catch(() => {});
     } catch (err) {
       console.warn('Web Audio API setup note:', err);
     }
@@ -2700,12 +2704,12 @@ export default function App() {
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(defaultPlaybackSpeed);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(() => {
-    if (IS_APPLE_TOUCH) return 1; // lá o volume é o do aparelho
+    const standard = IS_APPLE_TOUCH ? 1 : 0.85;
     try {
-      const saved = localStorage.getItem('app_volume');
+      const saved = localStorage.getItem(VOLUME_KEY);
       const parsed = saved === null ? NaN : Number(saved);
-      return isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : 0.85;
-    } catch { return 0.85; }
+      return isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : standard;
+    } catch { return standard; }
   });
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -4092,6 +4096,11 @@ export default function App() {
   const [lyricsSearch, setLyricsSearch] = useState('');
   // Buscar no texto: opções do trecho escolhido
   const [lyricsRowMenu, setLyricsRowMenu] = useState<{ line: TranscriptLine; rect: DOMRect; el: HTMLElement } | null>(null);
+  // Mantém as opções na tela enquanto o menu fecha
+  const lastLyricsRowLineRef = useRef<TranscriptLine | null>(null);
+  if (lyricsRowMenu) lastLyricsRowLineRef.current = lyricsRowMenu.line;
+  // Computador: trecho selecionado na busca (os outros resultados somem e as ações aparecem abaixo dele)
+  const [lyricsSelectedLine, setLyricsSelectedLine] = useState<TranscriptLine | null>(null);
   const [isGeneratingShare, setIsGeneratingShare] = useState(false);
   const [sharePreview, setSharePreview] = useState<{ url: string; fileName: string; title: string } | null>(null);
   const closeSharePreview = () => setSharePreview(prev => { if (prev) URL.revokeObjectURL(prev.url); return null; });
@@ -4139,49 +4148,16 @@ export default function App() {
       setIsGeneratingShare(false);
     }
   };
-  const renderLyricsRowOptions = () => (
-    <PagedMenu className="flex flex-col p-1.5 text-left rtl:text-right">
-            <MenuOptionItem
-              icon={<Crosshair size={14} />}
-              onClick={() => {
-                const line = lyricsRowMenu?.line;
-                setLyricsRowMenu(null);
-                if (line) { handleSeek(line.start); setMobileSheet(null); }
-              }}
-            >
-              <span>{t('go_to_this_point')}</span>
-            </MenuOptionItem>
-            <MenuOptionItem
-              icon={<Bookmark size={14} />}
-              onClick={() => {
-                if (lyricsRowMenu) addLineBookmark(lyricsRowMenu.line);
-                setLyricsRowMenu(null);
-              }}
-            >
-              <span>{t('add_line_as_bookmark')}</span>
-            </MenuOptionItem>
-            <MenuOptionItem
-              icon={<Share size={14} />}
-              onClick={() => {
-                const line = lyricsRowMenu?.line;
-                setLyricsRowMenu(null);
-                if (line) openShareImage('quote', currentBook, [transcriptLineText(line)]);
-              }}
-            >
-              <span>{t('share_excerpt')}</span>
-            </MenuOptionItem>
-            <MenuOptionItem
-              icon={<Copy size={14} />}
-              onClick={() => {
-                const line = lyricsRowMenu?.line;
-                setLyricsRowMenu(null);
-                if (line) navigator.clipboard?.writeText(transcriptLineText(line)).then(() => showToast(t('toast_text_copied'))).catch(() => {});
-              }}
-            >
-              <span>{t('copy_text')}</span>
-            </MenuOptionItem>
-    </PagedMenu>
-  );
+  // O que dá para fazer com um trecho achado na busca do texto
+  const lyricLineActions = (line: TranscriptLine, iconSize: number) => [
+    { id: 'go', icon: <Crosshair size={iconSize} />, label: t('go_to_this_point'), run: () => { handleSeek(line.start); setMobileSheet(null); } },
+    { id: 'bookmark', icon: <Bookmark size={iconSize} />, label: t('add_line_as_bookmark'), run: () => addLineBookmark(line) },
+    { id: 'share', icon: <Share size={iconSize} />, label: t('share_excerpt'), run: () => { openShareImage('quote', currentBook, [transcriptLineText(line)]); } },
+    {
+      id: 'copy', icon: <Copy size={iconSize} />, label: t('copy_text'),
+      run: () => { navigator.clipboard?.writeText(transcriptLineText(line)).then(() => showToast(t('toast_text_copied'))).catch(() => {}); },
+    },
+  ];
 
   // Trecho buscado em destaque na frase (sem diferenciar acentos nem maiúsculas)
   const highlightMatch = (text: string, query: string): React.ReactNode => {
@@ -4415,43 +4391,56 @@ export default function App() {
       const found = query
         ? transcript.filter(line => normalizeSearchStr(transcriptLineText(line)).includes(query))
         : transcript.slice(Math.max(0, activeTranscriptIndex));
-      // Computador: as opções saem do botão de três pontinhos; celular: do próprio trecho
+      // Celular: opções em menu. Computador: selecionar o trecho deixa só ele e mostra as ações abaixo; clicar de
+      // novo tira a seleção e os demais resultados voltam
       const openRow = (row: HTMLElement, line: TranscriptLine) => {
-        const el = (!isMobile && row.querySelector('button')) || row;
-        setLyricsRowMenu({ line, rect: el.getBoundingClientRect(), el });
+        if (isMobile) setLyricsRowMenu({ line, rect: row.getBoundingClientRect(), el: row });
+        else setLyricsSelectedLine(prev => (prev === line ? null : line));
       };
+      const selected = !isMobile && lyricsSelectedLine && found.includes(lyricsSelectedLine) ? lyricsSelectedLine : null;
+      const rows = selected ? [selected] : found.slice(0, 200);
       return {
         title: t('search_in_text'),
         subtitle: bk.title,
         body: (
           <div className="flex flex-col gap-3 pt-1">
-            <PopupSearchField value={lyricsSearch} onChange={setLyricsSearch} placeholder={t('search_in_text_placeholder')} />
+            <PopupSearchField value={lyricsSearch} onChange={(v) => { setLyricsSelectedLine(null); setLyricsSearch(v); }} placeholder={t('search_in_text_placeholder')} />
             {found.length === 0 ? (
               <p className="text-sm text-[var(--text-muted)] text-center py-10">{t('search_in_text_empty')}</p>
             ) : (
-              <div className="flex flex-col gap-2">
-                {found.slice(0, 200).map((line, i) => (
+              <div className="flex flex-col">
+                <AnimatePresence initial={false}>
+                {rows.map((line) => (
+                  <motion.div
+                    key={`${line.start}-${line.end}`}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="overflow-hidden"
+                  >
+                  <div className="pb-2">
                   <div
-                    key={`${line.start}-${i}`}
                     role="button"
                     tabIndex={0}
                     data-no-press="true"
                     onClick={(e) => openRow(e.currentTarget, line)}
                     onKeyDown={(e) => { if (e.key === 'Enter') openRow(e.currentTarget, line); }}
-                    className="group/lyricrow w-full flex items-center gap-2 px-4 py-3 text-left rtl:text-right rounded-[22px] bg-[var(--ios-fill)] transition-colors select-none cursor-pointer hover:bg-[var(--ios-fill-strong)] active:bg-[var(--ios-fill-strong)]"
+                    aria-pressed={line === selected}
+                    className={`group/lyricrow w-full flex items-center gap-2 px-4 py-3 md:px-3 md:py-2.5 text-left rtl:text-right rounded-[22px] md:rounded-2xl transition-colors select-none cursor-pointer hover:bg-[var(--ios-fill-strong)] active:bg-[var(--ios-fill-strong)] ${line === selected ? 'bg-[var(--ios-fill-strong)]' : 'bg-[var(--ios-fill)]'}`}
                   >
                     <span className="flex-1 min-w-0 flex flex-col">
-                      <span className="text-[15px] leading-snug text-[var(--text-main)]">{highlightMatch(transcriptLineText(line), lyricsSearch)}</span>
+                      <span className="text-[15px] md:text-xs md:font-semibold leading-snug text-[var(--text-main)]">{highlightMatch(transcriptLineText(line), lyricsSearch)}</span>
                       {(() => {
                         const chapter = (bk.chapters || []).find(c => line.start >= c.startTime && line.start < c.startTime + (c.duration || 0));
                         return (
-                          <span className="text-xs text-[var(--text-muted)] mt-0.5 truncate">
+                          <span className="text-xs md:text-[10px] text-[var(--text-muted)] mt-0.5 truncate">
                             {chapter ? `${chapter.title} • ${formatTime(line.start - chapter.startTime)} • ` : ''}{t('at_book_time', { time: formatTime(line.start) })}
                           </span>
                         );
                       })()}
                     </span>
-                    {!isMobile && (
+                    {!isMobile && line !== selected && (
                       <button
                         type="button"
                         aria-label={t('more_options')}
@@ -4462,7 +4451,33 @@ export default function App() {
                       </button>
                     )}
                   </div>
+                  {line === selected && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.18, ease: 'easeOut' }}
+                      className="flex items-center justify-center gap-2.5 pt-1.5 pb-1"
+                    >
+                      {lyricLineActions(line, 14).map(action => (
+                        <motion.button
+                          key={action.id}
+                          type="button"
+                          whileHover={{ scale: 1.1 }}
+                          data-press="true"
+                          onClick={action.run}
+                          title={action.label}
+                          aria-label={action.label}
+                          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-colors shadow-sm"
+                        >
+                          {action.icon}
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                  </div>
+                  </motion.div>
                 ))}
+                </AnimatePresence>
               </div>
             )}
           </div>
@@ -6179,7 +6194,8 @@ export default function App() {
       }
       ensureResumePosition(audio);
       setupWebAudioGraph();
-      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+      // ("interrupted" é o estado do iOS depois de uma ligação ou de outro app tocar som)
+      if (audioContextRef.current && audioContextRef.current.state !== 'running') {
         audioContextRef.current.resume().catch(() => {});
       }
       if (audio.paused) {
@@ -6206,7 +6222,7 @@ export default function App() {
   useEffect(() => {
     volumeRef.current = volume;
     isMutedRef.current = isMuted;
-    try { localStorage.setItem('app_volume', String(volume)); } catch {}
+    try { localStorage.setItem(VOLUME_KEY, String(volume)); } catch {}
     const level = isMuted ? 0 : Math.max(0, Math.min(1, volume));
     // Com o processamento de áudio ativo, o volume é aplicado nele (funciona também no iPhone)
     if (gainNodeRef.current && audioContextRef.current) {
@@ -6384,7 +6400,7 @@ export default function App() {
     const handleVisibility = () => {
       if (document.visibilityState === 'hidden') handleUnload();
       // Ao voltar, retoma o processamento de áudio se o sistema o suspendeu
-      else if (audioContextRef.current?.state === 'suspended' && audioRef.current && !audioRef.current.paused) {
+      else if (audioContextRef.current && audioContextRef.current.state !== 'running' && audioRef.current && !audioRef.current.paused) {
         audioContextRef.current.resume().catch(() => {});
       } else if (audioRef.current?.error) {
         // Áudio descartado com o app em segundo plano: já deixa pronto para tocar
@@ -8905,9 +8921,6 @@ export default function App() {
                     >
                       {isMuted || volume === 0 ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} />}
                     </button>
-                    {IS_APPLE_TOUCH ? (
-                      <span className="flex-1 min-w-0 whitespace-normal text-xs leading-snug text-[var(--text-muted)]">{t('volume_device_hint')}</span>
-                    ) : (<>
                     <div className="relative flex-1 min-w-0 flex items-center group">
                       <input 
                         type="range" 
@@ -8916,6 +8929,7 @@ export default function App() {
                         step={0.01} 
                         value={isMuted ? 0 : volume}
                         onChange={(e) => {
+                          if (IS_APPLE_TOUCH) setupWebAudioGraph(true);
                           setVolume(Number(e.target.value));
                           setIsMuted(false);
                         }}
@@ -8928,7 +8942,6 @@ export default function App() {
                     <span className="text-xs font-semibold text-[var(--text-main)] w-8 text-left shrink-0">
                       {Math.round((isMuted ? 0 : volume) * 100)}%
                     </span>
-                    </>)}
                   </div>
                 </div>
               </PlayerPopup>
@@ -8969,7 +8982,6 @@ export default function App() {
             // no computador são botões separados
             <motion.div
               key="btn-fs-text"
-              layout="position"
               className={isMobile
                 ? "flex items-center h-9 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl"
                 : "flex items-center gap-2.5 h-9"}
@@ -8981,12 +8993,13 @@ export default function App() {
                     initial={{ width: 0, opacity: 0 }}
                     animate={{ width: isMobile ? 42 : 36, opacity: 1 }}
                     exit={{ width: 0, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 520, damping: 40, mass: 0.55 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                     data-press="true"
                     onClick={(e) => {
                       e.stopPropagation();
                       closeAllPopups();
                       setLyricsSearch('');
+                      setLyricsSelectedLine(null);
                       openMobileSheet({ kind: 'search-lyrics', bookId: currentBook.id });
                     }}
                     className={`h-full flex items-center justify-center rounded-full overflow-hidden shrink-0 text-[var(--text-main)] hover:bg-white/15 transition-colors ${isMobile ? '' : 'bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl'}`}
@@ -9691,9 +9704,6 @@ export default function App() {
                       >
                         {isMuted || volume === 0 ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} />}
                       </button>
-                      {IS_APPLE_TOUCH ? (
-                        <span className="flex-1 min-w-0 whitespace-normal text-xs leading-snug text-[var(--text-muted)]">{t('volume_device_hint')}</span>
-                      ) : (<>
                       <div className="relative flex-1 min-w-0 flex items-center group">
                         <input 
                           type="range" 
@@ -9702,7 +9712,8 @@ export default function App() {
                           step={0.01} 
                           value={isMuted ? 0 : volume}
                           onChange={(e) => {
-                            setVolume(Number(e.target.value));
+                            if (IS_APPLE_TOUCH) setupWebAudioGraph(true);
+                          setVolume(Number(e.target.value));
                             setIsMuted(false);
                           }}
                           style={{
@@ -9714,7 +9725,6 @@ export default function App() {
                       <span className="text-xs font-semibold text-[var(--text-main)] w-8 text-left shrink-0">
                         {Math.round((isMuted ? 0 : volume) * 100)}%
                       </span>
-                      </>)}
                     </div>
                   </div>
                 </PlayerPopup>
@@ -16401,32 +16411,30 @@ export default function App() {
         </AnimatePresence>
 
         {/* Folha estilo iOS (fora da tela que recua) */}
-        {/* Computador: as opções são um pop-up que nasce dos três pontinhos */}
-        <AnimatePresence>
-          {!isMobile && lyricsRowMenu && (
-            <MobileConfirmCard key="lyrics-row-menu" menuWidth={270} onClose={() => setLyricsRowMenu(null)}>
-              {renderLyricsRowOptions()}
-            </MobileConfirmCard>
-          )}
-        </AnimatePresence>
         {/* Buscar no texto: opções do trecho escolhido */}
         <MobileContextMenu
-          open={isMobile && Boolean(lyricsRowMenu)}
+          open={Boolean(lyricsRowMenu)}
           rect={lyricsRowMenu?.rect || null}
-          sourceEl={isMobile ? lyricsRowMenu?.el || null : null}
+          sourceEl={lyricsRowMenu?.el || null}
           onClose={() => setLyricsRowMenu(null)}
           activeKey="lyrics-row-options"
           direction={1}
           targetWidth={250}
           targetRadius={20}
           estimatedMenuHeight={190}
-          preview={lyricsRowMenu && isMobile ? (
+          preview={lyricsRowMenu ? (
             <div className="px-4 py-3 rounded-3xl bg-card/95 border border-[var(--text-main)]/10 shadow-2xl text-[15px] font-semibold text-[var(--text-main)] leading-snug">
               {transcriptLineText(lyricsRowMenu.line)}
             </div>
           ) : null}
         >
-          {renderLyricsRowOptions()}
+          <PagedMenu className="flex flex-col p-1.5 text-left rtl:text-right">
+            {lastLyricsRowLineRef.current && lyricLineActions(lastLyricsRowLineRef.current, 14).map(action => (
+              <MenuOptionItem key={action.id} icon={action.icon} onClick={() => { setLyricsRowMenu(null); action.run(); }}>
+                <span>{action.label}</span>
+              </MenuOptionItem>
+            ))}
+          </PagedMenu>
         </MobileContextMenu>
         {(() => {
           const content = renderMobileSheetContent();

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'motion/react';
+import { motion, useIsPresent } from 'motion/react';
 import { placeDesktopPopup } from './popupOrigin';
 
 // ===== Celular: confirmações (ex.: apagar) num cartão na base da tela =====
@@ -10,15 +10,14 @@ import { placeDesktopPopup } from './popupOrigin';
 export function MobileConfirmCard({
   onClose,
   children,
-  menuWidth,
 }: {
   onClose: () => void;
   children: React.ReactNode;
-  // Computador: usado como menu de opções (mais estreito e sem margens internas)
-  menuWidth?: number;
 }) {
   // Computador: nasce do botão que abriu a confirmação
-  const [place] = useState(() => (typeof window !== 'undefined' && window.matchMedia?.('(min-width: 1024px)').matches ? placeDesktopPopup(menuWidth ?? 360) : null));
+  const [place] = useState(() => (typeof window !== 'undefined' && window.matchMedia?.('(min-width: 1024px)').matches ? placeDesktopPopup(360) : null));
+  const isPresent = useIsPresent();
+  useEffect(() => { if (!isPresent) place?.restoreTrigger(); }, [isPresent, place]);
   if (typeof document === 'undefined') return null;
   return createPortal(
     <>
@@ -53,7 +52,7 @@ export function MobileConfirmCard({
           maxHeight: 'calc(100dvh - var(--safe-top) - 40px)',
         }}
       >
-        <div className={`max-h-[inherit] overflow-y-auto ${menuWidth ? '' : 'px-2 pt-4 pb-3'}`}>{children}</div>
+        <div className="max-h-[inherit] overflow-y-auto px-2 pt-4 pb-3">{children}</div>
       </motion.div>
     </>,
     document.body

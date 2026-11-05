@@ -67,9 +67,15 @@ export function MobileSheet({
 
   const placeRef = useRef<ReturnType<typeof placeDesktopPopup> | null>(null);
   const wasOpenRef = useRef(false);
-  if (open && !wasOpenRef.current && isDesktop) placeRef.current = placeDesktopPopup(480);
+  if (open && !wasOpenRef.current && isDesktop) placeRef.current = placeDesktopPopup(400);
   wasOpenRef.current = open;
   const place = isDesktop ? placeRef.current : null;
+
+  useEffect(() => {
+    if (open) return;
+    placeRef.current?.restoreTrigger();
+    placeRef.current = null;
+  }, [open]);
 
   // A tela de trás recua enquanto a folha está aberta
   useEffect(() => {
@@ -177,7 +183,7 @@ export function MobileSheet({
             dragElastic={{ top: 0, bottom: 0.7 }}
             onDragEnd={onDragEnd}
             className={isDesktop
-              ? "fixed z-[9001] flex flex-col rounded-[32px] bg-[var(--bg-sheet)] border border-[var(--button-secondary-bg)] shadow-2xl overflow-hidden text-[var(--text-main)]"
+              ? "fixed z-[9001] flex flex-col p-3 rounded-[28px] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] shadow-2xl overflow-hidden text-[var(--text-main)]"
               : "fixed inset-x-0 z-[9001] flex flex-col rounded-t-[38px] bg-[var(--bg-sheet)] shadow-[0_-12px_40px_-12px_rgba(0,0,0,0.45)] overflow-hidden text-[var(--text-main)]"}
             style={place ? place.style : {
               top: 'calc(var(--safe-top) + 12px)',
@@ -186,8 +192,14 @@ export function MobileSheet({
               transition: 'padding-bottom 0.25s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           >
+            {/* Computador: título como nos demais pop-ups (fecha ao clicar fora) */}
+            {isDesktop && (
+              <div className="shrink-0 px-1 pb-2.5">
+                <span className="text-sm font-bold text-[var(--text-main)]">{title}</span>
+              </div>
+            )}
             {/* Topo arrastável: grabber, fechar e título */}
-            <div
+            {!isDesktop && <div
               className="shrink-0 touch-none select-none pt-2 pb-3 px-[var(--page-margin)] cursor-grab"
               onPointerDown={(e) => dragControls.start(e)}
             >
@@ -205,8 +217,8 @@ export function MobileSheet({
                   <h2 className="text-[17px] font-semibold leading-tight truncate">{title}</h2>
                 </div>
               </div>
-            </div>
-            <div ref={contentRef} className={`flex-1 min-h-0 overflow-y-auto overscroll-contain px-[var(--page-margin)] ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}>
+            </div>}
+            <div ref={contentRef} className={`flex-1 min-h-0 overflow-y-auto overscroll-contain ${isDesktop ? '' : 'px-[var(--page-margin)]'} ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}>
               {children}
             </div>
             {footer && (
