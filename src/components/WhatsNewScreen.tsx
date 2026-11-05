@@ -11,6 +11,13 @@ import type { SupportedLanguage } from '../translations';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.11': {
+    pt: ['Tema escuro com fundo preto de verdade', 'Pop-ups nascem de dentro do botão, num movimento só', 'Busca na letra melhorada no celular e no computador', 'Destaques mais limpos nos pop-ups e nas listas'],
+    en: ['Dark theme with a true black background', 'Pop-ups grow from inside the button in one motion', 'Improved lyrics search on phone and computer', 'Cleaner highlights in pop-ups and lists'],
+    es: ['Tema oscuro con fondo negro de verdad', 'Las ventanas nacen del botón en un solo movimiento', 'Búsqueda en la letra mejorada en el móvil y el ordenador', 'Resaltados más limpios en ventanas y listas'],
+    ru: ['Тёмная тема с настоящим чёрным фоном', 'Окна вырастают из кнопки одним движением', 'Улучшенный поиск по тексту на телефоне и компьютере', 'Более чистое выделение в окнах и списках'],
+    ar: ['سمة داكنة بخلفية سوداء حقيقية', 'النوافذ تنبثق من داخل الزر بحركة واحدة', 'بحث محسّن في النص على الهاتف والحاسوب', 'تمييز أوضح في النوافذ والقوائم'],
+  },
   '1.0.10': {
     pt: ['Busca na letra: role o texto para a barra aparecer', 'A letra deixa você rolar e volta ao ponto atual depois de 4 segundos', 'Botões com pulinho antes de abrir os pop-ups, e ícones de +30 e -30 que giram', 'Aviso quando o texto enviado não combina com o áudio', 'Barra de menus estável ao rolar com o celular deitado'],
     en: ['Search the lyrics: scroll the text to reveal the bar', 'The lyrics let you scroll and return to the current point after 4 seconds', 'Buttons bounce before opening pop-ups, and the +30 and -30 icons spin', 'A warning when the uploaded text does not match the audio', 'Steady menu bar when scrolling in landscape'],
