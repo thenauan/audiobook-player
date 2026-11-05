@@ -11,6 +11,13 @@ import type { SupportedLanguage } from '../translations';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.10': {
+    pt: ['Busca na letra: role o texto para a barra aparecer', 'A letra deixa você rolar e volta ao ponto atual depois de 4 segundos', 'Botões com pulinho antes de abrir os pop-ups, e ícones de +30 e -30 que giram', 'Aviso quando o texto enviado não combina com o áudio', 'Barra de menus estável ao rolar com o celular deitado'],
+    en: ['Search the lyrics: scroll the text to reveal the bar', 'The lyrics let you scroll and return to the current point after 4 seconds', 'Buttons bounce before opening pop-ups, and the +30 and -30 icons spin', 'A warning when the uploaded text does not match the audio', 'Steady menu bar when scrolling in landscape'],
+    es: ['Búsqueda en la letra: desplaza el texto para ver la barra', 'La letra te deja desplazarte y vuelve al punto actual tras 4 segundos', 'Los botones rebotan antes de abrir ventanas, y los iconos de +30 y -30 giran', 'Aviso cuando el texto enviado no coincide con el audio', 'Barra de menús estable al desplazarte en horizontal'],
+    ru: ['Поиск по тексту: прокрутите текст, чтобы появилась строка', 'Текст можно прокручивать, а через 4 секунды он вернётся к текущему месту', 'Кнопки подпрыгивают перед открытием окон, а значки +30 и -30 вращаются', 'Предупреждение, если загруженный текст не совпадает с аудио', 'Стабильная панель меню при прокрутке в альбомной ориентации'],
+    ar: ['البحث في النص: مرّر النص لإظهار الشريط', 'يمكنك تمرير النص وسيعود إلى الموضع الحالي بعد 4 ثوانٍ', 'الأزرار تقفز قبل فتح النوافذ، وأيقونتا +30 و-30 تدوران', 'تنبيه عندما لا يطابق النص المرفوع الصوت', 'شريط قوائم ثابت عند التمرير في الوضع الأفقي'],
+  },
   '1.0.9': {
     pt: ['Letra mais limpa: destaque só com cor, com sombra suave', 'Destaque das palavras mais preciso', 'Metadados de Opus, OGG, FLAC, WAV e WMA, e capítulos em MP3'],
     en: ['Cleaner lyrics: color-only highlighting with a soft shadow', 'More precise word highlighting', 'Metadata for Opus, OGG, FLAC, WAV and WMA, plus MP3 chapters'],
