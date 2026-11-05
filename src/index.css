@@ -1878,3 +1878,15 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
     background-color: var(--ios-row-strong) !important;
   }
 }
+
+/* Computador: o desfoque do cabeçalho começa depois do menu lateral (com um pop-up aberto, a área das telas vem para
+   a frente, e ele ficava por cima do menu) */
+@media (min-width: 1024px) {
+  main .apple-header-blur {
+    left: 272px;
+  }
+  html[dir="rtl"] main .apple-header-blur {
+    left: 0;
+    right: 272px;
+  }
+}

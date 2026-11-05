@@ -764,7 +764,7 @@ export default function FullscreenPlayer({
       >
         {/* Botão Minimizar à esquerda (mesma posição do voltar de outras telas com ícone Minimize2) */}
         {/* Celular: com a busca aberta, estes botões saem do cabeçalho até o X cancelar */}
-        <div className={mobileLyrics && lyricSearchOpen ? 'hidden' : 'contents'}>
+        <div className={`contents ${mobileLyrics && lyricSearchOpen ? '[&>*]:!opacity-0 [&>*]:pointer-events-none' : ''} [&>*]:transition-opacity [&>*]:duration-150`}>
         {isMobileFs ? (
           // Celular: botão redondo no mesmo padrão e alinhamento dos botões do cabeçalho do app
           <motion.button
@@ -806,7 +806,7 @@ export default function FullscreenPlayer({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ duration: 0.16, ease: 'easeOut' }}
-              className={`flex-1 min-w-0 flex items-center gap-2 ${lyricSearchOpen ? '' : 'mx-2.5'}`}
+              className="flex-1 min-w-0 mx-2.5 flex items-center"
             >
               <div
                 onClick={() => setLyricSearchOpen(true)}
@@ -830,23 +830,31 @@ export default function FullscreenPlayer({
                   <span className="truncate text-xs font-medium">{t('search_in_text')}</span>
                 )}
               </div>
-              {lyricSearchOpen && (
-                <button
-                  type="button"
-                  data-instant="true"
-                  onClick={closeLyricSearch}
-                  aria-label={t('clear_search')}
-                  className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)]"
-                >
-                  <X size={15} />
-                </button>
-              )}
+              {/* X como nas demais buscas: ocupa parte do espaço da barra, que encolhe para dar lugar a ele */}
+              <AnimatePresence initial={false}>
+                {lyricSearchOpen && (
+                  <motion.button
+                    key="lyric-search-clear"
+                    type="button"
+                    data-instant="true"
+                    initial={{ opacity: 0, scale: 0.55, width: 0, marginLeft: 0 }}
+                    animate={{ opacity: 1, scale: 1, width: 44, marginLeft: 8 }}
+                    exit={{ opacity: 0, scale: 0.55, width: 0, marginLeft: 0 }}
+                    transition={{ type: 'spring', stiffness: 520, damping: 38, mass: 0.5 }}
+                    onClick={closeLyricSearch}
+                    aria-label={t('clear_search')}
+                    className="h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)]"
+                  >
+                    <X size={15} className="shrink-0" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Botões de função do miniplayer no cabeçalho à direita */}
-        <div className={mobileLyrics && lyricSearchOpen ? 'hidden' : 'contents'}>
+        <div className={`contents ${mobileLyrics && lyricSearchOpen ? '[&>*]:!opacity-0 [&>*]:pointer-events-none' : ''} [&>*]:transition-opacity [&>*]:duration-150`}>
           {renderFullScreenHeaderControls(isMobileFs ? 'header' : 'all')}
         </div>
       </motion.div>
