@@ -53,19 +53,22 @@ if (typeof document !== 'undefined') {
   }, { capture: true, passive: true });
 }
 
-// Teclado virtual aberto (campo de texto em foco e a área visível encolheu): esconde barra de abas e miniplayer
+// Teclado virtual aberto: esconde barra de abas e miniplayer assim que um campo de texto ganha foco. Não depende
+// da altura da janela: no iOS ela às vezes encolhe junto com o teclado, e a barra subia para cima dele.
 if (typeof document !== 'undefined') {
   const isTextField = (el: EventTarget | null) =>
     el instanceof HTMLTextAreaElement ||
     (el instanceof HTMLInputElement && !['checkbox', 'radio', 'range', 'file', 'button', 'submit'].includes(el.type));
+  const isTouch = () => !!window.matchMedia?.('(pointer: coarse)').matches;
   const updateKeyboard = () => {
-    const vv = window.visualViewport;
-    const open = isTextField(document.activeElement) && !!vv && window.innerHeight - vv.height > 120;
-    document.documentElement.classList.toggle('keyboard-open', open);
+    document.documentElement.classList.toggle('keyboard-open', isTouch() && isTextField(document.activeElement));
   };
-  document.addEventListener('focusin', () => setTimeout(updateKeyboard, 300));
+  document.addEventListener('focusin', updateKeyboard);
   document.addEventListener('focusout', () => setTimeout(updateKeyboard, 50));
-  window.visualViewport?.addEventListener('resize', updateKeyboard);
+  // O iOS desloca a página para mostrar o campo: a interface é fixa, então ela volta ao lugar
+  window.visualViewport?.addEventListener('scroll', () => {
+    if (document.documentElement.classList.contains('keyboard-open') && window.scrollY !== 0) window.scrollTo(0, 0);
+  });
 }
 
 // Ao girar o aparelho, a interface some e reaparece rapidamente enquanto os itens se reorganizam

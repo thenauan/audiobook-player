@@ -11167,9 +11167,9 @@ export default function App() {
                         type="text"
                         placeholder={t('search_placeholder')}
                         enterKeyHint="search"
-                        autoCapitalize="off"
-                        autoCorrect="off"
-                        spellCheck={false}
+                        autoCapitalize="sentences"
+                        autoCorrect="on"
+                        spellCheck
                         value={searchQuery}
                         onChange={(e) => {
                           setSearchQuery(e.target.value);

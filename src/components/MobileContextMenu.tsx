@@ -196,7 +196,7 @@ export function MobileContextMenu({
   }, [open, activeKey]);
   // Posição do item em destaque e do menu: tudo dentro da tela (itens perto da borda direita
   // ou cortados numa linha com rolagem horizontal são trazidos para dentro, e o menu se alinha a eles)
-  let layout: { shiftX: number; shiftY: number; menuTop: number; menuLeft: number; alignRight: boolean; menuW: number } | null = null;
+  let layout: { shiftX: number; shiftY: number; menuTop: number; menuLeft: number; alignRight: boolean; menuW: number; centered?: boolean } | null = null;
   const isSideLayout = typeof window !== 'undefined' && !!window.matchMedia?.(LANDSCAPE_PHONE_QUERY).matches;
   if (r) {
     const vw = window.innerWidth;
@@ -238,9 +238,17 @@ export function MobileContextMenu({
       const menuTop = Math.min(r.bottom + shiftY + gap, maxY - 120);
       // Item na metade direita da tela: o menu se alinha pela direita do item (como no iOS)
       const alignRight = left + r.width / 2 > vw / 2;
-      const desired = alignRight ? rightEdge - menuW : left;
-      const menuLeft = Math.max(minX, Math.min(desired, maxX - menuW));
-      layout = { shiftX, shiftY, menuTop, menuLeft, alignRight, menuW };
+      // Item fora dos cantos da tela: fica centralizado com o menu (nos cantos, alinha pela borda dele)
+      const atCorner = left <= minX + 28 || rightEdge >= maxX - 28;
+      if (!atCorner) {
+        const menuLeft = Math.max(minX, Math.min(left + r.width / 2 - menuW / 2, maxX - menuW));
+        const centerShift = menuLeft + menuW / 2 - (left + r.width / 2);
+        layout = { shiftX: shiftX + centerShift, shiftY, menuTop, menuLeft, alignRight: false, menuW, centered: true };
+      } else {
+        const desired = alignRight ? rightEdge - menuW : left;
+        const menuLeft = Math.max(minX, Math.min(desired, maxX - menuW));
+        layout = { shiftX, shiftY, menuTop, menuLeft, alignRight, menuW };
+      }
     }
   }
 
@@ -314,7 +322,7 @@ export function MobileContextMenu({
             originHeight={40}
             style={layout.alignRight
               ? { position: 'fixed', top: layout.menuTop, right: window.innerWidth - (layout.menuLeft + layout.menuW), zIndex: 9992, transformOrigin: 'top right' }
-              : { position: 'fixed', top: layout.menuTop, left: layout.menuLeft, zIndex: 9992, transformOrigin: 'top left' }}
+              : { position: 'fixed', top: layout.menuTop, left: layout.menuLeft, zIndex: 9992, transformOrigin: layout.centered ? 'top center' : 'top left' }}
             className=""
           >
             <div ref={menuContentRef}>{children}</div>

@@ -11,19 +11,25 @@ import { ChevronLeft } from 'lucide-react';
 
 const SHEET_SPRING = { type: 'spring' as const, stiffness: 420, damping: 40, mass: 0.8 };
 
-function useKeyboardInset(active: boolean): number {
-  const [inset, setInset] = useState(0);
+// Teclado aberto: a folha continua até a base da tela (o fundo passa por trás do teclado, sem vão) e só o
+// conteúdo sobe. "shrink": quanto a própria janela encolheu (no iOS isso varia), para a folha compensar.
+function useKeyboardInset(active: boolean): { inset: number; shrink: number } {
+  const [inset, setInset] = useState({ inset: 0, shrink: 0 });
   useEffect(() => {
     if (!active || typeof window === 'undefined' || !window.visualViewport) return;
     const vv = window.visualViewport;
-    const update = () => setInset(Math.max(0, window.innerHeight - vv.height - vv.offsetTop));
+    const fullHeight = window.innerHeight;
+    const update = () => {
+      const shrink = Math.max(0, fullHeight - window.innerHeight);
+      setInset({ inset: Math.max(0, fullHeight - vv.height - vv.offsetTop), shrink });
+    };
     update();
     vv.addEventListener('resize', update);
     vv.addEventListener('scroll', update);
     return () => {
       vv.removeEventListener('resize', update);
       vv.removeEventListener('scroll', update);
-      setInset(0);
+      setInset({ inset: 0, shrink: 0 });
     };
   }, [active]);
   return inset;
@@ -168,8 +174,9 @@ export function MobileSheet({
               : "fixed inset-x-0 z-[9001] flex flex-col rounded-t-[38px] bg-[var(--bg-sheet)] shadow-[0_-12px_40px_-12px_rgba(0,0,0,0.45)] overflow-hidden text-[var(--text-main)]"}
             style={isDesktop ? { translate: '0 -50%' } : {
               top: 'calc(var(--safe-top) + 12px)',
-              bottom: keyboard,
-              transition: 'bottom 0.25s cubic-bezier(0.22, 1, 0.36, 1)',
+              bottom: -keyboard.shrink,
+              paddingBottom: keyboard.inset,
+              transition: 'padding-bottom 0.25s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           >
             {/* Topo arrastável: grabber, fechar e título */}
