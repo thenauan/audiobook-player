@@ -315,13 +315,13 @@ function LyricSearchResults({ transcript, chapters, query, emptyText, moreLabel,
       {found.map(({ line, idx, text }) => {
         const chapter = chapters.find(ch => line.start >= ch.startTime && line.start < ch.startTime + ch.duration);
         return (
-          <p key={idx} data-transcript-idx={idx} onClick={() => onPick(line)} className="group/lyricres relative px-4 py-1 md:pr-12 cursor-pointer text-lg font-bold leading-snug text-[var(--text-main)]">
+          <p key={idx} data-transcript-idx={idx} onClick={() => onPick(line)} className="group/lyricres relative px-4 py-1 md:py-2.5 md:pr-12 md:rounded-3xl md:transition-colors md:hover:bg-[var(--ios-fill)] cursor-pointer text-lg font-bold leading-snug text-[var(--text-main)]">
             {onOptions && (
               <button
                 type="button"
                 aria-label={moreLabel}
                 onClick={(e) => { e.stopPropagation(); onOptions(line); }}
-                className="absolute right-2 top-1 w-8 h-8 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] opacity-0 group-hover/lyricres:opacity-100 focus:opacity-100 transition-opacity"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] opacity-0 group-hover/lyricres:opacity-100 focus:opacity-100 transition-opacity"
               >
                 <MoreHorizontal size={15} />
               </button>
@@ -523,17 +523,29 @@ export default function FullscreenPlayer({
       return;
     }
     let timer: ReturnType<typeof setTimeout> | null = null;
-    const onMove = () => {
+    let gestureAt = 0;
+    const show = () => {
       setLyricSearchShown(true);
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => { if (!lyricSearchOpenRef.current) setLyricSearchShown(false); }, 4000);
     };
-    el.addEventListener('touchmove', onMove, { passive: true });
-    el.addEventListener('wheel', onMove, { passive: true });
+    const onGesture = () => {
+      gestureAt = Date.now();
+      show();
+    };
+    // Barra de rolagem e inércia depois de soltar o dedo. A rolagem automática da letra não conta (sem gesto recente)
+    const onPress = () => { gestureAt = Date.now(); };
+    const onScroll = () => { if (Date.now() - gestureAt < 1500) onGesture(); };
+    el.addEventListener('touchmove', onGesture, { passive: true });
+    el.addEventListener('wheel', onGesture, { passive: true });
+    el.addEventListener('pointerdown', onPress, { passive: true });
+    el.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       if (timer) clearTimeout(timer);
-      el.removeEventListener('touchmove', onMove);
-      el.removeEventListener('wheel', onMove);
+      el.removeEventListener('touchmove', onGesture);
+      el.removeEventListener('wheel', onGesture);
+      el.removeEventListener('pointerdown', onPress);
+      el.removeEventListener('scroll', onScroll);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mobileLyrics, desktopLyrics]);
@@ -751,6 +763,8 @@ export default function FullscreenPlayer({
         style={{ pointerEvents: isIntroDone ? 'auto' : 'none' }}
       >
         {/* Botão Minimizar à esquerda (mesma posição do voltar de outras telas com ícone Minimize2) */}
+        {/* Celular: com a busca aberta, estes botões saem do cabeçalho até o X cancelar */}
+        <div className={mobileLyrics && lyricSearchOpen ? 'hidden' : 'contents'}>
         {isMobileFs ? (
           // Celular: botão redondo no mesmo padrão e alinhamento dos botões do cabeçalho do app
           <motion.button
@@ -781,6 +795,7 @@ export default function FullscreenPlayer({
           <span className="text-xs font-medium text-[var(--text-main)]">{t('minimize')}</span>
         </motion.button>
         )}
+        </div>
 
         {/* Celular, ao rolar a letra: busca no texto */}
         <AnimatePresence>
@@ -791,7 +806,7 @@ export default function FullscreenPlayer({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ duration: 0.16, ease: 'easeOut' }}
-              className="flex-1 min-w-0 mx-2.5 flex items-center gap-2"
+              className={`flex-1 min-w-0 flex items-center gap-2 ${lyricSearchOpen ? '' : 'mx-2.5'}`}
             >
               <div
                 onClick={() => setLyricSearchOpen(true)}
@@ -831,7 +846,9 @@ export default function FullscreenPlayer({
         </AnimatePresence>
 
         {/* Botões de função do miniplayer no cabeçalho à direita */}
-        {renderFullScreenHeaderControls(isMobileFs ? 'header' : 'all')}
+        <div className={mobileLyrics && lyricSearchOpen ? 'hidden' : 'contents'}>
+          {renderFullScreenHeaderControls(isMobileFs ? 'header' : 'all')}
+        </div>
       </motion.div>
 
       {/* Corpo: Centralizado (com capa aumentada e simetria de espaçamento) ou duas colunas com texto */}
@@ -1135,11 +1152,15 @@ export default function FullscreenPlayer({
                   paddingRight: 'max(var(--page-margin), var(--safe-right))',
                   touchAction: 'pan-y',
                   overscrollBehaviorX: 'none',
-                } : undefined}
+                } : {
+                  // Computador: com a busca na tela, a letra termina acima da barra
+                  marginBottom: desktopLyrics && (lyricSearchShown || lyricSearchOpen || lyricQuery) ? lyricBarBottom + 52 : 0,
+                  transition: 'margin-bottom 0.18s ease-out',
+                }}
                 className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pl-8 md:pl-12 pr-6 md:pr-10 py-8 max-md:px-2 max-md:py-4 flex flex-col fullscreen-transcript w-full md:w-[min(48vw,680px)] md:shrink-0"
               >
                 <div
-                  className={`select-none ${foldedQuery ? 'space-y-5' : 'my-auto space-y-6'}`}
+                  className={`select-none ${foldedQuery ? 'space-y-5 md:space-y-1' : 'my-auto space-y-6'}`}
                   style={{ WebkitTouchCallout: 'none' }}
                   onPointerDown={onLinesPointerDown}
                   onPointerMove={cancelLinePress}
@@ -1174,12 +1195,18 @@ export default function FullscreenPlayer({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.16, ease: 'easeOut' }}
-                    style={{ bottom: lyricBarBottom }}
+                    style={{
+                      bottom: lyricBarBottom,
+                      // Destaque da barra na cor do audiobook
+                      '--winblue': currentBookHighlight.hex,
+                      '--winblue-rgb': currentBookHighlight.rgb,
+                      '--color-winblue': currentBookHighlight.hex,
+                    } as React.CSSProperties}
                     className="absolute left-14 right-12 z-10"
                     onFocusCapture={() => setLyricSearchOpen(true)}
                     onBlurCapture={() => { if (!lyricQuery) { setLyricSearchOpen(false); setLyricSearchShown(false); } }}
                   >
-                    <PopupSearchField value={lyricQuery} onChange={setLyricQuery} placeholder={t('search_in_text_placeholder')} autoFocus={false} />
+                    <PopupSearchField value={lyricQuery} onChange={setLyricQuery} placeholder={t('search_in_text_placeholder')} autoFocus={false} icon={TextSearch} />
                   </motion.div>
                 )}
               </AnimatePresence>

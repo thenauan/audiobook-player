@@ -189,7 +189,7 @@ html[data-density="comfortable"] [class*="gap-6"] {
   }
 
   .dark {
-    --bg-mica: #161616;
+    --bg-mica: #000000;
     --bg-card: #242424;
     --bg-sheet: #1C1C1E;
     --bg-card-50: rgba(30, 30, 34, 0.25);
@@ -1598,7 +1598,7 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
 @media (max-width: 1023px) {
   /* Linhas de Mais, Ajustes e Ajuda: destaque de preenchimento ao tocar */
   .settings-list-row[data-touch-active] {
-    background-color: var(--ios-fill-strong) !important;
+    background-color: var(--ios-row-strong) !important;
     filter: none !important;
     opacity: 1 !important;
   }
@@ -1819,16 +1819,30 @@ html.lite [style*="blur("] {
 :root {
   --ios-fill: rgb(120 120 128 / 0.14);
   --ios-fill-strong: rgb(120 120 128 / 0.24);
+  --ios-row: var(--ios-fill);
+  --ios-row-strong: var(--ios-fill-strong);
 }
 .dark {
   --ios-fill: rgb(120 120 128 / 0.3);
   --ios-fill-strong: rgb(120 120 128 / 0.44);
+  /* Listas sobre o fundo preto: tom bem próximo do fundo */
+  --ios-row: rgb(255 255 255 / 0.07);
+  --ios-row-strong: rgb(255 255 255 / 0.13);
 }
+/* Computador: o destaque das opções ao passar o mouse é o mesmo do toque no celular, sem brilho nem sombra */
 @media (hover: hover) {
   [data-popup-content] [data-popup-option]:not(.text-red-500):hover,
-  [data-mobile-sheet] [data-popup-option]:not(.text-red-500):hover {
-    background-color: var(--ios-fill) !important;
+  [data-mobile-sheet] [data-popup-option]:not(.text-red-500):hover,
+  [data-popup-content] button.group.w-full:not(.text-red-500, [class*="bg-winblue"]):hover {
+    background-color: var(--ios-fill-strong) !important;
     border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+  [data-popup-content] button.group.w-full:hover .group-hover\:text-white {
+    color: inherit;
+  }
+  [data-popup-content] :is(button, [role="button"]).text-red-500:hover {
     box-shadow: none !important;
   }
 }
@@ -1857,10 +1871,10 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
 /* Ajustes: itens da lista sem borda, só a diferença de cor com o fundo, como no iOS */
 .settings-list-row {
   border-color: transparent !important;
-  background-color: var(--ios-fill) !important;
+  background-color: var(--ios-row) !important;
 }
 @media (hover: hover) {
   .settings-list-row:hover {
-    background-color: var(--ios-fill-strong) !important;
+    background-color: var(--ios-row-strong) !important;
   }
 }

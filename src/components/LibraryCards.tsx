@@ -342,7 +342,9 @@ export function PopupSearchField({
   onChange,
   placeholder,
   autoFocus = true,
+  icon: Icon = Search,
 }: {
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
@@ -355,7 +357,7 @@ export function PopupSearchField({
   return (
     <div className="flex items-center gap-2 px-1 pb-1">
       <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] focus-within:bg-white/15 focus-within:border-winblue/40 focus-within:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.3)] text-[var(--text-main)] transition-all backdrop-blur-3xl">
-        <Search size={13} className="text-[var(--text-muted)] group-focus-within/popsearch:text-winblue transition-colors shrink-0" />
+        <Icon size={13} className="text-[var(--text-muted)] group-focus-within/popsearch:text-winblue transition-colors shrink-0" />
         <input
           ref={inputRef}
           autoFocus={autoFocus}

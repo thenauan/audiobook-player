@@ -3385,7 +3385,7 @@ export default function App() {
     document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
     // Barra de status/navegação do sistema na mesma cor do fundo do app (claro ou escuro)
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', resolvedTheme === 'dark' ? '#161616' : '#F0F2F5');
+    if (meta) meta.setAttribute('content', resolvedTheme === 'dark' ? '#000000' : '#F0F2F5');
   }, [resolvedTheme]);
 
   useEffect(() => {
