@@ -65,8 +65,8 @@ export function Sidebar({
       } as React.CSSProperties) : undefined}
     >
       <div>
-        <div className="flex items-center gap-0.5 px-3 text-[var(--text-main)] text-xl tracking-tight mb-6">
-          <AppLogo height={22} className="text-[var(--text-main)] shrink-0" />
+        <div className="flex items-baseline gap-[3px] px-3 text-[var(--text-main)] text-xl tracking-tight mb-6">
+          <AppLogo className="text-[var(--text-main)] shrink-0" />
           <span>
             <span className="font-bold">Audiobook</span>
             <span className="font-normal">Player</span>

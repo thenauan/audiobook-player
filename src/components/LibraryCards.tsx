@@ -350,6 +350,8 @@ export function PopupSearchField({
 }) {
   const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
+  // O X tem a mesma altura da caixa (e é redondo)
+  const isMobileField = useIsMobile();
   return (
     <div className="flex items-center gap-2 px-1 pb-1">
       <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] focus-within:bg-white/15 focus-within:border-winblue/40 focus-within:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.3)] text-[var(--text-main)] transition-all backdrop-blur-3xl">
@@ -377,7 +379,7 @@ export function PopupSearchField({
             key="popup-search-clear"
             type="button"
             initial={{ opacity: 0, scale: 0.55, width: 0, marginLeft: -8 }}
-            animate={{ opacity: 1, scale: 1, width: 36, marginLeft: 0 }}
+            animate={{ opacity: 1, scale: 1, width: isMobileField ? 44 : 36, marginLeft: 0 }}
             exit={{ opacity: 0, scale: 0.55, width: 0, marginLeft: -8 }}
             transition={{ type: "spring", stiffness: 520, damping: 38, mass: 0.5 }}
             whileHover={{ scale: 1.12 }}
@@ -387,7 +389,7 @@ export function PopupSearchField({
               onChange('');
               inputRef.current?.focus();
             }}
-            className="h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-colors cursor-pointer overflow-hidden"
+            className="h-9 max-md:h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-colors cursor-pointer overflow-hidden"
             title={t('clear_search')}
           >
             <X size={13} className="shrink-0" />

@@ -4385,7 +4385,7 @@ export default function App() {
             {found.length === 0 ? (
               <p className="text-sm text-[var(--text-muted)] text-center py-10">{t('search_in_text_empty')}</p>
             ) : (
-              <div className={SCREEN_GROUP_CLASS}>
+              <div className="flex flex-col gap-2">
                 {found.slice(0, 200).map((line, i) => (
                   <div
                     key={`${line.start}-${i}`}
@@ -4394,9 +4394,9 @@ export default function App() {
                     data-no-press="true"
                     onClick={(e) => openRow(e.currentTarget, line)}
                     onKeyDown={(e) => { if (e.key === 'Enter') openRow(e.currentTarget, line); }}
-                    className="w-full min-h-[52px] flex items-center gap-2 pl-3 pr-1.5 py-2 text-left rtl:text-right rounded-[26px] border border-transparent transition-colors select-none cursor-pointer hover:bg-white/10"
+                    className="w-full px-4 py-3 text-left rtl:text-right rounded-[22px] bg-[var(--ios-fill)] transition-colors select-none cursor-pointer hover:bg-[var(--ios-fill-strong)] active:bg-[var(--ios-fill-strong)]"
                   >
-                    <span className="flex-1 min-w-0 flex flex-col">
+                    <span className="min-w-0 flex flex-col">
                       <span className="text-[15px] leading-snug text-[var(--text-main)]">{highlightMatch(transcriptLineText(line), lyricsSearch)}</span>
                       {(() => {
                         const chapter = (bk.chapters || []).find(c => line.start >= c.startTime && line.start < c.startTime + (c.duration || 0));
@@ -4407,14 +4407,6 @@ export default function App() {
                         );
                       })()}
                     </span>
-                    <button
-                      type="button"
-                      aria-label={t('more_options')}
-                      onClick={(e) => { e.stopPropagation(); openRow(e.currentTarget.parentElement as HTMLElement, line); }}
-                      className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full text-[var(--text-muted)] hover:bg-white/15 transition-colors"
-                    >
-                      <MoreHorizontal size={16} />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -5684,7 +5676,7 @@ export default function App() {
         if (!cancelled) setMetadata([{ src: png, type: 'image/png' }]);
       } catch {
         // Sem a capa (imagem de outro site sem permissão): usa o ícone do app
-        if (!cancelled) setMetadata([{ src: `${import.meta.env.BASE_URL}icons/icon-512.png`, type: 'image/png' }]);
+        if (!cancelled) setMetadata([{ src: `${import.meta.env.BASE_URL}icons/app-icon-512.png`, type: 'image/png' }]);
       }
     })();
     return () => { cancelled = true; };
@@ -15816,9 +15808,9 @@ export default function App() {
                       initial={{ scale: 0.92, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: 'spring', stiffness: 360, damping: 26 }}
-                      className="flex items-center gap-0.5 text-white text-3xl sm:text-4xl md:text-5xl tracking-tight mb-2"
+                      className="flex items-baseline gap-1 text-white text-3xl sm:text-4xl md:text-5xl tracking-tight mb-2"
                     >
-                      <AppLogo height={38} className="text-white shrink-0" />
+                      <AppLogo className="text-white shrink-0" />
                       <span>
                         <span className="font-bold">Audiobook</span>
                         <span className="font-normal opacity-90">Player</span>

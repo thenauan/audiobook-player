@@ -1,13 +1,13 @@
 // Service Worker for Audiobook Player PWA
-const CACHE_NAME = 'audiobook-player-v10';
+const CACHE_NAME = 'audiobook-player-v11';
 // Caminhos relativos à pasta do service worker (funciona também numa subpasta, como no GitHub Pages)
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './icons/favicon.png',
-  './icons/apple-touch-icon.png',
-  './icons/icon-192.png'
+  './icons/app-icon-180.png',
+  './icons/app-icon-192.png'
 ];
 
 self.addEventListener('install', (event) => {
