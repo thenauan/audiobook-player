@@ -173,32 +173,14 @@ function isPairInSubgenre(b: Partial<Audiobook>, genreData: GenreItem, subgenreN
       })
       .map(s => s.toLowerCase());
 
-    const matchesAnySpecific = specificSubs.some(s => 
-      rawSub === s || resSub === s || rawCat === s || (rawSub !== '' && rawSub.includes(s)) || (s.length > 3 && rawCat.includes(s))
-    );
+    const matchesAnySpecific = specificSubs.some(s => rawSub === s || resSub === s || rawCat === s);
 
     return !matchesAnySpecific;
   }
 
-  // Exact or alias match
-  if (rawSub === targetSub || resSub === targetSub || rawCat === targetSub) {
-    return true;
-  }
-
-  // Substring containment check
-  if (rawSub && (rawSub.includes(targetSub) || targetSub.includes(rawSub))) {
-    return true;
-  }
-
-  if (resSub && resSub !== 'outros' && resSub !== 'desconhecido' && (resSub.includes(targetSub) || targetSub.includes(resSub))) {
-    return true;
-  }
-
-  if (rawCat && rawCat === targetSub) {
-    return true;
-  }
-
-  return false;
+  // Só o nome exato (ou o sinônimo já resolvido). Comparar por "contém" colocava um audiobook em subgêneros
+  // que ele não tem: "LGBTQ+" estava contido em "Romance LGBTQ+", "Fantasia LGBTQ+", "Poesia LGBTQ+"...
+  return rawSub === targetSub || resSub === targetSub || rawCat === targetSub;
 }
 
 import { normalizeAudiobookLanguage } from './translations';

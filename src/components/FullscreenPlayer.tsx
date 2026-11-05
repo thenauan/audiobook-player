@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Minimize2, SkipBack, SkipForward, Bookmark, Play, Copy, Share } from 'lucide-react';
+import { useLyricsHighlight, type LyricsHighlight } from '../lyricsPrefs';
 import { BsPlayFill, BsPauseFill, BsArrowCounterclockwise, BsArrowClockwise } from 'react-icons/bs';
 import type { Audiobook, Chapter, Author, TranscriptLine } from '../data';
 import { AUTHORS_DATABASE } from '../data';
@@ -63,7 +64,6 @@ export interface FullscreenPlayerProps {
   showTranscript: boolean;
   hasTranscript: boolean;
   fsTranscriptScrollRef: React.RefObject<HTMLDivElement | null>;
-  activeTranscriptIndex: number;
   // Adiciona a frase da letra como marcação do capítulo em que ela está
   onAddLineBookmark?: (line: TranscriptLine) => void;
   // Gera a imagem (formato de story) com a frase
@@ -101,6 +101,66 @@ function getMiniPlayerClip(): string {
 }
 
 const FULLSCREEN_CLIP = 'inset(0px 0px 0px 0px round 0px)';
+
+// Uma frase da letra. A letra inteira fica na tela (rolagem até o fim e toque no ponto certo); como o tempo muda
+// várias vezes por segundo, só as frases que mudaram são redesenhadas, e só a frase ativa é dividida em palavras
+const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, activeWordIdx, mode, onSeek }: {
+  line: TranscriptLine;
+  idx: number;
+  isActive: boolean;
+  isPast: boolean;
+  activeWordIdx: number;
+  mode: LyricsHighlight;
+  onSeek: (time: number) => void;
+}) {
+  const hasWords = Boolean(line.words && line.words.length > 0);
+  const showWords = isActive && hasWords && mode !== 'phrase';
+  // "Só palavras": a frase não ganha destaque (sem tempo por palavra, a frase é o único destaque possível)
+  const lineOn = isActive && (mode !== 'word' || !hasWords);
+  return (
+    <p
+      data-transcript-idx={idx}
+      className={`text-xl sm:text-2xl font-bold cursor-pointer transition-colors duration-150 origin-left px-4 py-2 rounded-2xl transform-gpu ${
+        lineOn
+          ? 'opacity-100 scale-[1.03] text-black dark:text-white dark:drop-shadow-[0_2px_12px_rgba(255,255,255,0.25)]'
+          : isPast
+          ? 'opacity-75 dark:opacity-40 scale-100 text-slate-700 dark:text-[var(--text-muted)] hover:text-black dark:hover:text-white'
+          : 'opacity-85 dark:opacity-60 scale-100 text-slate-800 dark:text-[var(--text-muted)] hover:text-black dark:hover:text-white'
+      }`}
+      onClick={() => onSeek(line.start)}
+    >
+      {showWords ? (
+        line.words!.map((w, wIdx) => {
+          const isWordActive = wIdx === activeWordIdx;
+          const isWordPast = activeWordIdx >= 0 && wIdx < activeWordIdx;
+          return (
+            <span
+              key={wIdx}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSeek(w.start);
+              }}
+              className={`inline-block rounded-lg px-1 -mx-0.5 transition-colors duration-150 ${
+                // A palavra sendo lida fica na cor do audiobook
+                isWordActive
+                  ? 'text-[var(--book-accent)] bg-[rgba(var(--book-accent-rgb),0.16)] shadow-[0_0_12px_rgba(var(--book-accent-rgb),0.3)] scale-105'
+                  : isWordPast
+                  ? 'text-black dark:text-white/95'
+                  : lineOn
+                  ? 'text-slate-700 dark:text-white/65 hover:text-black dark:hover:text-white'
+                  : ''
+              }`}
+            >
+              {w.text}{' '}
+            </span>
+          );
+        })
+      ) : (
+        hasWords ? line.words!.map(w => w.text).join(' ') : line.text
+      )}
+    </p>
+  );
+});
 
 export default function FullscreenPlayer({
   miniplayerAmbientStyle,
@@ -143,7 +203,6 @@ export default function FullscreenPlayer({
   showTranscript,
   hasTranscript,
   fsTranscriptScrollRef,
-  activeTranscriptIndex,
   onAddLineBookmark,
   onShareLine,
   showToast,
@@ -220,6 +279,11 @@ export default function FullscreenPlayer({
     if (!lineMenu) openLineMenu(el);
   };
   const lineText = (line: TranscriptLine) => (line.words && line.words.length > 0 ? line.words.map(w => w.text).join(' ') : line.text);
+  const lyricsHighlight = useLyricsHighlight();
+  // Mesma função sempre, para as frases que não mudaram não serem redesenhadas
+  const seekRef = React.useRef(handleSeek);
+  seekRef.current = handleSeek;
+  const seekLyric = React.useCallback((time: number) => seekRef.current(time), []);
 
   // Celular: deslizar para baixo (fora de botões, barras e da letra) minimiza o player, como no iOS
   const swipeRef = React.useRef<{ y: number; x: number; active: boolean; el: HTMLElement | null } | null>(null);
@@ -769,88 +833,29 @@ export default function FullscreenPlayer({
                   onClickCapture={onLinesClickCapture}
                   onContextMenu={onLinesContextMenu}
                 >
-                  {(() => {
-                    const transcript = currentBook.transcript;
-                    const totalLines = transcript.length;
-                    const isLarge = totalLines > 50;
-                    
-                    // Janela virtualizada centralizada na linha ativa para performance de 60fps
-                    const activeIdx = activeTranscriptIndex >= 0 ? activeTranscriptIndex : 0;
-                    const startIdx = isLarge ? Math.max(0, activeIdx - 15) : 0;
-                    const endIdx = isLarge ? Math.min(totalLines, activeIdx + 25) : totalLines;
-                    const visibleLines = transcript.slice(startIdx, endIdx);
-                    
-                    const ESTIMATED_ROW_HEIGHT = 56;
-                    const topSpacerHeight = startIdx * ESTIMATED_ROW_HEIGHT;
-                    const bottomSpacerHeight = (totalLines - endIdx) * ESTIMATED_ROW_HEIGHT;
-
+                  {currentBook.transcript.map((line, idx) => {
+                    const isActive = currentTime >= line.start && currentTime <= line.end;
+                    // Palavra sendo lida: a última que já começou na frase ativa (continua destacada nos
+                    // pequenos silêncios entre uma palavra e outra, sem piscar)
+                    let activeWordIdx = -1;
+                    if (isActive && line.words) {
+                      for (let wi = 0; wi < line.words.length; wi++) {
+                        if (line.words[wi].start <= currentTime) activeWordIdx = wi; else break;
+                      }
+                    }
                     return (
-                      <>
-                        {isLarge && topSpacerHeight > 0 && (
-                          <div style={{ height: `${topSpacerHeight}px` }} aria-hidden="true" />
-                        )}
-                        {visibleLines.map((line, relativeIdx) => {
-                          const idx = startIdx + relativeIdx;
-                          const isActive = currentTime >= line.start && currentTime <= line.end;
-                          const isPast = currentTime > line.end;
-                          const hasWords = Boolean(line.words && line.words.length > 0);
-                          // Palavra sendo lida: a última que já começou na frase ativa (continua destacada nos
-                          // pequenos silêncios entre uma palavra e outra, sem piscar)
-                          let activeWordIdx = -1;
-                          if (isActive && hasWords) {
-                            for (let wi = 0; wi < line.words!.length; wi++) {
-                              if (line.words![wi].start <= currentTime) activeWordIdx = wi; else break;
-                            }
-                          }
-                          return (
-                            <p 
-                              key={idx}
-                              data-transcript-idx={idx}
-                              className={`text-xl sm:text-2xl font-bold cursor-pointer transition-colors duration-150 origin-left px-4 py-2 rounded-2xl transform-gpu ${
-                                isActive 
-                                  ? 'opacity-100 scale-[1.03] text-black dark:text-white dark:drop-shadow-[0_2px_12px_rgba(255,255,255,0.25)]' 
-                                  : isPast
-                                  ? 'opacity-75 dark:opacity-40 scale-100 text-slate-700 dark:text-[var(--text-muted)] hover:text-black dark:hover:text-white'
-                                  : 'opacity-85 dark:opacity-60 scale-100 text-slate-800 dark:text-[var(--text-muted)] hover:text-black dark:hover:text-white'
-                              }`}
-                              onClick={() => handleSeek(line.start)}
-                            >
-                              {hasWords ? (
-                                line.words!.map((w, wIdx) => {
-                                  const isWordActive = wIdx === activeWordIdx;
-                                  const isWordPast = activeWordIdx >= 0 && wIdx < activeWordIdx;
-                                  return (
-                                    <span
-                                      key={wIdx}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleSeek(w.start);
-                                      }}
-                                      className={`inline-block rounded-lg px-1 -mx-0.5 transition-colors duration-150 ${
-                                        // A linha toda fica destacada e, dentro dela, a palavra sendo lida na cor do audiobook
-                                        isWordActive
-                                          ? 'text-[var(--book-accent)] bg-[rgba(var(--book-accent-rgb),0.16)] shadow-[0_0_12px_rgba(var(--book-accent-rgb),0.3)] scale-105'
-                                          : isActive
-                                          ? (isWordPast ? 'text-black dark:text-white/95' : 'text-slate-700 dark:text-white/65 hover:text-black dark:hover:text-white')
-                                          : ''
-                                      }`}
-                                    >
-                                      {w.text}{' '}
-                                    </span>
-                                  );
-                                })
-                              ) : (
-                                line.text
-                              )}
-                            </p>
-                          );
-                        })}
-                        {isLarge && bottomSpacerHeight > 0 && (
-                          <div style={{ height: `${bottomSpacerHeight}px` }} aria-hidden="true" />
-                        )}
-                      </>
+                      <LyricLine
+                        key={idx}
+                        line={line}
+                        idx={idx}
+                        isActive={isActive}
+                        isPast={currentTime > line.end}
+                        activeWordIdx={activeWordIdx}
+                        mode={lyricsHighlight}
+                        onSeek={seekLyric}
+                      />
                     );
-                  })()}
+                  })}
                   <div className="h-[25vh] shrink-0" />
                 </div>
               </div>

@@ -1764,7 +1764,7 @@ export function groupTimedWordsIntoSegments(rawWords: TranscriptWord[]): Transcr
  */
 export function validateAndNormalizeTranscript(
   lines: TranscriptLine[],
-  audioDurationSec?: number
+  _audioDurationSec?: number
 ): TranscriptLine[] {
   if (!Array.isArray(lines) || lines.length === 0) return [];
 
@@ -1799,15 +1799,8 @@ export function validateAndNormalizeTranscript(
     }
   }
 
-  // If audioDurationSec is provided and valid, filter out segments that start entirely beyond a reasonable margin of the audio duration
-  if (audioDurationSec && audioDurationSec > 0) {
-    const maxAllowedStart = audioDurationSec * 1.15 + 30;
-    const withinDuration = cleaned.filter(l => l.start <= maxAllowedStart);
-    if (withinDuration.length > 0) {
-      return withinDuration;
-    }
-  }
-
+  // Todas as linhas ficam: a duração conhecida na importação pode estar errada (no iPhone, às vezes só 30
+  // minutos), e cortar por ela apagava o resto da letra
   return cleaned;
 }
 

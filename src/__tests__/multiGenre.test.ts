@@ -39,3 +39,15 @@ describe('vários gêneros e subgêneros no mesmo audiobook', () => {
     expect(getSubgenreName('Romantasia, Gótico', 'en')).toBe('Romantasy, Gothic');
   });
 });
+
+describe('subgêneros LGBTQ+', () => {
+  const lgbt = Object.values(GENRE_HIERARCHY).find(g => g.id === 'lgbtq')!;
+  it('audiobook aparece só nos subgêneros que tem', () => {
+    const book = { category: 'LGBTQ+', subgenre: 'Romance LGBTQ+' };
+    expect(lgbt.subgenres.filter(s => isBookInSubgenre(book, lgbt, s))).toEqual(['Romance LGBTQ+']);
+  });
+  it('subgênero genérico "LGBTQ+" fica só no subgênero padrão, não em todos', () => {
+    const book = { category: 'LGBTQ+', subgenre: 'LGBTQ+' };
+    expect(lgbt.subgenres.filter(s => s !== 'Outros' && isBookInSubgenre(book, lgbt, s))).toEqual(['Ficção LGBTQ+']);
+  });
+});

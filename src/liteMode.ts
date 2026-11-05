@@ -4,7 +4,7 @@
 // A configuração do aparelho (processador e memória) indica quando o modo leve é recomendado: no app
 // instalado vem do Electron; no navegador, do que ele informa (núcleos e, em alguns, a memória aproximada).
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { desktop } from './desktopBridge';
+import { desktop, IS_APPLE_TOUCH } from './desktopBridge';
 
 const KEY = 'app_lite_mode';
 let lite = false;
@@ -68,6 +68,9 @@ export function getSystemInfo(): Promise<SystemInfo | null> {
     const fromBrowser = () => {
       const nav = navigator as Navigator & { deviceMemory?: number };
       if (!nav.hardwareConcurrency) return null;
+      // iPhone/iPad: o Safari não informa os núcleos reais (um iPhone novo aparece com poucos), nem a memória.
+      // Sem dado confiável, nada é mostrado nem recomendado.
+      if (IS_APPLE_TOUCH) return (cache = evaluateDevice(0, 0, '', isPhone));
       return (cache = evaluateDevice(nav.hardwareConcurrency, nav.deviceMemory || 0, '', isPhone));
     };
     pending = desktop?.getSystemInfo

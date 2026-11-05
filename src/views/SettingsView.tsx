@@ -3,13 +3,14 @@ import { morphTriggerAnimate } from '../components/Popovers';
 import { APP_VERSION } from '../version';
 import { getDiagText, clearDiag } from '../playbackDiag';
 import { useLiteMode, setLiteMode, useSystemInfo } from '../liteMode';
+import { useLyricsHighlight, setLyricsHighlight } from '../lyricsPrefs';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Palette, BookOpen, Bell, Settings as SettingsIcon, Moon, Sun, Laptop, Monitor, ChevronDown,
   Sliders, Type, ALargeSmall, Globe, FolderOpen, RefreshCw, Clock, Download, Upload,
   Gauge, Play, FileText, Activity, CheckCircle2, ListPlus, Database, Trash2, Info,
-  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight, Feather
+  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight, Feather, Copy, Highlighter, WholeWord, AlignLeft
 } from 'lucide-react';
 import { BsPlayFill, BsArrowClockwise, BsArrowCounterclockwise } from 'react-icons/bs';
 import {
@@ -348,6 +349,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         className="h-8 px-4 rounded-full text-winblue bg-winblue/10 hover:bg-winblue/20 border border-winblue/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
         <span>{t('settings_diag_copy')}</span>
+        <Copy size={14} />
       </motion.button>
       <motion.button
         whileHover={{ scale: 1.06 }}
@@ -356,6 +358,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         className="h-8 px-4 rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
         <span>{t('settings_diag_clear')}</span>
+        <Trash2 size={14} />
       </motion.button>
     </div>
   );
@@ -444,6 +447,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     version_label: actionControls_version_label_inline,
   };
 
+  const lyricsHighlight = useLyricsHighlight();
+  const lyricsHighlightLabels = { both: t('lyrics_hl_both'), phrase: t('lyrics_hl_phrase'), word: t('lyrics_hl_word') };
   // Modo leve e configuração do aparelho (Sistema)
   const liteMode = useLiteMode();
   const systemInfo = useSystemInfo();
@@ -1059,6 +1064,49 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <SettingToggle checked={autoShowText} onChange={setAutoShowText} />
+            </div>
+
+            {/* Destaque da letra no player em tela cheia */}
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                  <Highlighter size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-base text-[var(--text-main)]">{t('settings_lyrics_highlight')}</span>
+                  <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('settings_lyrics_highlight_sub')}</span>
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.06 }}
+                data-press="true"
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'lyrics-highlight')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (activeSettingSelector?.id === 'lyrics-highlight') {
+                    setActiveSettingSelector(null);
+                    return;
+                  }
+                  closeAllPopups();
+                  setActiveSettingSelector({
+                    id: 'lyrics-highlight',
+                    triggerEl: e.currentTarget,
+                    title: t('settings_lyrics_highlight'),
+                    subtitle: t('settings_lyrics_highlight_sub'),
+                    currentValue: lyricsHighlight,
+                    options: [
+                      { value: 'both', label: lyricsHighlightLabels.both, icon: <Highlighter size={15} /> },
+                      { value: 'phrase', label: lyricsHighlightLabels.phrase, icon: <AlignLeft size={15} /> },
+                      { value: 'word', label: lyricsHighlightLabels.word, icon: <WholeWord size={15} /> },
+                    ],
+                    onSelect: (val: any) => setLyricsHighlight(val),
+                  });
+                }}
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+              >
+                <span>{lyricsHighlightLabels[lyricsHighlight]}</span>
+                <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
+              </motion.button>
             </div>
 
             {/* Realce e normalização usam o Web Audio, que não é usado no iPhone/iPad (travava o áudio) */}
