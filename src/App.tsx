@@ -36,6 +36,7 @@ import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } 
 import { MobileConfirmCard } from './components/MobileConfirm';
 import { installTapBounce } from './components/tapBounce';
 import { getSystemInfo } from './liteMode';
+import { WhatsNewScreen } from './components/WhatsNewScreen';
 import { useShowExtraChapters, visibleChapters } from './chapterPrefs';
 import { diag } from './playbackDiag';
 import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './authorUtils';
@@ -15715,6 +15716,8 @@ export default function App() {
       </AnimatePresence>
 
       {/* TELA CHEIA DE BOAS-VINDAS E AJUSTES INICIAIS (1ª ABERTURA DO APP) */}
+        {/* Novidades da versão: uma vez, depois de o app ser atualizado */}
+        {!showOnboarding && <WhatsNewScreen language={resolvedLanguage} t={t} />}
       <AnimatePresence>
         {showOnboarding && (
           <motion.div
