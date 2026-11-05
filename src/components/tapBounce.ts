@@ -67,6 +67,15 @@ export function installTapBounce(): () => void {
     if (e.clientX < r.left - out || e.clientX > r.right + out || e.clientY < r.top - out || e.clientY > r.bottom + out) release();
   };
 
+  // Voltar e avançar: o ícone dá uma volta para o lado do pulo
+  const onSpin = (e: MouseEvent) => {
+    const icon = (e.target as HTMLElement | null)?.closest?.('button')?.querySelector?.('svg[data-spin]') as SVGElement | null;
+    if (!icon?.animate) return;
+    const turn = Number(icon.getAttribute('data-spin')) * 360;
+    icon.animate([{ rotate: '0deg' }, { rotate: `${turn}deg` }], { duration: 480, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+  };
+  document.addEventListener('click', onSpin, { capture: true, passive: true });
+
   // Botões do cabeçalho: primeiro o pulinho, depois a ação (o pop-up abre quando o botão já cresceu). Com um pop-up
   // aberto, ou em botões que só navegam (data-instant), a resposta é imediata.
   const onClick = (e: MouseEvent) => {
@@ -86,6 +95,7 @@ export function installTapBounce(): () => void {
   window.addEventListener('blur', release);
   return () => {
     document.removeEventListener('click', onClick, { capture: true });
+    document.removeEventListener('click', onSpin, { capture: true });
     document.removeEventListener('pointerdown', onDown, { capture: true });
     document.removeEventListener('pointermove', onMove, { capture: true });
     document.removeEventListener('pointerup', release, { capture: true });

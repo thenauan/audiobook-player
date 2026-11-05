@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MarqueeText } from './MarqueeText';
-import { Minimize2, SkipBack, SkipForward, Bookmark, Play, Copy, Share, TextSearch, X } from 'lucide-react';
+import { Minimize2, SkipBack, SkipForward, Bookmark, Play, Copy, Share, TextSearch, X, MoreHorizontal } from 'lucide-react';
+import { PopupSearchField } from './LibraryCards';
+import { MobileConfirmCard } from './MobileConfirm';
 import { useLyricsHighlight, type LyricsHighlight } from '../lyricsPrefs';
 import { BsPlayFill, BsPauseFill, BsArrowCounterclockwise, BsArrowClockwise } from 'react-icons/bs';
 import type { Audiobook, Chapter, Author, TranscriptLine } from '../data';
@@ -288,12 +290,15 @@ function MatchedText({ text, query }: { text: string; query: string }) {
   return <>{parts}</>;
 }
 
-function LyricSearchResults({ transcript, chapters, query, emptyText, onPick }: {
+function LyricSearchResults({ transcript, chapters, query, emptyText, moreLabel, onPick, onOptions }: {
   transcript: TranscriptLine[];
   chapters: { title: string; startTime: number; duration: number }[];
   query: string;
   emptyText: string;
+  moreLabel: string;
   onPick: (line: TranscriptLine) => void;
+  // Computador: três pontinhos ao passar o mouse
+  onOptions?: (line: TranscriptLine) => void;
 }) {
   const found = React.useMemo(() => {
     const list: { line: TranscriptLine; idx: number; text: string }[] = [];
@@ -310,7 +315,17 @@ function LyricSearchResults({ transcript, chapters, query, emptyText, onPick }: 
       {found.map(({ line, idx, text }) => {
         const chapter = chapters.find(ch => line.start >= ch.startTime && line.start < ch.startTime + ch.duration);
         return (
-          <p key={idx} data-transcript-idx={idx} onClick={() => onPick(line)} className="px-4 py-1 cursor-pointer text-lg font-bold leading-snug text-[var(--text-main)]">
+          <p key={idx} data-transcript-idx={idx} onClick={() => onPick(line)} className="group/lyricres relative px-4 py-1 md:pr-12 cursor-pointer text-lg font-bold leading-snug text-[var(--text-main)]">
+            {onOptions && (
+              <button
+                type="button"
+                aria-label={moreLabel}
+                onClick={(e) => { e.stopPropagation(); onOptions(line); }}
+                className="absolute right-2 top-1 w-8 h-8 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] opacity-0 group-hover/lyricres:opacity-100 focus:opacity-100 transition-opacity"
+              >
+                <MoreHorizontal size={15} />
+              </button>
+            )}
             <MatchedText text={text} query={query} />
             <span className="block mt-1 text-[10px] font-medium text-[var(--text-muted)] truncate">
               {chapter ? `${chapter.title} • ${formatTime(line.start - chapter.startTime)}` : formatTime(line.start)}
@@ -440,14 +455,58 @@ export default function FullscreenPlayer({
     if (!lineMenu) openLineMenu(el);
   };
   const lineText = (line: TranscriptLine) => (line.words && line.words.length > 0 ? line.words.map(w => w.text).join(' ') : line.text);
+  // Mantém as opções na tela enquanto o menu fecha
+  const lastLineRef = React.useRef<TranscriptLine | null>(null);
+  if (lineMenu) lastLineRef.current = lineMenu.line;
+  const renderLineOptions = (line: TranscriptLine, close: () => void) => (
+    <PagedMenu className="flex flex-col p-1.5 text-left rtl:text-right">
+      <MenuOptionItem icon={<Play size={14} />} onClick={() => { close(); playLine(line); }}>
+        <span>{t('play_from_here')}</span>
+      </MenuOptionItem>
+      <MenuOptionItem icon={<Bookmark size={14} />} onClick={() => { onAddLineBookmark?.(line); close(); }}>
+        <span>{t('add_line_as_bookmark')}</span>
+      </MenuOptionItem>
+      <MenuOptionItem icon={<Share size={14} />} onClick={() => { close(); onShareLine?.(line); }}>
+        <span>{t('share_excerpt')}</span>
+      </MenuOptionItem>
+      <MenuOptionItem
+        icon={<Copy size={14} />}
+        onClick={() => {
+          navigator.clipboard?.writeText(lineText(line)).then(() => showToast?.(t('toast_text_copied'))).catch(() => {});
+          close();
+        }}
+      >
+        <span>{t('copy_text')}</span>
+      </MenuOptionItem>
+    </PagedMenu>
+  );
   const lyricsHighlight = useLyricsHighlight();
   // Celular: ao rolar a letra, surge a busca no cabeçalho; aberta, os resultados tomam o lugar da letra
   const [lyricSearchShown, setLyricSearchShown] = useState(false);
   const [lyricSearchOpen, setLyricSearchOpen] = useState(false);
   const [lyricQuery, setLyricQuery] = useState('');
+  // Computador: a barra fica na área do texto, na altura dos botões do player; opções do trecho num pop-up
+  const desktopLyrics = !isMobileFs && showTranscript && hasTranscript;
+  const [desktopLineMenu, setDesktopLineMenu] = useState<TranscriptLine | null>(null);
+  const [lyricBarBottom, setLyricBarBottom] = useState(24);
+  const lyricBarRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    if (!lyricSearchShown && !lyricSearchOpen) return;
+    const column = lyricBarRef.current?.parentElement;
+    const play = document.querySelector('[data-fs-main-play]');
+    if (!column || !play) return;
+    const r = play.getBoundingClientRect();
+    setLyricBarBottom(Math.max(16, column.getBoundingClientRect().bottom - (r.top + r.height / 2) - 22));
+  }, [lyricSearchShown, lyricSearchOpen]);
   const lyricSearchOpenRef = React.useRef(false);
   lyricSearchOpenRef.current = lyricSearchOpen;
   const foldedQuery = foldText(lyricQuery.trim());
+  // Toca a partir do trecho (e sai da busca, se estiver nela)
+  const playLine = (line: TranscriptLine) => {
+    handleSeek(line.start);
+    setIsPlaying(true);
+    if (lyricQuery) closeLyricSearch();
+  };
   const closeLyricSearch = () => {
     setLyricSearchOpen(false);
     setLyricSearchShown(false);
@@ -457,7 +516,7 @@ export default function FullscreenPlayer({
   };
   React.useEffect(() => {
     const el = fsTranscriptScrollRef.current;
-    if (!mobileLyrics || !el) {
+    if ((!mobileLyrics && !desktopLyrics) || !el) {
       setLyricSearchShown(false);
       setLyricSearchOpen(false);
       setLyricQuery('');
@@ -477,7 +536,7 @@ export default function FullscreenPlayer({
       el.removeEventListener('wheel', onMove);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mobileLyrics]);
+  }, [mobileLyrics, desktopLyrics]);
   React.useEffect(() => {
     if (fsTranscriptScrollRef.current && foldedQuery) fsTranscriptScrollRef.current.scrollTop = 0;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -971,7 +1030,7 @@ export default function FullscreenPlayer({
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
                     title={t('seek_backward', { sec: seekBackwardTime })}
                   >
-                    <BsArrowCounterclockwise size={22} />
+                    <BsArrowCounterclockwise data-spin="-1" size={22} />
                     <span className="absolute text-[8px] font-bold mt-[1px]">{seekBackwardTime}</span>
                   </motion.button>
 
@@ -982,6 +1041,7 @@ export default function FullscreenPlayer({
                     whileHover={{ scale: 1.08 }} 
                     data-press="true" 
                     onClick={() => setIsPlaying(!isPlaying)}
+                    data-fs-main-play="true"
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/20 hover:border-black/20 dark:hover:border-white/40 hover:shadow-xl dark:hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] transition-all shadow-lg shrink-0"
                     title={isPlaying ? t('pause') : t('listen')}
                   >
@@ -1002,7 +1062,7 @@ export default function FullscreenPlayer({
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
                     title={t('seek_forward', { sec: seekForwardTime })}
                   >
-                    <BsArrowClockwise size={22} />
+                    <BsArrowClockwise data-spin="1" size={22} />
                     <span className="absolute text-[8px] font-bold mt-[1px]">{seekForwardTime}</span>
                   </motion.button>
 
@@ -1094,7 +1154,9 @@ export default function FullscreenPlayer({
                       chapters={currentBook.chapters || []}
                       query={foldedQuery}
                       emptyText={t('search_in_text_empty')}
-                      onPick={(line) => { seekLyric(line.start); closeLyricSearch(); }}
+                      moreLabel={t('more_options')}
+                      onPick={(line) => { if (isMobileFs) { seekLyric(line.start); closeLyricSearch(); } else playLine(line); }}
+                      onOptions={isMobileFs ? undefined : setDesktopLineMenu}
                     />
                   ) : (
                     <LyricBlocks transcript={currentBook.transcript} time={currentTime} playing={isPlaying} audioRef={audioRef} mode={lyricsHighlight} onSeek={seekLyric} />
@@ -1102,6 +1164,25 @@ export default function FullscreenPlayer({
                   <div className="h-[25vh] shrink-0" />
                 </div>
               </div>
+              {/* Computador: ao rolar a letra, a busca surge dentro da área do texto, na altura dos botões do player */}
+              <AnimatePresence>
+                {desktopLyrics && (lyricSearchShown || lyricSearchOpen || lyricQuery) && (
+                  <motion.div
+                    key="lyric-search-desktop"
+                    ref={lyricBarRef}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.16, ease: 'easeOut' }}
+                    style={{ bottom: lyricBarBottom }}
+                    className="absolute left-14 right-12 z-10"
+                    onFocusCapture={() => setLyricSearchOpen(true)}
+                    onBlurCapture={() => { if (!lyricQuery) { setLyricSearchOpen(false); setLyricSearchShown(false); } }}
+                  >
+                    <PopupSearchField value={lyricQuery} onChange={setLyricQuery} placeholder={t('search_in_text_placeholder')} autoFocus={false} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1215,7 +1296,7 @@ export default function FullscreenPlayer({
               aria-label={t('seek_backward', { sec: seekBackwardTime })}
               onClick={(e) => { e.stopPropagation(); handleSeek(Math.max(0, currentTime - seekBackwardTime)); }}
               className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
-              <BsArrowCounterclockwise size={20} />
+              <BsArrowCounterclockwise data-spin="-1" size={20} />
               <span className="absolute text-[7px] font-bold mt-[1px]">{seekBackwardTime}</span>
             </motion.button>
             <motion.button
@@ -1233,7 +1314,7 @@ export default function FullscreenPlayer({
                 <motion.button layoutId="player-seek-fwd" data-press="true" title={t('seek_forward', { sec: seekForwardTime })}
                   onClick={(e) => { e.stopPropagation(); handleSeek(Math.min(totalDuration, currentTime + seekForwardTime)); }}
                   className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
-                  <BsArrowClockwise size={20} />
+                  <BsArrowClockwise data-spin="1" size={20} />
                   <span className="absolute text-[7px] font-bold mt-[1px]">{seekForwardTime}</span>
                 </motion.button>
                 <motion.button layoutId="player-next" data-press="true" title={t('next_chapter')}
@@ -1246,6 +1327,13 @@ export default function FullscreenPlayer({
           </motion.div>
         )}
       </div>
+      <AnimatePresence>
+        {desktopLineMenu && (
+          <MobileConfirmCard key="lyric-line-menu" menuWidth={270} onClose={() => setDesktopLineMenu(null)}>
+            {renderLineOptions(desktopLineMenu, () => setDesktopLineMenu(null))}
+          </MobileConfirmCard>
+        )}
+      </AnimatePresence>
       <MobileContextMenu
         open={Boolean(lineMenu)}
         rect={lineMenu?.rect || null}
@@ -1262,48 +1350,7 @@ export default function FullscreenPlayer({
           </div>
         ) : null}
       >
-        <PagedMenu className="flex flex-col p-1.5 text-left rtl:text-right">
-          <MenuOptionItem
-            icon={<Bookmark size={14} />}
-            onClick={() => {
-              if (lineMenu) onAddLineBookmark?.(lineMenu.line);
-              setLineMenu(null);
-            }}
-          >
-            <span>{t('add_line_as_bookmark')}</span>
-          </MenuOptionItem>
-          <MenuOptionItem
-            icon={<Play size={14} />}
-            onClick={() => {
-              if (lineMenu) { handleSeek(lineMenu.line.start); setIsPlaying(true); }
-              setLineMenu(null);
-            }}
-          >
-            <span>{t('play_from_here')}</span>
-          </MenuOptionItem>
-          <MenuOptionItem
-            icon={<Share size={14} />}
-            onClick={() => {
-              const line = lineMenu?.line;
-              setLineMenu(null);
-              if (line) onShareLine?.(line);
-            }}
-          >
-            <span>{t('share_excerpt')}</span>
-          </MenuOptionItem>
-          <MenuOptionItem
-            icon={<Copy size={14} />}
-            onClick={() => {
-              if (lineMenu) {
-                const text = lineText(lineMenu.line);
-                navigator.clipboard?.writeText(text).then(() => showToast?.(t('toast_text_copied'))).catch(() => {});
-              }
-              setLineMenu(null);
-            }}
-          >
-            <span>{t('copy_text')}</span>
-          </MenuOptionItem>
-        </PagedMenu>
+        {lastLineRef.current && renderLineOptions(lastLineRef.current, () => setLineMenu(null))}
       </MobileContextMenu>
     </motion.div>
   );

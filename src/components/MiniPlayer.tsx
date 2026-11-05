@@ -158,7 +158,7 @@ export default function MiniPlayer({
           className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
           title={t('seek_backward', { sec: seekBackwardTime })}
         >
-          <BsArrowCounterclockwise size={17} />
+          <BsArrowCounterclockwise data-spin="-1" size={17} />
           <span className="absolute text-[7px] font-bold mt-[1px]">{seekBackwardTime}</span>
         </motion.button>
 
@@ -183,7 +183,7 @@ export default function MiniPlayer({
           className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
           title={t('seek_forward', { sec: seekForwardTime })}
         >
-          <BsArrowClockwise size={17} />
+          <BsArrowClockwise data-spin="1" size={17} />
           <span className="absolute text-[7px] font-bold mt-[1px]">{seekForwardTime}</span>
         </motion.button>
 
