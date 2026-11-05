@@ -22,3 +22,9 @@ export const desktop: DesktopBridge | undefined =
 
 // Recursos que dependem de pastas do computador (biblioteca no disco, abrir pasta, sincronizar)
 export const IS_INSTALLED_APP = Boolean(desktop?.isDesktopApp);
+
+// iPhone/iPad (inclusive iPad que se apresenta como Mac)
+export const IS_APPLE_TOUCH = typeof navigator !== 'undefined' && (
+  /iPhone|iPad|iPod/.test(navigator.userAgent || '') ||
+  (/Macintosh/.test(navigator.userAgent || '') && (navigator.maxTouchPoints || 0) > 1)
+);

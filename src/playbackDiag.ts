@@ -32,7 +32,7 @@ export function diag(event: string, data?: Record<string, unknown>) {
   list.push({ t: Date.now(), e: event, d });
   if (list.length > MAX) list.splice(0, list.length - MAX);
   // Gravação logo em seguida (e já na hora em eventos importantes, para não perder se o app for fechado)
-  if (/^(abriu|pausou|saiu|seek-falhou|gravou-0)/.test(event)) flush();
+  if (/^(abriu|pausou|saiu|seek-falhou|gravou-0|pausa-sistema|travou|recuper|play-falhou)/.test(event)) flush();
   else if (!flushTimer) flushTimer = setTimeout(flush, 1000);
 }
 

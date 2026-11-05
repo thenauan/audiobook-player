@@ -1,4 +1,4 @@
-import { IS_INSTALLED_APP } from '../desktopBridge';
+import { IS_INSTALLED_APP, IS_APPLE_TOUCH } from '../desktopBridge';
 import { morphTriggerAnimate } from '../components/Popovers';
 import { APP_VERSION } from '../version';
 import { getDiagText, clearDiag } from '../playbackDiag';
@@ -1061,6 +1061,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <SettingToggle checked={autoShowText} onChange={setAutoShowText} />
             </div>
 
+            {/* Realce e normalização usam o Web Audio, que não é usado no iPhone/iPad (travava o áudio) */}
+            {!IS_APPLE_TOUCH && (<>
             {/* 6. Realce de voz humana (Web Audio API) */}
             <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -1099,9 +1101,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   setupWebAudioGraph();
                   setDynamicCompressionEnabled(val);
                   showToast(val ? 'Normalização dinâmica ativada' : 'Normalização dinâmica desativada');
-                }} 
+                }}
               />
             </div>
+            </>)}
           </div>
         </motion.div>
       )}

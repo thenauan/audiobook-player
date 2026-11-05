@@ -28,7 +28,7 @@ import FullscreenPlayer from './components/FullscreenPlayer';
 import BookDetailView from './views/BookDetailView';
 import { useIsMobile, useIsTouchDevice, useIsCompactPlayer, useIsLandscapePhone } from './components/MobileContextMenu';
 import { MobileSheet } from './components/MobileSheet';
-import { desktop, IS_INSTALLED_APP } from './desktopBridge';
+import { desktop, IS_INSTALLED_APP, IS_APPLE_TOUCH } from './desktopBridge';
 import { PlayerPopup } from './components/PlayerPopup';
 import { ScreenErrorBoundary } from './components/ScreenErrorBoundary';
 import { APP_VERSION } from './version';
@@ -294,11 +294,6 @@ function slimQueueForStorage(queue: any[]): any[] {
   });
 }
 
-// iPhone/iPad (inclusive iPad que se apresenta como Mac): sem botão "voltar" do sistema
-const IS_APPLE_TOUCH = typeof navigator !== 'undefined' && (
-  /iPhone|iPad|iPod/.test(navigator.userAgent || '') ||
-  (/Macintosh/.test(navigator.userAgent || '') && (navigator.maxTouchPoints || 0) > 1)
-);
 
 export type QueueItem = {
   id: string;
@@ -529,6 +524,7 @@ export default function App() {
   const audioContextRef = useRef<AudioContext | null>(null);
   // Tentativas de recuperar o áudio de cada livro após um erro de carregamento
   const audioRecoveryTriesRef = useRef(new Map<string, number>());
+  const recoverAudioRef = useRef<(reason: string) => boolean>(() => false);
   const gainNodeRef = useRef<GainNode | null>(null);
   const volumeRef = useRef(1);
   const isMutedRef = useRef(false);
@@ -870,6 +866,10 @@ export default function App() {
 
   // Web Audio API Setup
   const setupWebAudioGraph = useCallback(() => {
+    // iPhone/iPad: o áudio toca direto, sem o Web Audio. Lá o processamento fica "interrompido" depois de uma
+    // pausa ou de outro app tocar som (o áudio travava até fechar o app), e o que se ouve pode se desencontrar
+    // do tempo informado pelo áudio (pulos e letra fora do lugar)
+    if (IS_APPLE_TOUCH) return;
     if (!audioRef.current || audioContextRef.current) return;
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -1164,10 +1164,15 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlsRef = useRef<Map<string, string>>(new Map());
   const storedAudioBlobKeysRef = useRef<Set<string>>(new Set());
-  // Pulo para a posição salva: aplicado quando o arquivo carrega e CONFERIDO depois. O iPhone às vezes ignora
-  // o pulo em áudio guardado no aparelho e volta para 0 (capítulo 1); enquanto a conferência está ativa, o
-  // pulo é repetido até o áudio estar mesmo na posição (e o 0 não é aceito nem gravado)
-  const seekVerifyRef = useRef<{ target: number; until: number; tries: number } | null>(null);
+  // Pulos (posição salva e os feitos pela pessoa): CONFERIDOS depois de aplicados. O iPhone às vezes ignora o
+  // pulo em áudio guardado no aparelho e volta para outro ponto, e logo depois do pulo o áudio só repete o
+  // valor pedido; por isso a conferência só termina quando o áudio já andou a partir do ponto certo. Enquanto
+  // ela está ativa, o pulo é repetido e o tempo errado não é aceito nem gravado.
+  const seekVerifyRef = useRef<{ target: number; at: number; tries: number; lastTry: number } | null>(null);
+  // Arquivo carregado no elemento de áudio (sem o "#t=" do início) e quando isso aconteceu
+  const loadedSrcRef = useRef<string | null>(null);
+  const lastSrcSetAtRef = useRef(0);
+  const noFragmentRef = useRef(false);
   const [isAudioLoading, setIsAudioLoading] = useState<boolean>(false);
   const loadingAudioBookIdsRef = useRef<Set<string>>(new Set());
   const pendingSeekRef = useRef<number | null>((() => {
@@ -2642,7 +2647,13 @@ export default function App() {
   }, [activeScreen, shouldScrollToCurrentChapter]);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(0.85);
+  const [volume, setVolume] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('app_volume');
+      const parsed = saved === null ? NaN : Number(saved);
+      return isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : 0.85;
+    } catch { return 0.85; }
+  });
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearchMenuId, setActiveSearchMenuId] = useState<string | null>(null);
@@ -4669,6 +4680,8 @@ export default function App() {
   const [isTitleScrolledPast, setIsTitleScrolledPast] = useState(false);
   // Botão de voltar recolhido (só a seta) quando o título da tela sai de vista no celular
   const backCollapsed = isMobile && isTitleScrolledPast && !isLandscapePhone;
+  // Texto do botão de voltar: nomes longos são resumidos ("...") para não encostar nos botões do outro lado
+  const backLabelMaxWidth = typeof window === 'undefined' ? 320 : Math.min(320, Math.round(window.innerWidth * (isMobile ? 0.36 : 0.22)));
 
   useEffect(() => {
     setHeaderBlurProgress(0);
@@ -4965,8 +4978,8 @@ export default function App() {
   // Função centralizada para busca e sincronização do tempo de áudio
   const handleSeek = useCallback((newTime: number) => {
     if (latestBookIdRef.current) resumeCheckedBooksRef.current.add(latestBookIdRef.current);
-    seekVerifyRef.current = null;
     const clamped = Math.max(0, Math.min(totalDuration || 999999, newTime));
+    seekVerifyRef.current = { target: clamped, at: Date.now(), tries: 0, lastTry: 0 };
     diag('pulo', { t: clamped });
     setCurrentTime(clamped);
     lastTrackedAudioTimeRef.current = clamped;
@@ -5544,12 +5557,10 @@ export default function App() {
         'stop',
         () => {
           const ctx = mediaSessionContextRef.current;
+          // Só pausa: o sistema também pede "parar" ao passar o áudio para outro app, e voltar a 0 aqui
+          // apagava o ponto em que a pessoa estava
           ctx.setIsPlaying(false);
-          if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-          }
-          ctx.handleSeek(0);
+          audioRef.current?.pause();
         }
       ],
       [
@@ -5557,7 +5568,9 @@ export default function App() {
         (details) => {
           const ctx = mediaSessionContextRef.current;
           const skip = details.seekOffset || ctx.seekBackwardTime || 15;
-          ctx.handleSeek(Math.max(0, ctx.currentTime - skip));
+          // Parte do tempo real (o da tela fica parado com o app em segundo plano)
+          const base = seekVerifyRef.current?.target ?? audioRef.current?.currentTime ?? ctx.currentTime;
+          ctx.handleSeek(Math.max(0, base - skip));
         }
       ],
       [
@@ -5565,7 +5578,8 @@ export default function App() {
         (details) => {
           const ctx = mediaSessionContextRef.current;
           const skip = details.seekOffset || ctx.seekForwardTime || 15;
-          ctx.handleSeek(Math.min(ctx.totalDuration, ctx.currentTime + skip));
+          const base = seekVerifyRef.current?.target ?? audioRef.current?.currentTime ?? ctx.currentTime;
+          ctx.handleSeek(Math.min(ctx.totalDuration, base + skip));
         }
       ],
       [
@@ -5756,18 +5770,24 @@ export default function App() {
     if (!audio) return;
 
     if (currentAudioSrc) {
-      if (audio.src !== currentAudioSrc) {
+      if (loadedSrcRef.current !== currentAudioSrc) {
         // Nova fonte: a posição só pode ser aplicada depois que o arquivo carregar (o iPhone ignora antes e o
         // áudio começava do 0, no capítulo 1). Fica pendente e é aplicada em onLoadedMetadata/onPlay/timeupdate.
         const resumeAt = pendingSeekRef.current ?? currentTimeRef.current;
         if (resumeAt > 0) pendingSeekRef.current = resumeAt;
         diag('fonte', { livro: currentBook?.id, posicao: resumeAt, tocando: isPlaying });
-        audio.src = currentAudioSrc;
+        loadedSrcRef.current = currentAudioSrc;
+        lastSrcSetAtRef.current = Date.now();
+        // iPhone/iPad: o próprio arquivo já abre no ponto certo ("#t="), sem depender do pulo depois de carregar
+        audio.src = IS_APPLE_TOUCH && !noFragmentRef.current && resumeAt > 1 && currentAudioSrc.startsWith('blob:')
+          ? `${currentAudioSrc}#t=${resumeAt.toFixed(2)}`
+          : currentAudioSrc;
         if (isPlaying) {
           audio.play().catch(e => console.warn('Erro ao iniciar áudio:', e));
         }
       }
     } else {
+      loadedSrcRef.current = null;
       audio.pause();
       audio.removeAttribute('src');
       audio.load();
@@ -5787,10 +5807,19 @@ export default function App() {
     if (!audio) return;
     const recentChange = () => Date.now() - lastLibraryChangeAtRef.current < 2000;
     const onUnexpectedPause = () => {
-      if (!playingNowRef.current || audio.ended || !recentChange()) return;
-      setTimeout(() => {
-        if (playingNowRef.current && audio.paused && !audio.ended) audio.play().catch(() => {});
-      }, 60);
+      if (!playingNowRef.current || audio.ended) return;
+      if (recentChange()) {
+        setTimeout(() => {
+          if (playingNowRef.current && audio.paused && !audio.ended) audio.play().catch(() => {});
+        }, 60);
+        return;
+      }
+      // Trocando de arquivo ou pulando: não é uma pausa de verdade
+      if (audio.seeking || Date.now() - lastSrcSetAtRef.current < 1500) return;
+      // Pausa do sistema (ligação, Siri, outro app tocando): a tela passa a mostrar pausado e o próximo play
+      // volta a tocar. Antes o app continuava achando que estava tocando e o botão de play não fazia nada.
+      diag('pausa-sistema', { audio: audio.currentTime, ready: audio.readyState });
+      setIsPlaying(false);
     };
     audio.addEventListener('pause', onUnexpectedPause);
     const ctx = audioContextRef.current;
@@ -5803,6 +5832,76 @@ export default function App() {
       ctx?.removeEventListener('statechange', onCtxState);
     };
   }, [currentAudioSrc, isPlaying]);
+
+  // Recarrega o arquivo guardado no aparelho e continua do mesmo ponto (o sistema pode descartar o áudio com o
+  // app em segundo plano). As tentativas voltam a zero quando o áudio anda ou a pessoa dá play de novo.
+  const recoverAudio = (reason: string): boolean => {
+    const bookId = latestBookIdRef.current;
+    if (!bookId || bookId === EMPTY_BOOK.id || !storedAudioBlobKeysRef.current.has(bookId)) return false;
+    const tries = audioRecoveryTriesRef.current.get(bookId) || 0;
+    if (tries >= 3) {
+      diag('recuperacao-desistiu', { reason });
+      setIsPlaying(false);
+      return false;
+    }
+    audioRecoveryTriesRef.current.set(bookId, tries + 1);
+    diag('recuperando', { reason, tentativa: tries + 1, erro: audioRef.current?.error?.code, ready: audioRef.current?.readyState });
+    pendingSeekRef.current = pendingSeekRef.current ?? seekVerifyRef.current?.target ?? currentTimeRef.current;
+    const oldUrl = audioUrlsRef.current.get(bookId);
+    if (oldUrl?.startsWith('blob:')) { try { URL.revokeObjectURL(oldUrl); } catch {} }
+    audioUrlsRef.current.delete(bookId);
+    loadedSrcRef.current = null;
+    loadAudioForBook(bookId, true);
+    return true;
+  };
+
+  // Vigia: tocando sem o tempo andar (áudio travado) tenta dar play de novo e, se seguir parado, recarrega
+  useEffect(() => {
+    if (!isPlaying || !currentAudioSrc) return;
+    let last = -1;
+    let stuck = 0;
+    const timer = setInterval(() => {
+      const audio = audioRef.current;
+      if (!audio || audio.ended || audio.seeking || document.hidden) return;
+      if (Math.abs(audio.currentTime - last) > 0.05) {
+        if (last >= 0) {
+          stuck = 0;
+          if (latestBookIdRef.current) audioRecoveryTriesRef.current.delete(latestBookIdRef.current);
+        }
+        last = audio.currentTime;
+        return;
+      }
+      stuck += 1;
+      if (stuck === 2) {
+        diag('travou', { audio: audio.currentTime, ready: audio.readyState, rede: audio.networkState, pausado: audio.paused });
+        audio.play().catch(() => {});
+      } else if (stuck === 4) {
+        stuck = 0;
+        recoverAudio('travou');
+      }
+    }, 2500);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, currentAudioSrc]);
+
+  // Duração real do arquivo: a informada na importação pode estar errada (no iPhone, sem resposta a tempo, o
+  // app assume 30 minutos), o que limitava os pulos e deixava o fim do livro fora do lugar
+  const reconcileBookDuration = (audio: HTMLAudioElement) => {
+    const book = currentBook;
+    const dur = audio.duration;
+    if (!book?.id || book.id === EMPTY_BOOK.id || !isFinite(dur) || dur <= 0) return;
+    const chapters = book.chapters || [];
+    if (chapters.length === 0) return;
+    const last = chapters[chapters.length - 1];
+    const lastDuration = dur - last.startTime;
+    if (lastDuration < 1 || Math.abs(dur - (last.startTime + last.duration)) < 2) return;
+    diag('duracao-corrigida', { livro: book.id, antes: last.startTime + last.duration, agora: dur });
+    const fixed = chapters.map((c, i) => (i === chapters.length - 1 ? { ...c, duration: lastDuration } : c));
+    const fix = <T extends Audiobook>(b: T): T => (b.id === book.id ? { ...b, chapters: fixed } : b);
+    setBooks(prev => prev.map(fix));
+    setCurrentBook(prev => fix(prev));
+    setSelectedBook(prev => (prev ? fix(prev) : prev));
+  };
 
   // Primeiro play de cada livro na sessão: se o áudio vai começar antes de onde a pessoa parou (e ela não
   // escolheu outro ponto), volta para a posição salva — garantia contra o iPhone começar do capítulo 1
@@ -5822,6 +5921,11 @@ export default function App() {
     applyPendingSeek(audio, 'primeiro-play');
   };
 
+  // Play dado pela pessoa: as tentativas de recuperar o áudio recomeçam
+  useEffect(() => {
+    if (isPlaying && latestBookIdRef.current) audioRecoveryTriesRef.current.delete(latestBookIdRef.current);
+  }, [isPlaying]);
+
   // Sincronização de Play/Pause com o elemento HTML5 Audio
   useEffect(() => {
     const audio = audioRef.current;
@@ -5830,6 +5934,14 @@ export default function App() {
     diag(isPlaying ? 'play' : 'pausou', { livro: currentBook?.id, audio: audio.currentTime, estado: currentTimeRef.current, pendente: pendingSeekRef.current, ready: audio.readyState });
     if (isPlaying) firstTimeUpdatesRef.current = 0;
     if (isPlaying) {
+      // Pulo feito com o áudio parado: a conferência conta a partir de agora
+      if (seekVerifyRef.current) seekVerifyRef.current.at = Date.now();
+      // Áudio descartado pelo sistema enquanto estava pausado: recarrega em vez de ficar sem tocar
+      // (logo depois de definir o arquivo o elemento ainda informa "sem fonte": isso não conta)
+      if (audio.error || (audio.networkState === 3 && Date.now() - lastSrcSetAtRef.current > 3000)) {
+        recoverAudio('play-sem-audio');
+        return;
+      }
       ensureResumePosition(audio);
       setupWebAudioGraph();
       if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
@@ -5838,7 +5950,14 @@ export default function App() {
       if (audio.paused) {
         const playPromise = audio.play();
         if (playPromise !== undefined) {
-          playPromise.catch(e => console.warn('Autoplay impedido ou falhou:', e));
+          playPromise.catch(e => {
+            console.warn('Autoplay impedido ou falhou:', e);
+            diag('play-falhou', { erro: e?.name, ready: audio.readyState });
+            if (e?.name === 'AbortError') return;
+            // Sem permissão do sistema: a tela volta a mostrar pausado (o próximo toque toca)
+            if (e?.name === 'NotAllowedError') setIsPlaying(false);
+            else recoverAudio('play-falhou');
+          });
         }
       }
     } else {
@@ -5852,6 +5971,7 @@ export default function App() {
   useEffect(() => {
     volumeRef.current = volume;
     isMutedRef.current = isMuted;
+    try { localStorage.setItem('app_volume', String(volume)); } catch {}
     const level = isMuted ? 0 : Math.max(0, Math.min(1, volume));
     // Com o processamento de áudio ativo, o volume é aplicado nele (funciona também no iPhone)
     if (gainNodeRef.current && audioContextRef.current) {
@@ -5868,6 +5988,8 @@ export default function App() {
     const audio = audioRef.current;
     if (!audio) return;
     try {
+      // A padrão também: ao carregar um arquivo, o elemento volta para ela (a tela dizia 1,5x e tocava em 1x)
+      audio.defaultPlaybackRate = playbackSpeed;
       audio.playbackRate = playbackSpeed;
     } catch (e) {
       console.warn('Erro ao definir taxa de reprodução:', e);
@@ -5958,7 +6080,7 @@ export default function App() {
       return false;
     }
     pendingSeekRef.current = null;
-    seekVerifyRef.current = t > 1 ? { target: t, until: Date.now() + 20000, tries: 0 } : null;
+    seekVerifyRef.current = { target: t, at: Date.now(), tries: 0, lastTry: 0 };
     diag('seek', { reason, target: t, agora: audio.currentTime, ready: audio.readyState, dur });
     return true;
   };
@@ -5966,19 +6088,26 @@ export default function App() {
   const verifySeek = (audio: HTMLAudioElement, reason: string): boolean => {
     const v = seekVerifyRef.current;
     if (!v) return false;
-    if (Date.now() > v.until) { seekVerifyRef.current = null; return false; }
-    if (audio.currentTime >= v.target - 3) {
-      diag('seek-ok', { reason, agora: audio.currentTime, target: v.target, tentativas: v.tries });
-      seekVerifyRef.current = null;
+    const now = Date.now();
+    if (!audio.paused && now - v.at > 20000) { seekVerifyRef.current = null; return false; }
+    if (audio.readyState < 1 || audio.seeking) return true;
+    // Onde o áudio pode estar: no ponto pedido ou à frente dele, conforme o tempo que passou tocando
+    const walked = audio.paused ? 0 : ((now - v.at) / 1000) * (audio.playbackRate || 1);
+    if (audio.currentTime >= v.target - 3 && audio.currentTime <= v.target + walked + 5) {
+      if (!audio.paused && audio.currentTime >= v.target + 1.5) {
+        diag('seek-ok', { reason, agora: audio.currentTime, target: v.target, tentativas: v.tries });
+        seekVerifyRef.current = null;
+      }
       return false;
     }
-    if (audio.readyState < 1) return true;
-    if (v.tries >= 8) {
+    if (now - v.lastTry < 400) return true;
+    if (v.tries >= 10) {
       diag('seek-falhou', { reason, agora: audio.currentTime, target: v.target, ready: audio.readyState, seekable: audio.seekable.length ? audio.seekable.end(audio.seekable.length - 1) : 0 });
       seekVerifyRef.current = null;
       return false;
     }
     v.tries += 1;
+    v.lastTry = now;
     try { audio.currentTime = v.target; } catch { /* tenta de novo no próximo evento */ }
     diag('seek-repetido', { reason, tentativa: v.tries, agora: audio.currentTime, target: v.target, ready: audio.readyState });
     return true;
@@ -5990,9 +6119,18 @@ export default function App() {
   const getLivePlaybackTime = useCallback(() => {
     if (pendingSeekRef.current !== null) return pendingSeekRef.current;
     const a = audioRef.current;
+    // Pulo ainda não confirmado e o áudio fora do ponto: vale o ponto pedido (não grava o tempo errado)
+    const v = seekVerifyRef.current;
+    if (v && a && Math.abs(a.currentTime - v.target) > 3 && (a.paused || a.currentTime < v.target)) return v.target;
     if (a && a.currentSrc && a.readyState >= 1) return a.currentTime;
     return currentTimeRef.current;
   }, []);
+
+  // Tela bloqueada e Central de Controle: posição e velocidade sempre iguais às do app
+  useEffect(() => {
+    updateMediaSessionPosition(getLivePlaybackTime(), totalDuration, playbackSpeed, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, playbackSpeed, totalDuration]);
 
   // Salva posição imediatamente ao pausar ou ao fechar a janela
   useEffect(() => {
@@ -6013,6 +6151,9 @@ export default function App() {
       // Ao voltar, retoma o processamento de áudio se o sistema o suspendeu
       else if (audioContextRef.current?.state === 'suspended' && audioRef.current && !audioRef.current.paused) {
         audioContextRef.current.resume().catch(() => {});
+      } else if (audioRef.current?.error) {
+        // Áudio descartado com o app em segundo plano: já deixa pronto para tocar
+        recoverAudioRef.current('voltou-ao-app');
       }
     };
     window.addEventListener('beforeunload', handleUnload);
@@ -6026,6 +6167,7 @@ export default function App() {
   }, [currentBook?.id, savePlaybackPosition, getLivePlaybackTime]);
 
   // Handler para quando a faixa de áudio termina
+  recoverAudioRef.current = recoverAudio;
   const handleAudioEnded = () => {
     if (currentBook && currentChapter) markChapterCompleted(currentBook.id, currentChapter.id);
     if (playbackQueue.length > 0) {
@@ -8473,7 +8615,7 @@ export default function App() {
             e.stopPropagation();
             setIsMuted(!isMuted);
           }}
-          className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all shadow-xl backdrop-blur-3xl ${
+          className={`${IS_APPLE_TOUCH ? '!hidden ' : ''}w-9 h-9 flex items-center justify-center rounded-full border transition-all shadow-xl backdrop-blur-3xl ${
             isMuted || volume === 0
               ? 'bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.35)]'
               : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
@@ -9219,7 +9361,7 @@ export default function App() {
             e.stopPropagation();
             setIsMuted(!isMuted);
           }}
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full border transition-all shadow-sm shrink-0 ${
+          className={`${IS_APPLE_TOUCH ? '!hidden ' : ''}${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full border transition-all shadow-sm shrink-0 ${
             isMuted || volume === 0
               ? 'bg-red-500/15 border-red-500/30 text-red-400 hover:bg-red-500/25 hover:shadow-[0_0_12px_rgba(239,68,68,0.3)]'
               : 'bg-card/75 backdrop-blur-3xl border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]'
@@ -10669,7 +10811,7 @@ export default function App() {
                       initial={false}
                       animate={backCollapsed
                         ? { maxWidth: 0, opacity: 0, marginLeft: 0, marginRight: 0, filter: 'blur(4px)' }
-                        : { maxWidth: 320, opacity: 1, marginLeft: 6, marginRight: 0, filter: 'blur(0px)' }}
+                        : { maxWidth: backLabelMaxWidth, opacity: 1, marginLeft: 6, marginRight: 0, filter: 'blur(0px)' }}
                       transition={{ maxWidth: { type: 'spring', stiffness: 760, damping: 52, mass: 0.5 }, marginLeft: { type: 'spring', stiffness: 760, damping: 52, mass: 0.5 }, opacity: { duration: backCollapsed ? 0.08 : 0.14, delay: backCollapsed ? 0 : 0.05 }, filter: { duration: 0.12 } }}
                       className="block overflow-hidden whitespace-nowrap text-xs font-medium text-[var(--text-main)] truncate max-md:max-w-[40vw]"
                     >
@@ -15826,17 +15968,9 @@ export default function App() {
         onError={(e) => {
           console.warn('Erro na reprodução nativa de áudio:', e);
           // O endereço temporário do áudio pode ter sido descartado (ex.: pelo sistema): recarrega o arquivo
-          // guardado no aparelho e retoma do mesmo ponto (no máximo 2 tentativas por livro, sem ciclo)
-          const bookId = currentBook?.id;
-          if (!bookId || bookId === EMPTY_BOOK.id || !storedAudioBlobKeysRef.current.has(bookId)) return;
-          const tries = audioRecoveryTriesRef.current.get(bookId) || 0;
-          if (tries >= 2) return;
-          audioRecoveryTriesRef.current.set(bookId, tries + 1);
-          pendingSeekRef.current = currentTime;
-          const oldUrl = audioUrlsRef.current.get(bookId);
-          if (oldUrl?.startsWith('blob:')) { try { URL.revokeObjectURL(oldUrl); } catch {} }
-          audioUrlsRef.current.delete(bookId);
-          loadAudioForBook(bookId, true);
+          // guardado no aparelho e retoma do mesmo ponto
+          if (audioRef.current?.src.includes('#t=')) noFragmentRef.current = true;
+          recoverAudio('erro');
         }}
         // iPhone: o áudio só carrega no primeiro play; a posição salva é aplicada assim que ele começa
         onPlay={() => {
@@ -15851,8 +15985,13 @@ export default function App() {
         onLoadedMetadata={() => {
           const a = audioRef.current;
           if (!a) return;
-          diag('carregou', { dur: a.duration, pendente: pendingSeekRef.current, ready: a.readyState });
+          diag('carregou', { dur: a.duration, pendente: pendingSeekRef.current, ready: a.readyState, agora: a.currentTime });
+          if (a.playbackRate !== playbackSpeed) a.playbackRate = playbackSpeed;
+          reconcileBookDuration(a);
           applyPendingSeek(a, 'loadedmetadata');
+        }}
+        onDurationChange={() => {
+          if (audioRef.current) reconcileBookDuration(audioRef.current);
         }}
         onCanPlay={() => {
           if (audioRef.current) {
