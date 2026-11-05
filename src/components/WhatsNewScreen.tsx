@@ -11,6 +11,43 @@ import type { SupportedLanguage } from '../translations';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.8': {
+    pt: [
+      'Novo ícone do app',
+      'Destaque das palavras mais preciso e brilho mais leve na letra',
+      'Metadados de Opus, OGG, FLAC, WAV e WMA, e capítulos em MP3',
+      'Correção do travamento ao abrir a letra',
+      'No computador, pop-ups nascem dos botões e o volume fica salvo',
+    ],
+    en: [
+      'New app icon',
+      'More precise word highlighting and a softer glow in the lyrics',
+      'Metadata for Opus, OGG, FLAC, WAV and WMA, plus MP3 chapters',
+      'Fixed the freeze when opening the lyrics',
+      'On the computer, pop-ups grow from their buttons and the volume is saved',
+    ],
+    es: [
+      'Nuevo icono de la app',
+      'Resaltado de palabras más preciso y brillo más suave en la letra',
+      'Metadatos de Opus, OGG, FLAC, WAV y WMA, y capítulos en MP3',
+      'Corrección del bloqueo al abrir la letra',
+      'En el ordenador, las ventanas nacen de los botones y el volumen se guarda',
+    ],
+    ru: [
+      'Новый значок приложения',
+      'Более точное выделение слов и мягкое свечение в тексте',
+      'Метаданные Opus, OGG, FLAC, WAV и WMA и главы в MP3',
+      'Исправлено зависание при открытии текста',
+      'На компьютере окна появляются из кнопок, а громкость сохраняется',
+    ],
+    ar: [
+      'أيقونة جديدة للتطبيق',
+      'تمييز أدق للكلمات وتوهج أخف في النص',
+      'بيانات Opus وOGG وFLAC وWAV وWMA وفصول MP3',
+      'إصلاح التجمد عند فتح النص',
+      'على الحاسوب تنبثق النوافذ من الأزرار ويُحفظ مستوى الصوت',
+    ],
+  },
   '1.0.7': {
     pt: [
       'Áudio mais estável no iPhone: pausas, volta ao app e retomada do ponto em que parou',

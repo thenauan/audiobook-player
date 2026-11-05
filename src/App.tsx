@@ -4,7 +4,7 @@ import { motion, AnimatePresence, Reorder } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { X, Search, Settings as SettingsIcon, Volume2, VolumeX, Moon, ChevronLeft, Trash2, ListMusic, CheckCircle2, Power } from 'lucide-react';
-import { HelpCircle, TextSearch, Copy, Crosshair, ArrowRight } from 'lucide-react';
+import { HelpCircle, TextSearch, Copy, Crosshair, ArrowRight, Circle } from 'lucide-react';
 import { RiApps2Line } from 'react-icons/ri';
 import { 
   RiBookOpenLine 
@@ -4440,15 +4440,11 @@ export default function App() {
                         );
                       })()}
                     </span>
-                    {!isMobile && line !== selected && (
-                      <button
-                        type="button"
-                        aria-label={t('more_options')}
-                        onClick={(e) => { e.stopPropagation(); openRow(e.currentTarget.parentElement as HTMLElement, line); }}
-                        className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full text-[var(--text-main)] bg-card/75 border border-[var(--text-main)]/10 opacity-0 group-hover/lyricrow:opacity-100 focus:opacity-100 transition-opacity"
-                      >
-                        <MoreHorizontal size={15} />
-                      </button>
+                    {/* Computador: seleção sempre visível (clicar na frase seleciona) */}
+                    {!isMobile && (
+                      <span className={`shrink-0 ${line === selected ? 'text-winblue' : 'text-[var(--text-muted)]'}`}>
+                        {line === selected ? <CheckCircle2 size={16} /> : <Circle size={16} />}
+                      </span>
                     )}
                   </div>
                   {line === selected && (
@@ -4456,7 +4452,7 @@ export default function App() {
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.18, ease: 'easeOut' }}
-                      className="flex items-center justify-center gap-2.5 pt-1.5 pb-1"
+                      className="flex items-center justify-center gap-2.5 pt-0.5"
                     >
                       {lyricLineActions(line, 14).map(action => (
                         <motion.button
@@ -4465,11 +4461,14 @@ export default function App() {
                           whileHover={{ scale: 1.1 }}
                           data-press="true"
                           onClick={action.run}
-                          title={action.label}
                           aria-label={action.label}
-                          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-colors shadow-sm"
+                          className="group/lyricact relative w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-colors shadow-sm"
                         >
                           {action.icon}
+                          {/* Legenda ao passar o mouse */}
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 rounded-lg bg-[var(--bg-sheet)] border border-[var(--button-secondary-bg)] text-[10px] font-semibold whitespace-nowrap shadow-md pointer-events-none opacity-0 group-hover/lyricact:opacity-100 transition-opacity z-10">
+                            {action.label}
+                          </span>
                         </motion.button>
                       ))}
                     </motion.div>
@@ -6098,9 +6097,9 @@ export default function App() {
       if (!audio || audio.ended || audio.seeking || document.hidden) return;
       const nowMs = Date.now();
       if (!paceFrom || audio.currentTime < paceFrom.audio) paceFrom = { at: nowMs, audio: audio.currentTime };
-      else if (nowMs - paceFrom.at >= 30000) {
+      else if (nowMs - paceFrom.at >= 120000) {
         const pace = (audio.currentTime - paceFrom.audio) / ((nowMs - paceFrom.at) / 1000) / (audio.playbackRate || 1);
-        if (Math.abs(pace - 1) > 0.02) diag('ritmo', { ritmo: Math.round(pace * 1000) / 1000, velocidade: audio.playbackRate });
+        diag('ritmo', { ritmo: String(Math.round(pace * 10000) / 10000), velocidade: audio.playbackRate, audio: audio.currentTime });
         paceFrom = { at: nowMs, audio: audio.currentTime };
       }
       if (Math.abs(audio.currentTime - last) > 0.05) {
@@ -6215,6 +6214,8 @@ export default function App() {
       if (!audio.paused) {
         audio.pause();
       }
+      // O tempo do app anda de segundo em segundo: ao pausar, fica no ponto exato (a letra não volta)
+      if (audio.readyState >= 1 && pendingSeekRef.current === null && !seekVerifyRef.current) setCurrentTime(audio.currentTime);
     }
   }, [isPlaying, currentAudioSrc]);
 
@@ -6265,10 +6266,9 @@ export default function App() {
 
     const currentSec = audio.currentTime;
     // Desempenho: a tela (todo o app) só re-renderiza quando o segundo exibido muda (~1x/s em vez de ~4x/s).
-    // Com o texto sincronizado aberto na tela cheia, mantém a precisão total para destacar as linhas no tempo certo.
-    const needsFineTime = showTranscript && isFullScreen;
+    // A letra tem o próprio relógio (useLyricClock).
     const lastRendered = lastRenderedTimeRef.current;
-    if (needsFineTime || Math.floor(currentSec) !== Math.floor(lastRendered) || Math.abs(currentSec - lastRendered) >= 0.9) {
+    if (Math.floor(currentSec) !== Math.floor(lastRendered) || Math.abs(currentSec - lastRendered) >= 0.9) {
       lastRenderedTimeRef.current = currentSec;
       setCurrentTime(currentSec);
     }
@@ -15766,6 +15766,7 @@ export default function App() {
             />
           )) : (
               <FullscreenPlayer
+                audioRef={audioRef}
                 showToast={showToast}
                 onShareLine={(line) => openShareImage('quote', currentBook, [transcriptLineText(line)])}
                 onAddLineBookmark={addLineBookmark}
@@ -16264,7 +16265,7 @@ export default function App() {
         onLoadedMetadata={() => {
           const a = audioRef.current;
           if (!a) return;
-          diag('carregou', { dur: a.duration, pendente: pendingSeekRef.current, ready: a.readyState, agora: a.currentTime, arquivo: (currentBook?.fileName || '').split('.').pop(), letra: currentBook?.transcript?.length || 0, palavras: Boolean(currentBook?.transcript?.some(l => l.words?.length)), origem: currentBook?.transcriptSource });
+          diag('carregou', { dur: a.duration, pendente: pendingSeekRef.current, ready: a.readyState, agora: a.currentTime, arquivo: (currentBook?.fileName || '').split('.').pop(), letra: currentBook?.transcript?.length || 0, palavras: Boolean(currentBook?.transcript?.some(l => l.words?.length)), origem: currentBook?.transcriptSource, fimLetra: currentBook?.transcript?.[currentBook.transcript.length - 1]?.end, capitulos: currentBook?.chapters?.length, velocidade: a.playbackRate });
           if (a.playbackRate !== playbackSpeed) a.playbackRate = playbackSpeed;
           reconcileBookDuration(a);
           applyPendingSeek(a, 'loadedmetadata');

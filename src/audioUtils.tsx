@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import type { Chapter, TranscriptLine, TranscriptWord } from './data';
 import { resolveGenreList, GENRE_HIERARCHY } from './genreData';
+import { parseContainerTags, findWavId3Chunk } from './audioTags';
 import { autoCropImageToEbookCover } from './imageProcessing';
 import { normalizeAudiobookLanguage } from './translations';
 
@@ -1298,10 +1299,15 @@ export async function parseAudioMetadata(file: File): Promise<{
   let extractedCover: string | null = null;
   let extractedTranscript: TranscriptLine[] = [];
   let extractedChapters: { title: string; startTime: number; duration?: number }[] = [];
+  const id3Chapters: { title: string; startTime: number }[] = [];
+  let album = '';
+  let albumArtist = '';
   let durationSec = 1800;
 
   try {
-    const buffer = await file.slice(0, 1024 * 512).arrayBuffer();
+    // WAV guarda as etiquetas ID3 num bloco próprio; os demais, no início do arquivo
+    const id3Source = (await findWavId3Chunk(file)) || file;
+    const buffer = await id3Source.slice(0, 1024 * 512).arrayBuffer();
     const bytes = new Uint8Array(buffer);
 
     const isId3 = bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33;
@@ -1313,7 +1319,7 @@ export async function parseAudioMetadata(file: File): Promise<{
       const tagSize = ((bytes[6] & 0x7f) << 21) | ((bytes[7] & 0x7f) << 14) | ((bytes[8] & 0x7f) << 7) | (bytes[9] & 0x7f);
       
       // Letra embutida fica depois da capa: com limite baixo, livros longos perdiam a letra sem aviso
-      const fullTagBuffer = await file.slice(0, Math.min(tagSize + 10, 96 * 1024 * 1024)).arrayBuffer();
+      const fullTagBuffer = await id3Source.slice(0, Math.min(tagSize + 10, 96 * 1024 * 1024)).arrayBuffer();
       const tagBytes = new Uint8Array(fullTagBuffer);
       let offset = 10;
 
@@ -1335,6 +1341,32 @@ export async function parseAudioMetadata(file: File): Promise<{
         if (frameId === 'TIT2') {
           const text = decodeId3Text(frameData);
           if (text) title = text.trim();
+        } else if (frameId === 'TALB') {
+          const text = decodeId3Text(frameData);
+          if (text) album = text.trim();
+        } else if (frameId === 'TPE2') {
+          const text = decodeId3Text(frameData);
+          if (text) albumArtist = text.trim();
+        } else if (frameId === 'CHAP') {
+          // Capítulo: identificador, início e fim em milissegundos, e o título num quadro interno
+          let p = 0;
+          while (p < frameData.length && frameData[p] !== 0) p++;
+          p++;
+          if (p + 16 <= frameData.length) {
+            const startMs = ((frameData[p] << 24) >>> 0) + (frameData[p + 1] << 16) + (frameData[p + 2] << 8) + frameData[p + 3];
+            p += 16;
+            let chapterTitle = '';
+            while (p + 10 <= frameData.length) {
+              const subId = String.fromCharCode(frameData[p], frameData[p + 1], frameData[p + 2], frameData[p + 3]);
+              const subSize = majorVersion === 4
+                ? ((frameData[p + 4] & 0x7f) << 21) | ((frameData[p + 5] & 0x7f) << 14) | ((frameData[p + 6] & 0x7f) << 7) | (frameData[p + 7] & 0x7f)
+                : (frameData[p + 4] << 24) | (frameData[p + 5] << 16) | (frameData[p + 6] << 8) | frameData[p + 7];
+              if (subSize <= 0) break;
+              if (subId === 'TIT2') chapterTitle = decodeId3Text(frameData.subarray(p + 10, p + 10 + subSize)).trim();
+              p += 10 + subSize;
+            }
+            id3Chapters.push({ title: chapterTitle, startTime: startMs / 1000 });
+          }
         } else if (frameId === 'TIT1') {
           const text = decodeId3Text(frameData);
           if (text) rawSubgenre = text.trim();
@@ -1358,13 +1390,14 @@ export async function parseAudioMetadata(file: File): Promise<{
           if (syltLines.length > 0) {
             extractedTranscript = syltLines;
           }
-        } else if (frameId === 'USLT' && extractedTranscript.length === 0) {
+        } else if (frameId === 'USLT' && !extractedTranscript.some(l => l.words?.length)) {
           try {
             if (frameData.length > 4) {
               const usltText = decodeId3Text(frameData.subarray(4));
               if (usltText) {
                 const parsedFromUslt = parseTextContentByFormat(usltText, 'lrc');
-                if (parsedFromUslt.length > 0) {
+                // Vale se não há letra ainda ou se esta traz o tempo de cada palavra (a SYLT só tem frases)
+                if (parsedFromUslt.length > 0 && (extractedTranscript.length === 0 || parsedFromUslt.some(l => l.words?.length))) {
                   extractedTranscript = parsedFromUslt;
                 }
               }
@@ -1438,8 +1471,33 @@ export async function parseAudioMetadata(file: File): Promise<{
       }
     }
 
+    if (id3Chapters.length > 0) extractedChapters = id3Chapters.sort((a, b) => a.startTime - b.startTime);
+    // Audiobook em MP3: o título da faixa pode ser só o capítulo; o livro é o álbum
+    if (album && (title === baseName || /^(cap[ií]tulo|chapter|faixa|track|parte|part)\b/i.test(title))) title = album;
+    if (albumArtist && author === 'Autor Desconhecido') author = albumArtist;
+
+    // Opus, OGG, FLAC, WAV e WMA
+    const containerTags = await parseContainerTags(file);
+    if (containerTags) {
+      if (containerTags.title) title = containerTags.title;
+      if (containerTags.author) author = containerTags.author;
+      if (containerTags.narrator && !narrator) narrator = containerTags.narrator;
+      if (containerTags.category) rawCategory = containerTags.category;
+      if (containerTags.subgenre) rawSubgenre = containerTags.subgenre;
+      if (containerTags.year) year = containerTags.year;
+      if (containerTags.description && !description) description = containerTags.description;
+      if (containerTags.language && !rawLanguage) rawLanguage = containerTags.language;
+      if (containerTags.chapters?.length) extractedChapters = containerTags.chapters;
+      if (containerTags.durationSec && containerTags.durationSec > 0) durationSec = Math.round(containerTags.durationSec);
+      if (containerTags.coverBlob && !extractedCover) extractedCover = URL.createObjectURL(containerTags.coverBlob);
+      if (containerTags.lyrics && extractedTranscript.length === 0) {
+        const parsedLyrics = parseTextContentAuto(containerTags.lyrics);
+        if (parsedLyrics.length > 0) extractedTranscript = parsedLyrics;
+      }
+    }
+
     // Se for contêiner MP4 / M4B ou se não encontrou capítulos / capa suficientes via ID3
-    if (isM4bOrMp4 || !isId3 || extractedChapters.length === 0 || !extractedCover) {
+    if (!containerTags && (isM4bOrMp4 || !isId3 || extractedChapters.length === 0 || !extractedCover)) {
       const mp4Meta = await parseMp4M4bMetadata(file);
       if (mp4Meta) {
         if (mp4Meta.title && (!title || title === baseName)) title = mp4Meta.title;
@@ -1923,8 +1981,6 @@ function attachWordsToSegments(lines: TranscriptLine[], words: TranscriptWord[])
     const line = lines[li];
     const nextStart = k + 1 < order.length ? lines[order[k + 1]].start : Infinity;
     const bucket: TranscriptWord[] = [];
-    // palavras antes desta frase (entre frases) ficam de fora
-    while (wi < sorted.length && sorted[wi].start < line.start - TOL) wi++;
     while (wi < sorted.length && sorted[wi].start < nextStart - TOL) {
       bucket.push(sorted[wi]);
       wi++;

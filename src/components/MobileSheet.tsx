@@ -169,6 +169,8 @@ export function MobileSheet({
             key="sheet"
             ref={sheetRef}
             data-mobile-sheet="true"
+            // Computador: é um pop-up como os demais (mesmos tamanhos de texto e destaques)
+            data-popup-content={isDesktop ? 'true' : undefined}
             role="dialog"
             aria-modal="true"
             aria-label={title}
@@ -218,7 +220,7 @@ export function MobileSheet({
                 </div>
               </div>
             </div>}
-            <div ref={contentRef} className={`flex-1 min-h-0 overflow-y-auto overscroll-contain ${isDesktop ? '' : 'px-[var(--page-margin)]'} ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}>
+            <div ref={contentRef} className={`flex-1 min-h-0 overflow-y-auto overscroll-contain ${isDesktop ? '' : `px-[var(--page-margin)] ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}`}>
               {children}
             </div>
             {footer && (

@@ -23,6 +23,7 @@ export interface FullscreenPlayerProps {
   chapterElapsed: number;
   chapterRemaining: number;
   isPlaying: boolean;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   setIsPlaying: (playing: boolean) => void;
   handleSeek: (time: number) => void;
   handlePrevChapter?: () => void;
@@ -115,9 +116,12 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
   onSeek: (time: number) => void;
 }) {
   const hasWords = Boolean(line.words && line.words.length > 0);
-  const showWords = isActive && hasWords && mode !== 'phrase';
   // "Só palavras": a frase não ganha destaque (sem tempo por palavra, a frase é o único destaque possível)
   const lineOn = isActive && (mode !== 'word' || !hasWords);
+  // Na frase ativa, cada palavra tem o próprio brilho leve; a palavra sendo lida, um pouco mais forte
+  const tokens: { text: string; start?: number }[] = !isActive
+    ? []
+    : hasWords ? line.words! : line.text.split(/\s+/).filter(Boolean).map(text => ({ text }));
   return (
     <p
       data-transcript-idx={idx}
@@ -125,37 +129,33 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
       // milhares de camadas, e o iPhone encerra a página por falta de memória (tela preta)
       className={`text-xl sm:text-2xl font-bold cursor-pointer origin-left px-4 py-2 rounded-2xl ${
         lineOn
-          ? 'scale-[1.03] text-black dark:text-white dark:drop-shadow-[0_2px_12px_rgba(255,255,255,0.25)]'
+          ? 'scale-[1.03] text-black dark:text-white'
           : isPast
           ? 'text-slate-700/75 dark:text-[var(--text-muted)]/40 hover:text-black dark:hover:text-white'
           : 'text-slate-800/85 dark:text-[var(--text-muted)]/60 hover:text-black dark:hover:text-white'
       }`}
       onClick={() => onSeek(line.start)}
     >
-      {showWords ? (
-        line.words!.map((w, wIdx) => {
-          const isWordActive = wIdx === activeWordIdx;
-          const isWordPast = activeWordIdx >= 0 && wIdx < activeWordIdx;
+      {isActive ? (
+        tokens.map((w, wIdx) => {
+          const isWordActive = mode !== 'phrase' && wIdx === activeWordIdx;
+          const isWordPast = mode !== 'phrase' && activeWordIdx >= 0 && wIdx < activeWordIdx;
           return (
-            <span
-              key={wIdx}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSeek(w.start);
-              }}
-              className={`inline-block rounded-lg px-1 -mx-0.5 transition-colors duration-150 ${
-                // A palavra sendo lida fica na cor do audiobook
-                isWordActive
-                  ? 'text-[var(--book-accent)] bg-[rgba(var(--book-accent-rgb),0.16)] shadow-[0_0_12px_rgba(var(--book-accent-rgb),0.3)] scale-105'
-                  : isWordPast
-                  ? 'text-black dark:text-white/95'
-                  : lineOn
-                  ? 'text-slate-700 dark:text-white/65 hover:text-black dark:hover:text-white'
-                  : ''
-              }`}
-            >
-              {w.text}{' '}
-            </span>
+            <React.Fragment key={wIdx}>
+              <span
+                onClick={w.start === undefined ? undefined : (e) => {
+                  e.stopPropagation();
+                  onSeek(w.start!);
+                }}
+                className={`inline-block rounded-lg px-1 -mx-[2px] transition-colors duration-100 ${
+                  isWordActive
+                    ? 'text-[var(--book-accent)] bg-[rgba(var(--book-accent-rgb),0.2)] shadow-[0_0_6px_rgba(var(--book-accent-rgb),0.16)]'
+                    : `${lineOn ? 'bg-[rgba(var(--book-accent-rgb),0.08)]' : ''} ${isWordPast ? 'text-black dark:text-white/95' : lineOn ? 'text-slate-700 dark:text-white/75' : ''}`
+                }`}
+              >
+                {w.text}
+              </span>{' '}
+            </React.Fragment>
           );
         })
       ) : (
@@ -170,9 +170,11 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
 // (content-visibility). Sem isso, abrir a letra travava o iPhone e a página era encerrada (tela preta).
 const LYRIC_BLOCK = 40;
 
-const LyricBlock = React.memo(function LyricBlock({ lines, first, time, phase, mode, onSeek }: {
+const LyricBlock = React.memo(function LyricBlock({ lines, first, nextStart, time, phase, mode, onSeek }: {
   lines: TranscriptLine[];
   first: number;
+  // Início da primeira frase do bloco seguinte
+  nextStart?: number;
   // Só o bloco que está tocando recebe o tempo: nos outros ele fica fixo, e nada muda
   time: number;
   phase: 'past' | 'current' | 'future';
@@ -184,7 +186,9 @@ const LyricBlock = React.memo(function LyricBlock({ lines, first, time, phase, m
   return (
     <div className="space-y-6" style={{ contentVisibility: 'auto', containIntrinsicBlockSize: `auto ${estimate}px` } as React.CSSProperties}>
       {lines.map((line, i) => {
-        const isActive = phase === 'current' && time >= line.start && time <= line.end;
+        // A frase segue ativa até a próxima começar: nos silêncios entre frases o destaque não some
+        const end = Math.max(line.end, lines[i + 1]?.start ?? nextStart ?? line.end);
+        const isActive = phase === 'current' && time >= line.start && time < end;
         let activeWordIdx = -1;
         // Palavra sendo lida: a última que já começou na frase ativa (continua destacada nos pequenos silêncios
         // entre uma palavra e outra, sem piscar)
@@ -199,7 +203,7 @@ const LyricBlock = React.memo(function LyricBlock({ lines, first, time, phase, m
             line={line}
             idx={first + i}
             isActive={isActive}
-            isPast={phase === 'past' || (phase === 'current' && time > line.end)}
+            isPast={phase === 'past' || (phase === 'current' && time >= end)}
             activeWordIdx={activeWordIdx}
             mode={mode}
             onSeek={onSeek}
@@ -210,7 +214,33 @@ const LyricBlock = React.memo(function LyricBlock({ lines, first, time, phase, m
   );
 });
 
-function LyricBlocks({ transcript, time, mode, onSeek }: { transcript: TranscriptLine[]; time: number; mode: LyricsHighlight; onSeek: (time: number) => void }) {
+// Relógio da letra: lê o tempo direto do áudio cerca de 20 vezes por segundo. O evento de tempo do áudio vem só umas
+// 4 vezes por segundo, e palavras mais curtas que isso passavam sem receber destaque.
+function useLyricClock(audioRef: React.RefObject<HTMLAudioElement | null>, fallback: number, playing: boolean) {
+  const [time, setTime] = React.useState(fallback);
+  // Pulo (voltar, avançar, tocar numa frase): a letra acompanha na hora, sem esperar o áudio chegar ao ponto
+  if (Math.abs(fallback - time) > 1.5) setTime(fallback);
+  React.useEffect(() => {
+    if (!playing) return;
+    let frame = 0;
+    let lastAt = 0;
+    const tick = (now: number) => {
+      frame = requestAnimationFrame(tick);
+      if (now - lastAt < 45) return;
+      lastAt = now;
+      const audio = audioRef.current;
+      if (audio && audio.currentSrc && audio.readyState >= 1 && !audio.seeking) setTime(audio.currentTime);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [playing, audioRef]);
+  // Sem áudio real tocando (pausado, audiobook de demonstração), vale o tempo do app
+  const running = playing && Boolean(audioRef.current?.currentSrc);
+  return running ? time : fallback;
+}
+
+function LyricBlocks({ transcript, time: appTime, playing, audioRef, mode, onSeek }: { transcript: TranscriptLine[]; time: number; playing: boolean; audioRef: React.RefObject<HTMLAudioElement | null>; mode: LyricsHighlight; onSeek: (time: number) => void }) {
+  const time = useLyricClock(audioRef, appTime, playing);
   const blocks = React.useMemo(() => {
     const list: { first: number; lines: TranscriptLine[]; start: number; end: number }[] = [];
     for (let i = 0; i < transcript.length; i += LYRIC_BLOCK) {
@@ -224,7 +254,7 @@ function LyricBlocks({ transcript, time, mode, onSeek }: { transcript: Transcrip
       {blocks.map((b, i) => {
         const next = blocks[i + 1];
         const phase = time < b.start ? 'future' : (time > b.end && (!next || time >= next.start)) ? 'past' : 'current';
-        return <LyricBlock key={b.first} lines={b.lines} first={b.first} time={phase === 'current' ? time : 0} phase={phase} mode={mode} onSeek={onSeek} />;
+        return <LyricBlock key={b.first} lines={b.lines} first={b.first} nextStart={next?.start} time={phase === 'current' ? time : 0} phase={phase} mode={mode} onSeek={onSeek} />;
       })}
     </>
   );
@@ -241,6 +271,7 @@ export default function FullscreenPlayer({
   chapterElapsed,
   chapterRemaining,
   isPlaying,
+  audioRef,
   setIsPlaying,
   handleSeek,
   handlePrevChapter,
@@ -901,7 +932,7 @@ export default function FullscreenPlayer({
                   onClickCapture={onLinesClickCapture}
                   onContextMenu={onLinesContextMenu}
                 >
-                  <LyricBlocks transcript={currentBook.transcript} time={currentTime} mode={lyricsHighlight} onSeek={seekLyric} />
+                  <LyricBlocks transcript={currentBook.transcript} time={currentTime} playing={isPlaying} audioRef={audioRef} mode={lyricsHighlight} onSeek={seekLyric} />
                   <div className="h-[25vh] shrink-0" />
                 </div>
               </div>
