@@ -501,6 +501,10 @@ export default function FullscreenPlayer({
   const lyricSearchOpenRef = React.useRef(false);
   lyricSearchOpenRef.current = lyricSearchOpen;
   const foldedQuery = foldText(lyricQuery.trim());
+  // Celular: com a busca aberta, os botões do cabeçalho saem com fade; ao fechar, entram depois de a barra sair
+  const headerFadeClass = !mobileLyrics ? '' : lyricSearchOpen
+    ? '[&>*]:!opacity-0 [&>*]:pointer-events-none [&>*]:![transition:opacity_0.15s_ease-out]'
+    : '[&>*]:![transition:opacity_0.22s_ease-out_0.14s]';
   // Toca a partir do trecho (e sai da busca, se estiver nela)
   const playLine = (line: TranscriptLine) => {
     handleSeek(line.start);
@@ -512,7 +516,7 @@ export default function FullscreenPlayer({
     setLyricSearchShown(false);
     setLyricQuery('');
     // Depois que a letra voltar à tela, ela vai para o ponto atual
-    setTimeout(() => window.dispatchEvent(new Event('lyrics-recenter')), 60);
+    setTimeout(() => window.dispatchEvent(new Event('lyrics-recenter')), 190);
   };
   React.useEffect(() => {
     const el = fsTranscriptScrollRef.current;
@@ -764,7 +768,7 @@ export default function FullscreenPlayer({
       >
         {/* Botão Minimizar à esquerda (mesma posição do voltar de outras telas com ícone Minimize2) */}
         {/* Celular: com a busca aberta, estes botões saem do cabeçalho até o X cancelar */}
-        <div className={`contents ${mobileLyrics && lyricSearchOpen ? '[&>*]:!opacity-0 [&>*]:pointer-events-none' : ''} [&>*]:transition-opacity [&>*]:duration-150`}>
+        <div className={`contents ${headerFadeClass}`}>
         {isMobileFs ? (
           // Celular: botão redondo no mesmo padrão e alinhamento dos botões do cabeçalho do app
           <motion.button
@@ -802,9 +806,9 @@ export default function FullscreenPlayer({
           {mobileLyrics && (lyricSearchShown || lyricSearchOpen) && (
             <motion.div
               key="lyric-search"
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.16, ease: 'easeOut' }}
               className="flex-1 min-w-0 mx-2.5 flex items-center"
             >
@@ -854,7 +858,7 @@ export default function FullscreenPlayer({
         </AnimatePresence>
 
         {/* Botões de função do miniplayer no cabeçalho à direita */}
-        <div className={`contents ${mobileLyrics && lyricSearchOpen ? '[&>*]:!opacity-0 [&>*]:pointer-events-none' : ''} [&>*]:transition-opacity [&>*]:duration-150`}>
+        <div className={`contents ${headerFadeClass}`}>
           {renderFullScreenHeaderControls(isMobileFs ? 'header' : 'all')}
         </div>
       </motion.div>
@@ -1168,7 +1172,7 @@ export default function FullscreenPlayer({
                 className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pl-8 md:pl-12 pr-6 md:pr-10 py-8 max-md:px-2 max-md:py-4 flex flex-col fullscreen-transcript w-full md:w-[min(48vw,680px)] md:shrink-0"
               >
                 <div
-                  className={`select-none ${foldedQuery ? 'space-y-5 md:space-y-1' : 'my-auto space-y-6'}`}
+                  className={`select-none ${foldedQuery ? '' : 'my-auto'}`}
                   style={{ WebkitTouchCallout: 'none' }}
                   onPointerDown={onLinesPointerDown}
                   onPointerMove={cancelLinePress}
@@ -1177,6 +1181,15 @@ export default function FullscreenPlayer({
                   onClickCapture={onLinesClickCapture}
                   onContextMenu={onLinesContextMenu}
                 >
+                  <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={foldedQuery ? 'lyric-results' : 'lyric-lines'}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.14, ease: 'easeOut' }}
+                    className={foldedQuery ? 'space-y-5 md:space-y-1' : 'space-y-6'}
+                  >
                   {foldedQuery ? (
                     <LyricSearchResults
                       transcript={currentBook.transcript}
@@ -1190,6 +1203,8 @@ export default function FullscreenPlayer({
                   ) : (
                     <LyricBlocks transcript={currentBook.transcript} time={currentTime} playing={isPlaying} audioRef={audioRef} mode={lyricsHighlight} onSeek={seekLyric} />
                   )}
+                  </motion.div>
+                  </AnimatePresence>
                   <div className="h-[25vh] shrink-0" />
                 </div>
               </div>
