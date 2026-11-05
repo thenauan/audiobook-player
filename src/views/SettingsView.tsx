@@ -4,6 +4,7 @@ import { APP_VERSION } from '../version';
 import { getDiagText, clearDiag } from '../playbackDiag';
 import { useLiteMode, setLiteMode, useSystemInfo } from '../liteMode';
 import { useLyricsHighlight, setLyricsHighlight } from '../lyricsPrefs';
+import { useShowExtraChapters, setShowExtraChapters } from '../chapterPrefs';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -448,6 +449,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   const lyricsHighlight = useLyricsHighlight();
+  const showExtraChapters = useShowExtraChapters();
   const lyricsHighlightLabels = { both: t('lyrics_hl_both'), phrase: t('lyrics_hl_phrase'), word: t('lyrics_hl_word') };
   // Modo leve e configuração do aparelho (Sistema)
   const liteMode = useLiteMode();
@@ -1064,6 +1066,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <SettingToggle checked={autoShowText} onChange={setAutoShowText} />
+            </div>
+
+            {/* Capítulos extras (introdução, agradecimentos e afins) */}
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                  <BookOpen size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-base text-[var(--text-main)]">{t('settings_extra_chapters')}</span>
+                  <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('settings_extra_chapters_sub')}</span>
+                </div>
+              </div>
+              <SettingToggle checked={showExtraChapters} onChange={setShowExtraChapters} />
             </div>
 
             {/* Destaque da letra no player em tela cheia */}

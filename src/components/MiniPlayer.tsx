@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { MarqueeText } from './MarqueeText';
 import { SkipBack, SkipForward } from 'lucide-react';
 import { BsPlayFill, BsPauseFill, BsArrowCounterclockwise, BsArrowClockwise } from 'react-icons/bs';
 import type { Audiobook, Chapter, Author } from '../data';
@@ -257,7 +258,7 @@ export default function MiniPlayer({
                 navigateTo('book-detail', currentBook);
               }}
             >
-              {currentChapter.title}
+              <MarqueeText text={currentChapter.title} />
             </motion.h4>
           </div>
 
@@ -273,7 +274,7 @@ export default function MiniPlayer({
                 navigateTo('book-detail', currentBook);
               }}
             >
-              {currentBook.title}
+              <MarqueeText text={currentBook.title} />
             </span>
             <span className="shrink-0 text-[9px] opacity-60">•</span>
             <span 
@@ -285,7 +286,7 @@ export default function MiniPlayer({
                 navigateTo('author-detail', authorObj);
               }}
             >
-              {currentBook.author}
+              <MarqueeText text={currentBook.author} />
             </span>
           </motion.div>
 
@@ -461,7 +462,7 @@ export function MobileMiniPlayer({
             transition={MORPH_LAYOUT}
             className="text-[13px] font-bold text-[var(--text-main)] truncate leading-tight"
           >
-            {currentChapter.title}
+            <MarqueeText text={currentChapter.title} />
           </motion.p>
           <motion.p
             layoutId="player-book-line"
@@ -469,7 +470,7 @@ export function MobileMiniPlayer({
             transition={MORPH_LAYOUT}
             className="text-[11px] text-[var(--text-muted)] truncate leading-tight mt-0.5"
           >
-            {currentBook.title} • {currentBook.author}
+            <MarqueeText text={`${currentBook.title} • ${currentBook.author}`} />
           </motion.p>
         </div>
         <motion.button

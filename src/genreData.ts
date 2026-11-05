@@ -5,21 +5,42 @@ export interface GenreItem {
   gradient: string;
 }
 
+// Gêneros: o que a pessoa procura ao escolher o que ouvir. Subgêneros: recortes dentro deles. Valem para qualquer
+// audiobook, seja qual for o gênero informado no arquivo (ver resolveGenreAndSubgenre).
 export const GENRE_HIERARCHY: Record<string, GenreItem> = {
   'ficção': {
     id: 'ficcao',
     name: 'Ficção',
     subgenres: [
-      'Romance',
       'Drama',
       'Aventura',
       'Ação',
-      'Mistério',
-      'Suspense',
-      'Thriller',
-      'Policial',
-      'Terror',
-      'Horror',
+      'Ficção contemporânea',
+      'Ficção histórica',
+      'Guerra',
+      'Faroeste',
+      'Realismo mágico',
+      'Outros',
+    ],
+    gradient: 'from-blue-600 via-indigo-600 to-violet-700'
+  },
+  'romance': {
+    id: 'romance',
+    name: 'Romance',
+    subgenres: [
+      'Romance contemporâneo',
+      'Romance histórico',
+      'Comédia romântica',
+      'Dark Romance',
+      'Romantasia',
+      'Outros',
+    ],
+    gradient: 'from-rose-500 via-pink-600 to-red-500'
+  },
+  'fantasia e ficção científica': {
+    id: 'fantasia-e-ficcao-cientifica',
+    name: 'Fantasia e Ficção científica',
+    subgenres: [
       'Fantasia',
       'Alta Fantasia',
       'Fantasia Urbana',
@@ -27,59 +48,36 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Space Opera',
       'Cyberpunk',
       'Distopia',
-      'Ficção histórica',
-      'Sobrenatural',
-      'Romantasia',
-      'Comédia romântica',
-      'Dark Romance',
-      'Ficção contemporânea',
-      'Thriller psicológico',
-      'Espionagem',
-      'Guerra',
-      'Faroeste',
       'Pós-apocalíptico',
       'Steampunk',
-      'Realismo mágico',
-      'Gótico',
-      'Outros'
+      'Outros',
     ],
-    gradient: 'from-blue-600 via-indigo-600 to-violet-700'
+    gradient: 'from-violet-600 via-purple-600 to-cyan-600'
   },
-  'não ficção': {
-    id: 'nao-ficcao',
-    name: 'Não ficção',
+  'suspense e mistério': {
+    id: 'suspense-e-misterio',
+    name: 'Suspense e Mistério',
     subgenres: [
-      'História',
-      'Biografia',
-      'Memórias',
-      'Filosofia',
-      'Estoicismo',
-      'Psicologia',
-      'Ciência',
-      'Tecnologia',
-      'Política',
-      'Economia',
-      'Finanças',
-      'Negócios',
-      'Liderança',
-      'Autoajuda',
-      'Desenvolvimento pessoal',
-      'Saúde e Bem-estar',
-      'Sociologia',
-      'Espiritualidade',
-      'True crime',
-      'Educação',
-      'Feminismo',
-      'Natureza e Meio ambiente',
-      'Medicina',
-      'Direito',
-      'Astronomia',
-      'Produtividade',
-      'Relacionamentos',
-      'Parentalidade',
-      'Outros'
+      'Mistério',
+      'Suspense',
+      'Thriller',
+      'Thriller psicológico',
+      'Policial',
+      'Espionagem',
+      'Outros',
     ],
-    gradient: 'from-emerald-600 via-teal-600 to-cyan-700'
+    gradient: 'from-slate-700 via-indigo-800 to-gray-900'
+  },
+  'terror': {
+    id: 'terror',
+    name: 'Terror',
+    subgenres: [
+      'Horror',
+      'Sobrenatural',
+      'Gótico',
+      'Outros',
+    ],
+    gradient: 'from-red-800 via-rose-900 to-black'
   },
   'literatura': {
     id: 'literatura',
@@ -103,9 +101,95 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Literatura latino-americana',
       'Literatura africana',
       'Literatura de cordel',
-      'Outros'
+      'Outros',
     ],
     gradient: 'from-amber-600 via-orange-600 to-rose-700'
+  },
+  'biografia e memórias': {
+    id: 'biografia-e-memorias',
+    name: 'Biografia e Memórias',
+    subgenres: [
+      'Biografia',
+      'Memórias',
+      'Outros',
+    ],
+    gradient: 'from-stone-500 via-amber-700 to-stone-800'
+  },
+  'história e sociedade': {
+    id: 'historia-e-sociedade',
+    name: 'História e Sociedade',
+    subgenres: [
+      'História',
+      'Política',
+      'Sociologia',
+      'Feminismo',
+      'Direito',
+      'True crime',
+      'Educação',
+      'Outros',
+    ],
+    gradient: 'from-yellow-700 via-orange-700 to-red-800'
+  },
+  'ciência e tecnologia': {
+    id: 'ciencia-e-tecnologia',
+    name: 'Ciência e Tecnologia',
+    subgenres: [
+      'Ciência',
+      'Tecnologia',
+      'Astronomia',
+      'Medicina',
+      'Natureza e Meio ambiente',
+      'Outros',
+    ],
+    gradient: 'from-cyan-600 via-sky-600 to-blue-700'
+  },
+  'negócios e finanças': {
+    id: 'negocios-e-financas',
+    name: 'Negócios e Finanças',
+    subgenres: [
+      'Negócios',
+      'Liderança',
+      'Economia',
+      'Finanças',
+      'Produtividade',
+      'Outros',
+    ],
+    gradient: 'from-emerald-600 via-green-700 to-teal-800'
+  },
+  'autoajuda e bem-estar': {
+    id: 'autoajuda-e-bem-estar',
+    name: 'Autoajuda e Bem-estar',
+    subgenres: [
+      'Autoajuda',
+      'Desenvolvimento pessoal',
+      'Psicologia',
+      'Saúde e Bem-estar',
+      'Relacionamentos',
+      'Parentalidade',
+      'Meditação',
+      'Outros',
+    ],
+    gradient: 'from-teal-500 via-emerald-500 to-lime-600'
+  },
+  'filosofia e espiritualidade': {
+    id: 'filosofia-e-espiritualidade',
+    name: 'Filosofia e Espiritualidade',
+    subgenres: [
+      'Filosofia',
+      'Estoicismo',
+      'Espiritualidade',
+      'Religião',
+      'Outros',
+    ],
+    gradient: 'from-indigo-600 via-violet-700 to-purple-800'
+  },
+  'não ficção': {
+    id: 'nao-ficcao',
+    name: 'Não ficção',
+    subgenres: [
+      'Outros',
+    ],
+    gradient: 'from-emerald-600 via-teal-600 to-cyan-700'
   },
   'infantil e juvenil': {
     id: 'infantil-e-juvenil',
@@ -123,7 +207,7 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Romance juvenil',
       'Distopia juvenil',
       'Mistério juvenil',
-      'Outros'
+      'Outros',
     ],
     gradient: 'from-pink-500 via-rose-500 to-purple-600'
   },
@@ -138,7 +222,7 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Memórias LGBTQ+',
       'Não ficção LGBTQ+',
       'Poesia LGBTQ+',
-      'Outros'
+      'Outros',
     ],
     gradient: 'from-red-500 via-yellow-500 to-violet-600'
   },
@@ -148,7 +232,6 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
     subgenres: [
       'Humor',
       'Comédia',
-      'Religião',
       'Esportes',
       'Arte e Música',
       'Culinária e Gastronomia',
@@ -157,11 +240,10 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
       'Notícias e Atualidades',
       'Geral',
       'Quadrinhos e Mangá',
-      'Meditação',
       'Podcasts',
       'Audiodrama',
       'Palestras e Cursos',
-      'Outros'
+      'Outros',
     ],
     gradient: 'from-purple-600 via-violet-600 to-indigo-800'
   },
@@ -169,10 +251,10 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
     id: 'desconhecido',
     name: 'Desconhecido',
     subgenres: [
-      'Outros'
+      'Outros',
     ],
     gradient: 'from-slate-700 via-gray-700 to-zinc-800'
-  }
+  },
 };
 
 export const SUBGENRE_GRADIENTS: Record<string, string> = {
@@ -327,8 +409,26 @@ export const SUBGENRE_GRADIENTS: Record<string, string> = {
 };
 
 export const GENRE_EMOJIS: Record<string, string> = {
-  'ficcao': '🚀',
-  'ficção': '🚀',
+  'ficcao': '🎭',
+  'ficção': '🎭',
+  'romance': '💖',
+  'fantasia-e-ficcao-cientifica': '🚀',
+  'fantasia e ficção científica': '🚀',
+  'suspense-e-misterio': '🔎',
+  'suspense e mistério': '🔎',
+  'terror': '👻',
+  'biografia-e-memorias': '📔',
+  'biografia e memórias': '📔',
+  'historia-e-sociedade': '🏛️',
+  'história e sociedade': '🏛️',
+  'ciencia-e-tecnologia': '🔬',
+  'ciência e tecnologia': '🔬',
+  'negocios-e-financas': '💼',
+  'negócios e finanças': '💼',
+  'autoajuda-e-bem-estar': '🌿',
+  'autoajuda e bem-estar': '🌿',
+  'filosofia-e-espiritualidade': '🕯️',
+  'filosofia e espiritualidade': '🕯️',
   'nao-ficcao': '💡',
   'não ficção': '💡',
   'literatura': '📖',
@@ -535,7 +635,53 @@ export function resolveGenreList(rawCategory?: string, rawSubgenre?: string): { 
   return { category: outCats.join(', ') || 'Outros', subgenre: cleanSubs.join(', ') || 'Outros' };
 }
 
+// Subgênero -> gênero a que ele pertence (também os criados a partir dos audiobooks)
+const subgenreParents = new Map<string, { genre: string; name: string }>();
+Object.values(GENRE_HIERARCHY).forEach(g => g.subgenres.forEach(sg => {
+  if (sg.toLowerCase() !== 'outros') subgenreParents.set(sg.toLowerCase(), { genre: g.name, name: sg });
+}));
+// Valores que descrevem o formato, não o gênero
+const NOT_A_GENRE = new Set(['audiobook', 'audiobooks', 'audiolivro', 'audiolivros', 'audio book', 'book', 'books', 'livro', 'livros', 'speech', 'spoken word', 'spoken & audio', 'books & spoken', 'other', 'others', 'unknown', 'genre', 'gênero', 'none', 'n/a']);
+// Nomes de gênero que também aparecem nos arquivos como subgênero
+const GENRE_NAMED_SUBS: Record<string, string> = { romance: 'Romance', terror: 'Terror' };
+
+// A classificação vem da lista do app, seja qual for o campo do arquivo em que o valor estava: um subgênero
+// conhecido leva ao gênero dele; o que a lista não tem vira gênero (ou subgênero) novo
 export function resolveGenreAndSubgenre(rawCategory?: string, rawSubgenre?: string): { category: string; subgenre: string } {
+  const clean = (v?: string) => { const x = (v || '').trim(); return NOT_A_GENRE.has(x.toLowerCase()) ? '' : x; };
+  const r = resolveRawGenre(clean(rawCategory), clean(rawSubgenre));
+  const key = r.subgenre.toLowerCase();
+  if (GENRE_NAMED_SUBS[key]) return { category: GENRE_NAMED_SUBS[key], subgenre: 'Outros' };
+  const asGenre = Object.values(GENRE_HIERARCHY).find(g => g.name.toLowerCase() === key && key !== 'outros' && key !== 'desconhecido');
+  if (asGenre) return { category: asGenre.name, subgenre: 'Outros' };
+  const parent = subgenreParents.get(key);
+  return parent ? { category: parent.genre, subgenre: parent.name } : r;
+}
+
+// Gêneros e subgêneros que os audiobooks têm e a lista não: passam a existir como os demais
+export function registerDiscoveredGenres(books: { category?: string; subgenre?: string }[]) {
+  const palette = ['from-sky-600 via-blue-600 to-indigo-700', 'from-fuchsia-600 via-pink-600 to-rose-600', 'from-lime-600 via-emerald-600 to-teal-700', 'from-orange-500 via-amber-600 to-yellow-600'];
+  books.forEach(book => {
+    const cats = splitGenreValues(book.category);
+    const subs = splitGenreValues(book.subgenre);
+    (cats.length ? cats : ['']).forEach(c => (subs.length ? subs : ['']).forEach(sg => {
+      const r = resolveGenreAndSubgenre(c, sg);
+      let genre = Object.values(GENRE_HIERARCHY).find(g => g.name.toLowerCase() === r.category.toLowerCase());
+      if (!genre) {
+        const id = r.category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'genero';
+        genre = { id, name: r.category, subgenres: ['Outros'], gradient: palette[r.category.length % palette.length] };
+        GENRE_HIERARCHY[r.category.toLowerCase()] = genre;
+      }
+      const subKey = r.subgenre.toLowerCase();
+      if (subKey && subKey !== 'outros' && subKey !== 'desconhecido' && !genre.subgenres.some(x => x.toLowerCase() === subKey)) {
+        genre.subgenres.splice(Math.max(0, genre.subgenres.length - 1), 0, r.subgenre);
+        subgenreParents.set(subKey, { genre: genre.name, name: r.subgenre });
+      }
+    }));
+  });
+}
+
+function resolveRawGenre(rawCategory?: string, rawSubgenre?: string): { category: string; subgenre: string } {
   const cat = (rawCategory || '').trim();
   const sub = (rawSubgenre || '').trim();
   const catKey = cat.toLowerCase();

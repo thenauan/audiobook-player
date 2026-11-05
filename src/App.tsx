@@ -16,7 +16,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-import { Audiobook, Author, Chapter, TranscriptLine, AUTHORS_DATABASE, BOOKS_DATABASE, INITIAL_COLLECTIONS, GENRE_HIERARCHY, getGenreEmoji, getSubgenreEmoji, getSubgenreGradient, resolveNarratorAndLanguage, isBookInGenre, isBookInSubgenre, Collection, COLLECTION_AVAILABLE_EMOJIS, COLLECTION_AVAILABLE_PALETTES } from './data';
+import { Audiobook, Author, Chapter, TranscriptLine, AUTHORS_DATABASE, BOOKS_DATABASE, INITIAL_COLLECTIONS, GENRE_HIERARCHY, getGenreEmoji, getSubgenreEmoji, getSubgenreGradient, resolveNarratorAndLanguage, isBookInGenre, isBookInSubgenre, resolveGenreList, registerDiscoveredGenres, Collection, COLLECTION_AVAILABLE_EMOJIS, COLLECTION_AVAILABLE_PALETTES } from './data';
 import { parseAudioMetadata, parseSynchronizedTextFile, getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, GENERIC_COVER_COLORS, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex, findActiveTranscriptIndex } from './audioUtils';
 import { storeAudioBlob, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audioStorage';
 import { readAppData, writeAppData, writeLocalMirror } from './appDataStore';
@@ -36,6 +36,7 @@ import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } 
 import { MobileConfirmCard } from './components/MobileConfirm';
 import { installTapBounce } from './components/tapBounce';
 import { getSystemInfo } from './liteMode';
+import { useShowExtraChapters, visibleChapters } from './chapterPrefs';
 import { diag } from './playbackDiag';
 import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './authorUtils';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
@@ -358,6 +359,9 @@ export default function App() {
   type SortOption = 'name-asc' | 'name-desc' | 'year-desc' | 'year-asc' | 'duration-desc' | 'duration-asc';
   type StatusFilter = 'all' | 'in-progress' | 'completed' | 'unstarted' | 'favorites';
   const [books, setBooks] = useState<Audiobook[]>(() => loadBooksFromJson(safeLocalGet('app_books')));
+  // Gêneros e subgêneros dos audiobooks que a lista não tem passam a existir (antes de desenhar as telas)
+  useMemo(() => registerDiscoveredGenres(books), [books]);
+  const showExtraChapters = useShowExtraChapters();
   const booksRef = useRef<Audiobook[]>(books);
   booksRef.current = books;
   const [authors, setAuthors] = useState<Author[]>(() => loadAuthorsFromJson(safeLocalGet('app_authors')));
@@ -454,6 +458,21 @@ export default function App() {
 
   // Estados de Coleções Personalizadas
   const [collections, setCollections] = useState<Collection[]>(() => loadCollectionsFromJson(safeLocalGet('app_custom_collections')));
+
+  // Biblioteca já importada: reorganiza gêneros e subgêneros pela classificação atual
+  useEffect(() => {
+    if (!isLibraryDataHydrated) return;
+    setBooks(prev => {
+      let changed = false;
+      const next = prev.map(b => {
+        const r = resolveGenreList(b.category, b.subgenre);
+        if (r.category === b.category && r.subgenre === b.subgenre) return b;
+        changed = true;
+        return { ...b, category: r.category, subgenre: r.subgenre };
+      });
+      return changed ? next : prev;
+    });
+  }, [isLibraryDataHydrated]);
 
   useEffect(() => {
     if (!isLibraryDataHydrated) return;
@@ -856,6 +875,11 @@ export default function App() {
     }
   };
 
+  // Pede ao sistema para não apagar os áudios guardados no aparelho quando faltar espaço
+  useEffect(() => {
+    try { navigator.storage?.persist?.().catch(() => {}); } catch {}
+  }, []);
+
   // iPhone/iPad (Safari 17+): sessão de áudio do tipo "reprodução", que continua tocando em segundo plano
   useEffect(() => {
     try {
@@ -966,9 +990,11 @@ export default function App() {
           }
         })()
       };
-      const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(backupData, null, 2))}`;
+      // Arquivo de verdade: um endereço "data:" com a biblioteca inteira falha em bibliotecas grandes
+      const backupUrl = URL.createObjectURL(new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' }));
+      setTimeout(() => URL.revokeObjectURL(backupUrl), 60000);
       const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute('href', jsonString);
+      downloadAnchor.setAttribute('href', backupUrl);
       const dateStr = new Date().toISOString().split('T')[0];
       downloadAnchor.setAttribute('download', `audiobook-player-backup-${dateStr}.json`);
       document.body.appendChild(downloadAnchor);
@@ -1282,7 +1308,7 @@ export default function App() {
   };
   const isBookCompleted = (book: Audiobook) => {
     if (!book || !book.chapters || book.chapters.length === 0) return false;
-    return book.chapters.every(c => completedChapters.includes(`${book.id}-${c.id}`));
+    return visibleChapters(book.chapters, showExtraChapters).every(c => completedChapters.includes(`${book.id}-${c.id}`));
   };
   const isBookStarted = (book: Audiobook) => {
     if (!book || !book.chapters || book.chapters.length === 0) return false;
@@ -2645,7 +2671,8 @@ export default function App() {
       };
     }
   }, [activeScreen, shouldScrollToCurrentChapter]);
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  // Começa na velocidade padrão definida em Ajustes
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(defaultPlaybackSpeed);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(() => {
     try {
@@ -2743,6 +2770,11 @@ export default function App() {
     }, 250);
   };
 
+
+  const toggleAppleMute = () => {
+    if (volume === 0) setVolume(0.85);
+    setIsMuted(!isMuted && volume !== 0);
+  };
 
   const speedMenuTimeoutRef = useRef<any>(null);
   const handleSelectSpeed = (s: number) => {
@@ -4092,6 +4124,36 @@ export default function App() {
       setIsGeneratingShare(false);
     }
   };
+  // Trecho buscado em destaque na frase (sem diferenciar acentos nem maiúsculas)
+  const highlightMatch = (text: string, query: string): React.ReactNode => {
+    const fold = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const q = fold(query.trim());
+    if (!q) return text;
+    // Posição de cada letra do texto original no texto sem acentos
+    const map: number[] = [];
+    let folded = '';
+    Array.from(text).forEach((ch, i, arr) => {
+      const f = fold(ch);
+      const offset = arr.slice(0, i).join('').length;
+      for (let k = 0; k < f.length; k++) map.push(offset);
+      folded += f;
+    });
+    const parts: React.ReactNode[] = [];
+    let from = 0;
+    let at = folded.indexOf(q);
+    while (at !== -1) {
+      const start = map[at];
+      const lastIdx = at + q.length;
+      const end = lastIdx < map.length ? map[lastIdx] : text.length;
+      if (start > from) parts.push(text.slice(from, start));
+      parts.push(<mark key={start} className="bg-winblue/25 text-winblue font-semibold rounded-[4px] px-0.5">{text.slice(start, end)}</mark>);
+      from = end;
+      at = folded.indexOf(q, lastIdx);
+    }
+    if (from < text.length) parts.push(text.slice(from));
+    return parts;
+  };
+
   // A frase vira uma marcação do capítulo em que ela está, no tempo em que começa
   const addLineBookmark = (line: TranscriptLine) => {
     const chapters = currentBook.chapters || [];
@@ -4316,8 +4378,15 @@ export default function App() {
                     className="w-full min-h-[52px] flex items-center gap-2 pl-3 pr-1.5 py-2 text-left rtl:text-right rounded-[26px] border border-transparent transition-colors select-none cursor-pointer hover:bg-white/10"
                   >
                     <span className="flex-1 min-w-0 flex flex-col">
-                      <span className="text-[15px] leading-snug text-[var(--text-main)]">{transcriptLineText(line)}</span>
-                      <span className="text-xs text-[var(--text-muted)] mt-0.5">{formatTime(line.start)}</span>
+                      <span className="text-[15px] leading-snug text-[var(--text-main)]">{highlightMatch(transcriptLineText(line), lyricsSearch)}</span>
+                      {(() => {
+                        const chapter = (bk.chapters || []).find(c => line.start >= c.startTime && line.start < c.startTime + (c.duration || 0));
+                        return (
+                          <span className="text-xs text-[var(--text-muted)] mt-0.5 truncate">
+                            {chapter ? `${chapter.title} • ${formatTime(line.start - chapter.startTime)} • ` : ''}{t('at_book_time', { time: formatTime(line.start) })}
+                          </span>
+                        );
+                      })()}
                     </span>
                     <button
                       type="button"
@@ -5737,7 +5806,8 @@ export default function App() {
   };
 
   const handleAddBookToQueue = (book: Audiobook, position: 'next' | 'last') => {
-    const items = book.chapters.map((chap, idx) => createQueueItem(book, chap, idx));
+    const shown = visibleChapters(book.chapters, showExtraChapters);
+    const items = book.chapters.flatMap((chap, idx) => (shown.includes(chap) ? [createQueueItem(book, chap, idx)] : []));
     if (position === 'next') {
       setPlaybackQueue(prev => [...items, ...prev]);
       showToast(t('toast_book_queue_next', { title: book.title }));
@@ -5940,9 +6010,19 @@ export default function App() {
     if (!isPlaying || !currentAudioSrc) return;
     let last = -1;
     let stuck = 0;
+    // Ritmo real: quanto o tempo do áudio andou em relação ao relógio (se diferir de 1, o tempo informado
+    // pelo sistema não acompanha o que se ouve, e a letra se desencontra)
+    let paceFrom: { at: number; audio: number } | null = null;
     const timer = setInterval(() => {
       const audio = audioRef.current;
       if (!audio || audio.ended || audio.seeking || document.hidden) return;
+      const nowMs = Date.now();
+      if (!paceFrom || audio.currentTime < paceFrom.audio) paceFrom = { at: nowMs, audio: audio.currentTime };
+      else if (nowMs - paceFrom.at >= 30000) {
+        const pace = (audio.currentTime - paceFrom.audio) / ((nowMs - paceFrom.at) / 1000) / (audio.playbackRate || 1);
+        if (Math.abs(pace - 1) > 0.02) diag('ritmo', { ritmo: Math.round(pace * 1000) / 1000, velocidade: audio.playbackRate });
+        paceFrom = { at: nowMs, audio: audio.currentTime };
+      }
       if (Math.abs(audio.currentTime - last) > 0.05) {
         if (last >= 0) {
           stuck = 0;
@@ -6271,6 +6351,15 @@ export default function App() {
   // Fallback demo timer: roda apenas quando o audiobook NÃO possui áudio real carregado nem no IndexedDB
   useEffect(() => {
     if (!isPlaying || currentAudioSrc || isAudioLoading || (currentBook && storedAudioBlobKeysRef.current.has(currentBook.id))) return;
+    // Audiobook de verdade sem o arquivo (apagado pelo sistema ou que não coube): avisa em vez de fingir que toca
+    if (currentBook && !isTestBookId(currentBook.id) && !currentBook.filePath) {
+      const timer = setTimeout(() => {
+        diag('sem-audio', { livro: currentBook.id });
+        setIsPlaying(false);
+        showToast(t('toast_audio_missing'));
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
 
     const timer = setInterval(() => {
       if (currentBook) {
@@ -6440,8 +6529,9 @@ export default function App() {
 
       // Auto-queue all subsequent chapters of this book in order
       const subsequent: QueueItem[] = [];
+      const shown = visibleChapters(book.chapters, showExtraChapters);
       for (let idx = targetIdx + 1; idx < (book.chapters?.length || 0); idx++) {
-        subsequent.push(createQueueItem(book, book.chapters[idx], idx));
+        if (shown.includes(book.chapters[idx])) subsequent.push(createQueueItem(book, book.chapters[idx], idx));
       }
       setPlaybackQueue(subsequent);
     }
@@ -6723,7 +6813,7 @@ export default function App() {
 
     // 2. Falta pouco para concluir (>50% concluído)
     const almostDone = inProgressBooks.filter(b => {
-      const chaps = b.chapters || [];
+      const chaps = visibleChapters(b.chapters, showExtraChapters);
       if (chaps.length <= 1) return false;
       const doneCount = chaps.filter((c: any) => completedChapters.includes(`${b.id}-${c.id}`)).length;
       return (doneCount / chaps.length) >= 0.5;
@@ -8685,17 +8775,19 @@ export default function App() {
           whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showVolumePopup)}
-          onClick={(e) => { 
-            e.stopPropagation(); 
-            const p = showVolumePopup; 
-            closeAllPopups(); 
-            setShowVolumePopup(!p); 
+          onClick={(e) => {
+            e.stopPropagation();
+            // iPhone/iPad: o sistema não deixa o app mudar o volume; o botão liga e desliga o som
+            if (IS_APPLE_TOUCH) { toggleAppleMute(); return; }
+            const p = showVolumePopup;
+            closeAllPopups();
+            setShowVolumePopup(!p);
           }} 
           onDoubleClick={(e) => {
             e.stopPropagation();
             setIsMuted(!isMuted);
           }}
-          className={`${IS_APPLE_TOUCH ? '!hidden ' : ''}w-9 h-9 flex items-center justify-center rounded-full border transition-all shadow-xl backdrop-blur-3xl ${
+          className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all shadow-xl backdrop-blur-3xl ${
             isMuted || volume === 0
               ? 'bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.35)]'
               : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
@@ -9458,10 +9550,11 @@ export default function App() {
           whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showVolumePopup)}
-          onClick={(e) => { 
-            e.stopPropagation(); 
-            const p = showVolumePopup; 
-            closeAllPopups(); 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (IS_APPLE_TOUCH) { toggleAppleMute(); return; }
+            const p = showVolumePopup;
+            closeAllPopups();
             if (!p) {
               setMiniVolumeBtnAnchor(e.currentTarget);
               setShowVolumePopup(true);
@@ -9471,7 +9564,7 @@ export default function App() {
             e.stopPropagation();
             setIsMuted(!isMuted);
           }}
-          className={`${IS_APPLE_TOUCH ? '!hidden ' : ''}${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full border transition-all shadow-sm shrink-0 ${
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full border transition-all shadow-sm shrink-0 ${
             isMuted || volume === 0
               ? 'bg-red-500/15 border-red-500/30 text-red-400 hover:bg-red-500/25 hover:shadow-[0_0_12px_rgba(239,68,68,0.3)]'
               : 'bg-card/75 backdrop-blur-3xl border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]'
@@ -12573,7 +12666,6 @@ export default function App() {
           <AnimatePresence>
             {(activeScreen.id === 'book-detail' || activeScreen.id === 'book-synopsis') && (() => {
               const currentTargetBook = books.find(b => b.id === (activeScreen.data?.id || selectedBook?.id)) || activeScreen.data || selectedBook;
-              const bookCover = (isEditingBook ? editBookCover : null) || currentTargetBook?.cover || getGenericBookCover(currentTargetBook?.title, currentTargetBook?.author);
               return (
                 <motion.div
                   key={`book-detail-bg-blur-${currentTargetBook?.id || 'default'}`}
@@ -12583,12 +12675,8 @@ export default function App() {
                   transition={{ duration: 0.25, ease: "easeOut" }}
                   className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
                 >
-                  <img 
-                    src={bookCover} 
-                    onError={(e) => handleBookCoverError(currentTargetBook, e)}
-                    alt="blur" 
-                    className="w-full h-full object-cover blur-[140px] opacity-20 scale-125 dark:opacity-30 dark:mix-blend-screen"
-                  />
+                  {/* Cor sólida da capa (a mesma do cabeçalho), em tom escuro ou claro conforme o tema */}
+                  <div className="absolute inset-0" style={{ backgroundColor: headerTintColor || 'var(--bg-mica)' }} />
                 </motion.div>
               );
             })()}
@@ -16074,7 +16162,7 @@ export default function App() {
         onLoadedMetadata={() => {
           const a = audioRef.current;
           if (!a) return;
-          diag('carregou', { dur: a.duration, pendente: pendingSeekRef.current, ready: a.readyState, agora: a.currentTime });
+          diag('carregou', { dur: a.duration, pendente: pendingSeekRef.current, ready: a.readyState, agora: a.currentTime, arquivo: (currentBook?.fileName || '').split('.').pop(), letra: currentBook?.transcript?.length || 0, palavras: Boolean(currentBook?.transcript?.some(l => l.words?.length)), origem: currentBook?.transcriptSource });
           if (a.playbackRate !== playbackSpeed) a.playbackRate = playbackSpeed;
           reconcileBookDuration(a);
           applyPendingSeek(a, 'loadedmetadata');

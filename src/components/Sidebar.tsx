@@ -27,11 +27,12 @@ export function SidebarItem({ icon, label, active, onClick }: SidebarItemProps) 
       className={cn(
         "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-150 select-none border",
         active 
-          ? "bg-winblue/15 text-winblue border-transparent shadow-[0_0_12px_rgba(var(--winblue-rgb),0.18)]" 
-          : "border-transparent text-[var(--text-main)] hover:bg-white/15 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+          ? "bg-[var(--ios-fill)] text-[var(--text-main)] border-transparent"
+          : "border-transparent text-[var(--text-main)] hover:bg-[var(--ios-fill)]"
       )}
     >
-      <span className="shrink-0 flex items-center justify-center text-inherit">{icon}</span>
+      {/* Como no iOS: o destaque é neutro e só o ícone fica na cor de destaque */}
+      <span className={cn("shrink-0 flex items-center justify-center", active ? "text-winblue" : "text-inherit")}>{icon}</span>
       <span className="truncate">{label}</span>
     </button>
   );
@@ -395,8 +396,8 @@ export function MobileBottomBar({
                         animate={{ scaleX: pressed ? 1.16 : 1, scaleY: pressed ? 1.3 : 1 }}
                         transition={{ layout: PILL_MOVE_SPRING, default: PRESS_SPRING }}
                         className={cn(
-                          "absolute inset-0 rounded-full bg-winblue/15 transition-[background-color,box-shadow] duration-200",
-                          pressed && "bg-winblue/20 shadow-[0_4px_18px_rgba(var(--winblue-rgb),0.28),inset_0_0_0_1px_rgba(255,255,255,0.25)]"
+                          "absolute inset-0 rounded-full bg-[var(--ios-fill)] transition-colors duration-200",
+                          pressed && "bg-[var(--ios-fill-strong)]"
                         )}
                       />
                     )}

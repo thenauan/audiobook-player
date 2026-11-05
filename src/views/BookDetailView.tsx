@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { useShowExtraChapters, visibleChapters } from '../chapterPrefs';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Star,
@@ -238,6 +239,8 @@ export default function BookDetailView({
   handleSynopsisRef,
   synopsisFullTextRef,
 }: BookDetailViewProps) {
+  // Capítulos em exibição (extras podem estar ocultos em Ajustes)
+  const shownChapters = visibleChapters(activeBook.chapters, useShowExtraChapters());
   const { t } = useI18n();
 
   const isThisBookCurrent = currentBook.id === activeBook.id;
@@ -925,6 +928,7 @@ export default function BookDetailView({
         </h2>
         <div className="flex flex-col space-y-1">
           {activeBook.chapters.map((cap, i) => {
+            if (!isEditingBook && !shownChapters.includes(cap)) return null;
             if (isEditingBook) {
               const currentEditTitle = editBookChapters[i] ? editBookChapters[i].title : cap.title;
               return (

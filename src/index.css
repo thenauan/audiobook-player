@@ -710,8 +710,9 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   [role="button"]:active,
   a:active,
   .cursor-pointer:active {
-    filter: brightness(0.82);
-    transition: filter 0s;
+    /* Como no iOS: o botão clareia ao toque (sem escurecer) */
+    opacity: 0.7;
+    transition: opacity 0s;
   }
 }
 
@@ -782,14 +783,9 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   /* Opção tocada (ou sob o dedo ao arrastar): o mesmo destaque do "passar o mouse" no computador */
   /* (sem aumentar a opção nem brilho largo: dentro da margem do pop-up, nada é cortado) */
   [data-popup-content] [data-touch-active] {
-    background-color: rgb(255 255 255 / 0.15) !important;
+    background-color: var(--ios-fill-strong) !important;
     border-color: transparent !important;
-    box-shadow: 0 0 6px rgb(255 255 255 / 0.12) !important;
-    color: #fff;
-  }
-  html:not(.dark) [data-popup-content] [data-touch-active] {
-    background-color: rgb(100 116 139 / 0.18) !important;
-    border-color: transparent !important;
+    box-shadow: none !important;
     color: inherit;
   }
   [data-popup-content] [data-touch-active].text-red-500 {
@@ -1501,11 +1497,12 @@ html:not(.dark) main [class*="aspect-[16/9]"].rounded-3xl {
 [data-popup-content] :is(button, [role="button"]):active,
 [data-player-sheet] :is(button, [role="button"]):active {
   filter: none !important;
+  opacity: 1 !important;
 }
 /* Modo claro: destaque cinza suave, sem o brilho branco do modo escuro */
 html:not(.dark) [data-popup-content] [data-touch-active],
 html:not(.dark) [data-player-sheet] [data-touch-active] {
-  background-color: rgb(100 116 139 / 0.16) !important;
+  background-color: var(--ios-fill-strong) !important;
   border-color: transparent !important;
   box-shadow: none !important;
   color: inherit !important;
@@ -1601,11 +1598,9 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
 @media (max-width: 1023px) {
   /* Linhas de Mais, Ajustes e Ajuda: destaque de preenchimento ao tocar */
   .settings-list-row[data-touch-active] {
-    background-color: rgb(255 255 255 / 0.12) !important;
+    background-color: var(--ios-fill-strong) !important;
     filter: none !important;
-  }
-  html:not(.dark) .settings-list-row[data-touch-active] {
-    background-color: rgb(100 116 139 / 0.14) !important;
+    opacity: 1 !important;
   }
   [data-tap-card][data-touch-active] {
     filter: brightness(0.86) !important;
@@ -1818,4 +1813,32 @@ html.lite [class*="drop-shadow-[0_2px_12px"] {
 /* Entradas de cards e pop-ups sem o desfoque animado (só aparecem, mais leve para a placa de vídeo) */
 html.lite [style*="blur("] {
   filter: none !important;
+}
+
+/* ===== Destaques como no iOS: preenchimento cinza neutro (nem cor de destaque, nem brilho) ===== */
+:root {
+  --ios-fill: rgb(120 120 128 / 0.14);
+  --ios-fill-strong: rgb(120 120 128 / 0.24);
+}
+.dark {
+  --ios-fill: rgb(120 120 128 / 0.3);
+  --ios-fill-strong: rgb(120 120 128 / 0.44);
+}
+@media (hover: hover) {
+  [data-popup-content] [data-popup-option]:not(.text-red-500):hover,
+  [data-mobile-sheet] [data-popup-option]:not(.text-red-500):hover {
+    background-color: var(--ios-fill) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
+/* Barra de menus: o destaque é só o preenchimento, sem contorno nem esmaecer ao tocar e ao arrastar */
+[data-mobile-tab-bar] [role="tab"],
+[data-mobile-tab-bar] [role="tab"]:focus,
+[data-mobile-tab-bar] [role="tab"]:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  opacity: 1 !important;
+  -webkit-tap-highlight-color: transparent;
 }

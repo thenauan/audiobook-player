@@ -2,6 +2,16 @@ import type { SupportedLanguage } from './translations';
 import { splitGenreValues } from './genreData';
 
 export const GENRE_TRANSLATIONS: Record<string, Record<SupportedLanguage, string>> = {
+  'romance': { pt: 'Romance', en: 'Romance', es: 'Romance', ru: 'Любовные романы', ar: 'رومانسية' },
+  'fantasia-e-ficcao-cientifica': { pt: 'Fantasia e Ficção científica', en: 'Fantasy & Sci-Fi', es: 'Fantasía y Ciencia ficción', ru: 'Фэнтези и фантастика', ar: 'فانتازيا وخيال علمي' },
+  'suspense-e-misterio': { pt: 'Suspense e Mistério', en: 'Mystery & Thriller', es: 'Suspenso y Misterio', ru: 'Детективы и триллеры', ar: 'غموض وإثارة' },
+  'terror': { pt: 'Terror', en: 'Horror', es: 'Terror', ru: 'Ужасы', ar: 'رعب' },
+  'biografia-e-memorias': { pt: 'Biografia e Memórias', en: 'Biography & Memoir', es: 'Biografía y Memorias', ru: 'Биографии и мемуары', ar: 'سير ومذكرات' },
+  'historia-e-sociedade': { pt: 'História e Sociedade', en: 'History & Society', es: 'Historia y Sociedad', ru: 'История и общество', ar: 'التاريخ والمجتمع' },
+  'ciencia-e-tecnologia': { pt: 'Ciência e Tecnologia', en: 'Science & Technology', es: 'Ciencia y Tecnología', ru: 'Наука и технологии', ar: 'العلوم والتكنولوجيا' },
+  'negocios-e-financas': { pt: 'Negócios e Finanças', en: 'Business & Finance', es: 'Negocios y Finanzas', ru: 'Бизнес и финансы', ar: 'الأعمال والمال' },
+  'autoajuda-e-bem-estar': { pt: 'Autoajuda e Bem-estar', en: 'Self-Help & Wellness', es: 'Autoayuda y Bienestar', ru: 'Саморазвитие и здоровье', ar: 'تطوير الذات والعافية' },
+  'filosofia-e-espiritualidade': { pt: 'Filosofia e Espiritualidade', en: 'Philosophy & Spirituality', es: 'Filosofía y Espiritualidad', ru: 'Философия и духовность', ar: 'الفلسفة والروحانية' },
   'ficcao': {
     pt: 'Ficção',
     en: 'Fiction',
@@ -54,6 +64,8 @@ export const GENRE_TRANSLATIONS: Record<string, Record<SupportedLanguage, string
 };
 
 export const SUBGENRE_TRANSLATIONS: Record<string, Record<SupportedLanguage, string>> = {
+  'romance contemporâneo': { pt: 'Romance contemporâneo', en: 'Contemporary Romance', es: 'Romance contemporáneo', ru: 'Современный любовный роман', ar: 'رومانسية معاصرة' },
+  'romance histórico': { pt: 'Romance histórico', en: 'Historical Romance', es: 'Romance histórico', ru: 'Исторический любовный роман', ar: 'رومانسية تاريخية' },
   // Ficção
   'romance': { pt: 'Romance', en: 'Romance', es: 'Romance', ru: 'Любовный роман', ar: 'رواية رومانسية' },
   'drama': { pt: 'Drama', en: 'Drama', es: 'Drama', ru: 'Драма', ar: 'دراما' },

@@ -1312,7 +1312,8 @@ export async function parseAudioMetadata(file: File): Promise<{
       const majorVersion = bytes[3];
       const tagSize = ((bytes[6] & 0x7f) << 21) | ((bytes[7] & 0x7f) << 14) | ((bytes[8] & 0x7f) << 7) | (bytes[9] & 0x7f);
       
-      const fullTagBuffer = await file.slice(0, Math.min(tagSize + 10, 15 * 1024 * 1024)).arrayBuffer();
+      // Letra embutida fica depois da capa: com limite baixo, livros longos perdiam a letra sem aviso
+      const fullTagBuffer = await file.slice(0, Math.min(tagSize + 10, 96 * 1024 * 1024)).arrayBuffer();
       const tagBytes = new Uint8Array(fullTagBuffer);
       let offset = 10;
 
@@ -1935,7 +1936,7 @@ function attachWordsToSegments(lines: TranscriptLine[], words: TranscriptWord[])
 // Texto com marcas de tempo por palavra dentro da frase (VTT "<00:00:01.200>", LRC estendido "<01:02.30>"):
 // devolve as palavras com início/fim. Trechos com várias palavras entre duas marcas dividem o tempo igualmente.
 function parseInlineTimedWords(body: string, lineStart: number, lineEnd: number): TranscriptWord[] {
-  const re = /<(\d{1,2}:\d{2}(?::\d{2})?[.,:]\d{1,3})>/g;
+  const re = /<(\d{1,5}:\d{2}(?::\d{2})?[.,:]\d{1,3})>/g;
   if (!re.test(body)) return [];
   re.lastIndex = 0;
   const chunks: { start: number; text: string }[] = [];
@@ -2117,7 +2118,8 @@ function parseLrcOrVttOrSrtTranscript(raw: string): TranscriptLine[] {
   // 2. Try LRC format: "[mm:ss.xx] Texto"
   const lines = text.split('\n');
   const lrcEntries: { start: number; text: string; raw: string }[] = [];
-  const lrcRegex = /\[(\d{1,3}:\d{2}(?:[.:]\d{1,3})?)\]/g;
+  // Minutos sem limite prático: audiobooks longos passam de 1000 minutos
+  const lrcRegex = /\[(\d{1,5}:\d{2}(?:[.:]\d{1,3})?)\]/g;
   for (const line of lines) {
     const timestamps: number[] = [];
     let m: RegExpExecArray | null;

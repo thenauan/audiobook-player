@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { MarqueeText } from './MarqueeText';
 import { Minimize2, SkipBack, SkipForward, Bookmark, Play, Copy, Share } from 'lucide-react';
 import { useLyricsHighlight, type LyricsHighlight } from '../lyricsPrefs';
 import { BsPlayFill, BsPauseFill, BsArrowCounterclockwise, BsArrowClockwise } from 'react-icons/bs';
@@ -581,7 +582,7 @@ export default function FullscreenPlayer({
                     navigateTo('book-detail', currentBook);
                   }}
                 >
-                  {currentChapter.title}
+                  <MarqueeText text={currentChapter.title} />
                 </motion.h2>
 
                 <motion.div layoutId="player-book-line" layout="position" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="fs-bookline flex items-center justify-center gap-1.5 text-xs sm:text-sm text-slate-800 dark:text-[var(--text-muted)] max-w-full px-4 truncate font-medium">
@@ -596,7 +597,7 @@ export default function FullscreenPlayer({
                       navigateTo('book-detail', currentBook);
                     }}
                   >
-                    {currentBook.title}
+                    <MarqueeText text={currentBook.title} />
                   </span>
                   <span className="shrink-0 text-[10px] text-slate-600 dark:text-[var(--text-muted)] opacity-70">•</span>
                   <span 
@@ -609,7 +610,7 @@ export default function FullscreenPlayer({
                       navigateTo('author-detail', authorObj);
                     }}
                   >
-                    {currentBook.author}
+                    <MarqueeText text={currentBook.author} />
                   </span>
                 </motion.div>
               </div>
@@ -948,7 +949,7 @@ export default function FullscreenPlayer({
                 transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
                 className="text-sm font-bold text-[var(--text-main)] truncate"
               >
-                {currentChapter.title}
+                <MarqueeText text={currentChapter.title} />
               </motion.p>
               <motion.p
                 layoutId="player-book-line"
@@ -956,7 +957,7 @@ export default function FullscreenPlayer({
                 transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
                 className="text-xs text-[var(--text-muted)] truncate mt-0.5"
               >
-                {currentBook.title} • {currentBook.author}
+                <MarqueeText text={`${currentBook.title} • ${currentBook.author}`} />
               </motion.p>
             </div>
             {/* Deitado há espaço: o capítulo anterior aparece também */}

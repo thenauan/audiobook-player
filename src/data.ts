@@ -148,9 +148,8 @@ function isPairInGenre(b: Partial<Audiobook>, genreData: GenreItem): boolean {
   const id = (genreData.id || '').toLowerCase().trim();
   const name = (genreData.name || '').toLowerCase().trim();
   const resolved = resolveGenreAndSubgenre(b.category, b.subgenre);
+  // O gênero é o resolvido (o do arquivo pode ser outro: "Ficção" + "Fantasia" pertence a Fantasia)
   return (
-    cat === name ||
-    cat === id ||
     resolved.category.toLowerCase().trim() === name ||
     (id === 'outros' && (cat === 'desconhecido' || resolved.category.toLowerCase().trim() === 'desconhecido' || resolved.category.toLowerCase().trim() === 'outros'))
   );
