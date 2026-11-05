@@ -1689,12 +1689,14 @@ export function BookCard({
           </div>
         )}
         {isCompleted ? (
-          <div aria-label={t('completed')} className="absolute top-2.5 left-2.5 z-10 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg text-white pointer-events-none">
+          <div aria-label={t('completed')} className="absolute top-2.5 left-2.5 z-10 h-6 max-md:w-6 md:px-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold">
             <CheckCircle2 size={12} />
+            <span className="max-md:hidden">{t('completed')}</span>
           </div>
         ) : isStarted ? (
-          <div aria-label={t('listening')} className="absolute top-2.5 left-2.5 z-10 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg text-white pointer-events-none">
+          <div aria-label={t('listening')} className="absolute top-2.5 left-2.5 z-10 h-6 max-md:w-6 md:px-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold">
             <Headphones size={12} />
+            <span className="max-md:hidden">{t('listening')}</span>
           </div>
         ) : null}
         

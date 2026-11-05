@@ -27,12 +27,11 @@ export function SidebarItem({ icon, label, active, onClick }: SidebarItemProps) 
       className={cn(
         "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-150 select-none border",
         active 
-          ? "bg-[var(--ios-fill)] text-[var(--text-main)] border-transparent"
+          ? "bg-[var(--ios-fill)] text-winblue border-transparent"
           : "border-transparent text-[var(--text-main)] hover:bg-[var(--ios-fill)]"
       )}
     >
-      {/* Como no iOS: o destaque é neutro e só o ícone fica na cor de destaque */}
-      <span className={cn("shrink-0 flex items-center justify-center", active ? "text-winblue" : "text-inherit")}>{icon}</span>
+      <span className="shrink-0 flex items-center justify-center text-inherit">{icon}</span>
       <span className="truncate">{label}</span>
     </button>
   );

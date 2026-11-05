@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
+import { placeDesktopPopup } from './popupOrigin';
 
 // ===== Celular: confirmações (ex.: apagar) num cartão na base da tela =====
 // Como os cartões de confirmação do iOS: flutua sobre a base, com cantos bem arredondados,
@@ -9,17 +10,22 @@ import { motion } from 'motion/react';
 export function MobileConfirmCard({
   onClose,
   children,
+  menuWidth,
 }: {
   onClose: () => void;
   children: React.ReactNode;
+  // Computador: usado como menu de opções (mais estreito e sem margens internas)
+  menuWidth?: number;
 }) {
+  // Computador: nasce do botão que abriu a confirmação
+  const [place] = useState(() => (typeof window !== 'undefined' && window.matchMedia?.('(min-width: 1024px)').matches ? placeDesktopPopup(menuWidth ?? 360) : null));
   if (typeof document === 'undefined') return null;
   return createPortal(
     <>
       <motion.div
         key="mobile-confirm-backdrop"
         data-popup-content="true"
-        className="fixed inset-0 z-[9500] bg-black/35"
+        className={`fixed inset-0 z-[9500] ${place ? '' : 'bg-black/35'}`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -32,14 +38,14 @@ export function MobileConfirmCard({
         data-mobile-confirm="true"
         role="alertdialog"
         aria-modal="true"
-        initial={{ y: '110%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '110%' }}
-        transition={{ type: 'spring', stiffness: 440, damping: 40, mass: 0.7 }}
+        initial={place ? place.motion.initial : { y: '110%' }}
+        animate={place ? place.motion.animate : { y: 0 }}
+        exit={place ? place.motion.exit : { y: '110%' }}
+        transition={place ? place.motion.transition : { type: 'spring', stiffness: 440, damping: 40, mass: 0.7 }}
         onClick={(e) => e.stopPropagation()}
         className="fixed z-[9501] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] shadow-2xl text-[var(--text-main)] overflow-hidden"
         // Na base do app, alinhado às bordas da barra de abas e do miniplayer; cantos concêntricos com a tela
-        style={{
+        style={place ? { ...place.style, borderRadius: 28 } : {
           left: 'var(--mobile-bar-inset)',
           right: 'var(--mobile-bar-inset)',
           bottom: 'var(--mobile-bar-bottom)',
@@ -47,7 +53,7 @@ export function MobileConfirmCard({
           maxHeight: 'calc(100dvh - var(--safe-top) - 40px)',
         }}
       >
-        <div className="max-h-[inherit] overflow-y-auto px-2 pt-4 pb-3">{children}</div>
+        <div className={`max-h-[inherit] overflow-y-auto ${menuWidth ? '' : 'px-2 pt-4 pb-3'}`}>{children}</div>
       </motion.div>
     </>,
     document.body

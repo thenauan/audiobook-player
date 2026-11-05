@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { placeDesktopPopup } from './popupOrigin';
 import { motion, AnimatePresence, useDragControls, type PanInfo } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
 
@@ -54,7 +55,7 @@ export function MobileSheet({
 }) {
   const dragControls = useDragControls();
   const keyboard = useKeyboardInset(open);
-  // Computador: a mesma folha aparece como uma janela centralizada
+  // Computador: a mesma folha é um pop-up que nasce do botão que a abriu
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.('(min-width: 1024px)').matches);
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
@@ -63,6 +64,12 @@ export function MobileSheet({
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
+
+  const placeRef = useRef<ReturnType<typeof placeDesktopPopup> | null>(null);
+  const wasOpenRef = useRef(false);
+  if (open && !wasOpenRef.current && isDesktop) placeRef.current = placeDesktopPopup(480);
+  wasOpenRef.current = open;
+  const place = isDesktop ? placeRef.current : null;
 
   // A tela de trás recua enquanto a folha está aberta
   useEffect(() => {
@@ -145,7 +152,7 @@ export function MobileSheet({
           <motion.div
             key="sheet-backdrop"
             data-popup-content="true"
-            className="fixed inset-0 z-[9000] bg-black/35"
+            className={`fixed inset-0 z-[9000] ${isDesktop ? '' : 'bg-black/35'}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -159,10 +166,10 @@ export function MobileSheet({
             role="dialog"
             aria-modal="true"
             aria-label={title}
-            initial={isDesktop ? { opacity: 0, scale: 0.96, y: 12 } : { y: '100%' }}
-            animate={isDesktop ? { opacity: 1, scale: 1, y: 0 } : { y: 0 }}
-            exit={isDesktop ? { opacity: 0, scale: 0.96, y: 12 } : { y: '100%' }}
-            transition={SHEET_SPRING}
+            initial={place ? place.motion.initial : { y: '100%' }}
+            animate={place ? place.motion.animate : { y: 0 }}
+            exit={place ? place.motion.exit : { y: '100%' }}
+            transition={place ? place.motion.transition : SHEET_SPRING}
             drag={isDesktop ? false : 'y'}
             dragControls={dragControls}
             dragListener={false}
@@ -170,9 +177,9 @@ export function MobileSheet({
             dragElastic={{ top: 0, bottom: 0.7 }}
             onDragEnd={onDragEnd}
             className={isDesktop
-              ? "fixed z-[9001] left-1/2 top-1/2 w-[560px] max-w-[calc(100vw-48px)] max-h-[86vh] -ml-[280px] flex flex-col rounded-[32px] bg-[var(--bg-sheet)] border border-[var(--button-secondary-bg)] shadow-2xl overflow-hidden text-[var(--text-main)]"
+              ? "fixed z-[9001] flex flex-col rounded-[32px] bg-[var(--bg-sheet)] border border-[var(--button-secondary-bg)] shadow-2xl overflow-hidden text-[var(--text-main)]"
               : "fixed inset-x-0 z-[9001] flex flex-col rounded-t-[38px] bg-[var(--bg-sheet)] shadow-[0_-12px_40px_-12px_rgba(0,0,0,0.45)] overflow-hidden text-[var(--text-main)]"}
-            style={isDesktop ? { translate: '0 -50%' } : {
+            style={place ? place.style : {
               top: 'calc(var(--safe-top) + 12px)',
               bottom: -keyboard.shrink,
               paddingBottom: keyboard.inset,

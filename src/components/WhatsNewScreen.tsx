@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppLogo } from './AppLogo';
-import { Check } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import { APP_VERSION } from '../version';
 import type { SupportedLanguage } from '../translations';
 
@@ -126,8 +126,8 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
               onClick={close}
               className="mt-8 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 border border-winblue text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all shadow-[0_0_20px_rgba(var(--winblue-rgb),0.25)] hover:shadow-[0_0_28px_rgba(var(--winblue-rgb),0.4)] backdrop-blur-3xl cursor-pointer"
             >
-              <AppLogo height={18} className="shrink-0" />
               <span>{t('whats_new_go')}</span>
+              <ArrowRight size={18} className="shrink-0 rtl:rotate-180" />
             </motion.button>
           </div>
         </motion.div>
