@@ -16,9 +16,15 @@ const EXTRA_TITLE = new RegExp(
   'i',
 );
 
+const checked = new Map<string, boolean>();
 export function isExtraChapter(title?: string | null): boolean {
-  const key = String(title || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
-  return EXTRA_TITLE.test(key);
+  const raw = String(title || '');
+  let result = checked.get(raw);
+  if (result === undefined) {
+    result = EXTRA_TITLE.test(raw.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim());
+    checked.set(raw, result);
+  }
+  return result;
 }
 
 const KEY = 'app_show_extra_chapters';

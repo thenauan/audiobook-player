@@ -32,7 +32,7 @@ export function diag(event: string, data?: Record<string, unknown>) {
   list.push({ t: Date.now(), e: event, d });
   if (list.length > MAX) list.splice(0, list.length - MAX);
   // Gravação logo em seguida (e já na hora em eventos importantes, para não perder se o app for fechado)
-  if (/^(abriu|pausou|saiu|seek-falhou|gravou-0|pausa-sistema|travou|recuper|play-falhou)/.test(event)) flush();
+  if (/^(abriu|pausou|saiu|seek-falhou|gravou-0|pausa-sistema|travou|recuper|play-falhou|erro|encerrado)/.test(event)) flush();
   else if (!flushTimer) flushTimer = setTimeout(flush, 1000);
 }
 
@@ -51,7 +51,15 @@ export function clearDiag() {
   flush();
 }
 
-// Fecha o registro ao sair do app
+// Fecha o registro ao sair do app. A marca de "em uso" só some ao sair ou ir para outro app: se ela ainda estiver
+// lá ao abrir, a página foi encerrada à força com o app na tela (tela preta, em geral por falta de memória)
 if (typeof window !== 'undefined') {
-  window.addEventListener('pagehide', () => { diag('saiu'); });
+  const ALIVE = 'app_session_alive';
+  const mark = (on: boolean) => { try { if (on) localStorage.setItem(ALIVE, '1'); else localStorage.removeItem(ALIVE); } catch { /* sem armazenamento */ } };
+  try { if (localStorage.getItem(ALIVE)) diag('encerrado-a-forca'); } catch { /* sem armazenamento */ }
+  mark(true);
+  window.addEventListener('pagehide', () => { mark(false); diag('saiu'); });
+  document.addEventListener('visibilitychange', () => mark(document.visibilityState === 'visible'));
+  window.addEventListener('error', (e) => diag('erro', { msg: String(e.message).slice(0, 200) }));
+  window.addEventListener('unhandledrejection', (e) => diag('erro', { msg: String((e as PromiseRejectionEvent).reason).slice(0, 200) }));
 }

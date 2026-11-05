@@ -642,12 +642,23 @@ Object.values(GENRE_HIERARCHY).forEach(g => g.subgenres.forEach(sg => {
 }));
 // Valores que descrevem o formato, não o gênero
 const NOT_A_GENRE = new Set(['audiobook', 'audiobooks', 'audiolivro', 'audiolivros', 'audio book', 'book', 'books', 'livro', 'livros', 'speech', 'spoken word', 'spoken & audio', 'books & spoken', 'other', 'others', 'unknown', 'genre', 'gênero', 'none', 'n/a']);
+const resolvedGenres = new Map<string, { category: string; subgenre: string }>();
 // Nomes de gênero que também aparecem nos arquivos como subgênero
 const GENRE_NAMED_SUBS: Record<string, string> = { romance: 'Romance', terror: 'Terror' };
 
 // A classificação vem da lista do app, seja qual for o campo do arquivo em que o valor estava: um subgênero
 // conhecido leva ao gênero dele; o que a lista não tem vira gênero (ou subgênero) novo
 export function resolveGenreAndSubgenre(rawCategory?: string, rawSubgenre?: string): { category: string; subgenre: string } {
+  // Chamado muitas vezes a cada tela (audiobooks × gêneros): cada combinação é calculada uma vez só
+  const cacheKey = `${rawCategory || ''}\u0000${rawSubgenre || ''}`;
+  const cached = resolvedGenres.get(cacheKey);
+  if (cached) return cached;
+  const result = computeGenre(rawCategory, rawSubgenre);
+  resolvedGenres.set(cacheKey, result);
+  return result;
+}
+
+function computeGenre(rawCategory?: string, rawSubgenre?: string): { category: string; subgenre: string } {
   const clean = (v?: string) => { const x = (v || '').trim(); return NOT_A_GENRE.has(x.toLowerCase()) ? '' : x; };
   const r = resolveRawGenre(clean(rawCategory), clean(rawSubgenre));
   const key = r.subgenre.toLowerCase();
@@ -671,11 +682,13 @@ export function registerDiscoveredGenres(books: { category?: string; subgenre?: 
         const id = r.category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'genero';
         genre = { id, name: r.category, subgenres: ['Outros'], gradient: palette[r.category.length % palette.length] };
         GENRE_HIERARCHY[r.category.toLowerCase()] = genre;
+        resolvedGenres.clear();
       }
       const subKey = r.subgenre.toLowerCase();
       if (subKey && subKey !== 'outros' && subKey !== 'desconhecido' && !genre.subgenres.some(x => x.toLowerCase() === subKey)) {
         genre.subgenres.splice(Math.max(0, genre.subgenres.length - 1), 0, r.subgenre);
         subgenreParents.set(subKey, { genre: genre.name, name: r.subgenre });
+        resolvedGenres.clear();
       }
     }));
   });

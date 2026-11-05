@@ -151,6 +151,24 @@ function syncTextStem(name: string) {
   return noExt.normalize('NFC').trim();
 }
 
+// Leva a frase ao centro da letra. A posição é medida pela tela (dentro dos blocos da letra, offsetTop é relativo ao
+// bloco). Saltos longos vão direto e são conferidos logo depois: os blocos fora da tela têm altura estimada, que
+// muda quando eles são desenhados.
+function centerLyricLine(container: HTMLElement, el: HTMLElement) {
+  const target = () => {
+    const box = container.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    return Math.max(0, container.scrollTop + (r.top - box.top) - container.clientHeight / 2 + r.height / 2);
+  };
+  const top = target();
+  if (Math.abs(top - container.scrollTop) < 1500) {
+    container.scrollTo({ top, behavior: 'smooth' });
+    return;
+  }
+  container.scrollTop = top;
+  [50, 200, 450].forEach(ms => setTimeout(() => { container.scrollTop = target(); }, ms));
+}
+
 type NavDirection = 'push' | 'pop' | 'tab' | 'popSwipe' | 'instant';
 let navDirection: NavDirection = 'tab';
 let popSwipeAt = 0;
@@ -545,6 +563,9 @@ export default function App() {
   // Tentativas de recuperar o áudio de cada livro após um erro de carregamento
   const audioRecoveryTriesRef = useRef(new Map<string, number>());
   const recoverAudioRef = useRef<(reason: string) => boolean>(() => false);
+  const durationFixedBooksRef = useRef<Set<string>>(new Set());
+  const durationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const applyBookDurationRef = useRef<(audio: HTMLAudioElement) => void>(() => {});
   const gainNodeRef = useRef<GainNode | null>(null);
   const volumeRef = useRef(1);
   const isMutedRef = useRef(false);
@@ -1498,17 +1519,20 @@ export default function App() {
 
     initAudioBlobKeys();
 
-    return () => {
-      isMounted = false;
-      // Sanitização de memória: revoga todos os Object URLs remanescentes na desmontagem
-      audioUrlsRef.current.forEach(url => {
-        if (url && url.startsWith('blob:')) {
-          try { URL.revokeObjectURL(url); } catch {}
-        }
-      });
-      audioUrlsRef.current.clear();
-    };
-  }, [loadAudioForBook]);
+    return () => { isMounted = false; };
+    // Só ao abrir. Esta função muda junto com a fila: com ela nas dependências, cada mudança na fila ou na
+    // biblioteca repetia o efeito e a limpeza apagava o endereço do áudio que estava tocando
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Libera a memória dos áudios só ao fechar
+  useEffect(() => () => {
+    audioUrlsRef.current.forEach(url => {
+      if (url && url.startsWith('blob:')) {
+        try { URL.revokeObjectURL(url); } catch {}
+      }
+    });
+    audioUrlsRef.current.clear();
+  }, []);
 
   // Efeito reativo para carregar áudio lazy sempre que o livro atual ou a fila mudar
   useEffect(() => {
@@ -3628,10 +3652,7 @@ export default function App() {
     if (!container) return;
 
     const activeEl = container.querySelector(`[data-transcript-idx="${activeTranscriptIndex}"]`) as HTMLElement;
-    if (activeEl) {
-      const targetTop = activeEl.offsetTop - container.clientHeight / 2 + activeEl.clientHeight / 2;
-      container.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
-    }
+    if (activeEl) centerLyricLine(container, activeEl);
   }, [activeTranscriptIndex, showTranscript, isFullScreen]);
 
   // Alinhamento ao abrir a letra após conclusão da transição
@@ -3641,10 +3662,7 @@ export default function App() {
         const container = fsTranscriptScrollRef.current;
         if (!container) return;
         const activeEl = container.querySelector(`[data-transcript-idx="${activeTranscriptIndex}"]`) as HTMLElement;
-        if (activeEl) {
-          const targetTop = activeEl.offsetTop - container.clientHeight / 2 + activeEl.clientHeight / 2;
-          container.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
-        }
+        if (activeEl) centerLyricLine(container, activeEl);
       }, 260);
       return () => clearTimeout(timer);
     }
@@ -6047,21 +6065,31 @@ export default function App() {
 
   // Duração real do arquivo: a informada na importação pode estar errada (no iPhone, sem resposta a tempo, o
   // app assume 30 minutos), o que limitava os pulos e deixava o fim do livro fora do lugar
-  const reconcileBookDuration = (audio: HTMLAudioElement) => {
+  // Uma vez por livro e só depois de o valor assentar: o iPhone refaz a estimativa várias vezes, e cada correção
+  // regrava a biblioteca inteira (com as letras), o que travava o app
+  const applyBookDuration = (audio: HTMLAudioElement) => {
     const book = currentBook;
     const dur = audio.duration;
-    if (!book?.id || book.id === EMPTY_BOOK.id || !isFinite(dur) || dur <= 0) return;
+    if (!book?.id || book.id === EMPTY_BOOK.id || book.id !== latestBookIdRef.current || !isFinite(dur) || dur <= 0) return;
+    if (durationFixedBooksRef.current.has(book.id)) return;
     const chapters = book.chapters || [];
     if (chapters.length === 0) return;
     const last = chapters[chapters.length - 1];
     const lastDuration = dur - last.startTime;
     if (lastDuration < 1 || Math.abs(dur - (last.startTime + last.duration)) < 2) return;
+    durationFixedBooksRef.current.add(book.id);
     diag('duracao-corrigida', { livro: book.id, antes: last.startTime + last.duration, agora: dur });
     const fixed = chapters.map((c, i) => (i === chapters.length - 1 ? { ...c, duration: lastDuration } : c));
     const fix = <T extends Audiobook>(b: T): T => (b.id === book.id ? { ...b, chapters: fixed } : b);
     setBooks(prev => prev.map(fix));
     setCurrentBook(prev => fix(prev));
     setSelectedBook(prev => (prev ? fix(prev) : prev));
+  };
+
+  applyBookDurationRef.current = applyBookDuration;
+  const reconcileBookDuration = (audio: HTMLAudioElement) => {
+    if (durationTimerRef.current) clearTimeout(durationTimerRef.current);
+    durationTimerRef.current = setTimeout(() => applyBookDurationRef.current(audio), 4000);
   };
 
   // Primeiro play de cada livro na sessão: se o áudio vai começar antes de onde a pessoa parou (e ela não
@@ -6326,6 +6354,13 @@ export default function App() {
       document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [currentBook?.id, savePlaybackPosition, getLivePlaybackTime]);
+
+  // Ao encerrar o app o áudio para (ir para outro app não encerra: o áudio segue em segundo plano)
+  useEffect(() => {
+    const stop = () => { audioRef.current?.pause(); };
+    window.addEventListener('pagehide', stop);
+    return () => window.removeEventListener('pagehide', stop);
+  }, []);
 
   // Handler para quando a faixa de áudio termina
   recoverAudioRef.current = recoverAudio;

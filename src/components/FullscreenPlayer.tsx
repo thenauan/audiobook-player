@@ -121,12 +121,14 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
   return (
     <p
       data-transcript-idx={idx}
-      className={`text-xl sm:text-2xl font-bold cursor-pointer transition-colors duration-150 origin-left px-4 py-2 rounded-2xl transform-gpu ${
+      // Sem nada que crie camada de vídeo por frase (transform-gpu, opacidade): com a letra inteira na tela seriam
+      // milhares de camadas, e o iPhone encerra a página por falta de memória (tela preta)
+      className={`text-xl sm:text-2xl font-bold cursor-pointer origin-left px-4 py-2 rounded-2xl ${
         lineOn
-          ? 'opacity-100 scale-[1.03] text-black dark:text-white dark:drop-shadow-[0_2px_12px_rgba(255,255,255,0.25)]'
+          ? 'scale-[1.03] text-black dark:text-white dark:drop-shadow-[0_2px_12px_rgba(255,255,255,0.25)]'
           : isPast
-          ? 'opacity-75 dark:opacity-40 scale-100 text-slate-700 dark:text-[var(--text-muted)] hover:text-black dark:hover:text-white'
-          : 'opacity-85 dark:opacity-60 scale-100 text-slate-800 dark:text-[var(--text-muted)] hover:text-black dark:hover:text-white'
+          ? 'text-slate-700/75 dark:text-[var(--text-muted)]/40 hover:text-black dark:hover:text-white'
+          : 'text-slate-800/85 dark:text-[var(--text-muted)]/60 hover:text-black dark:hover:text-white'
       }`}
       onClick={() => onSeek(line.start)}
     >
@@ -162,6 +164,71 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
     </p>
   );
 });
+
+// A letra vai em blocos de frases. Em um audiobook longo são milhares de frases, e o tempo muda várias vezes por
+// segundo: só o bloco que está tocando é redesenhado, e o navegador nem desenha os blocos fora da tela
+// (content-visibility). Sem isso, abrir a letra travava o iPhone e a página era encerrada (tela preta).
+const LYRIC_BLOCK = 40;
+
+const LyricBlock = React.memo(function LyricBlock({ lines, first, time, phase, mode, onSeek }: {
+  lines: TranscriptLine[];
+  first: number;
+  // Só o bloco que está tocando recebe o tempo: nos outros ele fica fixo, e nada muda
+  time: number;
+  phase: 'past' | 'current' | 'future';
+  mode: LyricsHighlight;
+  onSeek: (time: number) => void;
+}) {
+  // Altura aproximada do bloco enquanto ele não foi desenhado (linhas de texto + espaçamento)
+  const estimate = lines.reduce((sum, l) => sum + Math.ceil(l.text.length / 34) * 30 + 40, 0);
+  return (
+    <div className="space-y-6" style={{ contentVisibility: 'auto', containIntrinsicBlockSize: `auto ${estimate}px` } as React.CSSProperties}>
+      {lines.map((line, i) => {
+        const isActive = phase === 'current' && time >= line.start && time <= line.end;
+        let activeWordIdx = -1;
+        // Palavra sendo lida: a última que já começou na frase ativa (continua destacada nos pequenos silêncios
+        // entre uma palavra e outra, sem piscar)
+        if (isActive && line.words) {
+          for (let wi = 0; wi < line.words.length; wi++) {
+            if (line.words[wi].start <= time) activeWordIdx = wi; else break;
+          }
+        }
+        return (
+          <LyricLine
+            key={first + i}
+            line={line}
+            idx={first + i}
+            isActive={isActive}
+            isPast={phase === 'past' || (phase === 'current' && time > line.end)}
+            activeWordIdx={activeWordIdx}
+            mode={mode}
+            onSeek={onSeek}
+          />
+        );
+      })}
+    </div>
+  );
+});
+
+function LyricBlocks({ transcript, time, mode, onSeek }: { transcript: TranscriptLine[]; time: number; mode: LyricsHighlight; onSeek: (time: number) => void }) {
+  const blocks = React.useMemo(() => {
+    const list: { first: number; lines: TranscriptLine[]; start: number; end: number }[] = [];
+    for (let i = 0; i < transcript.length; i += LYRIC_BLOCK) {
+      const lines = transcript.slice(i, i + LYRIC_BLOCK);
+      list.push({ first: i, lines, start: lines[0].start, end: lines[lines.length - 1].end });
+    }
+    return list;
+  }, [transcript]);
+  return (
+    <>
+      {blocks.map((b, i) => {
+        const next = blocks[i + 1];
+        const phase = time < b.start ? 'future' : (time > b.end && (!next || time >= next.start)) ? 'past' : 'current';
+        return <LyricBlock key={b.first} lines={b.lines} first={b.first} time={phase === 'current' ? time : 0} phase={phase} mode={mode} onSeek={onSeek} />;
+      })}
+    </>
+  );
+}
 
 export default function FullscreenPlayer({
   miniplayerAmbientStyle,
@@ -834,29 +901,7 @@ export default function FullscreenPlayer({
                   onClickCapture={onLinesClickCapture}
                   onContextMenu={onLinesContextMenu}
                 >
-                  {currentBook.transcript.map((line, idx) => {
-                    const isActive = currentTime >= line.start && currentTime <= line.end;
-                    // Palavra sendo lida: a última que já começou na frase ativa (continua destacada nos
-                    // pequenos silêncios entre uma palavra e outra, sem piscar)
-                    let activeWordIdx = -1;
-                    if (isActive && line.words) {
-                      for (let wi = 0; wi < line.words.length; wi++) {
-                        if (line.words[wi].start <= currentTime) activeWordIdx = wi; else break;
-                      }
-                    }
-                    return (
-                      <LyricLine
-                        key={idx}
-                        line={line}
-                        idx={idx}
-                        isActive={isActive}
-                        isPast={currentTime > line.end}
-                        activeWordIdx={activeWordIdx}
-                        mode={lyricsHighlight}
-                        onSeek={seekLyric}
-                      />
-                    );
-                  })}
+                  <LyricBlocks transcript={currentBook.transcript} time={currentTime} mode={lyricsHighlight} onSeek={seekLyric} />
                   <div className="h-[25vh] shrink-0" />
                 </div>
               </div>

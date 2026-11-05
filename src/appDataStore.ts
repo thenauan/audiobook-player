@@ -54,6 +54,11 @@ export async function writeAppData(key: string, value: string): Promise<void> {
 // carregada (desatualizada) na próxima abertura — o IndexedDB continua com os dados completos.
 export function writeLocalMirror(key: string, value: string): boolean {
   try {
+    // Letras com tempo por palavra passam do limite: nem tenta (a tentativa também pesa)
+    if (value.length > 2_000_000) {
+      localStorage.removeItem(key);
+      return false;
+    }
     localStorage.setItem(key, value);
     return true;
   } catch {
