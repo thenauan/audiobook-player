@@ -274,6 +274,8 @@ export function MobileBottomBar({
   // Arrastar o destaque entre os ícones (como no iOS 26): o destaque segue o dedo e, ao soltar, abre a aba
   const tabsRef = React.useRef<HTMLDivElement>(null);
   const [dragIndex, setDragIndex] = React.useState<number | null>(null);
+  // Arrastar além da primeira ou da última aba: o destaque estica um pouco e resiste, como no iOS
+  const [edgeStretch, setEdgeStretch] = React.useState(0);
   const pressRef = React.useRef<{ x: number; moved: boolean } | null>(null);
   const PAD = 4;
   const indexAt = (clientX: number) => {
@@ -294,6 +296,15 @@ export function MobileBottomBar({
     if (Math.abs(e.clientX - press.x) > 6) press.moved = true;
     const idx = indexAt(e.clientX);
     if (idx !== dragIndex) setDragIndex(idx);
+    const el = tabsRef.current;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const half = (r.width - PAD * 2) / tabs.length / 2;
+      const first = r.left + PAD + half;
+      const last = r.right - PAD - half;
+      const over = e.clientX < first ? e.clientX - first : e.clientX > last ? e.clientX - last : 0;
+      setEdgeStretch(Math.sign(over) * 14 * (1 - Math.exp(-Math.abs(over) / 60)));
+    }
   };
   const onTabsPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     const press = pressRef.current;
@@ -301,11 +312,13 @@ export function MobileBottomBar({
     if (!press) return;
     const idx = indexAt(e.clientX);
     setDragIndex(null);
+    setEdgeStretch(0);
     go(tabs[idx].id);
   };
   const onTabsPointerCancel = () => {
     pressRef.current = null;
     setDragIndex(null);
+    setEdgeStretch(0);
   };
   const pillIndex = dragIndex ?? activeIndex;
   const pressed = dragIndex !== null;
@@ -392,7 +405,7 @@ export function MobileBottomBar({
                       <motion.span
                         layoutId="mobile-tab-pill"
                         initial={false}
-                        animate={{ scaleX: pressed ? 1.16 : 1, scaleY: pressed ? 1.3 : 1 }}
+                        animate={{ x: edgeStretch, scaleX: pressed ? 1.16 + Math.abs(edgeStretch) / 70 : 1, scaleY: pressed ? 1.3 - Math.abs(edgeStretch) / 100 : 1 }}
                         transition={{ layout: PILL_MOVE_SPRING, default: PRESS_SPRING }}
                         className={cn(
                           "absolute inset-0 rounded-full bg-[var(--ios-fill)] transition-colors duration-200",

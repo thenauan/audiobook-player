@@ -92,9 +92,34 @@ export function installTouchMenus(): () => void {
   const reset = () => {
     setActive(null);
     clearAll();
+    releasePopup(popup);
     popup = null;
     start = null;
     dragging = false;
+  };
+
+  // Arrastar além da borda do pop-up: ele estica um pouco na direção do dedo e volta com mola ao soltar, como no iOS
+  let popupBox: DOMRect | null = null;
+  const rubber = (over: number) => Math.sign(over) * 10 * (1 - Math.exp(-Math.abs(over) / 70));
+  const stretchPopup = (x: number, y: number) => {
+    if (!popup || !popupBox) return;
+    const el = popup as HTMLElement;
+    const overX = x < popupBox.left ? x - popupBox.left : x > popupBox.right ? x - popupBox.right : 0;
+    const overY = y < popupBox.top ? y - popupBox.top : y > popupBox.bottom ? y - popupBox.bottom : 0;
+    const sx = rubber(overX);
+    const sy = rubber(overY);
+    el.style.transition = 'none';
+    el.style.translate = `${sx / 2}px ${sy / 2}px`;
+    el.style.scale = `${1 + Math.abs(sx) / popupBox.width} ${1 + Math.abs(sy) / popupBox.height}`;
+  };
+  const releasePopup = (el: Element | null) => {
+    popupBox = null;
+    const box = el as HTMLElement | null;
+    if (!box || !box.style.scale) return;
+    box.style.transition = 'translate 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    box.style.translate = '';
+    box.style.scale = '';
+    setTimeout(() => { box.style.transition = ''; }, 420);
   };
 
   const onStart = (e: TouchEvent) => {
@@ -122,9 +147,11 @@ export function installTouchMenus(): () => void {
       // Lista com rolagem: o gesto rola a lista, como sempre
       if (scrollable && Math.abs(dy) > Math.abs(dx)) { reset(); return; }
       dragging = true;
+      popupBox = popup.getBoundingClientRect();
     }
     if (e.cancelable) e.preventDefault();
     setActive(optionAt(t.clientX, t.clientY, popup));
+    stretchPopup(t.clientX, t.clientY);
   };
 
   const onEnd = (e: TouchEvent) => {
@@ -134,6 +161,7 @@ export function installTouchMenus(): () => void {
     // O destaque fica um instante (como ao clicar no computador) e some
     const highlighted = active;
     active = null;
+    releasePopup(popup);
     popup = null;
     start = null;
     dragging = false;

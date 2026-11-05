@@ -264,8 +264,9 @@ export default function MiniPlayer({
 
           {/* Linha 2: Título do livro e nome do autor abaixo do capítulo */}
           <motion.div layoutId="player-book-line" layout="position" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] truncate min-w-0 w-full mt-0.5">
+            <MarqueeText text={`${currentBook.title} • ${currentBook.author}`}>
             <span 
-              className="truncate hover:text-winblue cursor-pointer transition-colors font-medium"
+              className="hover:text-winblue cursor-pointer transition-colors font-medium"
               title={currentBook.title}
               onClick={(e) => {
                 e.stopPropagation();
@@ -274,11 +275,11 @@ export default function MiniPlayer({
                 navigateTo('book-detail', currentBook);
               }}
             >
-              <MarqueeText text={currentBook.title} />
+              {currentBook.title}
             </span>
-            <span className="shrink-0 text-[9px] opacity-60">•</span>
+            <span className="mx-1.5 text-[9px] opacity-60">•</span>
             <span 
-              className="truncate hover:text-winblue cursor-pointer transition-colors"
+              className="hover:text-winblue cursor-pointer transition-colors"
               title={currentBook.author}
               onClick={(e) => {
                 e.stopPropagation();
@@ -286,8 +287,9 @@ export default function MiniPlayer({
                 navigateTo('author-detail', authorObj);
               }}
             >
-              <MarqueeText text={currentBook.author} />
+              {currentBook.author}
             </span>
+            </MarqueeText>
           </motion.div>
 
           {/* Linha 3: Faixa de progressão com minutos corridos alinhados com o título */}

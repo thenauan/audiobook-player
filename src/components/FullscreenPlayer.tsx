@@ -701,6 +701,7 @@ export default function FullscreenPlayer({
               setIsFullScreen(false);
             }}
             aria-label={t('minimize_fullscreen')}
+            data-instant="true"
             className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl text-[var(--text-main)] backdrop-blur-3xl"
           >
             <Minimize2 size={18} />
@@ -715,6 +716,7 @@ export default function FullscreenPlayer({
           }}
           className="h-9 flex items-center justify-center gap-1.5 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-lg dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
           title={t('minimize_fullscreen')}
+          data-instant="true"
         >
           <Minimize2 size={14} className="text-[var(--text-main)]" />
           <span className="text-xs font-medium text-[var(--text-main)]">{t('minimize')}</span>
@@ -757,6 +759,7 @@ export default function FullscreenPlayer({
               {lyricSearchOpen && (
                 <button
                   type="button"
+                  data-instant="true"
                   onClick={closeLyricSearch}
                   aria-label={t('clear_search')}
                   className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)]"
@@ -834,8 +837,9 @@ export default function FullscreenPlayer({
                 </motion.h2>
 
                 <motion.div layoutId="player-book-line" layout="position" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="fs-bookline flex items-center justify-center gap-1.5 text-xs sm:text-sm text-slate-800 dark:text-[var(--text-muted)] max-w-full px-4 truncate font-medium">
+                  <MarqueeText text={`${currentBook.title} • ${currentBook.author}`}>
                   <span 
-                    className="truncate text-slate-800 dark:text-[var(--text-muted)] hover:text-winblue cursor-pointer transition-colors font-semibold dark:drop-shadow-sm"
+                    className="text-slate-800 dark:text-[var(--text-muted)] hover:text-winblue cursor-pointer transition-colors font-semibold dark:drop-shadow-sm"
                     title={currentBook.title}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -845,11 +849,11 @@ export default function FullscreenPlayer({
                       navigateTo('book-detail', currentBook);
                     }}
                   >
-                    <MarqueeText text={currentBook.title} />
+                    {currentBook.title}
                   </span>
-                  <span className="shrink-0 text-[10px] text-slate-600 dark:text-[var(--text-muted)] opacity-70">•</span>
+                  <span className="mx-1.5 text-[10px] text-slate-600 dark:text-[var(--text-muted)] opacity-70">•</span>
                   <span 
-                    className="truncate text-slate-800 dark:text-[var(--text-muted)] hover:text-winblue cursor-pointer transition-colors font-semibold dark:drop-shadow-sm"
+                    className="text-slate-800 dark:text-[var(--text-muted)] hover:text-winblue cursor-pointer transition-colors font-semibold dark:drop-shadow-sm"
                     title={currentBook.author}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -858,8 +862,9 @@ export default function FullscreenPlayer({
                       navigateTo('author-detail', authorObj);
                     }}
                   >
-                    <MarqueeText text={currentBook.author} />
+                    {currentBook.author}
                   </span>
+                  </MarqueeText>
                 </motion.div>
               </div>
             </div>

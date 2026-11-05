@@ -10962,6 +10962,7 @@ export default function App() {
                 {historyStack.length > 0 && (!['home', 'library', 'other-apps', 'settings', 'help', 'search', 'more'].includes(activeScreen.id) || historyStack[0]?.id === 'more') && (
                   <motion.button 
                     key="back-button"
+                    data-instant="true"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.08 } }}
