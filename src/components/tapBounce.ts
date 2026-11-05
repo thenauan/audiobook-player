@@ -12,7 +12,7 @@ const EXCLUDE = '[data-popup-option], [role="tab"], [role="tablist"], .fullscree
 // Mola: passa um pouco do tamanho final e assenta
 const RELEASE = 'scale 0.5s linear(0, 0.22 6%, 0.62 14%, 1.06 28%, 1.1 34%, 1.04 46%, 0.99 60%, 1.005 74%, 1)';
 const PRESS = 'scale 0.22s cubic-bezier(0.25, 1.4, 0.5, 1)';
-const HEADER_DELAY = 150;
+const HEADER_DELAY = 70;
 
 function pressScale(el: HTMLElement): number {
   const r = el.getBoundingClientRect();
@@ -77,22 +77,58 @@ export function installTapBounce(): () => void {
   document.addEventListener('click', onSpin, { capture: true, passive: true });
 
   // Botões do cabeçalho e os que abrem pop-ups em qualquer lugar (morphTriggerAnimate deixa o "pointer-events"
-  // neles): primeiro o pulinho, depois a ação. Com um pop-up aberto, ou em botões que só navegam (data-instant), a
-  // resposta é imediata. Tocar, pausar e pular nunca esperam.
+  // neles): o botão cresce um pouquinho, continua assim, e o pop-up nasce de dentro dele e segue crescendo, num
+  // movimento só. Com um pop-up aberto, ou em botões que só navegam (data-instant), a resposta é imediata. Tocar,
+  // pausar e pular nunca esperam.
+  const popupTrigger = (node: HTMLElement | null | undefined) => {
+    const button = node?.closest?.('button') as HTMLElement | null | undefined;
+    if (!button || button.matches('[data-instant]') || document.querySelector('[data-popup-content="true"]')) return null;
+    return button.closest('[data-app-header]') || button.style.pointerEvents === 'auto' ? button : null;
+  };
+  // Ao soltar, o botão fica crescido esperando o pop-up (sem o clique, volta ao normal)
+  let held: HTMLElement | null = null;
+  let heldTimer: number | undefined;
+  const letGo = () => {
+    window.clearTimeout(heldTimer);
+    if (!held) return;
+    current = held;
+    held = null;
+    release();
+  };
+  const onUp = () => {
+    if (current && popupTrigger(current) === current) {
+      held = current;
+      current = null;
+      heldTimer = window.setTimeout(letGo, 350);
+      return;
+    }
+    release();
+  };
   const onClick = (e: MouseEvent) => {
     if (!e.isTrusted || e.detail === 0) return;
-    const button = (e.target as HTMLElement | null)?.closest?.('button') as HTMLElement | null;
-    const el = button && (button.closest('[data-app-header]') || button.style.pointerEvents === 'auto') ? button : null;
-    if (!el || el.matches('[data-instant]') || document.querySelector('[data-popup-content="true"]')) return;
+    const el = popupTrigger(e.target as HTMLElement | null);
+    if (!el) return;
     e.stopImmediatePropagation();
     e.preventDefault();
-    window.setTimeout(() => el.click(), HEADER_DELAY);
+    window.clearTimeout(heldTimer);
+    window.setTimeout(() => {
+      el.click();
+      window.setTimeout(() => {
+        if (held !== el) return;
+        // Abriu um pop-up: o botão já sumiu nele, então só volta ao tamanho sem animar. Se não abriu, volta com a mola
+        if (!document.querySelector('[data-popup-content="true"]')) { letGo(); return; }
+        held = null;
+        el.style.transition = el.dataset.pressPrevTransition || '';
+        el.style.scale = '';
+        delete el.dataset.pressPrevTransition;
+      }, 130);
+    }, HEADER_DELAY);
   };
   document.addEventListener('click', onClick, { capture: true });
 
   document.addEventListener('pointerdown', onDown, { capture: true, passive: true });
   document.addEventListener('pointermove', onMove, { capture: true, passive: true });
-  document.addEventListener('pointerup', release, { capture: true, passive: true });
+  document.addEventListener('pointerup', onUp, { capture: true, passive: true });
   document.addEventListener('pointercancel', release, { capture: true, passive: true });
   window.addEventListener('blur', release);
   return () => {
@@ -100,7 +136,7 @@ export function installTapBounce(): () => void {
     document.removeEventListener('click', onSpin, { capture: true });
     document.removeEventListener('pointerdown', onDown, { capture: true });
     document.removeEventListener('pointermove', onMove, { capture: true });
-    document.removeEventListener('pointerup', release, { capture: true });
+    document.removeEventListener('pointerup', onUp, { capture: true });
     document.removeEventListener('pointercancel', release, { capture: true });
     window.removeEventListener('blur', release);
   };
