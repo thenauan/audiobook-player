@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, LayoutGroup } from 'motion/react';
 import { Search, Home, HelpCircle, Settings as SettingsIcon, LayoutList } from 'lucide-react';
 import { RiBookOpenLine, RiApps2Line } from 'react-icons/ri';
-import { LuBookHeadphones } from 'react-icons/lu';
+import { AppLogo } from './AppLogo';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -65,8 +65,8 @@ export function Sidebar({
       } as React.CSSProperties) : undefined}
     >
       <div>
-        <div className="flex items-center gap-1 px-3 text-[var(--text-main)] text-xl tracking-tight mb-6">
-          <LuBookHeadphones size={20} className="text-[var(--text-main)] shrink-0" />
+        <div className="flex items-center gap-0.5 px-3 text-[var(--text-main)] text-xl tracking-tight mb-6">
+          <AppLogo height={22} className="text-[var(--text-main)] shrink-0" />
           <span>
             <span className="font-bold">Audiobook</span>
             <span className="font-normal">Player</span>

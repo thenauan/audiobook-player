@@ -10,7 +10,7 @@ import {
   RiBookOpenLine 
 } from 'react-icons/ri';
 import { BsCheck2 } from 'react-icons/bs';
-import { LuBookHeadphones } from 'react-icons/lu';
+import { AppLogo } from './components/AppLogo';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15816,9 +15816,9 @@ export default function App() {
                       initial={{ scale: 0.92, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: 'spring', stiffness: 360, damping: 26 }}
-                      className="flex items-center gap-2.5 text-white text-3xl sm:text-4xl md:text-5xl tracking-tight mb-2"
+                      className="flex items-center gap-0.5 text-white text-3xl sm:text-4xl md:text-5xl tracking-tight mb-2"
                     >
-                      <LuBookHeadphones size={40} className="text-white shrink-0 sm:w-12 sm:h-12" />
+                      <AppLogo height={38} className="text-white shrink-0" />
                       <span>
                         <span className="font-bold">Audiobook</span>
                         <span className="font-normal opacity-90">Player</span>
@@ -15898,7 +15898,7 @@ export default function App() {
                         onClick={completeOnboarding}
                         className="w-full sm:flex-1 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 border border-winblue text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all shadow-[0_0_20px_rgba(var(--winblue-rgb),0.25)] hover:shadow-[0_0_28px_rgba(var(--winblue-rgb),0.4)] backdrop-blur-3xl cursor-pointer"
                       >
-                        <LuBookHeadphones size={18} className="shrink-0 text-winblue" />
+                        <AppLogo height={18} className="shrink-0 text-winblue" />
                         <span>{t('go_to_app')}</span>
                       </motion.button>
 

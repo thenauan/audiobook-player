@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LuBookHeadphones } from 'react-icons/lu';
+import { AppLogo } from './AppLogo';
 import { Check } from 'lucide-react';
 import { APP_VERSION } from '../version';
 import type { SupportedLanguage } from '../translations';
@@ -103,9 +103,9 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 360, damping: 26 }}
-              className="flex items-center gap-2.5 text-3xl sm:text-4xl tracking-tight mb-2"
+              className="flex items-center gap-0.5 text-3xl sm:text-4xl tracking-tight mb-2"
             >
-              <LuBookHeadphones size={40} className="shrink-0" />
+              <AppLogo height={38} className="shrink-0" />
               <span>
                 <span className="font-bold">Audiobook</span>
                 <span className="font-normal opacity-90">Player</span>
