@@ -118,7 +118,7 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
   const hasWords = Boolean(line.words && line.words.length > 0);
   // "Só palavras": a frase não ganha destaque (sem tempo por palavra, a frase é o único destaque possível)
   const lineOn = isActive && (mode !== 'word' || !hasWords);
-  // Na frase ativa, cada palavra tem o próprio brilho leve; a palavra sendo lida, um pouco mais forte
+  // O destaque é só de cor, na frase e na palavra: sem fundo, brilho nem aumento
   const tokens: { text: string; start?: number }[] = !isActive
     ? []
     : hasWords ? line.words! : line.text.split(/\s+/).filter(Boolean).map(text => ({ text }));
@@ -127,9 +127,9 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
       data-transcript-idx={idx}
       // Sem nada que crie camada de vídeo por frase (transform-gpu, opacidade): com a letra inteira na tela seriam
       // milhares de camadas, e o iPhone encerra a página por falta de memória (tela preta)
-      className={`text-xl sm:text-2xl font-bold cursor-pointer origin-left px-4 py-2 rounded-2xl ${
+      className={`text-xl sm:text-2xl font-bold cursor-pointer px-4 py-2 ${
         lineOn
-          ? 'scale-[1.03] text-black dark:text-white'
+          ? 'text-black dark:text-white'
           : isPast
           ? 'text-slate-700/75 dark:text-[var(--text-muted)]/40 hover:text-black dark:hover:text-white'
           : 'text-slate-800/85 dark:text-[var(--text-muted)]/60 hover:text-black dark:hover:text-white'
@@ -147,10 +147,10 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
                   e.stopPropagation();
                   onSeek(w.start!);
                 }}
-                className={`inline-block rounded-lg px-1 -mx-[2px] transition-colors duration-100 ${
+                className={`transition-colors duration-100 ${
                   isWordActive
-                    ? 'text-[var(--book-accent)] bg-[rgba(var(--book-accent-rgb),0.2)] shadow-[0_0_6px_rgba(var(--book-accent-rgb),0.16)]'
-                    : `${lineOn ? 'bg-[rgba(var(--book-accent-rgb),0.08)]' : ''} ${isWordPast ? 'text-black dark:text-white/95' : lineOn ? 'text-slate-700 dark:text-white/75' : ''}`
+                    ? 'text-[var(--book-accent)]'
+                    : isWordPast ? 'text-black dark:text-white/95' : lineOn ? 'text-slate-700 dark:text-white/75' : ''
                 }`}
               >
                 {w.text}

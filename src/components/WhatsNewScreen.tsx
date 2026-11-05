@@ -11,38 +11,45 @@ import type { SupportedLanguage } from '../translations';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.9': {
+    pt: ['Letra mais limpa: destaque só com cor, com sombra suave', 'Destaque das palavras mais preciso', 'Metadados de Opus, OGG, FLAC, WAV e WMA, e capítulos em MP3'],
+    en: ['Cleaner lyrics: color-only highlighting with a soft shadow', 'More precise word highlighting', 'Metadata for Opus, OGG, FLAC, WAV and WMA, plus MP3 chapters'],
+    es: ['Letra más limpia: resaltado solo con color y sombra suave', 'Resaltado de palabras más preciso', 'Metadatos de Opus, OGG, FLAC, WAV y WMA, y capítulos en MP3'],
+    ru: ['Более чистый текст: выделение только цветом и мягкая тень', 'Более точное выделение слов', 'Метаданные Opus, OGG, FLAC, WAV и WMA и главы в MP3'],
+    ar: ['نص أوضح: تمييز باللون فقط مع ظل خفيف', 'تمييز أدق للكلمات', 'بيانات Opus وOGG وFLAC وWAV وWMA وفصول MP3'],
+  },
   '1.0.8': {
     pt: [
       'Novo ícone do app',
-      'Destaque das palavras mais preciso e brilho mais leve na letra',
+      'Destaque das palavras mais preciso na letra',
       'Metadados de Opus, OGG, FLAC, WAV e WMA, e capítulos em MP3',
       'Correção do travamento ao abrir a letra',
       'No computador, pop-ups nascem dos botões e o volume fica salvo',
     ],
     en: [
       'New app icon',
-      'More precise word highlighting and a softer glow in the lyrics',
+      'More precise word highlighting in the lyrics',
       'Metadata for Opus, OGG, FLAC, WAV and WMA, plus MP3 chapters',
       'Fixed the freeze when opening the lyrics',
       'On the computer, pop-ups grow from their buttons and the volume is saved',
     ],
     es: [
       'Nuevo icono de la app',
-      'Resaltado de palabras más preciso y brillo más suave en la letra',
+      'Resaltado de palabras más preciso en la letra',
       'Metadatos de Opus, OGG, FLAC, WAV y WMA, y capítulos en MP3',
       'Corrección del bloqueo al abrir la letra',
       'En el ordenador, las ventanas nacen de los botones y el volumen se guarda',
     ],
     ru: [
       'Новый значок приложения',
-      'Более точное выделение слов и мягкое свечение в тексте',
+      'Более точное выделение слов в тексте',
       'Метаданные Opus, OGG, FLAC, WAV и WMA и главы в MP3',
       'Исправлено зависание при открытии текста',
       'На компьютере окна появляются из кнопок, а громкость сохраняется',
     ],
     ar: [
       'أيقونة جديدة للتطبيق',
-      'تمييز أدق للكلمات وتوهج أخف في النص',
+      'تمييز أدق للكلمات في النص',
       'بيانات Opus وOGG وFLAC وWAV وWMA وفصول MP3',
       'إصلاح التجمد عند فتح النص',
       'على الحاسوب تنبثق النوافذ من الأزرار ويُحفظ مستوى الصوت',

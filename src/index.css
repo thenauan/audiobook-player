@@ -1842,3 +1842,14 @@ html.lite [style*="blur("] {
   opacity: 1 !important;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Letra no player em tela cheia: sombra suave, sem destaque nem brilho */
+.fullscreen-transcript [data-transcript-idx] {
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+}
+html:not(.dark) .fullscreen-transcript [data-transcript-idx] {
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.14);
+}
+html.lite .fullscreen-transcript [data-transcript-idx] {
+  text-shadow: none;
+}

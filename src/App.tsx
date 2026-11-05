@@ -4,7 +4,7 @@ import { motion, AnimatePresence, Reorder } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { X, Search, Settings as SettingsIcon, Volume2, VolumeX, Moon, ChevronLeft, Trash2, ListMusic, CheckCircle2, Power } from 'lucide-react';
-import { HelpCircle, TextSearch, Copy, Crosshair, ArrowRight, Circle } from 'lucide-react';
+import { HelpCircle, ArrowRight } from 'lucide-react';
 import { RiApps2Line } from 'react-icons/ri';
 import { 
   RiBookOpenLine 
@@ -26,7 +26,7 @@ import { QueueItemRow, MenuOptionItem, PagedMenu, PopupMorphContainer, SmoothSub
 import MiniPlayer, { MobileMiniPlayer } from './components/MiniPlayer';
 import FullscreenPlayer from './components/FullscreenPlayer';
 import BookDetailView from './views/BookDetailView';
-import { MobileContextMenu, useIsMobile, useIsTouchDevice, useIsCompactPlayer, useIsLandscapePhone } from './components/MobileContextMenu';
+import { useIsMobile, useIsTouchDevice, useIsCompactPlayer, useIsLandscapePhone } from './components/MobileContextMenu';
 import { MobileSheet } from './components/MobileSheet';
 import { desktop, IS_INSTALLED_APP, IS_APPLE_TOUCH } from './desktopBridge';
 import { PlayerPopup } from './components/PlayerPopup';
@@ -4076,7 +4076,6 @@ export default function App() {
     | { kind: 'bookmarks'; bookId: string; chapterId: any }
     | { kind: 'book-bookmarks'; bookId: string }
     | { kind: 'share-lyrics'; bookId: string }
-    | { kind: 'search-lyrics'; bookId: string }
     | { kind: 'collection-form-items'; mode: 'authors' | 'books' };
   const [mobileSheet, setMobileSheet] = useState<MobileSheetState | null>(null);
   // Confirmação no celular (cartão na base da tela)
@@ -4094,13 +4093,6 @@ export default function App() {
   const [lyricsSelection, setLyricsSelection] = useState<number[]>([]);
   // Busca dentro do texto ao compartilhar um trecho
   const [lyricsSearch, setLyricsSearch] = useState('');
-  // Buscar no texto: opções do trecho escolhido
-  const [lyricsRowMenu, setLyricsRowMenu] = useState<{ line: TranscriptLine; rect: DOMRect; el: HTMLElement } | null>(null);
-  // Mantém as opções na tela enquanto o menu fecha
-  const lastLyricsRowLineRef = useRef<TranscriptLine | null>(null);
-  if (lyricsRowMenu) lastLyricsRowLineRef.current = lyricsRowMenu.line;
-  // Computador: trecho selecionado na busca (os outros resultados somem e as ações aparecem abaixo dele)
-  const [lyricsSelectedLine, setLyricsSelectedLine] = useState<TranscriptLine | null>(null);
   const [isGeneratingShare, setIsGeneratingShare] = useState(false);
   const [sharePreview, setSharePreview] = useState<{ url: string; fileName: string; title: string } | null>(null);
   const closeSharePreview = () => setSharePreview(prev => { if (prev) URL.revokeObjectURL(prev.url); return null; });
@@ -4148,47 +4140,6 @@ export default function App() {
       setIsGeneratingShare(false);
     }
   };
-  // O que dá para fazer com um trecho achado na busca do texto
-  const lyricLineActions = (line: TranscriptLine, iconSize: number) => [
-    { id: 'go', icon: <Crosshair size={iconSize} />, label: t('go_to_this_point'), run: () => { handleSeek(line.start); setMobileSheet(null); } },
-    { id: 'bookmark', icon: <Bookmark size={iconSize} />, label: t('add_line_as_bookmark'), run: () => addLineBookmark(line) },
-    { id: 'share', icon: <Share size={iconSize} />, label: t('share_excerpt'), run: () => { openShareImage('quote', currentBook, [transcriptLineText(line)]); } },
-    {
-      id: 'copy', icon: <Copy size={iconSize} />, label: t('copy_text'),
-      run: () => { navigator.clipboard?.writeText(transcriptLineText(line)).then(() => showToast(t('toast_text_copied'))).catch(() => {}); },
-    },
-  ];
-
-  // Trecho buscado em destaque na frase (sem diferenciar acentos nem maiúsculas)
-  const highlightMatch = (text: string, query: string): React.ReactNode => {
-    const fold = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    const q = fold(query.trim());
-    if (!q) return text;
-    // Posição de cada letra do texto original no texto sem acentos
-    const map: number[] = [];
-    let folded = '';
-    Array.from(text).forEach((ch, i, arr) => {
-      const f = fold(ch);
-      const offset = arr.slice(0, i).join('').length;
-      for (let k = 0; k < f.length; k++) map.push(offset);
-      folded += f;
-    });
-    const parts: React.ReactNode[] = [];
-    let from = 0;
-    let at = folded.indexOf(q);
-    while (at !== -1) {
-      const start = map[at];
-      const lastIdx = at + q.length;
-      const end = lastIdx < map.length ? map[lastIdx] : text.length;
-      if (start > from) parts.push(text.slice(from, start));
-      parts.push(<mark key={start} className="bg-winblue/25 text-winblue font-semibold rounded-[4px] px-0.5">{text.slice(start, end)}</mark>);
-      from = end;
-      at = folded.indexOf(q, lastIdx);
-    }
-    if (from < text.length) parts.push(text.slice(from));
-    return parts;
-  };
-
   // A frase vira uma marcação do capítulo em que ela está, no tempo em que começa
   const addLineBookmark = (line: TranscriptLine) => {
     const chapters = currentBook.chapters || [];
@@ -4377,108 +4328,6 @@ export default function App() {
                 </div>
               </section>
             ))}
-          </div>
-        ),
-      };
-    }
-    // Buscar no texto: mesmo padrão de buscar um trecho; cada resultado abre as opções (ir, marcar, compartilhar)
-    if (mobileSheet.kind === 'search-lyrics') {
-      const bk = books.find(b => b.id === mobileSheet.bookId);
-      if (!bk) return null;
-      const transcript = bk.transcript || [];
-      const query = normalizeSearchStr(lyricsSearch.trim());
-      // Sem busca, a lista parte do ponto atual; em letras longas mostra só os primeiros resultados
-      const found = query
-        ? transcript.filter(line => normalizeSearchStr(transcriptLineText(line)).includes(query))
-        : transcript.slice(Math.max(0, activeTranscriptIndex));
-      // Celular: opções em menu. Computador: selecionar o trecho deixa só ele e mostra as ações abaixo; clicar de
-      // novo tira a seleção e os demais resultados voltam
-      const openRow = (row: HTMLElement, line: TranscriptLine) => {
-        if (isMobile) setLyricsRowMenu({ line, rect: row.getBoundingClientRect(), el: row });
-        else setLyricsSelectedLine(prev => (prev === line ? null : line));
-      };
-      const selected = !isMobile && lyricsSelectedLine && found.includes(lyricsSelectedLine) ? lyricsSelectedLine : null;
-      const rows = selected ? [selected] : found.slice(0, 200);
-      return {
-        title: t('search_in_text'),
-        subtitle: bk.title,
-        body: (
-          <div className="flex flex-col gap-3 pt-1">
-            <PopupSearchField value={lyricsSearch} onChange={(v) => { setLyricsSelectedLine(null); setLyricsSearch(v); }} placeholder={t('search_in_text_placeholder')} />
-            {found.length === 0 ? (
-              <p className="text-sm text-[var(--text-muted)] text-center py-10">{t('search_in_text_empty')}</p>
-            ) : (
-              <div className="flex flex-col">
-                <AnimatePresence initial={false}>
-                {rows.map((line) => (
-                  <motion.div
-                    key={`${line.start}-${line.end}`}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="overflow-hidden"
-                  >
-                  <div className="pb-2">
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    data-no-press="true"
-                    onClick={(e) => openRow(e.currentTarget, line)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') openRow(e.currentTarget, line); }}
-                    aria-pressed={line === selected}
-                    className={`group/lyricrow w-full flex items-center gap-2 px-4 py-3 md:px-3 md:py-2.5 text-left rtl:text-right rounded-[22px] md:rounded-2xl transition-colors select-none cursor-pointer hover:bg-[var(--ios-fill-strong)] active:bg-[var(--ios-fill-strong)] ${line === selected ? 'bg-[var(--ios-fill-strong)]' : 'bg-[var(--ios-fill)]'}`}
-                  >
-                    <span className="flex-1 min-w-0 flex flex-col">
-                      <span className="text-[15px] md:text-xs md:font-semibold leading-snug text-[var(--text-main)]">{highlightMatch(transcriptLineText(line), lyricsSearch)}</span>
-                      {(() => {
-                        const chapter = (bk.chapters || []).find(c => line.start >= c.startTime && line.start < c.startTime + (c.duration || 0));
-                        return (
-                          <span className="text-xs md:text-[10px] text-[var(--text-muted)] mt-0.5 truncate">
-                            {chapter ? `${chapter.title} • ${formatTime(line.start - chapter.startTime)} • ` : ''}{t('at_book_time', { time: formatTime(line.start) })}
-                          </span>
-                        );
-                      })()}
-                    </span>
-                    {/* Computador: seleção sempre visível (clicar na frase seleciona) */}
-                    {!isMobile && (
-                      <span className={`shrink-0 ${line === selected ? 'text-winblue' : 'text-[var(--text-muted)]'}`}>
-                        {line === selected ? <CheckCircle2 size={16} /> : <Circle size={16} />}
-                      </span>
-                    )}
-                  </div>
-                  {line === selected && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.18, ease: 'easeOut' }}
-                      className="flex items-center justify-center gap-2.5 pt-0.5"
-                    >
-                      {lyricLineActions(line, 14).map(action => (
-                        <motion.button
-                          key={action.id}
-                          type="button"
-                          whileHover={{ scale: 1.1 }}
-                          data-press="true"
-                          onClick={action.run}
-                          aria-label={action.label}
-                          className="group/lyricact relative w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-colors shadow-sm"
-                        >
-                          {action.icon}
-                          {/* Legenda ao passar o mouse */}
-                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 rounded-lg bg-[var(--bg-sheet)] border border-[var(--button-secondary-bg)] text-[10px] font-semibold whitespace-nowrap shadow-md pointer-events-none opacity-0 group-hover/lyricact:opacity-100 transition-opacity z-10">
-                            {action.label}
-                          </span>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  )}
-                  </div>
-                  </motion.div>
-                ))}
-                </AnimatePresence>
-              </div>
-            )}
           </div>
         ),
       };
@@ -8954,7 +8803,7 @@ export default function App() {
       {group !== 'row' && (<>
       {/* 6. BOTÃO DE TEXTO / ADICIONAR TEXTO (MAIS À DIREITA) */}
       <div
-        className={`relative ${hasTranscript ? '' : 'w-9'} h-9 shrink-0 ${showAddTextPopup ? 'z-50' : 'z-10'}`}
+        className={`relative w-9 h-9 shrink-0 ${showAddTextPopup ? 'z-50' : 'z-10'}`}
         style={{
           '--winblue': currentBookHighlight.hex,
           '--winblue-rgb': currentBookHighlight.rgb,
@@ -8978,53 +8827,20 @@ export default function App() {
         />
         <AnimatePresence mode="wait" initial={false}>
           {hasTranscript ? (
-            // Com a letra aberta surge o botão de buscar no texto, à esquerda: no celular os dois formam uma pílula;
-            // no computador são botões separados
-            <motion.div
+            <motion.button 
               key="btn-fs-text"
-              className={isMobile
-                ? "flex items-center h-9 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl"
-                : "flex items-center gap-2.5 h-9"}
+              whileHover={{ scale: 1.12 }}
+              data-press="true"
+              onClick={() => setShowTranscript(prev => !prev)}
+              className={`w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl ${
+                showTranscript 
+                  ? 'bg-winblue/20 border border-winblue/45 text-winblue shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] hover:bg-winblue/30 hover:border-winblue/70 hover:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.5)]' 
+                  : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+              }`}
+              title={showTranscript ? t('hide_text') : t('show_text')}
             >
-              <AnimatePresence initial={false}>
-                {showTranscript && (
-                  <motion.button
-                    key="btn-fs-text-search"
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: isMobile ? 42 : 36, opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                    data-press="true"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      closeAllPopups();
-                      setLyricsSearch('');
-                      setLyricsSelectedLine(null);
-                      openMobileSheet({ kind: 'search-lyrics', bookId: currentBook.id });
-                    }}
-                    className={`h-full flex items-center justify-center rounded-full overflow-hidden shrink-0 text-[var(--text-main)] hover:bg-white/15 transition-colors ${isMobile ? '' : 'bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl'}`}
-                    title={t('search_in_text')}
-                    aria-label={t('search_in_text')}
-                  >
-                    <TextSearch size={15} className="shrink-0" />
-                  </motion.button>
-                )}
-              </AnimatePresence>
-              <motion.button
-                whileHover={{ scale: 1.08 }}
-                data-press="true"
-                onClick={() => setShowTranscript(prev => !prev)}
-                style={{ width: isMobile ? 42 : 36, height: isMobile ? 42 : 36 }}
-                className={`flex items-center justify-center rounded-full transition-all shrink-0 ${
-                  showTranscript
-                    ? 'bg-winblue/20 text-winblue hover:bg-winblue/30'
-                    : 'text-[var(--text-main)] hover:bg-white/15'
-                } ${isMobile ? '' : `border shadow-xl backdrop-blur-3xl ${showTranscript ? 'border-winblue/45' : 'bg-card/75 border-[var(--text-main)]/10'}`}`}
-                title={showTranscript ? t('hide_text') : t('show_text')}
-              >
-                <Text size={14} />
-              </motion.button>
-            </motion.div>
+              <Text size={14} />
+            </motion.button>
           ) : (
             <motion.button 
               key="btn-fs-add-text"
@@ -10724,10 +10540,6 @@ export default function App() {
   const ignorePopRef = useRef(0);
   const systemBackRef = useRef<() => void>(() => {});
   systemBackRef.current = () => {
-    if (lyricsRowMenu) {
-      setLyricsRowMenu(null);
-      return;
-    }
     if (sharePreview) {
       closeSharePreview();
       return;
@@ -16412,31 +16224,6 @@ export default function App() {
         </AnimatePresence>
 
         {/* Folha estilo iOS (fora da tela que recua) */}
-        {/* Buscar no texto: opções do trecho escolhido */}
-        <MobileContextMenu
-          open={Boolean(lyricsRowMenu)}
-          rect={lyricsRowMenu?.rect || null}
-          sourceEl={lyricsRowMenu?.el || null}
-          onClose={() => setLyricsRowMenu(null)}
-          activeKey="lyrics-row-options"
-          direction={1}
-          targetWidth={250}
-          targetRadius={20}
-          estimatedMenuHeight={190}
-          preview={lyricsRowMenu ? (
-            <div className="px-4 py-3 rounded-3xl bg-card/95 border border-[var(--text-main)]/10 shadow-2xl text-[15px] font-semibold text-[var(--text-main)] leading-snug">
-              {transcriptLineText(lyricsRowMenu.line)}
-            </div>
-          ) : null}
-        >
-          <PagedMenu className="flex flex-col p-1.5 text-left rtl:text-right">
-            {lastLyricsRowLineRef.current && lyricLineActions(lastLyricsRowLineRef.current, 14).map(action => (
-              <MenuOptionItem key={action.id} icon={action.icon} onClick={() => { setLyricsRowMenu(null); action.run(); }}>
-                <span>{action.label}</span>
-              </MenuOptionItem>
-            ))}
-          </PagedMenu>
-        </MobileContextMenu>
         {(() => {
           const content = renderMobileSheetContent();
           return (
