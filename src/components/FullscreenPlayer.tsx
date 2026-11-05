@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MarqueeText } from './MarqueeText';
-import { Minimize2, SkipBack, SkipForward, Bookmark, Play, Copy, Share } from 'lucide-react';
+import { Minimize2, SkipBack, SkipForward, Bookmark, Play, Copy, Share, TextSearch, X } from 'lucide-react';
 import { useLyricsHighlight, type LyricsHighlight } from '../lyricsPrefs';
 import { BsPlayFill, BsPauseFill, BsArrowCounterclockwise, BsArrowClockwise } from 'react-icons/bs';
 import type { Audiobook, Chapter, Author, TranscriptLine } from '../data';
 import { AUTHORS_DATABASE } from '../data';
-import { getGenericBookCover, getAuthorAvatar } from '../audioUtils';
+import { getGenericBookCover, getAuthorAvatar, formatTime } from '../audioUtils';
 import type { QueueItem } from '../queueUtils';
 import { useI18n } from '../translations';
 import { useIsMobile, useIsLandscapePhone, MobileContextMenu } from './MobileContextMenu';
@@ -260,6 +260,68 @@ function LyricBlocks({ transcript, time: appTime, playing, audioRef, mode, onSee
   );
 }
 
+// Busca na letra (celular). O trecho buscado fica só na cor do audiobook, sem nada ao redor
+const foldText = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+function MatchedText({ text, query }: { text: string; query: string }) {
+  // Posição de cada letra do texto original no texto sem acentos
+  const map: number[] = [];
+  let folded = '';
+  for (let i = 0; i < text.length; i++) {
+    const f = foldText(text[i]);
+    for (let k = 0; k < f.length; k++) map.push(i);
+    folded += f;
+  }
+  const parts: React.ReactNode[] = [];
+  let from = 0;
+  let at = folded.indexOf(query);
+  while (at !== -1) {
+    const start = map[at];
+    const after = at + query.length;
+    const end = after < map.length ? map[after] : text.length;
+    if (start > from) parts.push(text.slice(from, start));
+    parts.push(<span key={start} className="text-[var(--book-accent)]">{text.slice(start, end)}</span>);
+    from = end;
+    at = folded.indexOf(query, after);
+  }
+  if (from < text.length) parts.push(text.slice(from));
+  return <>{parts}</>;
+}
+
+function LyricSearchResults({ transcript, chapters, query, emptyText, onPick }: {
+  transcript: TranscriptLine[];
+  chapters: { title: string; startTime: number; duration: number }[];
+  query: string;
+  emptyText: string;
+  onPick: (line: TranscriptLine) => void;
+}) {
+  const found = React.useMemo(() => {
+    const list: { line: TranscriptLine; idx: number; text: string }[] = [];
+    for (let idx = 0; idx < transcript.length && list.length < 100; idx++) {
+      const line = transcript[idx];
+      const text = line.words?.length ? line.words.map(w => w.text).join(' ') : line.text;
+      if (foldText(text).includes(query)) list.push({ line, idx, text });
+    }
+    return list;
+  }, [transcript, query]);
+  if (found.length === 0) return <p className="text-sm text-[var(--text-muted)] text-center py-10">{emptyText}</p>;
+  return (
+    <>
+      {found.map(({ line, idx, text }) => {
+        const chapter = chapters.find(ch => line.start >= ch.startTime && line.start < ch.startTime + ch.duration);
+        return (
+          <p key={idx} data-transcript-idx={idx} onClick={() => onPick(line)} className="px-4 py-1 cursor-pointer text-lg font-bold leading-snug text-[var(--text-main)]">
+            <MatchedText text={text} query={query} />
+            <span className="block mt-1 text-[10px] font-medium text-[var(--text-muted)] truncate">
+              {chapter ? `${chapter.title} • ${formatTime(line.start - chapter.startTime)}` : formatTime(line.start)}
+            </span>
+          </p>
+        );
+      })}
+    </>
+  );
+}
+
 export default function FullscreenPlayer({
   miniplayerAmbientStyle,
   onPlayerPointerDownCapture,
@@ -379,6 +441,47 @@ export default function FullscreenPlayer({
   };
   const lineText = (line: TranscriptLine) => (line.words && line.words.length > 0 ? line.words.map(w => w.text).join(' ') : line.text);
   const lyricsHighlight = useLyricsHighlight();
+  // Celular: ao rolar a letra, surge a busca no cabeçalho; aberta, os resultados tomam o lugar da letra
+  const [lyricSearchShown, setLyricSearchShown] = useState(false);
+  const [lyricSearchOpen, setLyricSearchOpen] = useState(false);
+  const [lyricQuery, setLyricQuery] = useState('');
+  const lyricSearchOpenRef = React.useRef(false);
+  lyricSearchOpenRef.current = lyricSearchOpen;
+  const foldedQuery = foldText(lyricQuery.trim());
+  const closeLyricSearch = () => {
+    setLyricSearchOpen(false);
+    setLyricSearchShown(false);
+    setLyricQuery('');
+    // Depois que a letra voltar à tela, ela vai para o ponto atual
+    setTimeout(() => window.dispatchEvent(new Event('lyrics-recenter')), 60);
+  };
+  React.useEffect(() => {
+    const el = fsTranscriptScrollRef.current;
+    if (!mobileLyrics || !el) {
+      setLyricSearchShown(false);
+      setLyricSearchOpen(false);
+      setLyricQuery('');
+      return;
+    }
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const onMove = () => {
+      setLyricSearchShown(true);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => { if (!lyricSearchOpenRef.current) setLyricSearchShown(false); }, 4000);
+    };
+    el.addEventListener('touchmove', onMove, { passive: true });
+    el.addEventListener('wheel', onMove, { passive: true });
+    return () => {
+      if (timer) clearTimeout(timer);
+      el.removeEventListener('touchmove', onMove);
+      el.removeEventListener('wheel', onMove);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileLyrics]);
+  React.useEffect(() => {
+    if (fsTranscriptScrollRef.current && foldedQuery) fsTranscriptScrollRef.current.scrollTop = 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [foldedQuery]);
   // Mesma função sempre, para as frases que não mudaram não serem redesenhadas
   const seekRef = React.useRef(handleSeek);
   seekRef.current = handleSeek;
@@ -617,6 +720,53 @@ export default function FullscreenPlayer({
           <span className="text-xs font-medium text-[var(--text-main)]">{t('minimize')}</span>
         </motion.button>
         )}
+
+        {/* Celular, ao rolar a letra: busca no texto */}
+        <AnimatePresence>
+          {mobileLyrics && (lyricSearchShown || lyricSearchOpen) && (
+            <motion.div
+              key="lyric-search"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
+              className="flex-1 min-w-0 mx-2.5 flex items-center gap-2"
+            >
+              <div
+                onClick={() => setLyricSearchOpen(true)}
+                className="flex-1 min-w-0 h-9 flex items-center gap-2 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-muted)]"
+              >
+                <TextSearch size={15} className="shrink-0" />
+                {lyricSearchOpen ? (
+                  <input
+                    autoFocus
+                    type="text"
+                    enterKeyHint="search"
+                    autoCapitalize="sentences"
+                    autoCorrect="on"
+                    spellCheck
+                    value={lyricQuery}
+                    onChange={(e) => setLyricQuery(e.target.value)}
+                    placeholder={t('search_in_text_placeholder')}
+                    className="flex-1 min-w-0 bg-transparent border-none outline-none text-[15px] text-[var(--text-main)] placeholder-[var(--text-muted)] font-medium"
+                  />
+                ) : (
+                  <span className="truncate text-xs font-medium">{t('search_in_text')}</span>
+                )}
+              </div>
+              {lyricSearchOpen && (
+                <button
+                  type="button"
+                  onClick={closeLyricSearch}
+                  aria-label={t('clear_search')}
+                  className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)]"
+                >
+                  <X size={15} />
+                </button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Botões de função do miniplayer no cabeçalho à direita */}
         {renderFullScreenHeaderControls(isMobileFs ? 'header' : 'all')}
@@ -912,6 +1062,7 @@ export default function FullscreenPlayer({
               <div 
                 ref={fsTranscriptScrollRef}
                 data-lyrics-full={mobileLyrics ? 'true' : undefined}
+                data-searching={foldedQuery ? 'true' : undefined}
                 style={mobileLyrics ? {
                   paddingTop: 'calc(var(--app-header-top) + 44px + 20px)',
                   paddingBottom: 'calc(62px + var(--mobile-bar-bottom) + 28px)',
@@ -923,7 +1074,7 @@ export default function FullscreenPlayer({
                 className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pl-8 md:pl-12 pr-6 md:pr-10 py-8 max-md:px-2 max-md:py-4 flex flex-col fullscreen-transcript w-full md:w-[min(48vw,680px)] md:shrink-0"
               >
                 <div
-                  className="my-auto space-y-6 select-none"
+                  className={`select-none ${foldedQuery ? 'space-y-5' : 'my-auto space-y-6'}`}
                   style={{ WebkitTouchCallout: 'none' }}
                   onPointerDown={onLinesPointerDown}
                   onPointerMove={cancelLinePress}
@@ -932,7 +1083,17 @@ export default function FullscreenPlayer({
                   onClickCapture={onLinesClickCapture}
                   onContextMenu={onLinesContextMenu}
                 >
-                  <LyricBlocks transcript={currentBook.transcript} time={currentTime} playing={isPlaying} audioRef={audioRef} mode={lyricsHighlight} onSeek={seekLyric} />
+                  {foldedQuery ? (
+                    <LyricSearchResults
+                      transcript={currentBook.transcript}
+                      chapters={currentBook.chapters || []}
+                      query={foldedQuery}
+                      emptyText={t('search_in_text_empty')}
+                      onPick={(line) => { seekLyric(line.start); closeLyricSearch(); }}
+                    />
+                  ) : (
+                    <LyricBlocks transcript={currentBook.transcript} time={currentTime} playing={isPlaying} audioRef={audioRef} mode={lyricsHighlight} onSeek={seekLyric} />
+                  )}
                   <div className="h-[25vh] shrink-0" />
                 </div>
               </div>

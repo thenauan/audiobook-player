@@ -3642,14 +3642,56 @@ export default function App() {
     return idx;
   }, [currentBook?.transcript, currentTime]);
 
+  // A pessoa rolou ou tocou na letra: a rolagem automática para e volta ao ponto atual 4 s depois do último gesto
+  const lyricsHoldRef = useRef(false);
+  const lyricsActiveIdxRef = useRef(-1);
+  lyricsActiveIdxRef.current = activeTranscriptIndex;
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const recenter = () => {
+      lyricsHoldRef.current = false;
+      const container = fsTranscriptScrollRef.current;
+      if (!container || container.dataset.searching) return;
+      const activeEl = container.querySelector(`[data-transcript-idx="${lyricsActiveIdxRef.current}"]`) as HTMLElement | null;
+      if (activeEl) centerLyricLine(container, activeEl);
+    };
+    const hold = () => {
+      lyricsHoldRef.current = true;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(recenter, 4000);
+    };
+    const onGesture = (e: Event) => {
+      if ((e.target as HTMLElement | null)?.closest?.('.fullscreen-transcript')) hold();
+    };
+    // Rolagem por inércia depois de soltar o dedo também conta
+    const onScroll = (e: Event) => {
+      if (lyricsHoldRef.current && (e.target as HTMLElement | null)?.classList?.contains('fullscreen-transcript')) hold();
+    };
+    const onRecenter = () => {
+      if (timer) clearTimeout(timer);
+      recenter();
+    };
+    const options = { capture: true, passive: true };
+    ['wheel', 'touchstart', 'touchmove', 'pointerdown'].forEach(name => document.addEventListener(name, onGesture, options));
+    document.addEventListener('scroll', onScroll, options);
+    window.addEventListener('lyrics-recenter', onRecenter);
+    return () => {
+      if (timer) clearTimeout(timer);
+      ['wheel', 'touchstart', 'touchmove', 'pointerdown'].forEach(name => document.removeEventListener(name, onGesture, options));
+      document.removeEventListener('scroll', onScroll, options);
+      window.removeEventListener('lyrics-recenter', onRecenter);
+    };
+  }, []);
+
   // Rolagem suave para linha ativa sem reflows desnecessários
   useEffect(() => {
     if (!showTranscript || !isFullScreen || activeTranscriptIndex === -1) return;
+    if (lyricsHoldRef.current) return;
     if (lastScrolledTranscriptIdxRef.current === activeTranscriptIndex) return;
     lastScrolledTranscriptIdxRef.current = activeTranscriptIndex;
 
     const container = fsTranscriptScrollRef.current;
-    if (!container) return;
+    if (!container || container.dataset.searching) return;
 
     const activeEl = container.querySelector(`[data-transcript-idx="${activeTranscriptIndex}"]`) as HTMLElement;
     if (activeEl) centerLyricLine(container, activeEl);
@@ -5772,6 +5814,16 @@ export default function App() {
     return 'Nenhum tempo de sincronização válido encontrado para a duração deste audiobook.';
   };
 
+  // O app lê todos os formatos com os mesmos tempos: se a duração do texto não bate com a do áudio, o arquivo é de
+  // outra conversão (a letra se desencontra cada vez mais ao longo do livro)
+  const warnIfTextDoesNotMatch = (lines: TranscriptLine[], fileName: string, bookDuration: number) => {
+    const real = audioRef.current?.duration;
+    const duration = real && isFinite(real) ? real : bookDuration;
+    const end = lines[lines.length - 1]?.end || 0;
+    diag('letra-enviada', { arquivo: fileName.split('.').slice(-2).join('.'), linhas: lines.length, fimLetra: end, duracao: duration });
+    if (duration > 60 && Math.abs(end / duration - 1) > 0.02) showToast(t('toast_text_duration_mismatch'));
+  };
+
   const handleUploadTranscriptForPlayerBook = async (file?: File | null) => {
     if (!file || !currentBook || !currentBook.id || currentBook.id === EMPTY_BOOK.id) return;
     const bookDur = (currentBook.chapters || []).reduce((acc, c) => acc + (c.duration || 0), 0);
@@ -5820,6 +5872,7 @@ export default function App() {
     setShowAddTextPopup(false);
     setShowTranscript(true);
     showToast(t('toast_text_uploaded', { count: res.lines.length }));
+    warnIfTextDoesNotMatch(res.lines, file.name, bookDur);
   };
 
   const handleUploadTranscriptForEditBook = async (file?: File | null) => {
@@ -5840,6 +5893,7 @@ export default function App() {
     setEditBookTranscriptSource('upload');
     setEditBookTranscriptFileName(file.name);
     showToast(t('toast_text_uploaded', { count: res.lines.length }));
+    warnIfTextDoesNotMatch(res.lines, file.name, bookDur);
   };
 
   // Sincronização da fonte de áudio nativa

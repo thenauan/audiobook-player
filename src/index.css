@@ -1853,3 +1853,14 @@ html:not(.dark) .fullscreen-transcript [data-transcript-idx] {
 html.lite .fullscreen-transcript [data-transcript-idx] {
   text-shadow: none;
 }
+
+/* Ajustes: itens da lista sem borda, só a diferença de cor com o fundo, como no iOS */
+.settings-list-row {
+  border-color: transparent !important;
+  background-color: var(--ios-fill) !important;
+}
+@media (hover: hover) {
+  .settings-list-row:hover {
+    background-color: var(--ios-fill-strong) !important;
+  }
+}
