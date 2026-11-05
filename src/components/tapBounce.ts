@@ -76,11 +76,13 @@ export function installTapBounce(): () => void {
   };
   document.addEventListener('click', onSpin, { capture: true, passive: true });
 
-  // Botões do cabeçalho: primeiro o pulinho, depois a ação (o pop-up abre quando o botão já cresceu). Com um pop-up
-  // aberto, ou em botões que só navegam (data-instant), a resposta é imediata.
+  // Botões do cabeçalho e os que abrem pop-ups em qualquer lugar (morphTriggerAnimate deixa o "pointer-events"
+  // neles): primeiro o pulinho, depois a ação. Com um pop-up aberto, ou em botões que só navegam (data-instant), a
+  // resposta é imediata. Tocar, pausar e pular nunca esperam.
   const onClick = (e: MouseEvent) => {
     if (!e.isTrusted || e.detail === 0) return;
-    const el = (e.target as HTMLElement | null)?.closest?.('[data-app-header] button') as HTMLElement | null;
+    const button = (e.target as HTMLElement | null)?.closest?.('button') as HTMLElement | null;
+    const el = button && (button.closest('[data-app-header]') || button.style.pointerEvents === 'auto') ? button : null;
     if (!el || el.matches('[data-instant]') || document.querySelector('[data-popup-content="true"]')) return;
     e.stopImmediatePropagation();
     e.preventDefault();

@@ -217,14 +217,35 @@ export interface MobileBottomBarProps {
   t: (key: string) => string;
 }
 
-export function MobileBottomBar({
+// O app inteiro redesenha enquanto a tela rola. A barra só deve mudar quando algo dela muda: redesenhar junto fazia
+// os ícones (que animam de posição) recomeçarem a animação sem parar, principalmente com a barra encolhida.
+export function MobileBottomBar(props: MobileBottomBarProps) {
+  const latest = React.useRef(props);
+  latest.current = props;
+  const navigateTo = React.useCallback((id: string) => latest.current.navigateTo(id), []);
+  const onFocusSearch = React.useCallback(() => latest.current.onFocusSearch?.(), []);
+  const t = React.useCallback((key: string) => latest.current.t(key), []);
+  return (
+    <MobileBottomBarView
+      currentRoot={props.currentRoot}
+      activeScreenId={props.activeScreenId}
+      highlight={props.highlight}
+      navigateTo={navigateTo}
+      onFocusSearch={onFocusSearch}
+      t={t}
+      labels={['nav_home', 'nav_library', 'nav_more', 'nav_search'].map(k => props.t(k)).join('|')}
+    />
+  );
+}
+
+const MobileBottomBarView = React.memo(function MobileBottomBarView({
   currentRoot,
   activeScreenId,
   navigateTo,
   onFocusSearch,
   highlight,
   t,
-}: MobileBottomBarProps) {
+}: MobileBottomBarProps & { labels: string }) {
   const collapsedRaw = useTabBarCollapsed();
   const hasMini = useMiniPresent();
   const split = useMobileBarSplit();
@@ -489,6 +510,6 @@ export function MobileBottomBar({
       </LayoutGroup>
     </div>
   );
-}
+});
 
 export default Sidebar;

@@ -15580,6 +15580,7 @@ export default function App() {
           !isFullScreen ? ((isMobile || isCompactPlayer) ? (
             <MobileMiniPlayer
               key="mini-player"
+              isQueuePulse={isQueuePulse}
               docked={!isMobile}
               onPlayerPointerDownCapture={handlePlayerPointerDownCapture}
               enterFromFullscreen={wasFullScreenRef.current}

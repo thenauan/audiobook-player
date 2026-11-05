@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { MarqueeText } from './MarqueeText';
-import { SkipBack, SkipForward } from 'lucide-react';
+import { SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import { BsPlayFill, BsPauseFill, BsArrowCounterclockwise, BsArrowClockwise } from 'react-icons/bs';
 import type { Audiobook, Chapter, Author } from '../data';
 import { AUTHORS_DATABASE } from '../data';
@@ -342,6 +342,8 @@ export default function MiniPlayer({
 const MORPH_LAYOUT = { layout: { type: 'spring' as const, stiffness: 680, damping: 52, mass: 0.5 } };
 
 export interface MobileMiniPlayerProps {
+  // Algo acabou de entrar na fila
+  isQueuePulse?: boolean;
   currentBook: Audiobook;
   currentChapter: Chapter;
   isPlaying: boolean;
@@ -368,6 +370,7 @@ export function MobileMiniPlayer({
   enterFromFullscreen = false,
   onPlayerPointerDownCapture,
   docked = false,
+  isQueuePulse,
 }: MobileMiniPlayerProps) {
   const { t } = useI18n();
   // Expandida: acima da barra. Recolhida: entre os dois botões redondos, com o mesmo espaço dos dois lados.
@@ -475,6 +478,22 @@ export function MobileMiniPlayer({
             <MarqueeText text={`${currentBook.title} • ${currentBook.author}`} />
           </motion.p>
         </div>
+        {/* Adicionado à fila: o ícone aparece um instante ao lado do play, direto no fundo */}
+        <AnimatePresence>
+          {isQueuePulse && (
+            <motion.span
+              key="queue-added"
+              initial={{ opacity: 0, scale: 0.5, width: 0 }}
+              animate={{ opacity: 1, scale: 1, width: 24 }}
+              exit={{ opacity: 0, scale: 0.5, width: 0 }}
+              transition={{ type: 'spring', stiffness: 520, damping: 30, mass: 0.5 }}
+              aria-hidden="true"
+              className="shrink-0 flex items-center justify-center text-winblue"
+            >
+              <ListPlus size={20} className="shrink-0" />
+            </motion.span>
+          )}
+        </AnimatePresence>
         <motion.button
           layoutId="player-play"
           transition={MORPH_LAYOUT}
