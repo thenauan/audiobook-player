@@ -2661,7 +2661,6 @@ export default function App() {
   const queueUserScrolledRef = useRef(false);
   const isInitialQueueScrollActiveRef = useRef(false);
   const fsTranscriptScrollRef = useRef<HTMLDivElement>(null);
-  const lastScrolledTranscriptIdxRef = useRef<number>(-1);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [showBookDetailsPopup, setShowBookDetailsPopup] = useState(false);
   const [isQueuePulse, setIsQueuePulse] = useState(false);
@@ -3619,15 +3618,25 @@ export default function App() {
       if (timer) clearTimeout(timer);
       recenter(Boolean((e as CustomEvent).detail?.instant));
     };
+    // A letra avisa qual frase está começando (pelo relógio rápido dela) e a rolagem vai até ela
+    const onFollow = (e: Event) => {
+      if (lyricsHoldRef.current) return;
+      const container = fsTranscriptScrollRef.current;
+      if (!container || container.dataset.searching) return;
+      const el = container.querySelector(`[data-transcript-idx="${(e as CustomEvent).detail}"]`) as HTMLElement | null;
+      if (el) centerLyricLine(container, el);
+    };
     const options = { capture: true, passive: true };
     ['wheel', 'touchstart', 'touchmove', 'pointerdown'].forEach(name => document.addEventListener(name, onGesture, options));
     document.addEventListener('scroll', onScroll, options);
     window.addEventListener('lyrics-recenter', onRecenter);
+    window.addEventListener('lyrics-follow', onFollow);
     return () => {
       if (timer) clearTimeout(timer);
       ['wheel', 'touchstart', 'touchmove', 'pointerdown'].forEach(name => document.removeEventListener(name, onGesture, options));
       document.removeEventListener('scroll', onScroll, options);
       window.removeEventListener('lyrics-recenter', onRecenter);
+      window.removeEventListener('lyrics-follow', onFollow);
     };
   }, []);
 
@@ -3660,20 +3669,6 @@ export default function App() {
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
-
-  // Rolagem suave para linha ativa sem reflows desnecessários
-  useEffect(() => {
-    if (!showTranscript || !isFullScreen || activeTranscriptIndex === -1) return;
-    if (lyricsHoldRef.current) return;
-    if (lastScrolledTranscriptIdxRef.current === activeTranscriptIndex) return;
-    lastScrolledTranscriptIdxRef.current = activeTranscriptIndex;
-
-    const container = fsTranscriptScrollRef.current;
-    if (!container || container.dataset.searching) return;
-
-    const activeEl = container.querySelector(`[data-transcript-idx="${activeTranscriptIndex}"]`) as HTMLElement;
-    if (activeEl) centerLyricLine(container, activeEl);
-  }, [activeTranscriptIndex, showTranscript, isFullScreen]);
 
   // Alinhamento ao abrir a letra após conclusão da transição
   useEffect(() => {

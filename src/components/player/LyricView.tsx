@@ -8,6 +8,7 @@ import type { TranscriptLine } from '../../data/catalog';
 
 import { formatTime } from '../../audio/playbackTiming';
 import { FADE_IN } from '../../lib/motion';
+import { findActiveTranscriptIndex } from '../../audio/playbackTiming';
 
 // Uma frase da letra. A letra inteira fica na tela (rolagem até o fim e toque no ponto certo); como o tempo muda
 // várias vezes por segundo, só as frases que mudaram são redesenhadas, e só a frase ativa é dividida em palavras
@@ -138,11 +139,20 @@ function useLyricClock(audioRef: React.RefObject<HTMLAudioElement | null>, fallb
   return running ? time : fallback;
 }
 
+// Quanto antes do início da frase a rolagem começa (s): o mesmo tempo que ela leva para chegar ao meio
+const FOLLOW_LEAD = 0.3;
+
 // Fade da letra, do player e dos desfoques ao abrir e fechar a letra
 export const LYRICS_FADE = FADE_IN;
 
 export function LyricBlocks({ transcript, time: appTime, playing, audioRef, mode, onSeek, onMounted }: { transcript: TranscriptLine[]; time: number; playing: boolean; audioRef: React.RefObject<HTMLAudioElement | null>; mode: LyricsHighlight; onSeek: (time: number) => void; onMounted?: () => void }) {
   const time = useLyricClock(audioRef, appTime, playing);
+  // A rolagem acompanha o relógio rápido da letra e começa um instante antes da frase: ela chega ao meio da tela
+  // junto com o narrador, e não depois que ele já começou
+  const followIdx = findActiveTranscriptIndex(transcript, time + FOLLOW_LEAD);
+  React.useEffect(() => {
+    if (followIdx >= 0) window.dispatchEvent(new CustomEvent('lyrics-follow', { detail: followIdx }));
+  }, [followIdx]);
   // Antes de aparecer na tela (a letra volta depois da busca já no ponto atual, sem pular)
   React.useLayoutEffect(() => { onMounted?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const blocks = React.useMemo(() => {
