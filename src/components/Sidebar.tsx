@@ -141,7 +141,7 @@ export const MOBILE_MORE_ROOTS = ['more', 'other-apps', 'settings', 'help'];
 export const MOBILE_BAR = {
   side: 16,       // margem lateral (a mesma das margens do conteúdo)
   size: 62,       // altura da barra
-  compact: 52,    // botões redondos e miniplayer
+  compact: 56,    // botões redondos e miniplayer
   gap: 8,         // espaço entre barra, botões e miniplayer
 };
 export const MOBILE_GLASS_SHADOW = '0 8px 24px -12px rgba(0, 0, 0, 0.35)';

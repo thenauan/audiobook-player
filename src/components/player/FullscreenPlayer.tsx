@@ -707,7 +707,7 @@ export default function FullscreenPlayer({
                   layoutId="player-chapter-title"
                   layout="position"
                   transition={{ layout: SPRING.zoom }}
-                  className="fs-title text-lg sm:text-xl font-bold text-black dark:text-white hover:text-winblue transition-colors cursor-pointer text-center max-w-full truncate px-4 mb-1 dark:drop-shadow-md"
+                  className="fs-title text-[22px] font-bold text-black dark:text-white hover:text-winblue transition-colors cursor-pointer text-center max-w-full truncate px-4 mb-1 dark:drop-shadow-md"
                   title={`${t('view_chapter_in_book')} (${currentChapter.title})`}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -760,7 +760,7 @@ export default function FullscreenPlayer({
               <div className="w-full shrink-0 max-w-sm sm:max-w-md">
                 {/* Barra de Progresso com grupo para hover da bolinha */}
                 <motion.div layoutId="player-progress" transition={{ layout: SPRING.zoom }} className="w-full flex items-center gap-2.5 group mb-3.5">
-                  <span className="text-[10px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 text-right shrink-0">{formatTime(chapterElapsed)}</span>
+                  <span className="text-[11px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 text-right shrink-0">{formatTime(chapterElapsed)}</span>
                   <div className="relative flex-1 flex items-center h-5 [@media(pointer:coarse)]:h-7">
                     <input 
                       type="range"
@@ -821,7 +821,7 @@ export default function FullscreenPlayer({
                     />
                     {renderPlaybackReturnButton(true)}
                   </div>
-                  <span className="text-[10px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 shrink-0">-{formatTime(chapterRemaining)}</span>
+                  <span className="text-[11px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 shrink-0">-{formatTime(chapterRemaining)}</span>
                 </motion.div>
 
                 {/* Botões de Reprodução: Anterior, -30s, Play/Pause Maior, +15s, Próximo */}
@@ -1205,7 +1205,7 @@ export default function FullscreenPlayer({
         targetRadius={20}
         estimatedMenuHeight={160}
         preview={lineMenu ? (
-          <div className="px-4 py-3 rounded-3xl bg-card/95 shadow-2xl text-xl sm:text-2xl font-bold text-[var(--text-main)] leading-snug">
+          <div className="px-4 py-3 rounded-3xl bg-card/95 shadow-2xl text-[length:calc(1.5625rem*var(--font-scale,1))] sm:text-3xl leading-[1.3] font-bold text-[var(--text-main)] leading-snug">
             {lineText(lineMenu.line)}
           </div>
         ) : null}

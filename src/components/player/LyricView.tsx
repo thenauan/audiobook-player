@@ -32,7 +32,7 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
       data-transcript-idx={idx}
       // Sem nada que crie camada de vídeo por frase (transform-gpu, opacidade): com a letra inteira na tela seriam
       // milhares de camadas, e o iPhone encerra a página por falta de memória (tela preta)
-      className={`text-xl sm:text-2xl font-bold cursor-pointer px-4 py-2 ${
+      className={`text-[length:calc(1.5625rem*var(--font-scale,1))] sm:text-3xl leading-[1.3] font-bold cursor-pointer px-4 py-2 ${
         lineOn
           ? 'text-black dark:text-white'
           : isPast
@@ -87,7 +87,7 @@ const LyricBlock = React.memo(function LyricBlock({ lines, first, nextStart, tim
   onSeek: (time: number) => void;
 }) {
   // Altura aproximada do bloco enquanto ele não foi desenhado (linhas de texto + espaçamento)
-  const estimate = lines.reduce((sum, l) => sum + Math.ceil(l.text.length / 34) * 30 + 40, 0);
+  const estimate = lines.reduce((sum, l) => sum + Math.ceil(l.text.length / 27) * 33 + 40, 0);
   return (
     <div className="space-y-6" style={{ contentVisibility: 'auto', containIntrinsicBlockSize: `auto ${estimate}px` } as React.CSSProperties}>
       {lines.map((line, i) => {

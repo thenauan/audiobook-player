@@ -48,7 +48,7 @@ function AuthorLinks({ raw, authorId, onSelect, className = '', linkClassName = 
   const names = splitAuthorNames(raw);
   if (names.length <= 1) {
     return (
-      <button type="button" onClick={() => onSelect(authorId, raw)} className={`mobile-press ${linkClassName} ${className}`}>
+      <button type="button" onClick={() => onSelect(authorId, raw)} className={`hit-44 mobile-press ${linkClassName} ${className}`}>
         {raw}
       </button>
     );
@@ -57,7 +57,7 @@ function AuthorLinks({ raw, authorId, onSelect, className = '', linkClassName = 
     <span className={className}>
       {names.map((name, i) => (
         <React.Fragment key={name}>
-          <button type="button" onClick={() => onSelect(undefined, name)} className={`mobile-press ${linkClassName}`}>
+          <button type="button" onClick={() => onSelect(undefined, name)} className={`hit-44 mobile-press ${linkClassName}`}>
             {name}
           </button>
           {i < names.length - 1 && <span>{i === names.length - 2 ? ' & ' : ', '}</span>}
@@ -395,7 +395,7 @@ export default function BookDetailView({
               />
               </div>
               <div className="absolute inset-x-0 bottom-0 px-5 pb-4 flex flex-col items-center text-center text-[var(--text-main)]">
-                <h2 data-screen-title="true" className="text-[24px] font-bold leading-tight tracking-tight line-clamp-2">{activeBook.title}</h2>
+                <h2 data-screen-title="true" className="text-[28px] font-bold leading-tight tracking-tight line-clamp-2">{activeBook.title}</h2>
                 <AuthorLinks
                   raw={activeBook.author}
                   authorId={activeBook.authorId}
@@ -443,7 +443,7 @@ export default function BookDetailView({
             <div className="flex flex-col justify-center space-y-4 flex-1 min-w-0 max-md:w-full max-md:items-center">
               <div className="max-md:w-full">
                 <div className="flex items-center gap-3 max-md:justify-center">
-                  <h2 className="text-4xl md:text-5xl max-md:text-[26px] max-md:leading-tight font-semibold text-[var(--text-main)] tracking-tight">{activeBook.title}</h2>
+                  <h2 className="text-4xl md:text-5xl max-md:text-[28px] max-md:leading-tight font-semibold text-[var(--text-main)] tracking-tight">{activeBook.title}</h2>
                 </div>
                 <h3 className="text-xl max-md:text-base font-semibold text-[var(--text-muted)] mt-1">
                   <AuthorLinks raw={activeBook.author} authorId={activeBook.authorId} onSelect={handleSelectAuthor} linkClassName="hover:text-winblue transition-colors cursor-pointer" />

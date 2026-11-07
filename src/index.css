@@ -8,8 +8,8 @@
   /* Interface de celular até 1023px (celulares em qualquer orientação e tablets em pé);
      menu lateral a partir de 1024px (tablets deitados e computador) */
   --breakpoint-md: 64rem;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro", "Inter", "Segoe UI", Roboto, sans-serif;
+  --font-mono: -apple-system, BlinkMacSystemFont, "SF Pro", "Inter", "Segoe UI", Roboto, sans-serif;
 
   --color-winblue: var(--winblue, #FF9500);
   --color-success: #438E44;
@@ -373,7 +373,7 @@ input[type="range"].apple-slider::-webkit-slider-thumb {
   border-radius: 50%;
   background-color: var(--slider-fill-hover);
   margin-top: -3px;
-  opacity: 0;
+  opacity: 0 !important;
   transition: opacity var(--dur-fade-in) var(--ease-fade), transform var(--dur-fade-in) var(--ease-fade), box-shadow var(--dur-fade-in) var(--ease-fade), background-color var(--dur-fade-in) var(--ease-fade);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
@@ -404,7 +404,7 @@ input[type="range"].apple-slider::-moz-range-thumb {
   border-radius: 50%;
   background-color: var(--slider-fill-hover);
   border: none;
-  opacity: 0;
+  opacity: 0 !important;
   transition: opacity var(--dur-fade-in) var(--ease-fade), transform var(--dur-fade-in) var(--ease-fade), box-shadow var(--dur-fade-in) var(--ease-fade), background-color var(--dur-fade-in) var(--ease-fade);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
@@ -931,7 +931,7 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
     margin-bottom: 14px !important;
   }
   .fs-title {
-    font-size: 21px !important;
+    font-size: 22px !important;
     line-height: 1.2;
     margin-bottom: 4px !important;
   }
@@ -1121,7 +1121,7 @@ html.is-rotating body {
   /* Com miniplayer em pé: espaço para a barra e o miniplayer empilhados (em páginas curtas a barra
      não chega a se recolher, então o último item precisa ficar visível acima dos dois) */
   .app-scroll.has-mini {
-    padding-bottom: calc(var(--mobile-bar-bottom) + 62px + 8px + 52px + 16px) !important;
+    padding-bottom: calc(var(--mobile-bar-bottom) + 62px + 8px + 56px + 16px) !important;
   }
 }
 @media (min-width: 640px) and (max-width: 1023px) {
@@ -1993,5 +1993,69 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
   }
   :is(button, [role="button"], .settings-list-row):hover {
     transition-duration: 120ms;
+  }
+}
+
+/* Tipografia do guia */
+@layer base {
+  body {
+    font-variant-numeric: tabular-nums;
+  }
+  h1 {
+    letter-spacing: -0.02em;
+  }
+  :where(.text-xs, .text-\[10px\], .text-\[11px\]) {
+    letter-spacing: 0.01em;
+  }
+}
+h2.text-xl {
+  font-weight: 600;
+}
+/* Celular: o texto principal de listas e botões sobe para 15 px */
+@media (max-width: 1023px) {
+  :root {
+    --text-sm: calc(0.9375rem * var(--font-scale, 1));
+  }
+}
+
+/* Barra de progresso: fina em repouso, engorda ao tocar. No celular o toque cai na camada por cima dela */
+input[type="range"].apple-slider {
+  transition: height var(--dur-snappy) var(--spring-snappy), filter var(--dur-fade-in) var(--ease-fade);
+}
+@media (pointer: fine) {
+  input[type="range"].apple-slider:active {
+    height: 8px;
+  }
+}
+@media (pointer: coarse) {
+  input[type="range"].apple-slider {
+    transition: background-size var(--dur-snappy) var(--spring-snappy);
+  }
+  input[type="range"].apple-slider:active,
+  :has(> [data-seek-overlay]:active) > input[type="range"].apple-slider {
+    background-size: 100% 8px !important;
+  }
+}
+.group > span {
+  transition: scale var(--dur-snappy) var(--spring-snappy), color var(--dur-fade-in) var(--ease-fade);
+}
+.group:has(input[type="range"].apple-slider:active, [data-seek-overlay]:active) > span {
+  scale: 1.18;
+  color: var(--text-main);
+}
+
+/* Toque: todo botão pequeno tem uma área invisível de 44 px, sem mudar o que se vê */
+@media (pointer: coarse) {
+  :is(button, [role="button"]):is(.w-6, .w-7, .w-8, .w-9, .w-10, .h-6, .h-7, .h-8, .h-9, .h-10, .hit-44):not(.absolute, .fixed, .sticky) {
+    position: relative;
+  }
+  :is(button, [role="button"]):is(.w-6, .w-7, .w-8, .w-9, .w-10, .h-6, .h-7, .h-8, .h-9, .h-10, .hit-44)::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    translate: -50% -50%;
   }
 }
