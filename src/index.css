@@ -1989,10 +1989,10 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
     transition-duration: 120ms;
   }
   /* Botões do cabeçalho, os que abrem pop-ups e os de abrir o player crescem um pouco */
-  :is([data-app-header] button, button[style*="pointer-events: auto"], button.hover-grow) {
+  :is([data-app-header] button, button[style*="pointer-events: auto"], button.hover-grow):not(.settings-list-row *) {
     transition: scale var(--dur-snappy) var(--spring-snappy), background-color 200ms var(--ease-fade), color 200ms var(--ease-fade), opacity 200ms var(--ease-fade);
   }
-  :is([data-app-header] button, button[style*="pointer-events: auto"], button.hover-grow):hover {
+  :is([data-app-header] button, button[style*="pointer-events: auto"], button.hover-grow):not(.settings-list-row *):hover {
     scale: 1.07;
   }
 }

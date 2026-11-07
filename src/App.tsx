@@ -13129,7 +13129,7 @@ export default function App() {
                                 <div className={`absolute inset-0 bg-gradient-to-br ${genreData.gradient}`} />
                                 <div className="absolute inset-0 bg-black/15" />
 
-                                <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
+                                <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75">
                                   <EmojiIcon emoji={getGenreEmoji(genreData.id)} />
                                 </span>
                               </div>
@@ -13235,7 +13235,7 @@ export default function App() {
                                 <div className={`absolute inset-0 bg-gradient-to-br ${langData.gradient}`} />
                                 <div className="absolute inset-0 bg-black/15" />
 
-                                <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
+                                <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75">
                                   <Languages size="1em" strokeWidth={2} aria-hidden="true" className="inline-block align-[-0.125em]" />
                                 </span>
                               </div>
@@ -13718,7 +13718,7 @@ export default function App() {
                               <div className={`absolute inset-0 bg-gradient-to-br ${langData.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
                               <div className="absolute inset-0 bg-black/15" />
 
-                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
+                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75">
                                 <Languages size="1em" strokeWidth={2} aria-hidden="true" className="inline-block align-[-0.125em]" />
                               </span>
                             </div>
@@ -14065,7 +14065,7 @@ export default function App() {
                               <div className={`absolute inset-0 bg-gradient-to-br ${genreData.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
                               <div className="absolute inset-0 bg-black/15" />
 
-                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-8xl sm:text-9xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
+                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-8xl sm:text-9xl select-none pointer-events-none opacity-75">
                                 <EmojiIcon emoji={getGenreEmoji(genreData.id)} />
                               </span>
                             </div>
@@ -14275,7 +14275,7 @@ export default function App() {
                                               <div className={`absolute inset-0 bg-gradient-to-br ${gradient} ${isSelectionMode && isAllSelected ? 'opacity-70' : ''}`} />
                                               <div className="absolute inset-0 bg-black/15" />
 
-                                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
+                                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-75">
                                                 <EmojiIcon emoji={getSubgenreEmoji(subgenre)} />
                                               </span>
                                             </div>
@@ -15573,18 +15573,15 @@ export default function App() {
                     exit="saindo"
                     className="flex-1 w-full max-w-xl mx-auto px-6 py-12 flex flex-col items-center justify-center text-center min-h-full"
                   >
-                    {/* Título no mesmo formato do topo do menu lateral (ícone + Audiobook Player) */}
+                    {/* Título no mesmo formato do topo do menu lateral (ícone + Player) */}
                     <motion.div
                       initial={{ scale: 0.92, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={SPRING.snappy}
                       className="flex items-baseline gap-1 text-white text-3xl sm:text-4xl md:text-5xl tracking-tight mb-2"
                     >
-                      <AppLogo className="text-white shrink-0" />
-                      <span>
-                        <span className="font-bold">Audiobook</span>
-                        <span className="font-normal opacity-90">Player</span>
-                      </span>
+                      <AppLogo className="text-white shrink-0 gap-[5px] text-[40px] leading-none" />
+                      <span className="font-normal">Player</span>
                     </motion.div>
 
                     {/* Subtítulo: 'Bem-vindo!' e descrição breve do app */}

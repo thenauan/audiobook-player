@@ -150,7 +150,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                   <div className="absolute inset-0 bg-black/15" />
 
                   {/* Ícone grande cortado no limite do card à direita (marca d'água) */}
-                  <div className="absolute -bottom-6 -right-3 select-none pointer-events-none opacity-20 group-hover:scale-[1.02] transition-transform duration-500 transform text-white">
+                  <div className="absolute -bottom-6 -right-3 select-none pointer-events-none opacity-20 transform text-white">
                     {renderHelpIcon(theme.id || theme.emoji, 110, "stroke-[1.3]")}
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                       <div className="absolute inset-0 bg-black/15" />
 
                       {/* Ícone grande cortado no limite do card à direita (marca d'água) */}
-                      <div className="absolute -bottom-6 -right-3 select-none pointer-events-none opacity-20 group-hover:scale-[1.02] transition-transform duration-500 transform text-white">
+                      <div className="absolute -bottom-6 -right-3 select-none pointer-events-none opacity-20 transform text-white">
                         {renderHelpIcon(sub.id || sub.emoji, 110, "stroke-[1.3]")}
                       </div>
                     </div>
