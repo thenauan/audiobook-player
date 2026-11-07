@@ -12,13 +12,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-import { Audiobook, Author, Chapter, TranscriptLine, AUTHORS_DATABASE, BOOKS_DATABASE, INITIAL_COLLECTIONS, GENRE_HIERARCHY, getGenreEmoji, resolveNarratorAndLanguage, isBookInGenre, isBookInSubgenre, resolveGenreList, registerDiscoveredGenres, Collection, COLLECTION_AVAILABLE_EMOJIS, COLLECTION_AVAILABLE_PALETTES } from './data/catalog';
+import { Audiobook, Author, Chapter, TranscriptLine, AUTHORS_DATABASE, BOOKS_DATABASE, INITIAL_COLLECTIONS, GENRE_HIERARCHY, getGenreEmoji, resolveNarratorAndLanguage, isBookInGenre, isBookInSubgenre, Collection, COLLECTION_AVAILABLE_EMOJIS, COLLECTION_AVAILABLE_PALETTES } from './data/catalog';
 import { parseAudioMetadata } from './audio/audioMetadata';
 import { parseSynchronizedTextFile } from './audio/transcripts';
-import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, GENERIC_COVER_COLORS, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex } from './lib/coverArt';
+import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex } from './lib/coverArt';
 import { findActiveTranscriptIndex } from './audio/playbackTiming';
 import { storeAudioBlob, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
-import { readAppData, writeAppData, writeLocalMirror } from './data/appDataStore';
 import { autoCropImageToSquare, autoCropImageToEbookCover } from './lib/imageProcessing';
 import Sidebar, { MobileBottomBar, tabBarStore } from './components/Sidebar';
 import { MenuOptionItem, getBookDurationInSeconds, clearButtonCoverAnchorCache, getButtonCoverPopupStyle, MorphPopup, morphTriggerAnimate, EMPTY_BOOK } from './components/popups/Popovers';
@@ -35,7 +34,7 @@ import { MobileConfirmCard } from './components/popups/MobileConfirm';
 import { installTapBounce } from './components/tapBounce';
 import { getSystemInfo } from './lib/liteMode';
 import { WhatsNewScreen } from './components/WhatsNewScreen';
-import { useShowExtraChapters, visibleChapters } from './audio/chapterPrefs';
+import { visibleChapters } from './audio/chapterPrefs';
 import { diag } from './audio/playbackDiag';
 import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './lib/authorUtils';
 import { installTouchMenus } from './components/popups/touchMenu';
@@ -81,7 +80,7 @@ import { Share, Download, Quote, Info, Edit3, Upload, ChevronRight, ChevronDown,
 import { normalizeSearchStr, toPhoneticSearchStr, evaluateSearchTermMatch, matchesNationality } from './lib/searchScoring';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './components/popups/popupUtils';
 import { _FavoriteChapterCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, AuthorCard, _FavoriteAuthorCard, BookCard, ScreenSelectableRow, SCREEN_GROUP_CLASS, PopupSearchField } from './components/library/LibraryCards';
-import { MOCK_DEV_AUTHORS, MOCK_DEV_AUDIOBOOKS, normalizeBookCompareStr, extractNormalizedFileName, isSameAudiobook, deduplicateAudiobooks, loadBooksFromJson, loadAuthorsFromJson, loadCollectionsFromJson, safeLocalGet, isTestBookId, isTestAuthorId, TEST_COLLECTION_IDS } from './data/libraryData';
+import { MOCK_DEV_AUTHORS, MOCK_DEV_AUDIOBOOKS, normalizeBookCompareStr, extractNormalizedFileName, isSameAudiobook, deduplicateAudiobooks, isTestBookId, isTestAuthorId, TEST_COLLECTION_IDS } from './data/libraryData';
 import { compareTitles } from './lib/libraryText';
 import { isSyncTextFile, syncTextStem } from './audio/transcripts';
 import { extractCoverPalette } from './lib/coverArt';
@@ -116,6 +115,11 @@ import { PlaybackReturnButton } from './components/player/PlaybackReturnButton';
 import { OnboardingSettings } from './components/OnboardingSettings';
 import { BookDetailsContent } from './components/BookDetailsContent';
 import { SortOptions } from './components/library/SortOptions';
+import { usePersistentState } from './app/usePersistentState';
+import { useCollectionForm } from './app/useCollectionForm';
+import { useCollectionsStore } from './app/useCollectionsStore';
+import { useEditorForms } from './app/useEditorForms';
+import { useLibraryStore } from './app/useLibraryStore';
 
 export const getSpeedIcon = (s: number) => {
   if (s < 1) return <Turtle size={14} className="shrink-0" />;
@@ -346,158 +350,15 @@ export default function App() {
   // Mobile: a barra de abas se recolhe ao rolar para baixo e volta ao rolar para cima (estado fora do App)
   const lastScrollTopRef = useRef(0);
   const [historyStack, setHistoryStack] = useState<ScreenState[]>([]);
-  const [books, setBooks] = useState<Audiobook[]>(() => loadBooksFromJson(safeLocalGet('app_books')));
-  // Gêneros e subgêneros dos audiobooks que a lista não tem passam a existir (antes de desenhar as telas)
-  useMemo(() => registerDiscoveredGenres(books), [books]);
-  const showExtraChapters = useShowExtraChapters();
-  const booksRef = useRef<Audiobook[]>(books);
-  booksRef.current = books;
-  const [authors, setAuthors] = useState<Author[]>(() => loadAuthorsFromJson(safeLocalGet('app_authors')));
-
-  // Dados da biblioteca: o IndexedDB é a fonte de verdade; nada é gravado nele antes de ser lido
-  // (senão uma cópia antiga do localStorage poderia sobrescrever os dados completos)
-  const [isLibraryDataHydrated, setIsLibraryDataHydrated] = useState(false);
-  const storageErrorShownRef = useRef(false);
-  // Gravações agrupadas e adiadas: transformar a biblioteca/fila em texto e gravar no aparelho é pesado;
-  // feito na hora (a cada mudança) travava a página por instantes e, no iPhone, chegava a cortar o áudio.
-  // Cada chave guarda só o último valor e é gravada ~0,5 s depois, quando o aparelho estiver livre
-  // (e na hora, se o app for fechado ou ficar em segundo plano).
-  const pendingWritesRef = useRef(new Map<string, () => void>());
-  const pendingTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
-  const flushPendingWrites = useCallback(() => {
-    pendingTimersRef.current.forEach(timer => clearTimeout(timer));
-    pendingTimersRef.current.clear();
-    const writes = Array.from(pendingWritesRef.current.values());
-    pendingWritesRef.current.clear();
-    writes.forEach(write => { try { write(); } catch {} });
-  }, []);
-  const scheduleWrite = useCallback((key: string, write: () => void) => {
-    pendingWritesRef.current.set(key, write);
-    const prev = pendingTimersRef.current.get(key);
-    if (prev) clearTimeout(prev);
-    pendingTimersRef.current.set(key, setTimeout(() => {
-      pendingTimersRef.current.delete(key);
-      const run = () => {
-        const fn = pendingWritesRef.current.get(key);
-        pendingWritesRef.current.delete(key);
-        try { fn?.(); } catch {}
-      };
-      const ric = (window as any).requestIdleCallback as ((cb: () => void, o?: { timeout: number }) => number) | undefined;
-      if (ric) ric(run, { timeout: 1500 }); else run();
-    }, 500));
-  }, []);
-  useEffect(() => {
-    const onHide = () => { if (document.visibilityState === 'hidden') flushPendingWrites(); };
-    window.addEventListener('pagehide', flushPendingWrites);
-    document.addEventListener('visibilitychange', onHide);
-    return () => {
-      window.removeEventListener('pagehide', flushPendingWrites);
-      document.removeEventListener('visibilitychange', onHide);
-    };
-  }, [flushPendingWrites]);
-
-  const persistLibraryData = useCallback((key: string, value: unknown) => {
-    scheduleWrite(key, () => {
-      const json = JSON.stringify(value);
-      writeLocalMirror(key, json);
-      writeAppData(key, json).catch(() => {
-        if (storageErrorShownRef.current) return;
-        storageErrorShownRef.current = true;
-        window.dispatchEvent(new CustomEvent('app-storage-error'));
-      });
-    });
-  }, [scheduleWrite]);
-
-  useEffect(() => {
-    if (!isLibraryDataHydrated) return;
-    persistLibraryData('app_books', books);
-  }, [books, isLibraryDataHydrated, persistLibraryData]);
-
-  useEffect(() => {
-    if (!isLibraryDataHydrated) return;
-    persistLibraryData('app_authors', authors);
-  }, [authors, isLibraryDataHydrated, persistLibraryData]);
+  const { authors, books, booksRef, isLibraryDataHydrated, persistLibraryData, scheduleWrite, setAuthors, setBooks, setIsLibraryDataHydrated, showExtraChapters } = useLibraryStore();
 
   // Estados de edição de Audiobook
-  const [isEditingBook, setIsEditingBook] = useState(false);
-  const [editBookTitle, setEditBookTitle] = useState('');
-  const [editBookAuthor, setEditBookAuthor] = useState('');
-  const [editBookCategory, setEditBookCategory] = useState('');
-  const [editBookSubgenre, setEditBookSubgenre] = useState('');
-  const [editBookCover, setEditBookCover] = useState('');
-  const [editBookDescription, setEditBookDescription] = useState('');
-  const [editBookNarrator, setEditBookNarrator] = useState('');
-  const [editBookLanguage, setEditBookLanguage] = useState('');
-  const [editBookChapters, setEditBookChapters] = useState<Chapter[]>([]);
-  const [editBookTranscript, setEditBookTranscript] = useState<TranscriptLine[]>([]);
-  const [editBookTranscriptSource, setEditBookTranscriptSource] = useState<'metadata' | 'upload' | undefined>(undefined);
-  const [editBookTranscriptFileName, setEditBookTranscriptFileName] = useState<string | undefined>(undefined);
-  const [bookCropImage, setBookCropImage] = useState<string | null>(null);
-  const [editCoverColor, setEditCoverColor] = useState<string>(GENERIC_COVER_COLORS[0].hex);
-
-  // Estados de edição de Autor
-  const [isEditingAuthor, setIsEditingAuthor] = useState(false);
-  const [editAuthorName, setEditAuthorName] = useState('');
-  const [editAuthorNationality, setEditAuthorNationality] = useState('');
-  const [editAuthorPicture, setEditAuthorPicture] = useState('');
-  const [editAuthorBio, setEditAuthorBio] = useState('');
-  const [authorCropImage, setAuthorCropImage] = useState<string | null>(null);
-  const [editAuthorColor, setEditAuthorColor] = useState<string>(GENERIC_COVER_COLORS[0].hex);
+  const { authorCropImage, bookCropImage, editAuthorBio, editAuthorColor, editAuthorName, editAuthorNationality, editAuthorPicture, editBookAuthor, editBookCategory, editBookChapters, editBookCover, editBookDescription, editBookLanguage, editBookNarrator, editBookSubgenre, editBookTitle, editBookTranscript, editBookTranscriptFileName, editBookTranscriptSource, editCoverColor, isEditingAuthor, isEditingBook, setAuthorCropImage, setBookCropImage, setEditAuthorBio, setEditAuthorColor, setEditAuthorName, setEditAuthorNationality, setEditAuthorPicture, setEditBookAuthor, setEditBookCategory, setEditBookChapters, setEditBookCover, setEditBookDescription, setEditBookLanguage, setEditBookNarrator, setEditBookSubgenre, setEditBookTitle, setEditBookTranscript, setEditBookTranscriptFileName, setEditBookTranscriptSource, setEditCoverColor, setIsEditingAuthor, setIsEditingBook } = useEditorForms();
 
   // Estados de Coleções Personalizadas
-  const [collections, setCollections] = useState<Collection[]>(() => loadCollectionsFromJson(safeLocalGet('app_custom_collections')));
+  const { collections, setCollections } = useCollectionsStore({ isLibraryDataHydrated, persistLibraryData, setAuthors, setBooks, setIsLibraryDataHydrated });
 
-  // Biblioteca já importada: reorganiza gêneros e subgêneros pela classificação atual
-  useEffect(() => {
-    if (!isLibraryDataHydrated) return;
-    setBooks(prev => {
-      let changed = false;
-      const next = prev.map(b => {
-        const r = resolveGenreList(b.category, b.subgenre);
-        if (r.category === b.category && r.subgenre === b.subgenre) return b;
-        changed = true;
-        return { ...b, category: r.category, subgenre: r.subgenre };
-      });
-      return changed ? next : prev;
-    });
-  }, [isLibraryDataHydrated]);
-
-  useEffect(() => {
-    if (!isLibraryDataHydrated) return;
-    persistLibraryData('app_custom_collections', collections);
-  }, [collections, isLibraryDataHydrated, persistLibraryData]);
-
-  // Abertura: o app aparece com a cópia rápida do localStorage e, em seguida, carrega os dados completos
-  // do IndexedDB (só atualiza o estado se forem diferentes, para não piscar)
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [savedBooks, savedAuthors, savedCollections] = await Promise.all([
-          readAppData('app_books'),
-          readAppData('app_authors'),
-          readAppData('app_custom_collections'),
-        ]);
-        if (cancelled) return;
-        if (savedBooks !== null && savedBooks !== safeLocalGet('app_books')) setBooks(loadBooksFromJson(savedBooks));
-        if (savedAuthors !== null && savedAuthors !== safeLocalGet('app_authors')) setAuthors(loadAuthorsFromJson(savedAuthors));
-        if (savedCollections !== null && savedCollections !== safeLocalGet('app_custom_collections')) setCollections(loadCollectionsFromJson(savedCollections));
-      } catch {}
-      if (!cancelled) setIsLibraryDataHydrated(true);
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>([]);
-
-  // Formulário de Criação / Edição de Coleção (Tela Cheia)
-  const [colFormName, setColFormName] = useState('');
-  const [colFormDesc, setColFormDesc] = useState('');
-  const [colFormPalette, setColFormPalette] = useState<(typeof COLLECTION_AVAILABLE_PALETTES)[number]>(COLLECTION_AVAILABLE_PALETTES[0]);
-  const [colFormEmoji, setColFormEmoji] = useState<string>(COLLECTION_AVAILABLE_EMOJIS[0]);
-  const [colSelectedBookIds, setColSelectedBookIds] = useState<string[]>([]);
-  const [colSelectedAuthorIds, setColSelectedAuthorIds] = useState<string[]>([]);
-  const [editingCollectionId, setEditingCollectionId] = useState<string | null>(null);
+  const { colFormDesc, colFormEmoji, colFormName, colFormPalette, colSelectedAuthorIds, colSelectedBookIds, editingCollectionId, selectedCollectionIds, setColFormDesc, setColFormEmoji, setColFormName, setColFormPalette, setColSelectedAuthorIds, setColSelectedBookIds, setEditingCollectionId, setSelectedCollectionIds } = useCollectionForm();
 
   // Popups pequenos de pesquisa dentro da tela de criação/edição
   const [showAddAuthorPopup, setShowAddAuthorPopup] = useState(false);
@@ -1520,9 +1381,9 @@ export default function App() {
     }
   }, [currentBook?.id, playbackQueue, loadAudioForBook]);
 
-  const [themeMode, setThemeMode] = useState<'dark'|'light'|'system'>(() => {
+  const [themeMode, setThemeMode] = usePersistentState<'dark'|'light'|'system'>('app_theme_mode', () => {
     return (localStorage.getItem('app_theme_mode') as 'dark'|'light'|'system') || 'dark';
-  });
+  }, (v) => v);
 
   // Paleta de Cores de Destaque
 
@@ -1882,29 +1743,29 @@ export default function App() {
   }, [authors, t]);
 
   // Ajustes: Biblioteca
-  const [libraryFolder, setLibraryFolder] = useState<string>(() => {
+  const [libraryFolder, setLibraryFolder] = usePersistentState<string>('app_library_folder', () => {
     const saved = localStorage.getItem('app_library_folder');
     if (!saved || saved.startsWith('D:\\') || saved.startsWith('D:/')) {
       return 'C:\\Audiobooks';
     }
     return saved;
-  });
-  const [detectNewFiles, setDetectNewFiles] = useState<DetectNewFilesMode>(() => {
+  }, (v) => v);
+  const [detectNewFiles, setDetectNewFiles] = usePersistentState<DetectNewFilesMode>('app_detect_files', () => {
     const saved = localStorage.getItem('app_detect_files');
     if (saved === 'manual' || saved === 'startup' || saved === 'folder-select') {
       return saved;
     }
     if (saved === 'false') return 'manual';
     return 'folder-select';
-  });
-  const [checkOnStartup, setCheckOnStartup] = useState<boolean>(() => localStorage.getItem('app_check_startup') !== 'false');
+  }, (v) => String(v));
+  const [checkOnStartup, setCheckOnStartup] = usePersistentState<boolean>('app_check_startup', () => localStorage.getItem('app_check_startup') !== 'false', (v) => String(v));
 
   // Ajustes: Reprodução
-  const [defaultPlaybackSpeed, setDefaultPlaybackSpeed] = useState<number>(() => Number(localStorage.getItem('app_default_speed')) || 1.0);
-  const [seekForwardTime, setSeekForwardTime] = useState<number>(() => Number(localStorage.getItem('app_seek_forward')) || 30);
-  const [seekBackwardTime, setSeekBackwardTime] = useState<number>(() => Number(localStorage.getItem('app_seek_backward')) || 30);
+  const [defaultPlaybackSpeed, setDefaultPlaybackSpeed] = usePersistentState<number>('app_default_speed', () => Number(localStorage.getItem('app_default_speed')) || 1.0, (v) => String(v));
+  const [seekForwardTime, setSeekForwardTime] = usePersistentState<number>('app_seek_forward', () => Number(localStorage.getItem('app_seek_forward')) || 30, (v) => String(v));
+  const [seekBackwardTime, setSeekBackwardTime] = usePersistentState<number>('app_seek_backward', () => Number(localStorage.getItem('app_seek_backward')) || 30, (v) => String(v));
   const [resumePlayback, setResumePlayback] = useState<boolean>(() => localStorage.getItem('app_resume_playback') !== 'false');
-  const [autoShowText, setAutoShowText] = useState<boolean>(() => localStorage.getItem('app_auto_show_text') !== 'false');
+  const [autoShowText, setAutoShowText] = usePersistentState<boolean>('app_auto_show_text', () => localStorage.getItem('app_auto_show_text') !== 'false', (v) => String(v));
 
   // Se a opção de continuar reprodução for ativada e o player estiver vazio,
   // restaura o último audiobook que foi tocado (se ainda existir na biblioteca)
@@ -2011,7 +1872,7 @@ export default function App() {
   }, [resumePlayback, currentBook, currentTime, playbackQueue]);
 
   // Ajustes: Notificações
-  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(() => localStorage.getItem('app_notifications_enabled') !== 'false');
+  const [notificationsEnabled, setNotificationsEnabled] = usePersistentState<boolean>('app_notifications_enabled', () => localStorage.getItem('app_notifications_enabled') !== 'false', (v) => String(v));
   const [notificationPermission, setNotificationPermission] = useState(getNotificationPermission);
   // Ligada só com a permissão do sistema (sem suporte, a chave continua valendo para os avisos dentro do app)
   const notificationsOn = notificationsEnabled && !['default', 'denied'].includes(notificationPermission);
@@ -2025,13 +1886,13 @@ export default function App() {
     if (permission === 'unsupported') showToast(t('toast_notif_unsupported'));
     else showSystemNotification(t('settings_notif_enabled'), t('notif_enabled_body'));
   };
-  const [notifyChapterCompleted, setNotifyChapterCompleted] = useState<boolean>(() => localStorage.getItem('app_notify_chapter') !== 'false');
-  const [notifyBookCompleted, setNotifyBookCompleted] = useState<boolean>(() => localStorage.getItem('app_notify_book') !== 'false');
-  const [notifyContent, setNotifyContent] = useState<boolean>(() => localStorage.getItem('app_notify_content') === 'true');
-  const [notifyBookAdded, setNotifyBookAdded] = useState<boolean>(() => localStorage.getItem('app_notify_added') !== 'false');
+  const [notifyChapterCompleted, setNotifyChapterCompleted] = usePersistentState<boolean>('app_notify_chapter', () => localStorage.getItem('app_notify_chapter') !== 'false', (v) => String(v));
+  const [notifyBookCompleted, setNotifyBookCompleted] = usePersistentState<boolean>('app_notify_book', () => localStorage.getItem('app_notify_book') !== 'false', (v) => String(v));
+  const [notifyContent, setNotifyContent] = usePersistentState<boolean>('app_notify_content', () => localStorage.getItem('app_notify_content') === 'true', (v) => String(v));
+  const [notifyBookAdded, setNotifyBookAdded] = usePersistentState<boolean>('app_notify_added', () => localStorage.getItem('app_notify_added') !== 'false', (v) => String(v));
 
   // Ajustes: Sistema
-  const [dataFolder, setDataFolder] = useState<string>(() => localStorage.getItem('app_data_folder') || '%APPDATA%\\AudiobookPlayer');
+  const [dataFolder, setDataFolder] = usePersistentState<string>('app_data_folder', () => localStorage.getItem('app_data_folder') || '%APPDATA%\\AudiobookPlayer', (v) => v);
   const [isSyncingLibrary, setIsSyncingLibrary] = useState<boolean>(false);
 
   const handleSelectFolder = async (onSelect: (folderPath: string) => void, _initialFolder: string) => {
@@ -3379,10 +3240,6 @@ export default function App() {
     if (meta) meta.setAttribute('content', resolvedTheme === 'dark' ? '#000000' : '#F0F2F5');
   }, [resolvedTheme]);
 
-  useEffect(() => {
-    try { localStorage.setItem('app_theme_mode', themeMode); } catch {}
-  }, [themeMode]);
-
   const [moreContrast, setMoreContrast] = useState(() => !!window.matchMedia?.('(prefers-contrast: more)').matches);
   useEffect(() => {
     const query = window.matchMedia?.('(prefers-contrast: more)');
@@ -4380,30 +4237,6 @@ export default function App() {
   }, [appLanguage, resolvedLanguage]);
 
   useEffect(() => {
-    try { localStorage.setItem('app_library_folder', libraryFolder); } catch {}
-  }, [libraryFolder]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_detect_files', String(detectNewFiles)); } catch {}
-  }, [detectNewFiles]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_check_startup', String(checkOnStartup)); } catch {}
-  }, [checkOnStartup]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_default_speed', String(defaultPlaybackSpeed)); } catch {}
-  }, [defaultPlaybackSpeed]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_seek_forward', String(seekForwardTime)); } catch {}
-  }, [seekForwardTime]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_seek_backward', String(seekBackwardTime)); } catch {}
-  }, [seekBackwardTime]);
-
-  useEffect(() => {
     try { 
       localStorage.setItem('app_resume_playback', String(resumePlayback)); 
       if (!resumePlayback) {
@@ -4412,33 +4245,6 @@ export default function App() {
       }
     } catch {}
   }, [resumePlayback]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_auto_show_text', String(autoShowText)); } catch {}
-  }, [autoShowText]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_notifications_enabled', String(notificationsEnabled)); } catch {}
-  }, [notificationsEnabled]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_notify_chapter', String(notifyChapterCompleted)); } catch {}
-  }, [notifyChapterCompleted]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_notify_book', String(notifyBookCompleted)); } catch {}
-  }, [notifyBookCompleted]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_notify_added', String(notifyBookAdded)); } catch {}
-  }, [notifyBookAdded]);
-  useEffect(() => {
-    try { localStorage.setItem('app_notify_content', String(notifyContent)); } catch {}
-  }, [notifyContent]);
-
-  useEffect(() => {
-    try { localStorage.setItem('app_data_folder', dataFolder); } catch {}
-  }, [dataFolder]);
 
   const handleResetSettings = () => {
     setThemeMode('dark');
