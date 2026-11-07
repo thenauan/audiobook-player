@@ -13344,6 +13344,3 @@ export default function App() {
 </AppScopeContext.Provider>
   );
 }
-
-
-export { CollectionPickerPopupContent, CollectionItemsPickerContent, CollectionsContext, useCollections } from './components/library/LibraryCards';

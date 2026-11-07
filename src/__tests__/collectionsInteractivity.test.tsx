@@ -4,7 +4,7 @@ import {
   CollectionPickerPopupContent,
   CollectionsContext,
   useCollections,
-} from '../App';
+} from '../components/library/LibraryCards';
 import { I18nContext, getTranslation } from '../i18n/translations';
 import type { Collection } from '../data/catalog';
 
