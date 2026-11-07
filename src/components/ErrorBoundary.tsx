@@ -3,6 +3,7 @@ import React, { Component, useState, useMemo, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AlertTriangle, RefreshCw, Database, Copy, Check, Eye } from 'lucide-react';
 import { type SupportedLanguage, getSystemLanguage } from '../i18n/translations';
+import { SPRING, FADE_OUT } from '../lib/motion';
 
 function getAppLanguageAtError(): SupportedLanguage {
   try {
@@ -406,7 +407,7 @@ ${error.stack || 'No stack trace available'}`;
             <motion.button
               type="button"
               animate={showStack
-                ? { scale: 0.5, opacity: 0, pointerEvents: 'none', transition: { duration: 0.12 } }
+                ? { scale: 0.5, opacity: 0, pointerEvents: 'none', transition: FADE_OUT }
                 : { scale: 1, opacity: 1, pointerEvents: 'auto', transition: { duration: 0 } }
               }
               onClick={(e) => {
@@ -440,7 +441,7 @@ ${error.stack || 'No stack trace available'}`;
                     initial={{ opacity: 0, scale: 0.15, filter: 'blur(6px)' }}
                     animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                     exit={{ opacity: 0, scale: 0.15, filter: 'blur(6px)' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                    transition={SPRING.snappy}
                     onClick={(e) => e.stopPropagation()}
                     style={{
                       position: 'absolute',

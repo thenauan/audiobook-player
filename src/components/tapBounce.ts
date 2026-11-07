@@ -1,7 +1,8 @@
-// ===== Toque nos botões como nos sistemas da Apple =====
-// Ao pressionar, o botão cresce um pouquinho; ao soltar, volta ao tamanho com uma mola elástica (um
-// "pulinho"). Usa a propriedade CSS `scale`, que se soma ao `transform` das animações (motion), então
-// não briga com o crescimento ao passar o mouse nem com as animações de entrada.
+// ===== Toque nos botões (Guia de movimento e layout) =====
+// O feedback começa ao encostar: o botão encolhe em 80 ms e, ao soltar, volta com a mola `press`. A ação nunca espera
+// pela animação. Usa a propriedade CSS `scale`, que se soma ao `transform` das animações (motion), então não briga
+// com as animações de entrada.
+import { CSS_SPRING } from '../lib/motion';
 
 const SELECTOR = 'button, [role="button"], [data-press]';
 // Cards das listas (Mais, Ajuda, Ajustes): no toque o card inteiro responde, mesmo tocando num botão dentro dele
@@ -9,39 +10,58 @@ const CARD = '.settings-list-row, [data-tap-card]';
 // Itens que têm efeito próprio (opções dos pop-ups, abas da barra, letra do player) ou que não são botões
 const EXCLUDE = '[data-popup-option], [role="tab"], [role="tablist"], .fullscreen-transcript, [data-no-press], input, textarea, select';
 
-// Mola: passa um pouco do tamanho final e assenta
-const RELEASE = 'scale 0.5s linear(0, 0.22 6%, 0.62 14%, 1.06 28%, 1.1 34%, 1.04 46%, 0.99 60%, 1.005 74%, 1)';
-const PRESS = 'scale 0.22s cubic-bezier(0.25, 1.4, 0.5, 1)';
-const HEADER_DELAY = 70;
+const EASE = 'cubic-bezier(0.2, 0, 0, 1)';
+const PRESS = [`scale 80ms ${EASE}`, `opacity 80ms ${EASE}`];
+const RELEASE = [`scale ${CSS_SPRING.press.ms}ms ${CSS_SPRING.press.curve}`, `opacity 200ms ${EASE}`];
+// Mesmo um toque rápido mostra o encolhimento
+const MIN_PRESS = 80;
 
 function pressScale(el: HTMLElement): number {
   const r = el.getBoundingClientRect();
   if (r.width === 0 || r.height === 0) return 1;
-  // Cards: bem pouquinho (quanto mais largo, menos, para não crescer demais)
-  if (el.matches(CARD)) return r.width > 520 ? 1.01 : 1.02;
-  // Botões grandes (linhas, cards) crescem menos; muito grandes não crescem
+  if (el.matches(CARD) || el.querySelector(':scope > img, [data-zoom-key]')) return 0.97;
+  // Linhas muito largas não encolhem: escalar uma linha larga parece quebrado
   if (r.width > 520 || r.height > 220) return 1;
-  if (r.width > 260 || r.height > 96) return 1.025;
-  if (r.width > 140 || r.height > 56) return 1.05;
-  return 1.1;
+  if (r.width <= 60 && r.height <= 60) return 0.88;
+  return r.width > 260 || r.height > 96 ? 0.97 : 0.96;
+}
+
+// Botões sem fundo também perdem um pouco de opacidade (no cabeçalho, um pouco mais)
+function pressOpacity(el: HTMLElement): string | null {
+  const c = getComputedStyle(el);
+  const clear = c.backgroundImage === 'none' && /(rgba\(.*, 0\)|transparent)/.test(c.backgroundColor);
+  if (!clear) return null;
+  return el.closest('[data-app-header]') ? '0.6' : '0.7';
 }
 
 export function installTapBounce(): () => void {
   if (typeof document === 'undefined') return () => {};
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return () => {};
   let current: HTMLElement | null = null;
+  let pressedAt = 0;
+
+  const finish = (el: HTMLElement) => {
+    if (current === el) return;
+    el.style.transition = appendTransition(el.dataset.pressPrevTransition || '', RELEASE);
+    el.style.scale = '';
+    if (el.dataset.pressPrevOpacity !== undefined) {
+      el.style.opacity = el.dataset.pressPrevOpacity;
+      delete el.dataset.pressPrevOpacity;
+    }
+    window.setTimeout(() => {
+      if (current === el) return;
+      el.style.transition = el.dataset.pressPrevTransition || '';
+      delete el.dataset.pressPrevTransition;
+    }, CSS_SPRING.press.ms + 20);
+  };
 
   const release = () => {
     const el = current;
     current = null;
     if (!el) return;
-    el.style.transition = appendTransition(el.dataset.pressPrevTransition || '', RELEASE);
-    el.style.scale = '';
-    window.setTimeout(() => {
-      if (current === el) return;
-      el.style.transition = el.dataset.pressPrevTransition || '';
-      delete el.dataset.pressPrevTransition;
-    }, 520);
+    const wait = MIN_PRESS - (performance.now() - pressedAt);
+    if (wait > 0) window.setTimeout(() => finish(el), wait);
+    else finish(el);
   };
 
   const onDown = (e: PointerEvent) => {
@@ -54,12 +74,18 @@ export function installTapBounce(): () => void {
     if (scale === 1) return;
     release();
     current = el;
+    pressedAt = performance.now();
     if (el.dataset.pressPrevTransition === undefined) el.dataset.pressPrevTransition = el.style.transition || '';
     el.style.transition = appendTransition(el.dataset.pressPrevTransition, PRESS);
     el.style.scale = String(scale);
+    const opacity = pressOpacity(el);
+    if (opacity) {
+      if (el.dataset.pressPrevOpacity === undefined) el.dataset.pressPrevOpacity = el.style.opacity || '';
+      el.style.opacity = opacity;
+    }
   };
 
-  // Arrastar para fora (rolar a lista) cancela o crescimento
+  // Arrastar para fora (rolar a lista) cancela o encolhimento
   const onMove = (e: PointerEvent) => {
     if (!current) return;
     const r = current.getBoundingClientRect();
@@ -67,83 +93,32 @@ export function installTapBounce(): () => void {
     if (e.clientX < r.left - out || e.clientX > r.right + out || e.clientY < r.top - out || e.clientY > r.bottom + out) release();
   };
 
-  // Voltar e avançar: o ícone dá uma volta para o lado do pulo
+  // Voltar e avançar: a seta gira 30° para o lado do pulo e volta com mola
   const onSpin = (e: MouseEvent) => {
     const icon = (e.target as HTMLElement | null)?.closest?.('button')?.querySelector?.('svg[data-spin]') as SVGElement | null;
     if (!icon?.animate) return;
-    const turn = Number(icon.getAttribute('data-spin')) * 360;
-    icon.animate([{ rotate: '0deg' }, { rotate: `${turn}deg` }], { duration: 480, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+    const turn = Number(icon.getAttribute('data-spin')) * 30;
+    icon.animate([{ rotate: '0deg' }, { rotate: `${turn}deg`, offset: 0.25 }, { rotate: '0deg' }], { duration: CSS_SPRING.bouncy.ms, easing: EASE });
   };
   document.addEventListener('click', onSpin, { capture: true, passive: true });
 
-  // Botões do cabeçalho e os que abrem pop-ups em qualquer lugar (morphTriggerAnimate deixa o "pointer-events"
-  // neles): o botão cresce um pouquinho, continua assim, e o pop-up nasce de dentro dele e segue crescendo, num
-  // movimento só. Com um pop-up aberto, ou em botões que só navegam (data-instant), a resposta é imediata. Tocar,
-  // pausar e pular nunca esperam.
-  const popupTrigger = (node: HTMLElement | null | undefined) => {
-    const button = node?.closest?.('button') as HTMLElement | null | undefined;
-    if (!button || button.matches('[data-instant]') || document.querySelector('[data-popup-content="true"]')) return null;
-    return button.closest('[data-app-header]') || button.style.pointerEvents === 'auto' ? button : null;
-  };
-  // Ao soltar, o botão fica crescido esperando o pop-up (sem o clique, volta ao normal)
-  let held: HTMLElement | null = null;
-  let heldTimer: number | undefined;
-  const letGo = () => {
-    window.clearTimeout(heldTimer);
-    if (!held) return;
-    current = held;
-    held = null;
-    release();
-  };
-  const onUp = () => {
-    if (current && popupTrigger(current) === current) {
-      held = current;
-      current = null;
-      heldTimer = window.setTimeout(letGo, 350);
-      return;
-    }
-    release();
-  };
-  const onClick = (e: MouseEvent) => {
-    if (!e.isTrusted || e.detail === 0) return;
-    const el = popupTrigger(e.target as HTMLElement | null);
-    if (!el) return;
-    e.stopImmediatePropagation();
-    e.preventDefault();
-    window.clearTimeout(heldTimer);
-    window.setTimeout(() => {
-      el.click();
-      window.setTimeout(() => {
-        if (held !== el) return;
-        // Abriu um pop-up: o botão já sumiu nele, então só volta ao tamanho sem animar. Se não abriu, volta com a mola
-        if (!document.querySelector('[data-popup-content="true"]')) { letGo(); return; }
-        held = null;
-        el.style.transition = el.dataset.pressPrevTransition || '';
-        el.style.scale = '';
-        delete el.dataset.pressPrevTransition;
-      }, 130);
-    }, HEADER_DELAY);
-  };
-  document.addEventListener('click', onClick, { capture: true });
-
   document.addEventListener('pointerdown', onDown, { capture: true, passive: true });
   document.addEventListener('pointermove', onMove, { capture: true, passive: true });
-  document.addEventListener('pointerup', onUp, { capture: true, passive: true });
+  document.addEventListener('pointerup', release, { capture: true, passive: true });
   document.addEventListener('pointercancel', release, { capture: true, passive: true });
   window.addEventListener('blur', release);
   return () => {
-    document.removeEventListener('click', onClick, { capture: true });
     document.removeEventListener('click', onSpin, { capture: true });
     document.removeEventListener('pointerdown', onDown, { capture: true });
     document.removeEventListener('pointermove', onMove, { capture: true });
-    document.removeEventListener('pointerup', onUp, { capture: true });
+    document.removeEventListener('pointerup', release, { capture: true });
     document.removeEventListener('pointercancel', release, { capture: true });
     window.removeEventListener('blur', release);
   };
 }
 
-// Mantém as transições que o elemento já tinha (cor, opacidade) e acrescenta a do tamanho
-function appendTransition(prev: string, add: string) {
-  const kept = prev.split(/,(?![^(]*\))/).map(s => s.trim()).filter(s => s && !s.startsWith('scale'));
-  return [...kept, add].join(', ');
+// Mantém as transições que o elemento já tinha (cor) e acrescenta as do toque
+function appendTransition(prev: string, add: string[]) {
+  const kept = prev.split(/,(?![^(]*\))/).map(s => s.trim()).filter(s => s && !s.startsWith('scale') && !s.startsWith('opacity'));
+  return [...kept, ...add].join(', ');
 }

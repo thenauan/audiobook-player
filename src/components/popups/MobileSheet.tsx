@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { placeDesktopPopup } from './popupOrigin';
 import { motion, AnimatePresence, useDragControls, type PanInfo } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
+import { SPRING, FADE_IN } from '../../lib/motion';
 
 // ===== Folha (sheet) estilo iOS — como a folha de compartilhar do iPhone =====
 // Sobe da base e ocupa quase toda a tela (detent "grande"), deixando à mostra só uma faixa no topo;
@@ -10,7 +11,7 @@ import { ChevronLeft } from 'lucide-react';
 // título centralizado e botão de voltar; arrastar para baixo pelo topo fecha. Com o teclado aberto,
 // a folha encolhe para ficar sempre acima dele.
 
-const SHEET_SPRING = { type: 'spring' as const, stiffness: 420, damping: 40, mass: 0.8 };
+const SHEET_SPRING = SPRING.sheet;
 
 // Teclado aberto: a folha continua até a base da tela (o fundo passa por trás do teclado, sem vão) e só o
 // conteúdo sobe. "shrink": quanto a própria janela encolheu (no iOS isso varia), para a folha compensar.
@@ -162,7 +163,7 @@ export function MobileSheet({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={FADE_IN}
             onClick={onClose}
           />
           <motion.div
@@ -176,7 +177,7 @@ export function MobileSheet({
             aria-label={title}
             initial={place ? place.motion.initial : { y: '100%' }}
             animate={place ? place.motion.animate : { y: 0 }}
-            exit={place ? place.motion.exit : { y: '100%' }}
+            exit={place ? place.motion.exit : { y: '100%', transition: SPRING.snappy }}
             transition={place ? place.motion.transition : SHEET_SPRING}
             drag={isDesktop ? false : 'y'}
             dragControls={dragControls}

@@ -9,6 +9,7 @@ import { getGenericBookCover, getAuthorAvatar } from '../../lib/coverArt';
 import type { QueueItem } from '../../audio/queueUtils';
 import { useI18n } from '../../i18n/translations';
 import { useTabBarCollapsed, useMobileBarSplit, tabBarStore, miniPresenceStore, MOBILE_BAR, MOBILE_GLASS_SHADOW, MOBILE_SHRINK_SCALE } from '../Sidebar';
+import { SPRING, FADE_OUT } from '../../lib/motion';
 
 export interface MiniPlayerProps {
   onPlayerPointerDownCapture?: (e: React.PointerEvent) => void;
@@ -56,8 +57,8 @@ const miniPlayerVariants = {
   fromFullscreen: { y: 0, opacity: 1 },
   visible: { y: 0, opacity: 1 },
   exit: (toFullscreen: boolean) => toFullscreen
-    ? { y: 0, opacity: 0, transition: { duration: 0.12, ease: "easeOut" as const } }
-    : { y: 20, opacity: 0, transition: { duration: 0.14, ease: [0.32, 0, 0.67, 0] as [number, number, number, number] } },
+    ? { y: 0, opacity: 0, transition: FADE_OUT }
+    : { y: 20, opacity: 0, transition: FADE_OUT },
 };
 
 export default function MiniPlayer({
@@ -109,7 +110,7 @@ export default function MiniPlayer({
       initial={enterFromFullscreen ? 'fromFullscreen' : 'hidden'}
       animate="visible"
       exit="exit"
-      transition={{ type: "spring", stiffness: 540, damping: 38, mass: 0.5 }}
+      transition={SPRING.snappy}
       className="desk-mini-safe fixed bottom-[88px] md:bottom-4 left-4 right-4 md:left-[296px] md:right-4 rtl:md:left-4 rtl:md:right-[296px] max-w-[848px] mx-auto z-[100] pointer-events-auto isolate flex items-center py-1.5"
       style={{
         gap: '22px',
@@ -122,7 +123,7 @@ export default function MiniPlayer({
       <motion.div
         layoutId="player-shell"
         aria-hidden="true"
-        transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
+        transition={{ layout: SPRING.zoom }}
         className="absolute inset-0 -z-10 pointer-events-none backdrop-blur-3xl border shadow-2xl"
         style={{ ...miniplayerAmbientStyle, borderRadius: 28 }}
       />
@@ -131,7 +132,7 @@ export default function MiniPlayer({
       <div className="shrink-0 flex items-center gap-1.5">
         <motion.button
                     layoutId="player-prev"
-                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
+                    transition={{ layout: SPRING.zoom }} 
           whileHover={{ scale: 1.12 }} 
           data-press="true" 
           onClick={() => {
@@ -151,7 +152,7 @@ export default function MiniPlayer({
 
         <motion.button
                     layoutId="player-seek-back"
-                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
+                    transition={{ layout: SPRING.zoom }} 
           whileHover={{ scale: 1.12 }} 
           data-press="true" 
           onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
@@ -164,7 +165,7 @@ export default function MiniPlayer({
 
         <motion.button
                     layoutId="player-play"
-                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
+                    transition={{ layout: SPRING.zoom }} 
           whileHover={{ scale: 1.12 }} 
           data-press="true" 
           onClick={() => setIsPlaying(!isPlaying)}
@@ -176,7 +177,7 @@ export default function MiniPlayer({
 
         <motion.button
                     layoutId="player-seek-fwd"
-                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
+                    transition={{ layout: SPRING.zoom }} 
           whileHover={{ scale: 1.12 }} 
           data-press="true" 
           onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
@@ -189,7 +190,7 @@ export default function MiniPlayer({
 
         <motion.button
                     layoutId="player-next"
-                    transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} 
+                    transition={{ layout: SPRING.zoom }} 
           whileHover={{ scale: 1.12 }} 
           data-press="true" 
           onClick={() => {
@@ -218,7 +219,7 @@ export default function MiniPlayer({
         {/* Capa do Audiobook */}
         <motion.img 
           layoutId="player-cover"
-          transition={{ type: "spring", stiffness: 680, damping: 52, mass: 0.5 }}
+          transition={SPRING.zoom}
           style={{ borderRadius: 8 }}
           src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)} 
           onError={(e) => handleBookCoverError(currentBook, e)}
@@ -246,7 +247,7 @@ export default function MiniPlayer({
             <motion.h4
               layoutId="player-chapter-title"
               layout="position"
-              transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }}
+              transition={{ layout: SPRING.zoom }}
               className="text-xs font-bold text-[var(--text-main)] truncate cursor-pointer hover:text-winblue transition-colors" 
               title={`${t('view_chapter_in_book')} (${currentChapter.title})`}
               onClick={(e) => {
@@ -263,7 +264,7 @@ export default function MiniPlayer({
           </div>
 
           {/* Linha 2: Título do livro e nome do autor abaixo do capítulo */}
-          <motion.div layoutId="player-book-line" layout="position" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] truncate min-w-0 w-full mt-0.5">
+          <motion.div layoutId="player-book-line" layout="position" transition={{ layout: SPRING.zoom }} className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] truncate min-w-0 w-full mt-0.5">
             <MarqueeText text={`${currentBook.title} • ${currentBook.author}`}>
             <span 
               className="hover:text-winblue cursor-pointer transition-colors font-medium"
@@ -293,7 +294,7 @@ export default function MiniPlayer({
           </motion.div>
 
           {/* Linha 3: Faixa de progressão com minutos corridos alinhados com o título */}
-          <motion.div layoutId="player-progress" transition={{ layout: { type: "spring", stiffness: 680, damping: 52, mass: 0.5 } }} className="w-full flex items-center gap-2 group mt-1">
+          <motion.div layoutId="player-progress" transition={{ layout: SPRING.zoom }} className="w-full flex items-center gap-2 group mt-1">
             <span className="text-[8px] text-[var(--text-muted)] shrink-0 whitespace-nowrap text-left">{formatTime(chapterElapsed)}</span>
             <div className="relative flex-1 flex items-center h-3.5">
               <input 
@@ -339,7 +340,7 @@ export default function MiniPlayer({
 // ===== Mobile: miniplayer simplificado (estilo Apple Music / Audible no iOS) =====
 // Capa, capítulo, "Audiobook • Autor" e play/pause. Fica acima da barra de abas e, quando a barra
 // se recolhe, desliza para o espaço entre os dois botões redondos. Tocar abre o player em tela cheia.
-const MORPH_LAYOUT = { layout: { type: 'spring' as const, stiffness: 680, damping: 52, mass: 0.5 } };
+const MORPH_LAYOUT = { layout: SPRING.zoom };
 
 export interface MobileMiniPlayerProps {
   // Algo acabou de entrar na fila
@@ -423,7 +424,7 @@ export function MobileMiniPlayer({
       initial={enterFromFullscreen ? 'fromFullscreen' : 'hidden'}
       animate="visible"
       exit="exit"
-      transition={{ type: "spring", stiffness: 540, damping: 38, mass: 0.5 }}
+      transition={SPRING.snappy}
       className={docked
         ? "fixed z-[100] pointer-events-auto isolate left-[288px] right-4 rtl:left-4 rtl:right-[288px] mx-auto max-w-[520px]"
         : "fixed z-[96] pointer-events-auto isolate"}
@@ -453,7 +454,7 @@ export function MobileMiniPlayer({
       >
         <motion.img
           layoutId="player-cover"
-          transition={{ type: "spring", stiffness: 680, damping: 52, mass: 0.5 }}
+          transition={SPRING.zoom}
           style={{ borderRadius: 8 }}
           src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)}
           onError={(e) => handleBookCoverError(currentBook, e)}
@@ -486,7 +487,7 @@ export function MobileMiniPlayer({
               initial={{ opacity: 0, scale: 0.5, width: 0 }}
               animate={{ opacity: 1, scale: 1, width: 24 }}
               exit={{ opacity: 0, scale: 0.5, width: 0 }}
-              transition={{ type: 'spring', stiffness: 520, damping: 30, mass: 0.5 }}
+              transition={SPRING.snappy}
               aria-hidden="true"
               className="shrink-0 flex items-center justify-center text-winblue"
             >

@@ -100,6 +100,7 @@ import { isSyncTextFile, syncTextStem } from './audio/transcripts';
 import { extractCoverPalette } from './lib/coverArt';
 import { slimQueueForStorage } from './audio/queueUtils';
 import { cancelLyricCentering, centerLyricLine } from './components/player/lyricScroll';
+import { SPRING, FADE_IN, FADE_OUT } from './lib/motion';
 
 const getSpeedIcon = (s: number) => {
   if (s < 1) return <Turtle size={14} className="shrink-0" />;
@@ -145,7 +146,7 @@ function setNavDirection(dir: NavDirection) {
 }
 const isMobileNav = () => typeof window !== 'undefined' && !!window.matchMedia?.('(max-width: 1023px)').matches;
 // Curva da navegação do iOS: rápida no começo e assentando suavemente (sem ultrapassar)
-const IOS_NAV = { type: 'spring', stiffness: 300, damping: 34, mass: 0.9, restDelta: 0.5 };
+const IOS_NAV = SPRING.snappy;
 // A tela que sai fica sobreposta à que entra (mesma posição), para as duas se moverem juntas.
 // Como a rolagem volta ao topo na troca, a tela que sai é deslocada pelo quanto estava rolada
 // (senão ela "pula" para o próprio topo e os itens piscam/se sobrepõem durante a animação).
@@ -193,25 +194,25 @@ const transicaoConteudo: any = {
     if (!isMobileNav()) {
       return {
         opacity: 1, scale: 1, y: 0, x: 0,
-        transition: { type: 'spring', stiffness: 520, damping: 38, mass: 0.55, opacity: { duration: 0.13, ease: 'easeOut' } },
+        transition: { ...SPRING.snappy, opacity: FADE_OUT },
       };
     }
-    if (navDirection === 'tab') return { opacity: 1, x: 0, scale: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } };
+    if (navDirection === 'tab') return { opacity: 1, x: 0, scale: 1, y: 0, transition: FADE_IN };
     if (navDirection === 'instant') return { opacity: 1, x: 0, scale: 1, y: 0, transition: { duration: 0 } };
-    return { opacity: 1, x: 0, scale: 1, y: 0, transition: { x: IOS_NAV, opacity: { duration: 0.3, ease: 'easeOut' } } };
+    return { opacity: 1, x: 0, scale: 1, y: 0, transition: { x: IOS_NAV, opacity: FADE_IN } };
   },
   get saindo() {
     if (!isMobileNav()) return { opacity: 0, scale: 0.99, y: -4, transition: { duration: 0.08, ease: [0.32, 0, 0.67, 0] } };
-    if (navDirection === 'push') return { ...exitOverlay(), x: '-30%', opacity: 0, zIndex: 1, transition: { ...OVERLAY_T, x: IOS_NAV, opacity: { duration: 0.22, ease: 'easeOut' } } };
-    if (navDirection === 'pop') return { ...exitOverlay(), x: '100%', opacity: 0, zIndex: 2, transition: { ...OVERLAY_T, x: IOS_NAV, opacity: { duration: 0.3, ease: 'easeIn' } } };
+    if (navDirection === 'push') return { ...exitOverlay(), x: '-30%', opacity: 0, zIndex: 1, transition: { ...OVERLAY_T, x: IOS_NAV, opacity: FADE_IN } };
+    if (navDirection === 'pop') return { ...exitOverlay(), x: '100%', opacity: 0, zIndex: 2, transition: { ...OVERLAY_T, x: IOS_NAV, opacity: FADE_IN } };
     if (navDirection === 'popSwipe') {
       // Continua de onde o dedo soltou até sair pela direita
       const w = swipeAreaWidth || window.innerWidth;
-      return { ...exitOverlay(), x: [swipeOffsetPx, w], opacity: 0, zIndex: 2, transition: { ...OVERLAY_T, x: { type: 'spring', stiffness: 380, damping: 40, mass: 0.7 }, opacity: { duration: 0.25, ease: 'easeIn' } } };
+      return { ...exitOverlay(), x: [swipeOffsetPx, w], opacity: 0, zIndex: 2, transition: { ...OVERLAY_T, x: SPRING.snappy, opacity: FADE_IN } };
     }
     if (navDirection === 'instant') return { ...exitOverlay(), opacity: 0, transition: { ...OVERLAY_T, opacity: { duration: 0 } } };
     // Troca de aba / volta para a capa: a tela que sai sai do fluxo na hora (a nova não é empurrada para baixo)
-    return { ...exitOverlay(), opacity: 0, transition: { ...OVERLAY_T, opacity: { duration: 0.12, ease: 'easeIn' } } };
+    return { ...exitOverlay(), opacity: 0, transition: { ...OVERLAY_T, opacity: FADE_OUT } };
   },
 };
 
@@ -3933,7 +3934,7 @@ export default function App() {
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
-              transition={{ type: 'spring', stiffness: 460, damping: 40, mass: 0.6 }}
+              transition={SPRING.snappy}
               className="flex flex-col"
             >
               <h1 className="text-[34px] md:text-5xl font-semibold text-white tracking-tight mb-7 md:mb-10 flex items-center gap-3 md:gap-4">
@@ -3955,7 +3956,7 @@ export default function App() {
                             key={idx}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            transition={{ type: 'spring', stiffness: 520, damping: 32, mass: 0.5 }}
+                            transition={SPRING.snappy}
                             onClick={() => setting.onSelect(option.value)}
                             className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] border transition-[background-color,border-color,box-shadow] duration-150 ${selected ? 'bg-winblue/20 border-winblue/40 hover:shadow-[0_0_16px_rgba(var(--winblue-rgb),0.35)]' : 'border-transparent hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_14px_rgba(255,255,255,0.15)]'}`}
                           >
@@ -4397,7 +4398,7 @@ export default function App() {
                       <motion.div
                         layoutId="sort-active-pill"
                         className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
-                        transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
+                        transition={SPRING.snappy}
                       />
                     )}
                     <div className={`relative z-10 flex items-center gap-3 transition-colors ${isSelected ? 'text-winblue font-bold' : 'text-[var(--text-main)] group-hover:text-white'}`}>
@@ -4410,7 +4411,7 @@ export default function App() {
                       <motion.div
                         layoutId="sort-active-check"
                         className="relative z-10 text-winblue shrink-0"
-                        transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
+                        transition={SPRING.snappy}
                       >
                         <BsCheck2 size={16} />
                       </motion.div>
@@ -5231,10 +5232,10 @@ export default function App() {
           key="playback-return-btn"
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.12 } }}
+          exit={{ opacity: 0, scale: 0.6, transition: FADE_OUT }}
           whileHover={{ scale: 1.08 }}
           data-press="true"
-          transition={{ type: "spring", stiffness: 520, damping: 32, mass: 0.5 }}
+          transition={SPRING.snappy}
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -8024,9 +8025,9 @@ export default function App() {
                   animate={{ opacity: 1, height: "auto", scale: 1 }}
                   exit={{ opacity: 0, height: 0, scale: 0.96 }}
                   transition={{
-                    height: { type: "spring", stiffness: 380, damping: 34, mass: 0.65 },
-                    opacity: { duration: 0.2, ease: [0.22, 1, 0.36, 1] },
-                    scale: { type: "spring", stiffness: 400, damping: 32, mass: 0.65 },
+                    height: SPRING.snappy,
+                    opacity: FADE_IN,
+                    scale: SPRING.snappy,
                   }}
                   className="overflow-visible shrink-0"
                   onClick={e => e.stopPropagation()}
@@ -8313,7 +8314,7 @@ export default function App() {
                           <motion.div
                             layoutId="fs-speed-active-pill"
                             className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
-                            transition={{ type: "spring", stiffness: 540, damping: 36, mass: 0.55 }}
+                            transition={SPRING.snappy}
                           />
                         )}
                         <div className="relative z-10 flex items-center gap-2.5">
@@ -8328,7 +8329,7 @@ export default function App() {
                           <motion.div
                             layoutId="fs-speed-active-check"
                             className="relative z-10 text-winblue shrink-0"
-                            transition={{ type: "spring", stiffness: 540, damping: 36, mass: 0.55 }}
+                            transition={SPRING.snappy}
                           >
                             <BsCheck2 size={16} />
                           </motion.div>
@@ -8528,7 +8529,7 @@ export default function App() {
                 initial={{ scale: 0.25, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 460, damping: 28, mass: 0.6 }}
+                transition={SPRING.snappy}
                 className="pointer-events-none flex items-center justify-center w-[14px] h-[22px] relative shrink-0"
               >
                 {queueAddedAnim.isBook ? (
@@ -8558,7 +8559,7 @@ export default function App() {
                 initial={{ scale: 0.25, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.25, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 480, damping: 28, mass: 0.6 }}
+                transition={SPRING.snappy}
                 className="pointer-events-none flex items-center justify-center"
               >
                 <ListMusic size={14} />
@@ -9027,7 +9028,7 @@ export default function App() {
                             <motion.div
                               layoutId="mini-speed-active-pill"
                               className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
-                              transition={{ type: "spring", stiffness: 540, damping: 36, mass: 0.55 }}
+                              transition={SPRING.snappy}
                             />
                           )}
                           <div className="relative z-10 flex items-center gap-2.5">
@@ -9042,7 +9043,7 @@ export default function App() {
                             <motion.div
                               layoutId="mini-speed-active-check"
                               className="relative z-10 text-winblue shrink-0"
-                              transition={{ type: "spring", stiffness: 540, damping: 36, mass: 0.55 }}
+                              transition={SPRING.snappy}
                             >
                               <BsCheck2 size={16} />
                             </motion.div>
@@ -9262,7 +9263,7 @@ export default function App() {
                 initial={{ scale: 0.25, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 460, damping: 28, mass: 0.6 }}
+                transition={SPRING.snappy}
                 className="pointer-events-none flex items-center justify-center w-[15px] h-[23px] relative shrink-0"
               >
                 {queueAddedAnim.isBook ? (
@@ -9292,7 +9293,7 @@ export default function App() {
                 initial={{ scale: 0.25, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.25, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 480, damping: 28, mass: 0.6 }}
+                transition={SPRING.snappy}
                 className="pointer-events-none flex items-center justify-center"
               >
                 <ListMusic size={isFullScreenMode ? 16 : 13} />
@@ -10890,7 +10891,7 @@ export default function App() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.08 } }}
-                    transition={{ type: 'spring', stiffness: 520, damping: 36, mass: 0.55 }}
+                    transition={SPRING.snappy}
                     whileHover={{ scale: 1.12 }}
                     data-press="true"
                     onClick={goBack}
@@ -10910,7 +10911,7 @@ export default function App() {
                       animate={backCollapsed
                         ? { maxWidth: 0, opacity: 0, marginLeft: 0, marginRight: 0, filter: 'blur(4px)' }
                         : { maxWidth: backLabelMaxWidth, opacity: 1, marginLeft: 6, marginRight: 0, filter: 'blur(0px)' }}
-                      transition={{ maxWidth: { type: 'spring', stiffness: 760, damping: 52, mass: 0.5 }, marginLeft: { type: 'spring', stiffness: 760, damping: 52, mass: 0.5 }, opacity: { duration: backCollapsed ? 0.08 : 0.14, delay: backCollapsed ? 0 : 0.05 }, filter: { duration: 0.12 } }}
+                      transition={{ maxWidth: SPRING.snappy, marginLeft: SPRING.snappy, opacity: { duration: backCollapsed ? 0.08 : 0.14, delay: backCollapsed ? 0 : 0.05 }, filter: FADE_OUT }}
                       className="block overflow-hidden whitespace-nowrap text-xs font-medium text-[var(--text-main)] truncate max-md:max-w-[40vw]"
                     >
                       {(() => {
@@ -11015,12 +11016,7 @@ export default function App() {
                   initial={{ opacity: 0, y: 7, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -5, scale: 0.96 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 520, 
-                    damping: 38, 
-                    mass: 0.55 
-                  }}
+                  transition={SPRING.snappy}
                   className="absolute left-1/2 -translate-x-1/2 top-[var(--app-header-top)] h-9 flex items-center justify-center pointer-events-auto cursor-default z-30 max-w-[42%] sm:max-w-[50%] md:max-w-[58%]"
                   title={currentScreenTitle}
                 >
@@ -11044,7 +11040,7 @@ export default function App() {
                 <motion.div
                   data-search-bar="true"
                   animate={{ x: searchQuery.length > 0 && !isMobile ? (resolvedLanguage === 'ar' ? 28 : -28) : 0 }}
-                  transition={{ type: "spring", stiffness: 460, damping: 34, mass: 0.6 }}
+                  transition={SPRING.snappy}
                   className="relative flex items-center max-md:w-[calc(100vw-32px)]"
                 >
                   <div className="relative group/searchbar max-md:w-full">
@@ -11126,7 +11122,7 @@ export default function App() {
                             initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={isMobile ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
-                            transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
+                            transition={SPRING.snappy}
                             onClick={(e) => e.stopPropagation()}
                             className={isMobile
                               ? "relative w-full flex flex-col"
@@ -11202,7 +11198,7 @@ export default function App() {
                         initial={{ opacity: 0, scale: 0.55, x: resolvedLanguage === 'ar' ? 18 : -18 }}
                         animate={{ opacity: 1, scale: 1, x: 0 }}
                         exit={{ opacity: 0, scale: 0.55, x: resolvedLanguage === 'ar' ? 18 : -18 }}
-                        transition={{ type: "spring", stiffness: 480, damping: 34, mass: 0.55 }}
+                        transition={SPRING.snappy}
                         whileHover={{ scale: 1.12 }}
                         data-press="true"
                         onClick={() => {
@@ -11233,10 +11229,10 @@ export default function App() {
                   {!isSelectionMode && !isEditingBook && !isEditingAuthor && activeScreen.id !== 'create-collection' && activeScreen.id !== 'edit-collection' && (
                     <motion.div
                       key={headerActionsKey}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.12, ease: 'easeOut' }}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.85 }}
+                      transition={{ ...SPRING.snappy, opacity: FADE_IN }}
                       className="flex items-center"
                     >
                       {renderMobileHeaderActions()}
@@ -11249,10 +11245,10 @@ export default function App() {
             <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={headerActionsKey}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.12, ease: 'easeOut' }}
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.85 }}
+              transition={{ ...SPRING.snappy, opacity: FADE_IN }}
               className={cn(
               "items-center gap-3 pointer-events-auto shrink-0 z-40",
               isMobile && !isSelectionMode && !isEditingBook && !isEditingAuthor && activeScreen.id !== 'create-collection' && activeScreen.id !== 'edit-collection' ? "hidden" : "flex"
@@ -11284,7 +11280,7 @@ export default function App() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.08 } }}
-                      transition={{ type: 'spring', stiffness: 520, damping: 36, mass: 0.55 }}
+                      transition={SPRING.snappy}
                       className="flex items-center gap-2.5"
                     >
                       <div className={`relative ${showDeleteSelectionConfirm ? 'z-50' : 'z-10'}`}>
@@ -11541,8 +11537,8 @@ export default function App() {
                                       animate={{ opacity: 1, scale: 1 }}
                                       exit={{ opacity: 0, scale: 0.18 }}
                                       transition={{
-                                        opacity: { duration: 0.13, ease: "easeOut" },
-                                        scale: { type: "spring", stiffness: 540, damping: 36, mass: 0.55 },
+                                        opacity: FADE_OUT,
+                                        scale: SPRING.snappy,
                                       }}
                                       style={{ transformOrigin: "top right" }}
                                       onClick={(e) => e.stopPropagation()}
@@ -11747,8 +11743,8 @@ export default function App() {
                         whileHover={{ scale: 1.12 }}
                         data-press="true"
                         animate={showDeleteSelectionConfirm
-                          ? { scale: 0.85, opacity: 0, pointerEvents: 'none', transition: { duration: 0.14 } }
-                          : { scale: 1, opacity: 1, pointerEvents: 'auto', transition: { type: "spring", stiffness: 500, damping: 30 } }
+                          ? { scale: 0.85, opacity: 0, pointerEvents: 'none', transition: FADE_OUT }
+                          : { scale: 1, opacity: 1, pointerEvents: 'auto', transition: SPRING.snappy }
                         }
                         onClick={() => {
                           setIsSelectionMode(false);
@@ -11772,7 +11768,7 @@ export default function App() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.08 } }}
-                      transition={{ type: 'spring', stiffness: 520, damping: 36, mass: 0.55 }}
+                      transition={SPRING.snappy}
                       className="flex items-center gap-2.5"
                     >
                       {/* CRIAÇÃO OU EDIÇÃO DE COLEÇÃO (TELA CHEIA) */}
@@ -11871,7 +11867,7 @@ export default function App() {
                                   whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   animate={morphTriggerAnimate(showSortMenu)}
-                                  transition={{ type: "spring", stiffness: 600, damping: 30 }}
+                                  transition={SPRING.bouncy}
                                   title={t('sort_by')} 
                                   onClick={(e) => { 
                                     e.stopPropagation(); 
@@ -11989,7 +11985,7 @@ export default function App() {
                               whileHover={{ scale: 1.12 }}
                               data-press="true"
                               animate={morphTriggerAnimate(showSortMenu)}
-                              transition={{ type: "spring", stiffness: 600, damping: 30 }}
+                              transition={SPRING.bouncy}
                               title={t('sort_by')} 
                               onClick={(e) => { 
                                 e.stopPropagation(); 
@@ -12058,7 +12054,7 @@ export default function App() {
                                   whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   animate={morphTriggerAnimate(showSortMenu)}
-                                  transition={{ type: "spring", stiffness: 600, damping: 30 }}
+                                  transition={SPRING.bouncy}
                                   title={t('sort_by')} 
                                   onClick={(e) => { 
                                     e.stopPropagation(); 
@@ -12565,7 +12561,7 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  transition={FADE_IN}
                   className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
                 >
                   {/* Cor sólida da capa (a mesma do cabeçalho), em tom escuro ou claro conforme o tema */}
@@ -12583,7 +12579,7 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  transition={FADE_IN}
                   className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
                 >
                   <img 
@@ -12605,7 +12601,7 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  transition={FADE_IN}
                   className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${col.gradient} opacity-[0.16] dark:opacity-[0.28] dark:mix-blend-screen`} />
@@ -12835,7 +12831,7 @@ export default function App() {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      transition={FADE_IN}
                     >
                       <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold text-[var(--text-main)]">{section.title}</h2>
@@ -12986,7 +12982,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    transition={FADE_IN}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('favorite_audiobooks')}</h2>
@@ -13056,7 +13052,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    transition={FADE_IN}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('favorite_authors')}</h2>
@@ -13099,7 +13095,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    transition={FADE_IN}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('collections')}</h2>
@@ -13140,7 +13136,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    transition={FADE_IN}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('genres')}</h2>
@@ -13166,7 +13162,7 @@ export default function App() {
                               initial={{ opacity: 0, scale: 0.94, filter: "blur(4px)" }}
                               animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                               exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
-                              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+                              transition={FADE_IN}
                               whileTap={{ scale: 0.97 }}
                               onClick={() => navigateTo('library-genre-' + genreData.id)}
                               className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
@@ -13202,7 +13198,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    transition={FADE_IN}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('authors')}</h2>
@@ -13244,7 +13240,7 @@ export default function App() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    transition={FADE_IN}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('languages')}</h2>
@@ -13272,7 +13268,7 @@ export default function App() {
                               initial={{ opacity: 0, scale: 0.94, filter: "blur(4px)" }}
                               animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                               exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
-                              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+                              transition={FADE_IN}
                               whileTap={{ scale: 0.97 }}
                               onClick={() => {
                                 setHistoryStack([{ id: 'library' }, { id: 'library-idiomas' }]);
@@ -13746,7 +13742,7 @@ export default function App() {
                             initial={{ opacity: 0, scale: 0.94, filter: "blur(4px)" }}
                             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                             exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
-                            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+                            transition={FADE_IN}
                             whileTap={{ scale: 0.97 }} 
                             onClick={() => {
                               if (isSelectionMode) {
@@ -14098,7 +14094,7 @@ export default function App() {
                             initial={{ opacity: 0, scale: 0.94, filter: "blur(4px)" }}
                             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                             exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
-                            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+                            transition={FADE_IN}
                             whileTap={{ scale: 0.97 }} 
                             onClick={() => {
                               if (isSelectionMode) {
@@ -14254,7 +14250,7 @@ export default function App() {
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -8 }}
-                                transition={{ duration: 0.25, ease: "easeOut" }}
+                                transition={FADE_IN}
                                 id={`group-section-${group.id}`}
                                 className="space-y-4 scroll-mt-24"
                               >
@@ -14309,7 +14305,7 @@ export default function App() {
                                             initial={{ opacity: 0, scale: 0.94, filter: "blur(4px)" }}
                                             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                                             exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
-                                            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+                                            transition={FADE_IN}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => {
                                               if (isSelectionMode) {
@@ -15674,7 +15670,7 @@ export default function App() {
                     <motion.div
                       initial={{ scale: 0.92, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: 'spring', stiffness: 360, damping: 26 }}
+                      transition={SPRING.snappy}
                       className="flex items-baseline gap-1 text-white text-3xl sm:text-4xl md:text-5xl tracking-tight mb-2"
                     >
                       <AppLogo className="text-white shrink-0" />
@@ -15707,7 +15703,7 @@ export default function App() {
                         whileHover={{ scale: 1.05 }}
                         data-press="true"
                         animate={morphTriggerAnimate(activeSettingSelector?.id === 'app-language')}
-                        transition={{ type: "spring", stiffness: 600, damping: 30 }}
+                        transition={SPRING.bouncy}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (activeSettingSelector?.id === 'app-language') {
@@ -15839,7 +15835,7 @@ export default function App() {
                       <motion.div
                         layoutId="setting-active-pill"
                         className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
-                        transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
+                        transition={SPRING.snappy}
                       />
                     )}
                     <div className={`relative z-10 flex items-center gap-2.5 transition-colors min-w-0 ${isSelected ? 'text-winblue font-bold' : 'text-[var(--text-main)] group-hover:text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`}>
@@ -15866,7 +15862,7 @@ export default function App() {
                       <motion.div
                         layoutId="setting-active-check"
                         className="relative z-10 text-winblue shrink-0 ml-2"
-                        transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
+                        transition={SPRING.snappy}
                       >
                         <BsCheck2 size={16} />
                       </motion.div>
@@ -15891,8 +15887,8 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 8, transition: { duration: 0.12 } }}
-              transition={{ type: "spring", stiffness: 520, damping: 36, mass: 0.55 }}
+              exit={{ opacity: 0, scale: 0.94, y: 8, transition: FADE_OUT }}
+              transition={SPRING.snappy}
               data-popup-content="true"
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-md bg-card/90 backdrop-blur-3xl border border-[var(--text-main)]/10 rounded-3xl shadow-2xl p-6 overflow-hidden flex flex-col max-h-[85vh]"
@@ -16117,7 +16113,7 @@ export default function App() {
                 dragElastic={{ top: 0, bottom: 0.8 }}
                 dragSnapToOrigin
                 onDragEnd={(_, info) => { if (info.offset.y > 110 || info.velocity.y > 600) closeSharePreview(); }}
-                transition={{ duration: 0.22 }}
+                transition={FADE_IN}
                 className="fixed inset-0 z-[9600] bg-black/85 backdrop-blur-2xl flex flex-col items-center"
                 style={{
                   paddingTop: 'max(16px, var(--safe-top))',
@@ -16140,7 +16136,7 @@ export default function App() {
                   <motion.img
                     initial={{ scale: 0.94, y: 12 }}
                     animate={{ scale: 1, y: 0 }}
-                    transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.6 }}
+                    transition={SPRING.snappy}
                     src={sharePreview.url}
                     alt=""
                     className="max-h-full max-w-full aspect-[9/16] rounded-[24px] object-contain shadow-2xl"

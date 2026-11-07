@@ -7,6 +7,7 @@ import { type LyricsHighlight } from '../../audio/lyricsPrefs';
 import type { TranscriptLine } from '../../data/catalog';
 
 import { formatTime } from '../../audio/playbackTiming';
+import { FADE_IN } from '../../lib/motion';
 
 // Uma frase da letra. A letra inteira fica na tela (rolagem até o fim e toque no ponto certo); como o tempo muda
 // várias vezes por segundo, só as frases que mudaram são redesenhadas, e só a frase ativa é dividida em palavras
@@ -144,7 +145,7 @@ function useLyricClock(audioRef: React.RefObject<HTMLAudioElement | null>, fallb
 }
 
 // Fade da letra, do player e dos desfoques ao abrir e fechar a letra
-export const LYRICS_FADE = { duration: 0.24, ease: 'easeOut' } as const;
+export const LYRICS_FADE = FADE_IN;
 
 export function LyricBlocks({ transcript, time: appTime, playing, audioRef, mode, onSeek, onMounted }: { transcript: TranscriptLine[]; time: number; playing: boolean; audioRef: React.RefObject<HTMLAudioElement | null>; mode: LyricsHighlight; onSeek: (time: number) => void; onMounted?: () => void }) {
   const time = useLyricClock(audioRef, appTime, playing);

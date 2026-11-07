@@ -4,6 +4,7 @@ import { AppLogo } from './AppLogo';
 import { Check, ArrowRight } from 'lucide-react';
 import { APP_VERSION } from '../version';
 import type { SupportedLanguage } from '../i18n/translations';
+import { SPRING, FADE_IN } from '../lib/motion';
 
 // ===== Tela de novidades =====
 // Aparece uma vez depois de o app ser atualizado, no mesmo visual da tela inicial. Ao publicar uma versão,
@@ -153,7 +154,7 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.02 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          transition={FADE_IN}
           className="fixed inset-0 z-[9800] overflow-y-auto bg-[#04070f] text-white select-none"
         >
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -167,7 +168,7 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
             <motion.div
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 360, damping: 26 }}
+              transition={SPRING.snappy}
               className="flex items-baseline gap-1 text-3xl sm:text-4xl tracking-tight mb-2"
             >
               <AppLogo className="shrink-0" />

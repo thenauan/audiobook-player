@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { PopupMorphContainer } from './Popovers';
+import { SPRING, FADE_IN } from '../../lib/motion';
 
 // ===== Versão mobile: menu de contexto estilo iOS (toque longo) =====
 
@@ -147,7 +148,7 @@ export function getSafeInsets(): { top: number; right: number; bottom: number; l
   return out;
 }
 
-const LIFT_SPRING = { type: 'spring' as const, stiffness: 420, damping: 30, mass: 0.6 };
+const LIFT_SPRING = SPRING.snappy;
 
 export function MobileContextMenu({
   open,
@@ -279,8 +280,8 @@ export function MobileContextMenu({
             className="fixed inset-0 z-[9990] bg-black/20 dark:bg-black/45 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.18 } }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, transition: FADE_IN }}
+            transition={FADE_IN}
             // Só fecha com um toque que comece no fundo: o "clique" gerado ao soltar o dedo que abriu o
             // menu (toque longo) cai aqui e não deve fechá-lo
             onPointerDown={() => { backdropArmedRef.current = true; }}
@@ -307,7 +308,7 @@ export function MobileContextMenu({
             style={{ left: r.left, top: r.top, width: r.width, transformOrigin: 'center center' }}
             initial={{ scale: 1, y: 0 }}
             animate={{ scale: 1.04, x: layout.shiftX, y: layout.shiftY }}
-            exit={{ scale: 1, x: 0, y: 0, opacity: 0, transition: { duration: 0.2 } }}
+            exit={{ scale: 1, x: 0, y: 0, opacity: 0, transition: FADE_IN }}
             transition={LIFT_SPRING}
           >
             {preview}

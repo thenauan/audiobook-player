@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, animate, useAnimate, useMotionValue, usePresence } from 'motion/react';
 import { MorphPopup, useCompactPopups, MORPH_EXIT_SPRING, MORPH_HANDOFF, MORPH_FAST_SPRING, MORPH_CONTENT_MOTION } from '../popups/Popovers';
+import { SPRING, FADE_IN, FADE_OUT } from '../../lib/motion';
 
 // ===== Pop-ups dos botões do player (marcações, velocidade, timer, fila, volume, texto) =====
 // Computador: o pop-up nasce do botão (MorphPopup). Celular: abre como a confirmação de exclusão — um
@@ -15,7 +16,7 @@ const KEEP_CLASS = /^(p[xytblr]?-|flex$|flex-col$|gap-|space-y-|text-left$|rtl:t
 
 // Quando o conteúdo do pop-up muda (ex.: timer ativo -> escolher tempo, lista -> edição), o pop-up muda de
 // tamanho com a mesma mola dos outros pop-ups e o conteúdo novo surge com um leve desfoque
-const CONTENT_RESIZE_SPRING = { type: 'spring' as const, stiffness: 320, damping: 36, mass: 1 };
+const CONTENT_RESIZE_SPRING = SPRING.snappy;
 function MorphingContent({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const height = useMotionValue<number | 'auto'>('auto');
@@ -59,7 +60,7 @@ function MorphingContent({ children, className = '' }: { children: React.ReactNo
         lastHeightRef.current = inner.offsetHeight;
       });
       if (Math.abs(h - last) > 12 && scope.current) {
-        animateScope(scope.current, { opacity: [0.35, 1], filter: ['blur(6px)', 'blur(0px)'] }, { duration: 0.28, ease: 'easeOut' });
+        animateScope(scope.current, { opacity: [0.35, 1], filter: ['blur(6px)', 'blur(0px)'] }, FADE_IN);
       }
     });
     ro.observe(inner);
@@ -217,7 +218,7 @@ export const PlayerPopup = React.forwardRef<HTMLDivElement, MorphPopupProps & { 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.16 }}
+        transition={FADE_OUT}
       />
       <MobilePlayerSheet ref={ref} source={source} keep={keep} onClick={onClick} rest={rest}>
         {children}

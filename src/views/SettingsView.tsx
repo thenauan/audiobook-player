@@ -20,6 +20,7 @@ import {
   getLanguageDisplayName,
   getSystemLanguage,
 } from '../i18n/translations';
+import { SPRING } from '../lib/motion';
 
 export const ACCENT_COLORS: Record<string, { name: string; hex: string; rgb: string; bgClass: string }> = {
   blue: { name: 'Azul', hex: '#0086F0', rgb: '0, 134, 240', bgClass: 'bg-[#0086F0]' },
@@ -389,7 +390,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                         layout
                         whileHover={{ scale: 1.06 }}
                         data-press="true"
-                        transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                        transition={SPRING.snappy}
                         onClick={(e) => {
                           e.stopPropagation();
                           closeAllPopups();
@@ -410,7 +411,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                           key="pop-license"
                           layoutId="license-popup-morph"
                           layout
-                          transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                          transition={SPRING.snappy}
                           data-popup-content="true"
                           onClick={(e) => e.stopPropagation()}
                           className="absolute bottom-0 right-0 w-[340px] max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[26px] shadow-2xl p-4 z-50 flex flex-col text-left overflow-hidden select-none"

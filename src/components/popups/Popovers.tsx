@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge';
 import type { Audiobook } from '../../data/catalog';
 import { getGenericBookCover } from '../../lib/coverArt';
 import { useI18n } from '../../i18n/translations';
+import { SPRING, FADE_IN, FADE_OUT } from '../../lib/motion';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -56,11 +57,11 @@ export function QueueItemRow({
   useEffect(() => () => releaseScrollBlock(), [releaseScrollBlock]);
   const settleSwipe = (open: boolean) => {
     setSwipeOpen(open);
-    animateValue(swipeX, open ? -REMOVE_W : 0, { type: 'spring', stiffness: 520, damping: 42, mass: 0.6 });
+    animateValue(swipeX, open ? -REMOVE_W : 0, SPRING.snappy);
   };
   const removeWithSwipe = () => {
     const w = rowRef.current?.offsetWidth || 360;
-    animateValue(swipeX, -w, { duration: 0.18, ease: [0.32, 0, 0.67, 0] }).then(() => onRemove());
+    animateValue(swipeX, -w, FADE_IN).then(() => onRemove());
   };
   const onTouchPointerDown = (e: React.PointerEvent) => {
     if (!isTouch || e.pointerType === 'mouse') return;
@@ -136,10 +137,10 @@ export function QueueItemRow({
       animate={{ opacity: 1, height: "auto", scale: 1 }}
       exit={{ opacity: 0, height: 0, scale: 0.96 }}
       transition={{
-        height: { type: "spring", stiffness: 480, damping: 36, mass: 0.55 },
-        opacity: { duration: 0.15, ease: [0.22, 1, 0.36, 1] },
-        scale: { type: "spring", stiffness: 480, damping: 36, mass: 0.55 },
-        layout: { type: "spring", stiffness: 480, damping: 36, mass: 0.55 },
+        height: SPRING.snappy,
+        opacity: FADE_OUT,
+        scale: SPRING.snappy,
+        layout: SPRING.snappy,
       }}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => {
@@ -342,7 +343,7 @@ export function MenuOptionItem({
     <motion.button
       animate={clicked ? { scale: 1.03 } : { scale: 1 }}
       whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 650, damping: 32, mass: 0.45 }}
+      transition={SPRING.snappy}
       onClick={handleClick}
       className={cn(
         "group w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium rounded-2xl transition-all duration-150 select-none text-left border border-transparent [&_svg]:transition-colors [&_svg]:shrink-0",
@@ -461,8 +462,8 @@ export function PagedMenu({
           animate="center"
           exit="exit"
           transition={{
-            opacity: { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] },
-            filter: { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] },
+            opacity: FADE_IN,
+            filter: FADE_IN,
             scale: MORPH_BOUNCE_SPRING,
           }}
           className="w-full"
@@ -492,13 +493,13 @@ export function PagedMenu({
 // até o tamanho final via clip-path; ao fechar, encolhe de volta para o botão. Sem distorcer o conteúdo.
 // Molas dos menus no estilo do iOS 26: o botão "se estica" até virar o menu com uma leve ultrapassagem
 // (efeito líquido) e, ao fechar, o menu se recolhe de volta para dentro do botão
-export const MORPH_SPRING = { type: "spring" as const, stiffness: 170, damping: 21, mass: 1 };
-export const MORPH_BOUNCE_SPRING = { type: "spring" as const, stiffness: 190, damping: 17, mass: 1 };
-export const MORPH_EXIT_SPRING = { type: "spring" as const, stiffness: 430, damping: 40, mass: 0.8 };
+export const MORPH_SPRING = SPRING.snappy;
+export const MORPH_BOUNCE_SPRING = SPRING.bouncy;
+export const MORPH_EXIT_SPRING = SPRING.press;
 // Momento (s) em que o pop-up, já encolhido no formato do botão, passa o lugar para ele (troca cruzada)
 export const MORPH_HANDOFF = { at: 0.17, fade: 0.1 };
 // Abertura rápida (pop-ups do player): cresce do botão sem demora, com um leve assentamento
-export const MORPH_FAST_SPRING = { type: "spring" as const, stiffness: 380, damping: 32, mass: 0.8 };
+export const MORPH_FAST_SPRING = SPRING.snappy;
 // Margem negativa para não cortar a sombra do pop-up depois de aberto
 export const MORPH_EXPANDED_CLIP = 'inset(calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) calc(0% + -80px) round 100px)';
 
@@ -583,7 +584,7 @@ export const MORPH_CONTENT_MOTION = {
     opacity: 0,
     scale: 0.92,
     filter: 'blur(8px)',
-    transition: { duration: 0.14, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
+    transition: FADE_OUT,
   },
   transition: {
     opacity: { duration: 0.22, delay: 0.06, ease: "easeOut" as const },
@@ -597,12 +598,12 @@ export const MORPH_CONTENT_MOTION = {
 // Ao fechar, no instante em que o pop-up termina de encolher para dentro dele, o botão reaparece maior e
 // "volta para o lugar" com uma mola até o tamanho normal (o pop-up parece entrar no botão)
 export const TRIGGER_RETURN_SCALE = 1.2;
-export const TRIGGER_RETURN_SPRING = { type: 'spring' as const, stiffness: 420, damping: 20, mass: 0.7 };
+export const TRIGGER_RETURN_SPRING = SPRING.bouncy;
 export function morphTriggerAnimate(isOpen: boolean) {
   return isOpen
     ? {
         opacity: 0, scale: TRIGGER_RETURN_SCALE, pointerEvents: 'none' as const,
-        transition: { opacity: { duration: 0.1 }, scale: { duration: 0, delay: 0.1 } },
+        transition: { opacity: FADE_OUT, scale: { duration: 0, delay: 0.1 } },
       }
     : {
         opacity: 1, scale: 1, pointerEvents: 'auto' as const,
@@ -890,8 +891,8 @@ export function PopupMorphContainer({
             animate="center"
             exit="exit"
             transition={{
-              opacity: { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] },
-              filter: { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] },
+              opacity: FADE_IN,
+              filter: FADE_IN,
               scale: MORPH_BOUNCE_SPRING,
               x: MORPH_SPRING,
             }}
@@ -981,7 +982,7 @@ export function SmoothSubMorph({
       animate={{ height: isMorphing ? height : 'auto' }}
       transition={
         enableSpring
-          ? { height: { type: "spring", stiffness: 520, damping: 38, mass: 0.55 } }
+          ? { height: SPRING.snappy }
           : { height: { duration: 0 } }
       }
       // Grade com uma célula: o conteúdo que sai e o que entra ficam sobrepostos (a altura nunca soma os dois,
@@ -997,9 +998,9 @@ export function SmoothSubMorph({
           animate="center"
           exit="exit"
           transition={{
-            opacity: { duration: 0.14, ease: [0.22, 1, 0.36, 1] },
-            scale: { type: "spring", stiffness: 520, damping: 38, mass: 0.55 },
-            y: { type: "spring", stiffness: 520, damping: 38, mass: 0.55 },
+            opacity: FADE_OUT,
+            scale: SPRING.snappy,
+            y: SPRING.snappy,
           }}
           style={{ gridArea: '1 / 1' }}
           className="w-full overflow-visible"

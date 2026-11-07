@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, animate, useMotionValue } from 'motion/react';
 import type { ZoomOriginDetail } from './popups/Popovers';
 import { isMobileViewport } from './popups/MobileContextMenu';
+import { SPRING, FADE_OUT } from '../lib/motion';
 
 type AnimationPlaybackControls = ReturnType<typeof animate>;
 
@@ -42,8 +43,8 @@ export function getZoomReturnRect(key: string): ZoomRect | null {
   return returnMap.get(key)?.rect || null;
 }
 
-const OPEN_SPRING = { type: 'spring' as const, stiffness: 620, damping: 50, mass: 0.6 };
-const CLOSE_SPRING = { type: 'spring' as const, stiffness: 660, damping: 52, mass: 0.55 };
+const OPEN_SPRING = SPRING.zoom;
+const CLOSE_SPRING = SPRING.snappy;
 // Tempo máximo acompanhando o card de destino (ele também está animando a entrada)
 const TRACK_MS = 600;
 const FIND_TIMEOUT_MS = 900;
@@ -293,7 +294,7 @@ export default function ZoomTransitionLayer({
           if (!foundAt) {
             foundAt = now;
             animate(radius, entry.radius, CLOSE_SPRING);
-            if (!heroMode && imageOpacity.get() < 1) controlsRef.current.push(animate(imageOpacity, 1, { duration: 0.16, ease: 'easeOut' }));
+            if (!heroMode && imageOpacity.get() < 1) controlsRef.current.push(animate(imageOpacity, 1, FADE_OUT));
             goTo(r);
           } else if (current && !sameRect(current, r)) {
             // O card ainda está se acomodando (animação de entrada): segue o movimento dele

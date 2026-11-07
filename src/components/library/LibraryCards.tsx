@@ -15,6 +15,7 @@ import { Play, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star,
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from '../popups/popupUtils';
 import { MobileConfirmCard } from '../popups/MobileConfirm';
 import { MobileContextMenu, useLongPress, isMobileViewport, useIsMobile } from '../popups/MobileContextMenu';
+import { SPRING, FADE_IN, FADE_OUT } from '../../lib/motion';
 
 export function _FavoriteChapterCard({
   item,
@@ -169,8 +170,8 @@ export function _FavoriteChapterCard({
                 <motion.div
                   initial={{ opacity: 0, scale: 0.94, filter: "blur(3px)" }}
                   animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, scale: 0.94, filter: "blur(3px)", transition: { duration: 0.12 } }}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  exit={{ opacity: 0, scale: 0.94, filter: "blur(3px)", transition: FADE_OUT }}
+                  transition={FADE_IN}
                   className="relative z-10 flex flex-col"
                 >
                   <MenuOptionItem 
@@ -383,7 +384,7 @@ export function PopupSearchField({
             initial={{ opacity: 0, scale: 0.55, width: 0, marginLeft: -8 }}
             animate={{ opacity: 1, scale: 1, width: isMobileField ? 44 : 36, marginLeft: 0 }}
             exit={{ opacity: 0, scale: 0.55, width: 0, marginLeft: -8 }}
-            transition={{ type: "spring", stiffness: 520, damping: 38, mass: 0.5 }}
+            transition={SPRING.snappy}
             whileHover={{ scale: 1.12 }}
             data-press="true"
             onClick={(e) => {
@@ -867,7 +868,7 @@ export function AuthorCard({
       initial={{ opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.92 }}
-      transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+      transition={FADE_IN}
       className={`group group/author relative flex flex-col ${showOptions ? 'z-50' : ''}`} 
       onContextMenu={(e) => {
         if (isMobileViewport()) { e.preventDefault(); e.stopPropagation(); openContextMenu(e.currentTarget as HTMLElement); return; }
@@ -1193,7 +1194,7 @@ export function OtherAppCard({
       initial={{ opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.92 }}
-      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+      transition={FADE_IN}
       className={`group group/appcard relative flex flex-col ${showOptions ? 'z-50' : ''}`}
       onContextMenu={(e) => {
         if (isMobileViewport()) { e.preventDefault(); e.stopPropagation(); openContextMenu(e.currentTarget as HTMLElement); return; }
@@ -1650,7 +1651,7 @@ export function BookCard({
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+      transition={FADE_OUT}
       className={`group/bookcard relative flex flex-col ${showOptions ? 'z-50' : ''} ${className || ''}`}
       onContextMenu={(e) => {
         if (isMobileViewport()) { e.preventDefault(); e.stopPropagation(); openContextMenu(e.currentTarget as HTMLElement); return; }
@@ -1976,7 +1977,7 @@ export function CollectionCard({
         initial={false}
         animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
         exit={{ opacity: 0, scale: 0.92, filter: 'blur(4px)' }}
-        transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+        transition={FADE_IN}
         whileTap={{ scale: 0.97 }}
         onClick={handleOpen}
         data-zoom-key={`collection-${col.id}`}

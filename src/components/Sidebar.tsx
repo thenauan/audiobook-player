@@ -5,6 +5,7 @@ import { RiBookOpenLine, RiApps2Line } from 'react-icons/ri';
 import { AppLogo } from './AppLogo';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { SPRING } from '../lib/motion';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -200,12 +201,12 @@ export function useMiniPresent(): boolean {
   return React.useSyncExternalStore(miniPresenceStore.subscribe, miniPresenceStore.get, miniPresenceStore.get);
 }
 
-const BAR_SPRING = { type: 'spring' as const, stiffness: 620, damping: 46, mass: 0.55 };
-const ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 40, mass: 0.55 };
+const BAR_SPRING = SPRING.snappy;
+const ICON_SPRING = SPRING.snappy;
 // iOS 26: ao tocar, a barra cresce um pouco e o destaque "levanta" (fica maior que a barra, como uma lente);
 // ao soltar, ele assenta com uma mola elástica e o ícone escolhido dá um pulinho
-const PRESS_SPRING = { type: 'spring' as const, stiffness: 520, damping: 22, mass: 0.6 };
-const PILL_MOVE_SPRING = { type: 'spring' as const, stiffness: 430, damping: 30, mass: 0.7 };
+const PRESS_SPRING = SPRING.bouncy;
+const PILL_MOVE_SPRING = SPRING.snappy;
 const ICON_BOUNCE = { duration: 0.46, times: [0, 0.32, 0.68, 1], ease: 'easeOut' as const };
 
 export interface MobileBottomBarProps {
