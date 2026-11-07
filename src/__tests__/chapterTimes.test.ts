@@ -1,11 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import {
-  formatTime,
-  formatCountdown,
-  calculateChapterTiming,
-  findChapterAtTime,
-} from '../audioUtils';
-import { Chapter } from '../data';
+import { formatTime, formatCountdown, calculateChapterTiming, findChapterAtTime } from '../audio/playbackTiming';
+import { Chapter } from '../data/catalog';
 
 describe('Chapter Times & Formatting Calculations', () => {
   describe('formatTime', () => {

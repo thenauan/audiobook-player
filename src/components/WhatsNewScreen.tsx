@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { AppLogo } from './AppLogo';
 import { Check, ArrowRight } from 'lucide-react';
 import { APP_VERSION } from '../version';
-import type { SupportedLanguage } from '../translations';
+import type { SupportedLanguage } from '../i18n/translations';
 
 // ===== Tela de novidades =====
 // Aparece uma vez depois de o app ser atualizado, no mesmo visual da tela inicial. Ao publicar uma versão,

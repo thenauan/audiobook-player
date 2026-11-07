@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { splitAuthorNames, bookHasAuthor, renameAuthorInField } from '../authorUtils';
+import { splitAuthorNames, bookHasAuthor, renameAuthorInField } from '../lib/authorUtils';
 
 describe('vários autores no mesmo audiobook', () => {
   it('separa por vírgula, & e ponto e vírgula', () => {

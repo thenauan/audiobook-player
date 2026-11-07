@@ -2,7 +2,7 @@
 // O campo de autor pode trazer mais de um nome, separados por vírgula, "&" ou ponto e vírgula
 // (ex.: "Neil Gaiman & Terry Pratchett", "Ana, Bruno"). Cada nome é um autor próprio: o audiobook aparece
 // na página e na lista de cada um. O texto original continua sendo o que se mostra no audiobook.
-import type { Audiobook } from './data';
+import type { Audiobook } from '../data/catalog';
 
 const SEPARATOR = /\s*(?:,|&|;)\s*/;
 
@@ -20,9 +20,6 @@ export function splitAuthorNames(raw: string | undefined | null): string[] {
   }
   return out;
 }
-
-// O nome tem mais de um autor?
-export const hasMultipleAuthors = (raw: string | undefined | null) => splitAuthorNames(raw).length > 1;
 
 // Nomes dos autores de um audiobook
 export const getBookAuthorNames = (book: Pick<Audiobook, 'author'>) => splitAuthorNames(book.author);

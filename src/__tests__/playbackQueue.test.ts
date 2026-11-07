@@ -8,8 +8,8 @@ import {
   reorderQueue,
   cleanQueueDeletedBooks,
   QueueItem,
-} from '../queueUtils';
-import { Audiobook, Chapter } from '../data';
+} from '../audio/queueUtils';
+import { Audiobook, Chapter } from '../data/catalog';
 
 describe('Playback Queue Management', () => {
   const mockBook1: Audiobook = {

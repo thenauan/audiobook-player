@@ -5,7 +5,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
 import App from '../App';
-import { BOOKS_DATABASE, AUTHORS_DATABASE } from '../data';
+import { BOOKS_DATABASE, AUTHORS_DATABASE } from '../data/catalog';
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 

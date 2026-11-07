@@ -1,11 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import {
-  findActiveTranscriptIndex,
-  findActiveWordIndex,
-  groupTimedWordsIntoSegments,
-  validateAndNormalizeTranscript,
-} from '../audioUtils';
-import { TranscriptLine, TranscriptWord } from '../data';
+import { findActiveTranscriptIndex, findActiveWordIndex } from '../audio/playbackTiming';
+import { groupTimedWordsIntoSegments, validateAndNormalizeTranscript } from '../audio/transcripts';
+import { TranscriptLine, TranscriptWord } from '../data/catalog';
 
 describe('Transcript Synchronization & Search', () => {
   const sampleTranscript: TranscriptLine[] = [

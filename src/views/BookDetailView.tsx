@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { useShowExtraChapters, visibleChapters } from '../chapterPrefs';
+import { useShowExtraChapters, visibleChapters } from '../audio/chapterPrefs';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Star,
@@ -23,24 +23,19 @@ import {
   PagedMenu,
   morphTriggerAnimate,
   checkChapterMenuShouldOpenUp,
-} from '../components/Popovers';
+} from '../components/popups/Popovers';
 import type {
   Audiobook,
   Chapter,
   TranscriptLine,
-} from '../data';
-import { resolveNarratorAndLanguage } from '../data';
-import { splitAuthorNames } from '../authorUtils';
-import {
-  getGenericBookCover,
-  getGenericCoverColor,
-  getBookHighlightTheme,
-  GENERIC_COVER_COLORS,
-} from '../audioUtils';
-import { getGenreName, getSubgenreName } from '../genreTranslations';
-import { getLanguageDisplayName, SupportedLanguage, useI18n } from '../translations';
+} from '../data/catalog';
+import { resolveNarratorAndLanguage } from '../data/catalog';
+import { splitAuthorNames } from '../lib/authorUtils';
+import { getGenericBookCover, getGenericCoverColor, getBookHighlightTheme, GENERIC_COVER_COLORS } from '../lib/coverArt';
+import { getGenreName, getSubgenreName } from '../i18n/genreTranslations';
+import { getLanguageDisplayName, SupportedLanguage, useI18n } from '../i18n/translations';
 
-const ImageCropperSquare = React.lazy(() => import('../ImageCropperSquare'));
+const ImageCropperSquare = React.lazy(() => import('../components/ImageCropperSquare'));
 
 // Autores do audiobook: cada nome ("A, B & C") é um link para a página daquele autor
 function AuthorLinks({ raw, authorId, onSelect, className = '', linkClassName = '' }: {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { GENRE_HIERARCHY, isBookInGenre, isBookInSubgenre, registerDiscoveredGenres, resolveGenreAndSubgenre, resolveGenreList, splitGenreValues } from '../data';
-import { getGenreName, getSubgenreName } from '../genreTranslations';
+import { GENRE_HIERARCHY, isBookInGenre, isBookInSubgenre, registerDiscoveredGenres, resolveGenreAndSubgenre, resolveGenreList, splitGenreValues } from '../data/catalog';
+import { getGenreName, getSubgenreName } from '../i18n/genreTranslations';
 
 const G = (key: string) => GENRE_HIERARCHY[key];
 

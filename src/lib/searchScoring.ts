@@ -1,5 +1,5 @@
 // Extraído do App.tsx (conteúdo sem alterações)
-import { matchesNationalityMultiLang } from '../nationalityTranslations';
+import { matchesNationalityMultiLang } from '../i18n/nationalityTranslations';
 
 export function normalizeSearchStr(str: string): string {
   return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();

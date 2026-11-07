@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isExtraChapter, visibleChapters } from '../chapterPrefs';
+import { isExtraChapter, visibleChapters } from '../audio/chapterPrefs';
 
 describe('capítulos extras', () => {
   it('reconhece introdução, agradecimentos e afins', () => {

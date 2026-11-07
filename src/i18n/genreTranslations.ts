@@ -1,5 +1,5 @@
 import type { SupportedLanguage } from './translations';
-import { splitGenreValues } from './genreData';
+import { splitGenreValues } from '../data/genreData';
 
 export const GENRE_TRANSLATIONS: Record<string, Record<SupportedLanguage, string>> = {
   'romance': { pt: 'Romance', en: 'Romance', es: 'Romance', ru: 'Любовные романы', ar: 'رومانسية' },

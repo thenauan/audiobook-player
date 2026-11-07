@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, animate, useMotionValue } from 'motion/react';
-import type { ZoomOriginDetail } from './Popovers';
-import { isMobileViewport } from './MobileContextMenu';
+import type { ZoomOriginDetail } from './popups/Popovers';
+import { isMobileViewport } from './popups/MobileContextMenu';
 
 type AnimationPlaybackControls = ReturnType<typeof animate>;
 

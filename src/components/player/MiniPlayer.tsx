@@ -1,14 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MarqueeText } from './MarqueeText';
+import { MarqueeText } from '../MarqueeText';
 import { SkipBack, SkipForward, ListPlus } from 'lucide-react';
 import { BsPlayFill, BsPauseFill, BsArrowCounterclockwise, BsArrowClockwise } from 'react-icons/bs';
-import type { Audiobook, Chapter, Author } from '../data';
-import { AUTHORS_DATABASE } from '../data';
-import { getGenericBookCover, getAuthorAvatar } from '../audioUtils';
-import type { QueueItem } from '../queueUtils';
-import { useI18n } from '../translations';
-import { useTabBarCollapsed, useMobileBarSplit, tabBarStore, miniPresenceStore, MOBILE_BAR, MOBILE_GLASS_SHADOW, MOBILE_SHRINK_SCALE } from './Sidebar';
+import type { Audiobook, Chapter, Author } from '../../data/catalog';
+import { AUTHORS_DATABASE } from '../../data/catalog';
+import { getGenericBookCover, getAuthorAvatar } from '../../lib/coverArt';
+import type { QueueItem } from '../../audio/queueUtils';
+import { useI18n } from '../../i18n/translations';
+import { useTabBarCollapsed, useMobileBarSplit, tabBarStore, miniPresenceStore, MOBILE_BAR, MOBILE_GLASS_SHADOW, MOBILE_SHRINK_SCALE } from '../Sidebar';
 
 export interface MiniPlayerProps {
   onPlayerPointerDownCapture?: (e: React.PointerEvent) => void;

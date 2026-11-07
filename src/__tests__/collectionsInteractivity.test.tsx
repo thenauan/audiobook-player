@@ -5,8 +5,8 @@ import {
   CollectionsContext,
   useCollections,
 } from '../App';
-import { I18nContext, getTranslation } from '../translations';
-import type { Collection } from '../data';
+import { I18nContext, getTranslation } from '../i18n/translations';
+import type { Collection } from '../data/catalog';
 
 describe('Collections Interactivity & Popups', () => {
   const mockCollections: Collection[] = [

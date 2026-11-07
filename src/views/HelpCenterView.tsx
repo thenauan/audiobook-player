@@ -1,4 +1,4 @@
-import { useIsMobile } from '../components/MobileContextMenu';
+import { useIsMobile } from '../components/popups/MobileContextMenu';
 import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import {
@@ -29,9 +29,9 @@ import {
   Hand,
   Smartphone,
 } from 'lucide-react';
-import { type HelpTheme, type HelpSubtheme } from '../helpData';
-import { getHelpThemes } from '../helpTranslations';
-import { SupportedLanguage } from '../translations';
+import { type HelpTheme, type HelpSubtheme } from '../data/helpData';
+import { getHelpThemes } from '../i18n/helpTranslations';
+import { SupportedLanguage } from '../i18n/translations';
 
 export interface HelpCenterViewProps {
   activeScreen: { id: string; data?: any };

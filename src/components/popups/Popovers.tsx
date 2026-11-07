@@ -1,83 +1,16 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, Reorder, useDragControls, useMotionValue, useTransform, animate as animateValue, type HTMLMotionProps } from 'motion/react';
-import { Play, Pause, ListPlus, Star, FileText, GripVertical, X, Trash2, Info, MoreHorizontal } from 'lucide-react';
+import { Play, GripVertical, X, MoreHorizontal } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import type { Audiobook } from '../data';
-import { getGenericBookCover } from '../audioUtils';
-import { useI18n } from '../translations';
+import type { Audiobook } from '../../data/catalog';
+import { getGenericBookCover } from '../../lib/coverArt';
+import { useI18n } from '../../i18n/translations';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function OptionsMenuPopover({ 
-  item: _item, 
-  type,
-  onClose,
-  onPlay,
-  onEdit: _onEdit,
-  onAddToQueue,
-  isPlaying,
-}: { 
-  item: any; 
-  type: 'book' | 'chapter'; 
-  onClose: () => void;
-  onPlay: () => void;
-  onEdit?: () => void;
-  onAddToQueue?: (position: 'next'|'last') => void;
-  isPlaying: boolean;
-}) {
-  const { t } = useI18n();
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="absolute right-0 top-full mt-2 w-44 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[20px] shadow-2xl z-50 overflow-hidden p-1.5"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <button onClick={() => { onPlay(); onClose(); }} className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-[var(--text-main)] rounded-2xl border border-transparent hover:bg-white/15 hover:text-white hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)] transition-all">
-        {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-        <span>{isPlaying ? t('stop_listening') : t('listen')}</span>
-      </button>
-      <button onClick={() => { onAddToQueue?.('next'); onClose(); }} className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-[var(--text-main)] rounded-2xl hover:bg-[var(--button-secondary-bg)] transition-colors">
-        <ListPlus size={14} />
-        <span>{t('play_next')}</span>
-      </button>
-      <button onClick={() => { onAddToQueue?.('last'); onClose(); }} className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-[var(--text-main)] rounded-2xl hover:bg-[var(--button-secondary-bg)] transition-colors">
-        <ListPlus size={14} />
-        <span>{t('add_to_queue_end')}</span>
-      </button>
-      <button onClick={onClose} className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-[var(--text-main)] rounded-2xl hover:bg-[var(--button-secondary-bg)] transition-colors">
-        <Star size={14} />
-        <span>{t('favorite')}</span>
-      </button>
-      
-      {type === 'book' && (
-        <>
-          <button onClick={onClose} className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-[var(--text-main)] rounded-2xl hover:bg-[var(--button-secondary-bg)] transition-colors">
-            <FileText size={14} />
-            <span>{t('go_to_author')}</span>
-          </button>
-        </>
-      )}
-
-      <button onClick={onClose} className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-[var(--text-main)] rounded-2xl hover:bg-[var(--button-secondary-bg)] transition-colors">
-        <Info size={14} />
-        <span>{t('information')}</span>
-      </button>
-
-      {type === 'book' && (
-        <button onClick={onClose} className="w-full px-3 py-2 flex items-center gap-2.5 text-xs text-red-500 rounded-2xl hover:bg-red-500/10 transition-colors mt-1 pt-1">
-          <Trash2 size={14} />
-          <span>{t('delete')}</span>
-        </button>
-      )}
-    </motion.div>
-  );
-}
 
 export interface QueueItemRowProps {
   item: any;
@@ -1134,141 +1067,6 @@ export function checkIsLeftEdgeCard(triggerEl: HTMLElement | null): boolean {
   return false;
 }
 
-export function getSmartPopupStyle(
-  triggerEl: HTMLElement | null,
-  width: number = 224,
-  height: number = 280,
-  maxPotentialWidth?: number,
-  maxPotentialHeight?: number,
-  preferredAlign: 'auto' | 'left' | 'right' = 'auto'
-): React.CSSProperties {
-  if (!triggerEl || typeof window === 'undefined') {
-    return { position: 'fixed', zIndex: 9999, width: `${width}px` };
-  }
-
-  const rect = triggerEl.getBoundingClientRect();
-  const margin = 12;
-
-  const sidebarEl = typeof document !== 'undefined' ? document.querySelector('aside') : null;
-  const isInsideSidebar = sidebarEl ? sidebarEl.contains(triggerEl) : false;
-  let leftBoundary = margin;
-  if (!isInsideSidebar && sidebarEl) {
-    const sRect = sidebarEl.getBoundingClientRect();
-    if (sRect.width > 0 && sRect.right > 0 && sRect.right < window.innerWidth) {
-      if (rect.left >= sRect.right - 8) {
-        leftBoundary = sRect.right + 8;
-      }
-    }
-  }
-  const rightBoundary = window.innerWidth - margin;
-
-  const miniplayerEl = typeof document !== 'undefined' ? document.getElementById('mini-player') : null;
-  const isInsideMiniplayer = miniplayerEl ? miniplayerEl.contains(triggerEl) : false;
-
-  let bottomBoundary: number;
-  if (isInsideMiniplayer) {
-    bottomBoundary = rect.top - 6;
-  } else if (miniplayerEl) {
-    const mRect = miniplayerEl.getBoundingClientRect();
-    bottomBoundary = mRect.top > 0 && mRect.top < window.innerHeight && mRect.height > 0
-      ? mRect.top - 8
-      : window.innerHeight - margin;
-  } else {
-    bottomBoundary = window.innerHeight - margin;
-  }
-
-  const topBoundary = margin;
-  const checkHeight = Math.max(height, maxPotentialHeight || height);
-  const checkWidth = Math.max(width, maxPotentialWidth || width);
-
-  let top: number;
-  let originY: 'top' | 'bottom' = 'top';
-
-  if (isInsideMiniplayer) {
-    top = Math.max(topBoundary, rect.top - height - 8);
-    originY = 'bottom';
-  } else {
-    const spaceBelow = bottomBoundary - rect.bottom - 6;
-    const spaceAbove = rect.top - topBoundary - 6;
-
-    let openUp = false;
-    if (spaceBelow < checkHeight + 8) {
-      openUp = true;
-    } else if (spaceAbove >= checkHeight && (rect.bottom > bottomBoundary * 0.55 || rect.top > window.innerHeight * 0.55)) {
-      openUp = true;
-    } else if (spaceBelow < spaceAbove && spaceAbove >= checkHeight) {
-      openUp = true;
-    } else if (spaceBelow < checkHeight && spaceAbove > spaceBelow) {
-      openUp = true;
-    }
-
-    if (openUp) {
-      top = Math.max(topBoundary, rect.top - height - 6);
-      originY = 'bottom';
-    } else {
-      top = rect.bottom + 6;
-      if (top + height > bottomBoundary) {
-        top = Math.max(topBoundary, bottomBoundary - height);
-      }
-      originY = 'top';
-    }
-  }
-
-  let left: number;
-  let originX: 'left' | 'right' = 'right';
-
-  const alignRightLeft = rect.right - width;
-  const alignLeftLeft = rect.left;
-
-  if (preferredAlign === 'left') {
-    if (alignLeftLeft >= leftBoundary && alignLeftLeft + checkWidth <= rightBoundary) {
-      left = alignLeftLeft;
-      originX = 'left';
-    } else if (rect.right - checkWidth >= leftBoundary && rect.right <= rightBoundary) {
-      left = alignRightLeft;
-      originX = 'right';
-    } else {
-      left = Math.min(Math.max(leftBoundary, rect.left), rightBoundary - width);
-      originX = 'left';
-    }
-  } else if (preferredAlign === 'right') {
-    if (rect.right - checkWidth >= leftBoundary && rect.right <= rightBoundary) {
-      left = alignRightLeft;
-      originX = 'right';
-    } else if (alignLeftLeft >= leftBoundary && alignLeftLeft + checkWidth <= rightBoundary) {
-      left = alignLeftLeft;
-      originX = 'left';
-    } else {
-      left = Math.max(leftBoundary, Math.min(rect.right - width, rightBoundary - width));
-      originX = 'right';
-    }
-  } else {
-    if (rect.right - checkWidth >= leftBoundary && rect.right <= rightBoundary) {
-      left = alignRightLeft;
-      originX = 'right';
-    } else if (alignLeftLeft >= leftBoundary && alignLeftLeft + checkWidth <= rightBoundary) {
-      left = alignLeftLeft;
-      originX = 'left';
-    } else {
-      if (rect.left < (leftBoundary + rightBoundary) / 2) {
-        left = Math.min(Math.max(leftBoundary, rect.left), rightBoundary - width);
-        originX = 'left';
-      } else {
-        left = Math.max(leftBoundary, Math.min(rect.right - width, rightBoundary - width));
-        originX = 'right';
-      }
-    }
-  }
-
-  return {
-    position: 'fixed',
-    top: `${Math.round(top)}px`,
-    left: `${Math.round(left)}px`,
-    width: `${width}px`,
-    zIndex: 9999,
-    transformOrigin: `${originY} ${originX}`,
-  };
-}
 
 export function getBookDurationInSeconds(book: Audiobook): number {
   const fromChapters = (book.chapters || []).reduce((s, c) => s + (c.duration || 0), 0);

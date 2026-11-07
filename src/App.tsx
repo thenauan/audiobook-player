@@ -16,36 +16,39 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-import { Audiobook, Author, Chapter, TranscriptLine, AUTHORS_DATABASE, BOOKS_DATABASE, INITIAL_COLLECTIONS, GENRE_HIERARCHY, getGenreEmoji, getSubgenreEmoji, getSubgenreGradient, resolveNarratorAndLanguage, isBookInGenre, isBookInSubgenre, resolveGenreList, registerDiscoveredGenres, Collection, COLLECTION_AVAILABLE_EMOJIS, COLLECTION_AVAILABLE_PALETTES } from './data';
-import { parseAudioMetadata, parseSynchronizedTextFile, getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, GENERIC_COVER_COLORS, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex, findActiveTranscriptIndex } from './audioUtils';
-import { storeAudioBlob, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audioStorage';
-import { readAppData, writeAppData, writeLocalMirror } from './appDataStore';
-import { autoCropImageToSquare, autoCropImageToEbookCover } from './imageProcessing';
+import { Audiobook, Author, Chapter, TranscriptLine, AUTHORS_DATABASE, BOOKS_DATABASE, INITIAL_COLLECTIONS, GENRE_HIERARCHY, getGenreEmoji, getSubgenreEmoji, getSubgenreGradient, resolveNarratorAndLanguage, isBookInGenre, isBookInSubgenre, resolveGenreList, registerDiscoveredGenres, Collection, COLLECTION_AVAILABLE_EMOJIS, COLLECTION_AVAILABLE_PALETTES } from './data/catalog';
+import { parseAudioMetadata } from './audio/audioMetadata';
+import { parseSynchronizedTextFile } from './audio/transcripts';
+import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, GENERIC_COVER_COLORS, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex } from './lib/coverArt';
+import { findActiveTranscriptIndex } from './audio/playbackTiming';
+import { storeAudioBlob, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
+import { readAppData, writeAppData, writeLocalMirror } from './data/appDataStore';
+import { autoCropImageToSquare, autoCropImageToEbookCover } from './lib/imageProcessing';
 import Sidebar, { MobileBottomBar, tabBarStore } from './components/Sidebar';
-import { QueueItemRow, MenuOptionItem, PagedMenu, PopupMorphContainer, SmoothSubMorph, getBookDurationInSeconds, clearButtonCoverAnchorCache, getButtonCoverPopupStyle, MorphPopup, morphTriggerAnimate, EMPTY_BOOK } from './components/Popovers';
-import MiniPlayer, { MobileMiniPlayer } from './components/MiniPlayer';
-import FullscreenPlayer from './components/FullscreenPlayer';
+import { QueueItemRow, MenuOptionItem, PagedMenu, PopupMorphContainer, SmoothSubMorph, getBookDurationInSeconds, clearButtonCoverAnchorCache, getButtonCoverPopupStyle, MorphPopup, morphTriggerAnimate, EMPTY_BOOK } from './components/popups/Popovers';
+import MiniPlayer, { MobileMiniPlayer } from './components/player/MiniPlayer';
+import FullscreenPlayer from './components/player/FullscreenPlayer';
 import BookDetailView from './views/BookDetailView';
-import { useIsMobile, useIsTouchDevice, useIsCompactPlayer, useIsLandscapePhone } from './components/MobileContextMenu';
-import { MobileSheet } from './components/MobileSheet';
-import { desktop, IS_INSTALLED_APP, IS_APPLE_TOUCH } from './desktopBridge';
-import { PlayerPopup } from './components/PlayerPopup';
+import { useIsMobile, useIsTouchDevice, useIsCompactPlayer, useIsLandscapePhone } from './components/popups/MobileContextMenu';
+import { MobileSheet } from './components/popups/MobileSheet';
+import { desktop, IS_INSTALLED_APP, IS_APPLE_TOUCH } from './lib/desktopBridge';
+import { PlayerPopup } from './components/player/PlayerPopup';
 import { ScreenErrorBoundary } from './components/ScreenErrorBoundary';
 import { APP_VERSION } from './version';
-import { getNotificationPermission, notifySystem, requestNotificationPermission, showSystemNotification } from './systemNotifications';
-import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
-import { MobileConfirmCard } from './components/MobileConfirm';
+import { getNotificationPermission, notifySystem, requestNotificationPermission, showSystemNotification } from './lib/systemNotifications';
+import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './lib/shareStory';
+import { MobileConfirmCard } from './components/popups/MobileConfirm';
 import { installTapBounce } from './components/tapBounce';
-import { getSystemInfo } from './liteMode';
+import { getSystemInfo } from './lib/liteMode';
 import { WhatsNewScreen } from './components/WhatsNewScreen';
-import { useShowExtraChapters, visibleChapters } from './chapterPrefs';
-import { diag } from './playbackDiag';
-import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './authorUtils';
+import { useShowExtraChapters, visibleChapters } from './audio/chapterPrefs';
+import { diag } from './audio/playbackDiag';
+import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './lib/authorUtils';
 import { MobileHeaderActions, type MobileHeaderAction } from './components/MobileHeaderActions';
-import { installTouchMenus } from './components/touchMenu';
+import { installTouchMenus } from './components/popups/touchMenu';
 import { installScrollFades } from './components/scrollFade';
 import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo, getZoomReturnRect } from './components/ZoomTransitionLayer';
-const loadImageCropperSquare = () => import('./ImageCropperSquare');
+const loadImageCropperSquare = () => import('./components/ImageCropperSquare');
 const loadHelpCenterView = () => import('./views/HelpCenterView');
 const loadSettingsView = () => import('./views/SettingsView');
 // Tela sob demanda que, depois de pré-carregada, aparece na hora (sem passar pela tela de carregamento,
@@ -72,9 +75,9 @@ if (typeof window !== 'undefined') {
   if (ric) ric(preload, { timeout: 2500 });
   else setTimeout(preload, 1500);
 }
-import { getHelpThemes } from './helpTranslations';
-import { getGenreName, getSubgenreName } from './genreTranslations';
-import { getNationalityDisplayName, NATIONALITIES_LIST, findNationalityEntry } from './nationalityTranslations';
+import { getHelpThemes } from './i18n/helpTranslations';
+import { getGenreName, getSubgenreName } from './i18n/genreTranslations';
+import { getNationalityDisplayName, NATIONALITIES_LIST, findNationalityEntry } from './i18n/nationalityTranslations';
 import {
   type AppLanguage,
   type SupportedLanguage,
@@ -86,12 +89,17 @@ import {
   getSystemLanguage,
   getTranslation,
   I18nContext,
-} from './translations';
+} from './i18n/translations';
 import { Text, Headphones, ExternalLink, Share, Download, Quote, Play, Pause, ListPlus, FileText, FilePlus2, Info, MoreHorizontal, Edit3, Maximize2, Upload, ArrowDownAZ, ArrowUpZA, Calendar, CalendarClock, Clock, Timer, BookOpen, User, Gauge, FolderOpen, ChevronRight, ChevronDown, Check, Database, FileAudio, HardDrive, Star, StarOff, Palette, Type, RotateCcw, Bell, RefreshCw, Bookmark, ArrowUpDown, Code2, Globe, Turtle, Rabbit, Clock3, Clock6, Clock9, Clock12, Dog, Bird, FolderPlus, Plus, Sun, Laptop, Monitor, Hand, ALargeSmall } from 'lucide-react';
-import { normalizeSearchStr, toPhoneticSearchStr, evaluateSearchTermMatch, matchesNationality } from './components/searchScoring';
-import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './components/popupUtils';
-import { _FavoriteChapterCard, CollectionCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, AuthorCard, OtherAppCard, _FavoriteAuthorCard, BookCard, ScreenSelectableRow, SCREEN_GROUP_CLASS, PopupSearchField } from './components/LibraryCards';
-import { MOCK_DEV_AUTHORS, MOCK_DEV_AUDIOBOOKS, normalizeBookCompareStr, extractNormalizedFileName, isSameAudiobook, deduplicateAudiobooks, loadBooksFromJson, loadAuthorsFromJson, loadCollectionsFromJson, safeLocalGet, isTestBookId, isTestAuthorId, TEST_COLLECTION_IDS } from './components/libraryData';
+import { normalizeSearchStr, toPhoneticSearchStr, evaluateSearchTermMatch, matchesNationality } from './lib/searchScoring';
+import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './components/popups/popupUtils';
+import { _FavoriteChapterCard, CollectionCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, AuthorCard, OtherAppCard, _FavoriteAuthorCard, BookCard, ScreenSelectableRow, SCREEN_GROUP_CLASS, PopupSearchField } from './components/library/LibraryCards';
+import { MOCK_DEV_AUTHORS, MOCK_DEV_AUDIOBOOKS, normalizeBookCompareStr, extractNormalizedFileName, isSameAudiobook, deduplicateAudiobooks, loadBooksFromJson, loadAuthorsFromJson, loadCollectionsFromJson, safeLocalGet, isTestBookId, isTestAuthorId, TEST_COLLECTION_IDS } from './data/libraryData';
+import { compareTitles, isAutoGeneratedBio } from './lib/libraryText';
+import { isSyncTextFile, syncTextStem } from './audio/transcripts';
+import { extractCoverPalette } from './lib/coverArt';
+import { slimQueueForStorage } from './audio/queueUtils';
+import { cancelLyricCentering, centerLyricLine } from './components/player/lyricScroll';
 
 const getSpeedIcon = (s: number) => {
   if (s < 1) return <Turtle size={14} className="shrink-0" />;
@@ -115,63 +123,6 @@ type ScreenState = {
   scrollTop?: number; // Rolagem da tela ao sair dela (restaurada ao voltar)
 };
 
-
-// Ordena titulos com numeros antes das letras e em ordem numerica natural ("2" antes de "10")
-const LEADING_DIGIT_RE = /^[0-9\u0660-\u0669\u06F0-\u06F9]/;
-function compareTitles(a: string, b: string, lang: string): number {
-  const clean = (x: string) => (x || '').trim().replace(/^[\s"'()[\]{}._-]+/, '');
-  const ca = clean(a);
-  const cb = clean(b);
-  const da = LEADING_DIGIT_RE.test(ca);
-  const db = LEADING_DIGIT_RE.test(cb);
-  if (da !== db) return da ? -1 : 1;
-  return ca.localeCompare(cb, lang, { sensitivity: 'base', numeric: true });
-}
-
-// Biografias geradas automaticamente por versões antigas (sempre em português): tratadas como vazias
-function isAutoGeneratedBio(bio: string): boolean {
-  return /^(Obras de|Autor de) .+\.$/.test(bio.trim());
-}
-
-// ===== Transições entre telas =====
-// Computador: surge suavemente. Celular: como a navegação do iOS — as duas telas se movem juntas:
-// ao avançar, a nova entra por cima deslizando da direita e a anterior recua um terço para a esquerda,
-// escurecendo um pouco; ao voltar, o contrário. Trocar de aba (ou abrir pela capa) só funde as telas.
-// "popSwipe": o gesto da borda já levou a tela embora; a anterior só termina de voltar ao lugar.
-// "instant": o próprio navegador (Safari) já animou o voltar com o gesto dele; aqui a troca é imediata.
-// Arquivos de texto sincronizado aceitos junto com o áudio, e o "nome-base" usado para achar o par
-const SYNC_TEXT_SUFFIXES = ['.sync.json', '.json', '.epub', '.xml', '.smil', '.smi', '.vtt', '.srt', '.lrc'];
-function isSyncTextFile(name: string) {
-  const lower = name.toLowerCase();
-  return SYNC_TEXT_SUFFIXES.some(sfx => lower.endsWith(sfx));
-}
-function syncTextStem(name: string) {
-  const base = (name.split(/[\\/]/).pop() || '').toLowerCase();
-  const sfx = SYNC_TEXT_SUFFIXES.find(x => base.endsWith(x));
-  const noExt = sfx ? base.slice(0, -sfx.length) : base.replace(/\.[^.]+$/, '');
-  return noExt.normalize('NFC').trim();
-}
-
-// Leva a frase ao centro da letra. A posição é medida pela tela (dentro dos blocos da letra, offsetTop é relativo ao
-// bloco). Saltos longos vão direto e são conferidos logo depois: os blocos fora da tela têm altura estimada, que
-// muda quando eles são desenhados.
-let lyricCenterRun = 0;
-function centerLyricLine(container: HTMLElement, el: HTMLElement, instant = false) {
-  const run = ++lyricCenterRun;
-  const target = () => {
-    const box = container.getBoundingClientRect();
-    const r = el.getBoundingClientRect();
-    return Math.max(0, container.scrollTop + (r.top - box.top) - container.clientHeight / 2 + r.height / 2);
-  };
-  const top = target();
-  if (!instant && Math.abs(top - container.scrollTop) < 1500) {
-    container.scrollTo({ top, behavior: 'smooth' });
-    return;
-  }
-  container.scrollTop = top;
-  // Só confere se nada mais moveu a letra (outra frase ou a pessoa rolando)
-  [50, 200, 450].forEach(ms => setTimeout(() => { if (run === lyricCenterRun) container.scrollTop = target(); }, ms));
-}
 
 // iPhone/iPad em chave própria: versões anteriores gravaram 85% lá, o que ligaria o processamento de áudio sem pedir
 const VOLUME_KEY = IS_APPLE_TOUCH ? 'app_volume_ios' : 'app_volume';
@@ -263,63 +214,6 @@ const transicaoConteudo: any = {
     return { ...exitOverlay(), opacity: 0, transition: { ...OVERLAY_T, opacity: { duration: 0.12, ease: 'easeIn' } } };
   },
 };
-
-// Paleta da capa: agrupa os pixels por matiz (24 faixas) e escolhe a cor dominante mais marcante (quantidade
-// x saturação), em vez da média de todos os pixels (que transformava capas de duas cores em um tom
-// acinzentado). Também devolve uma segunda cor marcante, bem diferente da primeira, quando houver.
-// Capas quase sem cor (preto e branco, cinzas) ficam com o tom neutro médio.
-function extractCoverPalette(data: Uint8ClampedArray): { primary: string; secondary?: string } | null {
-  const BINS = 24;
-  const bins = Array.from({ length: BINS }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
-  let nr = 0, ng = 0, nb = 0, nw = 0, vividWeight = 0, totalWeight = 0;
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-    if (a < 128) continue;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    const l = (max + min) / 510;
-    const d = (max - min) / 255;
-    const sat = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
-    totalWeight += 1;
-    nr += r; ng += g; nb += b; nw += 1;
-    if (sat < 0.18 || l < 0.1 || l > 0.93) continue;
-    let h = 0;
-    if (max === r) h = ((g - b) / (max - min)) % 6;
-    else if (max === g) h = (b - r) / (max - min) + 2;
-    else h = (r - g) / (max - min) + 4;
-    h = (h * 60 + 360) % 360;
-    const w = 0.4 + sat * 1.6;
-    const bin = bins[Math.floor(h / (360 / BINS)) % BINS];
-    bin.w += w; bin.r += r * w; bin.g += g * w; bin.b += b * w;
-    vividWeight += 1;
-  }
-  if (totalWeight === 0) return null;
-  const toHex = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
-  // Pouca cor na capa: o tom neutro médio
-  if (vividWeight / totalWeight < 0.06) return { primary: `#${toHex(nr / nw)}${toHex(ng / nw)}${toHex(nb / nw)}` };
-  // Junta cada faixa com as vizinhas (cores parecidas ficam no mesmo grupo)
-  const score = bins.map((_, i) => bins[i].w + 0.5 * (bins[(i + BINS - 1) % BINS].w + bins[(i + 1) % BINS].w));
-  const colorOf = (i: number) => {
-    const group = [bins[(i + BINS - 1) % BINS], bins[i], bins[(i + 1) % BINS]];
-    const w = group.reduce((acc, x) => acc + x.w, 0) || 1;
-    return `#${toHex(group.reduce((a, x) => a + x.r, 0) / w)}${toHex(group.reduce((a, x) => a + x.g, 0) / w)}${toHex(group.reduce((a, x) => a + x.b, 0) / w)}`;
-  };
-  const order = score.map((v, i) => [v, i] as const).sort((a, b) => b[0] - a[0]);
-  const first = order[0][1];
-  const primary = colorOf(first);
-  // Segunda cor: pelo menos 60° de distância e com presença relevante (>= 18% da principal)
-  const dist = (a: number, b: number) => { const d = Math.abs(a - b) % BINS; return Math.min(d, BINS - d) * (360 / BINS); };
-  const second = order.find(([v, i]) => i !== first && dist(i, first) >= 60 && v >= order[0][0] * 0.18);
-  return { primary, secondary: second ? colorOf(second[1]) : undefined };
-}
-
-// Fila para gravar no aparelho: sem a cópia do livro inteiro e sem a capa em cada item (eram gravados de
-// novo a cada mudança da fila); ao abrir, a fila é reconectada aos livros da biblioteca
-function slimQueueForStorage(queue: any[]): any[] {
-  return queue.map(item => {
-    const { book: _book, cover, ...rest } = item || {};
-    return { ...rest, cover: typeof cover === 'string' && cover.length < 512 ? cover : '' };
-  });
-}
 
 
 export type QueueItem = {
@@ -3685,7 +3579,7 @@ export default function App() {
       if (activeEl) centerLyricLine(container, activeEl, instant);
     };
     const hold = () => {
-      lyricCenterRun++;
+      cancelLyricCentering();
       lyricsHoldRef.current = true;
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => recenter(), 4000);
@@ -4182,7 +4076,7 @@ export default function App() {
     closeAllPopups();
     setIsGeneratingShare(true);
     try {
-      const { renderAudiobookStory, renderQuoteStory } = await import('./shareStory');
+      const { renderAudiobookStory, renderQuoteStory } = await import('./lib/shareStory');
       const storyBook = {
         title: book.title,
         author: book.author,
@@ -16334,4 +16228,4 @@ export default function App() {
 }
 
 
-export { CollectionPickerPopupContent, CollectionItemsPickerContent, CollectionsContext, useCollections } from './components/LibraryCards';
+export { CollectionPickerPopupContent, CollectionItemsPickerContent, CollectionsContext, useCollections } from './components/library/LibraryCards';

@@ -20,7 +20,7 @@ describe('Code Splitting & Dynamic Module Imports', { timeout: 20000 }, () => {
   });
 
   it('dynamically imports ImageCropperSquare module without errors', async () => {
-    const module = await import('../ImageCropperSquare');
+    const module = await import('../components/ImageCropperSquare');
     expect(module.default).toBeDefined();
     expect(typeof module.default).toBe('function');
   });
@@ -32,13 +32,13 @@ describe('Code Splitting & Dynamic Module Imports', { timeout: 20000 }, () => {
   });
 
   it('dynamically imports FullscreenPlayer module without errors', async () => {
-    const module = await import('../components/FullscreenPlayer');
+    const module = await import('../components/player/FullscreenPlayer');
     expect(module.default).toBeDefined();
     expect(typeof module.default).toBe('function');
   });
 
   it('dynamically imports MiniPlayer module without errors', async () => {
-    const module = await import('../components/MiniPlayer');
+    const module = await import('../components/player/MiniPlayer');
     expect(module.default).toBeDefined();
     expect(typeof module.default).toBe('function');
   });

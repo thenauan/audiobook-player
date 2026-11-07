@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from 'vitest';
-import { parseSynchronizedTextFile } from '../audioUtils';
+import { parseSynchronizedTextFile } from '../audio/transcripts';
 
 // Arquivos que sincronizam frases e palavras: as frases ficam com o tempo de cada palavra
 const parse = (name: string, content: string) => parseSynchronizedTextFile(new File([content], name, { type: 'text/plain' }));

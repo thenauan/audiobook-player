@@ -6,15 +6,15 @@ import {
   BsPlayFill, BsPauseFill, BsCheck2
 } from 'react-icons/bs';
 import { FaGithub } from 'react-icons/fa';
-import { Audiobook, Author, Chapter, Collection } from '../data';
-import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar } from '../audioUtils';
-import { MenuOptionItem, PagedMenu, useCompactPopups, PopupMorphContainer, checkChapterMenuShouldOpenUp, checkIsLeftEdgeCard, MorphPopup, morphTriggerAnimate, emitZoomOrigin } from './Popovers';
-import { getNationalityDisplayName } from '../nationalityTranslations';
-import { useI18n } from '../translations';
+import { Audiobook, Author, Chapter, Collection } from '../../data/catalog';
+import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar } from '../../lib/coverArt';
+import { MenuOptionItem, PagedMenu, useCompactPopups, PopupMorphContainer, checkChapterMenuShouldOpenUp, checkIsLeftEdgeCard, MorphPopup, morphTriggerAnimate, emitZoomOrigin } from '../popups/Popovers';
+import { getNationalityDisplayName } from '../../i18n/nationalityTranslations';
+import { useI18n } from '../../i18n/translations';
 import { Play, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star, StarOff, FolderPlus, FolderMinus, Plus, Bookmark } from 'lucide-react';
-import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './popupUtils';
-import { MobileConfirmCard } from './MobileConfirm';
-import { MobileContextMenu, useLongPress, isMobileViewport, useIsMobile } from './MobileContextMenu';
+import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from '../popups/popupUtils';
+import { MobileConfirmCard } from '../popups/MobileConfirm';
+import { MobileContextMenu, useLongPress, isMobileViewport, useIsMobile } from '../popups/MobileContextMenu';
 
 export function _FavoriteChapterCard({
   item,

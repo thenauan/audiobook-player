@@ -333,6 +333,3 @@ export function MobileContextMenu({
     document.body
   );
 }
-
-// Classe aplicada às grades de seções: no mobile vira uma linha com rolagem horizontal
-export const MOBILE_ROW_CLASS = 'mobile-row';

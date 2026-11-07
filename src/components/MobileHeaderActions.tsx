@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MoreHorizontal, Trash2, X } from 'lucide-react';
-import { MenuOptionItem, MorphPopup, PagedMenu, PopupMorphContainer, morphTriggerAnimate } from './Popovers';
-import { getBackdropProps } from './popupUtils';
-import { MobileConfirmCard } from './MobileConfirm';
-import { useI18n } from '../translations';
+import { MenuOptionItem, MorphPopup, PagedMenu, PopupMorphContainer, morphTriggerAnimate } from './popups/Popovers';
+import { getBackdropProps } from './popups/popupUtils';
+import { MobileConfirmCard } from './popups/MobileConfirm';
+import { useI18n } from '../i18n/translations';
 
 // ===== Mobile: no máximo dois botões à direita do cabeçalho =====
 // Uma ação rápida e importante + um botão de três pontinhos com o restante das opções da tela.

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { Check, X, ZoomIn, ZoomOut } from 'lucide-react';
-import { useI18n } from './translations';
-export { autoCropImageToSquare, autoCropImageToEbookCover } from './imageProcessing';
+import { useI18n } from '../i18n/translations';
+export { autoCropImageToSquare, autoCropImageToEbookCover } from '../lib/imageProcessing';
 
 interface ImageCropperSquareProps {
   imageSrc: string;

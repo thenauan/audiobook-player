@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from 'vitest';
-import { parseVorbisComments } from '../audioTags';
+import { parseVorbisComments } from '../audio/audioTags';
 
 // Monta um bloco de comentários Vorbis (tamanhos em little-endian)
 const comments = (entries: string[]) => {

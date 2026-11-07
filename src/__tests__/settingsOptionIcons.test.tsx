@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { SettingsView } from '../views/SettingsView';
-import { getTranslation, I18nContext } from '../translations';
+import { getTranslation, I18nContext } from '../i18n/translations';
 import { Laptop, Sun, Moon } from 'lucide-react';
 
 describe('Settings Popup Option Icons', () => {

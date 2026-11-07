@@ -1,10 +1,10 @@
-import { IS_INSTALLED_APP, IS_APPLE_TOUCH } from '../desktopBridge';
-import { morphTriggerAnimate } from '../components/Popovers';
+import { IS_INSTALLED_APP, IS_APPLE_TOUCH } from '../lib/desktopBridge';
+import { morphTriggerAnimate } from '../components/popups/Popovers';
 import { APP_VERSION } from '../version';
-import { getDiagText, clearDiag } from '../playbackDiag';
-import { useLiteMode, setLiteMode, useSystemInfo } from '../liteMode';
-import { useLyricsHighlight, setLyricsHighlight } from '../lyricsPrefs';
-import { useShowExtraChapters, setShowExtraChapters } from '../chapterPrefs';
+import { getDiagText, clearDiag } from '../audio/playbackDiag';
+import { useLiteMode, setLiteMode, useSystemInfo } from '../lib/liteMode';
+import { useLyricsHighlight, setLyricsHighlight } from '../audio/lyricsPrefs';
+import { useShowExtraChapters, setShowExtraChapters } from '../audio/chapterPrefs';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -19,7 +19,7 @@ import {
   LANGUAGE_NATIVE_NAMES,
   getLanguageDisplayName,
   getSystemLanguage,
-} from '../translations';
+} from '../i18n/translations';
 
 export const ACCENT_COLORS: Record<string, { name: string; hex: string; rgb: string; bgClass: string }> = {
   blue: { name: 'Azul', hex: '#0086F0', rgb: '0, 134, 240', bgClass: 'bg-[#0086F0]' },

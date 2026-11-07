@@ -1,13 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  hexToHsl,
-  hslToHex,
-  isColorLight,
-  getGenericCoverColor,
-  getBookHighlightTheme,
-  getCoverTones,
-  GENERIC_COVER_COLORS,
-} from '../audioUtils';
+import { hexToHsl, hslToHex, isColorLight, getGenericCoverColor, getBookHighlightTheme, getCoverTones, GENERIC_COVER_COLORS } from '../lib/coverArt';
 
 describe('Color Conversions & Cover Highlight Themes', () => {
   describe('hexToHsl and hslToHex conversions', () => {

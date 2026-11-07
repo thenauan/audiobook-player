@@ -1,8 +1,8 @@
-import { splitAuthorNames } from '../authorUtils';
+import { splitAuthorNames } from '../lib/authorUtils';
 // Extraído do App.tsx (conteúdo sem alterações)
-import { Audiobook, Author, AUTHORS_DATABASE, BOOKS_DATABASE, Collection, INITIAL_COLLECTIONS } from '../data';
-import { getGenericBookCover, getAuthorAvatar, getGenericCoverColor, getGenericAuthorColor } from '../audioUtils';
-import { normalizeAudiobookLanguage } from '../translations';
+import { Audiobook, Author, AUTHORS_DATABASE, BOOKS_DATABASE, Collection, INITIAL_COLLECTIONS } from './catalog';
+import { getGenericBookCover, getAuthorAvatar, getGenericCoverColor, getGenericAuthorColor } from '../lib/coverArt';
+import { normalizeAudiobookLanguage } from '../i18n/translations';
 
 export const MOCK_DEV_AUTHORS: Author[] = [
   {

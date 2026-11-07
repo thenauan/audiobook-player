@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from 'vitest';
-import { parseSynchronizedTextFile } from '../audioUtils';
+import { parseSynchronizedTextFile } from '../audio/transcripts';
 
 // O mesmo texto em cada formato tem de chegar com os mesmos tempos (livro de 10 horas, com tempos quebrados)
 const lines = Array.from({ length: 4000 }, (_, i) => {

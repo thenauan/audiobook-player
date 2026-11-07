@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, animate, useAnimate, useMotionValue, usePresence } from 'motion/react';
-import { MorphPopup, useCompactPopups, MORPH_EXIT_SPRING, MORPH_HANDOFF, MORPH_FAST_SPRING, MORPH_CONTENT_MOTION } from './Popovers';
+import { MorphPopup, useCompactPopups, MORPH_EXIT_SPRING, MORPH_HANDOFF, MORPH_FAST_SPRING, MORPH_CONTENT_MOTION } from '../popups/Popovers';
 
 // ===== Pop-ups dos botões do player (marcações, velocidade, timer, fila, volume, texto) =====
 // Computador: o pop-up nasce do botão (MorphPopup). Celular: abre como a confirmação de exclusão — um

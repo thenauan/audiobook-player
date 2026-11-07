@@ -1,4 +1,4 @@
-import { Audiobook, Chapter } from './data';
+import { Audiobook, Chapter } from '../data/catalog';
 
 export type QueueItem = {
   id: string;
@@ -117,3 +117,11 @@ export function cleanQueueDeletedBooks(
   return queue.filter((item) => !set.has(item.bookId) && !set.has(item.book?.id));
 }
 
+// Fila para gravar no aparelho: sem a cópia do livro inteiro e sem a capa em cada item (eram gravados de
+// novo a cada mudança da fila); ao abrir, a fila é reconectada aos livros da biblioteca
+export function slimQueueForStorage(queue: any[]): any[] {
+  return queue.map(item => {
+    const { book: _book, cover, ...rest } = item || {};
+    return { ...rest, cover: typeof cover === 'string' && cover.length < 512 ? cover : '' };
+  });
+}

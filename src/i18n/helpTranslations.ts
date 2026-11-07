@@ -1,4 +1,4 @@
-import { HELP_THEMES, type HelpTheme } from './helpData';
+import { HELP_THEMES, type HelpTheme } from '../data/helpData';
 import type { SupportedLanguage } from './translations';
 
 interface TextOverride {

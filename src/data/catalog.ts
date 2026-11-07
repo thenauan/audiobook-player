@@ -18,8 +18,6 @@ export type ChapterBookmark = {
   createdAt: number;
 };
 
-export type ChapterComment = ChapterBookmark;
-
 export type Chapter = {
   id: number;
   title: string;
@@ -113,10 +111,8 @@ export const INITIAL_COLLECTIONS: Collection[] = [
   }
 ];
 
-
 export * from './genreData';
 import { GenreItem, resolveGenreAndSubgenre, splitGenreValues } from './genreData';
-
 
 // Um audiobook pode ter vários gêneros e subgêneros (separados por vírgula): ele aparece em cada um.
 // As regras abaixo valem para cada combinação gênero × subgênero.
@@ -182,7 +178,7 @@ function isPairInSubgenre(b: Partial<Audiobook>, genreData: GenreItem, subgenreN
   return rawSub === targetSub || resSub === targetSub || rawCat === targetSub;
 }
 
-import { normalizeAudiobookLanguage } from './translations';
+import { normalizeAudiobookLanguage } from '../i18n/translations';
 
 export function resolveNarratorAndLanguage(book?: Partial<Audiobook>): { narrator?: string; language?: string } {
   if (!book) return { narrator: undefined, language: undefined };
@@ -208,7 +204,6 @@ export function resolveNarratorAndLanguage(book?: Partial<Audiobook>): { narrato
   return { narrator, language: normalizeAudiobookLanguage(language) };
 }
 
-
 export type Author = {
   id: string;
   name: string;
@@ -217,7 +212,7 @@ export type Author = {
   bio: string;
 };
 
-import { getAuthorAvatar, getGenericBookCover } from './audioUtils';
+import { getAuthorAvatar, getGenericBookCover } from '../lib/coverArt';
 
 export const AUTHORS_DATABASE: Author[] = [
   {

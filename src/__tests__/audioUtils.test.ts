@@ -1,12 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import {
-  getAuthorInitials,
-  getDefaultAuthorColor,
-  getCoverTones,
-  parseMp4M4bMetadata,
-  parseAudioMetadata,
-} from '../audioUtils';
-import { normalizeAudiobookLanguage } from '../translations';
+import { getAuthorInitials, getDefaultAuthorColor, getCoverTones } from '../lib/coverArt';
+import { parseMp4M4bMetadata, parseAudioMetadata } from '../audio/audioMetadata';
+import { normalizeAudiobookLanguage } from '../i18n/translations';
 
 describe('Audiobook Metadata & Color Transformations', () => {
   describe('getAuthorInitials', () => {

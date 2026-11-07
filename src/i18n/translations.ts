@@ -3,60 +3,12 @@ import { createContext, useContext } from 'react';
 export type SupportedLanguage = 'pt' | 'en' | 'es' | 'ru' | 'ar';
 export type AppLanguage = 'system' | SupportedLanguage;
 
-export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['en', 'es', 'pt', 'ru', 'ar'];
-
 export const LANGUAGE_NATIVE_NAMES: Record<SupportedLanguage, string> = {
   pt: 'Português',
   en: 'English',
   es: 'Español',
   ru: 'Русский',
   ar: 'العربية',
-};
-
-export const LANGUAGE_DISPLAY_NAMES: Record<SupportedLanguage, string> = {
-  pt: 'Português',
-  en: 'Inglês',
-  es: 'Espanhol',
-  ru: 'Russo',
-  ar: 'Árabe',
-};
-
-export const LOCALIZED_LANGUAGE_NAMES: Record<SupportedLanguage, Record<SupportedLanguage, string>> = {
-  pt: {
-    pt: 'Português',
-    en: 'Inglês',
-    es: 'Espanhol',
-    ru: 'Russo',
-    ar: 'Árabe',
-  },
-  en: {
-    pt: 'Portuguese',
-    en: 'English',
-    es: 'Spanish',
-    ru: 'Russian',
-    ar: 'Arabic',
-  },
-  es: {
-    pt: 'Portugués',
-    en: 'Inglés',
-    es: 'Español',
-    ru: 'Ruso',
-    ar: 'Árabe',
-  },
-  ru: {
-    pt: 'Португальский',
-    en: 'Английский',
-    es: 'Испанский',
-    ru: 'Русский',
-    ar: 'Арабский',
-  },
-  ar: {
-    pt: 'البرتغالية',
-    en: 'الإنجليزية',
-    es: 'الإسبانية',
-    ru: 'الروسية',
-    ar: 'العربية',
-  },
 };
 
 export interface AudiobookLanguageEntry {
