@@ -11,6 +11,13 @@ import type { SupportedLanguage } from '../i18n/translations';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.12': {
+    pt: ['Notificações do sistema para capítulos, audiobooks e novos títulos', 'Letra abre, fecha e busca com transições mais fluidas', 'Lista de capítulos alinhada em colunas', 'Ajustes mais limpos no celular, sem bordas'],
+    en: ['System notifications for chapters, audiobooks and new titles', 'Smoother transitions when opening, closing and searching lyrics', 'Chapter list aligned in columns', 'Cleaner settings on phones, without borders'],
+    es: ['Notificaciones del sistema para capítulos, audiolibros y nuevos títulos', 'Transiciones más fluidas al abrir, cerrar y buscar en la letra', 'Lista de capítulos alineada en columnas', 'Ajustes más limpios en el móvil, sin bordes'],
+    ru: ['Системные уведомления о главах, аудиокнигах и новых книгах', 'Более плавные переходы при открытии, закрытии текста и поиске в нём', 'Список глав выровнен по колонкам', 'Более чистые настройки на телефоне, без рамок'],
+    ar: ['إشعارات النظام للفصول والكتب الصوتية والعناوين الجديدة', 'انتقالات أكثر سلاسة عند فتح النص وإغلاقه والبحث فيه', 'قائمة الفصول مصطفة في أعمدة', 'إعدادات أنظف على الهاتف بدون حدود'],
+  },
   '1.0.11': {
     pt: ['Tema escuro com fundo preto de verdade', 'Pop-ups nascem de dentro do botão, num movimento só', 'Busca na letra melhorada no celular e no computador', 'Destaques mais limpos nos pop-ups e nas listas'],
     en: ['Dark theme with a true black background', 'Pop-ups grow from inside the button in one motion', 'Improved lyrics search on phone and computer', 'Cleaner highlights in pop-ups and lists'],
