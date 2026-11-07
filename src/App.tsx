@@ -3646,7 +3646,7 @@ export default function App() {
     if (!pick) return;
     markSuggestionSent(pick.id);
     markSuggestionTime(now);
-    notifySystem('app_notify_content', t('settings_notif_content'), t(`notif_content_${pick.kind}`, { title: pick.book.title, author: pick.book.author }));
+    notifySystem('app_notify_content', t('settings_notif_content'), t(`notif_content_${pick.kind}`, { title: pick.book.title, author: pick.book.author, text: pick.text || '' }));
   };
   useEffect(() => {
     const send = () => sendContentSuggestionRef.current();
@@ -13135,7 +13135,7 @@ export default function App() {
                               </div>
 
                               <div className="relative z-10">
-                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{getGenreName(genreData.id, resolvedLanguage)}</h3>
+                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getGenreName(genreData.id, resolvedLanguage)}</h3>
                               </div>
                             </motion.div>
                           );
@@ -13241,7 +13241,7 @@ export default function App() {
                               </div>
 
                               <div className="relative z-10">
-                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{langData.name}</h3>
+                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{langData.name}</h3>
                               </div>
                             </motion.div>
                           );
@@ -13734,7 +13734,7 @@ export default function App() {
                             )}
 
                             <div className="relative z-10">
-                              <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{langData.name}</h3>
+                              <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{langData.name}</h3>
                             </div>
                           </motion.div>
                         );
@@ -14082,7 +14082,7 @@ export default function App() {
 
                             {/* Nome do Gênero com texto maior */}
                             <div className="relative z-10">
-                              <h3 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{getGenreName(genreData.id, resolvedLanguage)}</h3>
+                              <h3 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getGenreName(genreData.id, resolvedLanguage)}</h3>
                             </div>
                           </motion.div>
                         );
@@ -14292,7 +14292,7 @@ export default function App() {
 
                                             {/* Nome do Subgênero com texto maior */}
                                             <div className="relative z-10">
-                                              <h4 className="text-base sm:text-lg font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{getSubgenreName(subgenre, resolvedLanguage)}</h4>
+                                              <h4 className="text-base sm:text-lg font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getSubgenreName(subgenre, resolvedLanguage)}</h4>
                                             </div>
                                           </motion.div>
                                         );
@@ -15578,9 +15578,9 @@ export default function App() {
                       initial={{ scale: 0.92, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={SPRING.snappy}
-                      className="flex items-baseline gap-1 text-white text-3xl sm:text-4xl md:text-5xl tracking-tight mb-2"
+                      className="flex items-baseline text-white md: tracking-tight mb-2 gap-[2px] text-[42px] leading-none"
                     >
-                      <AppLogo className="text-white shrink-0 gap-[5px] text-[40px] leading-none" />
+                      <AppLogo className="text-white shrink-0" />
                       <span className="font-normal">Player</span>
                     </motion.div>
 

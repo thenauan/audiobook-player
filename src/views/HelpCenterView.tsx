@@ -156,7 +156,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                 </div>
 
                 {/* Conteúdo: textos */}
-                <div className="relative z-10 flex flex-col text-left origin-left rtl:origin-right transition-transform duration-500 group-hover:scale-[1.02]">
+                <div className="relative z-10 flex flex-col text-left origin-left rtl:origin-right transition-transform duration-500">
                   <span className="text-lg sm:text-xl font-bold text-white drop-shadow-sm tracking-tight">{theme.title}</span>
                   <span className="text-xs sm:text-sm text-white/85 font-medium mt-0.5">{theme.subtitle}</span>
                 </div>
@@ -213,7 +213,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                     </div>
 
                     {/* Conteúdo: textos */}
-                    <div className="relative z-10 flex flex-col text-left origin-left rtl:origin-right transition-transform duration-500 group-hover:scale-[1.02]">
+                    <div className="relative z-10 flex flex-col text-left origin-left rtl:origin-right transition-transform duration-500">
                       <span className="text-lg sm:text-xl font-bold text-white drop-shadow-sm tracking-tight">{sub.title}</span>
                       <span className="text-xs sm:text-sm text-white/85 font-medium mt-0.5">{sub.subtitle}</span>
                     </div>

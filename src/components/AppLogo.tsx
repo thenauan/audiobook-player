@@ -5,7 +5,7 @@ const LOGO_PATH = 'M 345 1.0 C 244.9 6.4, 166.3 36.6, 144.5 78.0 C 136.6 93.1, 1
 
 export function AppLogo({ height, className }: { height?: number; className?: string }) {
   return (
-    <svg viewBox="0 0 1562 1101" style={{ height: height ?? '0.76em', width: 'auto' }} fill="currentColor" fillRule="evenodd" className={className} aria-hidden="true">
+    <svg viewBox="0 0 1562 1101" style={{ height: height ?? '0.72em', width: 'auto' }} fill="currentColor" fillRule="evenodd" className={className} aria-hidden="true">
       <path d={LOGO_PATH} />
     </svg>
   );

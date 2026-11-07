@@ -9,7 +9,7 @@ const LAST_KEY = 'app_content_last_at';
 const WEEK_KEY = 'app_content_week';
 const MAX_SENT = 200;
 
-export type ContentSuggestion = { id: string; kind: 'resume' | 'forgotten' | 'author'; book: Audiobook };
+export type ContentSuggestion = { id: string; kind: 'resume' | 'forgotten' | 'author' | 'bookmark'; book: Audiobook; text?: string };
 
 type SuggestionInput = {
   books: Audiobook[];
@@ -33,6 +33,15 @@ export function pickContentSuggestion({ books, lastPlayed, isStarted, isComplete
   for (const done of finished) {
     const next = books.find(b => b.id !== done.id && b.authorId === done.authorId && !isStarted(b) && !isCompleted(b) && fresh(`author:${b.id}`));
     if (next) return { id: `author:${next.id}`, kind: 'author', book: next };
+  }
+
+  // Relembra uma marcação de um livro que não foi ouvido nos últimos dias
+  for (const book of [...books].sort(byRecent)) {
+    if (!lastPlayed[book.id] || age(book) < 3 * DAY) continue;
+    for (const chapter of book.chapters || []) {
+      const mark = (chapter.bookmarks || []).find(m => fresh(`bookmark:${book.id}:${m.id}`));
+      if (mark) return { id: `bookmark:${book.id}:${mark.id}`, kind: 'bookmark', book, text: (mark.text || chapter.title).slice(0, 80) };
+    }
   }
 
   const forgotten = unfinished.find(b => age(b) >= 30 * DAY && fresh(`forgotten:${b.id}`));

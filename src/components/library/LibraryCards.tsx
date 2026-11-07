@@ -1961,7 +1961,7 @@ export function CollectionCard({
         </span>
       </div>
       <div className="relative z-10">
-        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02] truncate">{col.name}</h3>
+        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 truncate">{col.name}</h3>
         {col.description && (
           <p className="text-xs font-medium text-white/80 mt-0.5 line-clamp-1 truncate">{col.description}</p>
         )}

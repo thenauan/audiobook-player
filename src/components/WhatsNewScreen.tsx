@@ -167,9 +167,9 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={SPRING.snappy}
-              className="flex items-baseline gap-1 text-3xl sm:text-4xl tracking-tight mb-2"
+              className="flex items-baseline tracking-tight mb-2 gap-[2px] text-[42px] leading-none"
             >
-              <AppLogo className="shrink-0 gap-[5px] text-[40px] leading-none" />
+              <AppLogo className="shrink-0" />
               <span className="font-normal">Player</span>
             </motion.div>
             <h2 className="text-xl sm:text-2xl font-semibold text-white/95 tracking-tight mt-1">{t('whats_new_title', { ver: APP_VERSION })}</h2>

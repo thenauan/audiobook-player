@@ -47,6 +47,23 @@ describe('pickContentSuggestion', () => {
   });
 });
 
+describe('marcações', () => {
+  const marked = { ...book('x'), chapters: [{ id: 1, title: 'Cap. 1', bookmarks: [{ id: 'm1', text: 'Trecho bonito', timestamp: 10 }] }] } as unknown as Audiobook;
+  const input = { now: NOW, isCompleted: () => true, isStarted: () => true, books: [marked], lastPlayed: { x: NOW - 5 * DAY } };
+
+  it('relembra uma marcação de um livro parado há alguns dias', () => {
+    expect(pickContentSuggestion({ ...input, sent: [] })).toMatchObject({ kind: 'bookmark', text: 'Trecho bonito' });
+  });
+
+  it('não relembra a mesma marcação duas vezes', () => {
+    expect(pickContentSuggestion({ ...input, sent: ['bookmark:x:m1'] })).toBeNull();
+  });
+
+  it('não relembra se o livro foi ouvido agora há pouco', () => {
+    expect(pickContentSuggestion({ ...input, sent: [], lastPlayed: { x: NOW - DAY } })).toBeNull();
+  });
+});
+
 describe('crossedBookMilestone', () => {
   it('avisa ao cruzar a metade', () => {
     expect(crossedBookMilestone(4999, 5001, 10000)).toBe('half');
