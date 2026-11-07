@@ -1832,8 +1832,8 @@ html.lite [style*="blur("] {
   --ios-fill: rgb(118 118 128 / 0.24);
   --ios-fill-strong: rgb(120 120 128 / 0.36);
   /* Listas sobre o fundo preto: tom bem próximo do fundo */
-  --ios-row: rgb(255 255 255 / 0.11);
-  --ios-row-strong: rgb(255 255 255 / 0.19);
+  --ios-row: rgb(255 255 255 / 0.065);
+  --ios-row-strong: rgb(255 255 255 / 0.12);
 }
 /* Computador: o destaque das opções ao passar o mouse é o mesmo do toque no celular, sem brilho nem sombra */
 @media (hover: hover) {
