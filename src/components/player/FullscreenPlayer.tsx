@@ -14,7 +14,7 @@ import { useI18n } from '../../i18n/translations';
 import { useIsMobile, useIsLandscapePhone, MobileContextMenu } from '../popups/MobileContextMenu';
 import { MenuOptionItem, PagedMenu } from '../popups/Popovers';
 import { LYRICS_FADE, LyricBlocks, LyricSearchResults, foldText } from './LyricView';
-import { SPRING, FADE_IN, FADE_OUT } from '../../lib/motion';
+import { SPRING, FADE_OUT, PLAYER_MOTION } from '../../lib/motion';
 
 export interface FullscreenPlayerProps {
   miniplayerAmbientStyle?: React.CSSProperties;
@@ -162,7 +162,7 @@ export default function FullscreenPlayer({
   // Garantia: o cabeçalho aparece mesmo se o fim da animação de abertura não for avisado
   // (ex.: "Reduzir movimento"/animações desligadas no sistema, ou abertura interrompida)
   React.useEffect(() => {
-    const timer = setTimeout(() => setIsIntroDone(true), 650);
+    const timer = setTimeout(() => setIsIntroDone(true), 220);
     return () => clearTimeout(timer);
   }, []);
   // Mobile: só Minimizar e Letra no cabeçalho; demais controles abaixo dos botões do player
@@ -398,8 +398,8 @@ export default function FullscreenPlayer({
       onPointerDownCapture={onPlayerPointerDownCapture}
       initial={{ clipPath: miniClip, opacity: 1 }}
       animate={{ clipPath: FULLSCREEN_CLIP, opacity: 1 }}
-      exit={{ clipPath: miniClip, opacity: 0, transition: { clipPath: SPRING.zoom, opacity: { duration: 0.1, delay: 0.12 } } }}
-      transition={{ clipPath: SPRING.zoom, opacity: FADE_OUT }}
+      exit={{ clipPath: miniClip, opacity: 0, transition: { clipPath: PLAYER_MOTION, opacity: { duration: 0.08, delay: 0.08 } } }}
+      transition={{ clipPath: PLAYER_MOTION, opacity: FADE_OUT }}
       style={{ willChange: 'clip-path, opacity' }}
       onAnimationComplete={() => setIsIntroDone(true)}
       className="fixed inset-x-0 top-0 h-[var(--screen-h)] z-[200] px-4 sm:px-8 md:px-10 pt-[max(24px,calc(var(--safe-top)+8px))] pb-[max(24px,env(safe-area-inset-bottom))] max-md:pt-[var(--app-header-top)] max-md:pb-[max(16px,env(safe-area-inset-bottom))] fs-safe flex flex-col justify-between overflow-hidden text-[var(--text-main)] transform-gpu"
@@ -407,7 +407,7 @@ export default function FullscreenPlayer({
       {/* Fundo Animado com Blur dinâmico se movendo e mudando de cores (tons da capa + luz e escuridão no escuro / fusão com branco no claro) */}
       <motion.div
         layoutId="player-shell"
-        transition={{ layout: SPRING.zoom }}
+        transition={{ layout: PLAYER_MOTION }}
         style={{ borderRadius: 0 }}
         className="absolute inset-0 z-0 pointer-events-none overflow-hidden transform-gpu bg-white dark:bg-[#03060c]"
       >
@@ -418,8 +418,8 @@ export default function FullscreenPlayer({
             style={{ background: miniplayerAmbientStyle.background }}
             initial={{ opacity: 1 }}
             animate={{ opacity: 0 }}
-            exit={{ opacity: 1, transition: FADE_IN }}
-            transition={{ duration: 0.34, delay: 0.04, ease: 'easeOut' }}
+            exit={{ opacity: 1, transition: PLAYER_MOTION }}
+            transition={PLAYER_MOTION}
           />
         )}
         {/* Orbe 1: Tom principal e variações ricas da capa (mesma cor da capa) */}
@@ -557,7 +557,7 @@ export default function FullscreenPlayer({
                     initial={{ opacity: 0, scale: 0.55, width: 0, marginLeft: 0 }}
                     animate={{ opacity: 1, scale: 1, width: 44, marginLeft: 8 }}
                     exit={{ opacity: 0, scale: 0.55, width: 0, marginLeft: 0 }}
-                    transition={SPRING.zoom}
+                    transition={PLAYER_MOTION}
                     onClick={closeLyricSearch}
                     aria-label={t('clear_search')}
                     className="h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)]"
@@ -588,7 +588,7 @@ export default function FullscreenPlayer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ ...SPRING.zoom, opacity: LYRICS_FADE }}
+          transition={{ ...PLAYER_MOTION, opacity: LYRICS_FADE }}
           className="fs-column w-full max-w-sm sm:max-w-md [@media(max-height:520px)]:max-w-3xl flex flex-col items-center text-center justify-between h-full min-h-0 shrink-0 transform-gpu pb-3"
         >
           <div className="fs-body flex flex-col items-center justify-between h-full min-h-0 w-full">
@@ -600,7 +600,7 @@ export default function FullscreenPlayer({
               // Pausado, a capa diminui
               initial={false}
               animate={{ scale: isPlaying ? 1 : 0.85 }}
-              transition={{ ...SPRING.zoom, scale: SPRING.bouncy }}
+              transition={{ ...PLAYER_MOTION, scale: SPRING.bouncy }}
               style={{ borderRadius: 24 }}
               src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)} 
               onError={(e) => handleBookCoverError(currentBook, e)}
@@ -629,7 +629,7 @@ export default function FullscreenPlayer({
                 <motion.h2
                   layoutId="player-chapter-title"
                   layout="position"
-                  transition={{ layout: SPRING.zoom }}
+                  transition={{ layout: PLAYER_MOTION }}
                   className="fs-title text-[22px] font-bold text-black dark:text-white hover:text-winblue transition-colors cursor-pointer text-center max-w-full truncate px-4 mb-1 dark:drop-shadow-md"
                   title={`${t('view_chapter_in_book')} (${currentChapter.title})`}
                   onClick={(e) => {
@@ -645,7 +645,7 @@ export default function FullscreenPlayer({
                   <MarqueeText text={currentChapter.title} />
                 </motion.h2>
 
-                <motion.div layoutId="player-book-line" layout="position" transition={{ layout: SPRING.zoom }} className="fs-bookline flex items-center justify-center gap-1.5 text-xs sm:text-sm text-slate-800 dark:text-[var(--text-muted)] max-w-full px-4 truncate font-medium">
+                <motion.div layoutId="player-book-line" layout="position" transition={{ layout: PLAYER_MOTION }} className="fs-bookline flex items-center justify-center gap-1.5 text-xs sm:text-sm text-slate-800 dark:text-[var(--text-muted)] max-w-full px-4 truncate font-medium">
                   <MarqueeText text={`${currentBook.title} • ${currentBook.author}`}>
                   <span 
                     className="text-slate-800 dark:text-[var(--text-muted)] hover:text-winblue cursor-pointer transition-colors font-semibold dark:drop-shadow-sm"
@@ -682,7 +682,7 @@ export default function FullscreenPlayer({
               {/* Controles Principais */}
               <div className="w-full shrink-0 max-w-sm sm:max-w-md">
                 {/* Barra de Progresso com grupo para hover da bolinha */}
-                <motion.div layoutId="player-progress" transition={{ layout: SPRING.zoom }} className="w-full flex items-center gap-2.5 group mb-3.5">
+                <motion.div layoutId="player-progress" transition={{ layout: PLAYER_MOTION }} className="w-full flex items-center gap-2.5 group mb-3.5">
                   <span className="text-[11px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 text-right shrink-0">{formatTime(chapterElapsed)}</span>
                   <div className="relative flex-1 flex items-center h-5 [@media(pointer:coarse)]:h-7">
                     <input 
@@ -752,7 +752,7 @@ export default function FullscreenPlayer({
                   {/* Capítulo anterior */}
                   <motion.button
                     layoutId="player-prev"
-                    transition={{ layout: SPRING.zoom }} 
+                    transition={{ layout: PLAYER_MOTION }} 
                     data-press="true" 
                     onClick={() => {
                       if (handlePrevChapter) {
@@ -772,7 +772,7 @@ export default function FullscreenPlayer({
                   {/* Voltar */}
                   <motion.button
                     layoutId="player-seek-back"
-                    transition={{ layout: SPRING.zoom }} 
+                    transition={{ layout: PLAYER_MOTION }} 
                     data-press="true" 
                     onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm relative shrink-0"
@@ -785,7 +785,7 @@ export default function FullscreenPlayer({
                   {/* Play/Pause MAIOR que os demais (destaque visual como no miniplayer) */}
                   <motion.button
                     layoutId="player-play"
-                    transition={{ layout: SPRING.zoom }} 
+                    transition={{ layout: PLAYER_MOTION }} 
                     data-press="true" 
                     onClick={() => setIsPlaying(!isPlaying)}
                     data-fs-main-play="true"
@@ -802,7 +802,7 @@ export default function FullscreenPlayer({
                   {/* Avançar */}
                   <motion.button
                     layoutId="player-seek-fwd"
-                    transition={{ layout: SPRING.zoom }} 
+                    transition={{ layout: PLAYER_MOTION }} 
                     data-press="true" 
                     onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm relative shrink-0"
@@ -815,7 +815,7 @@ export default function FullscreenPlayer({
                   {/* Próximo capítulo */}
                   <motion.button
                     layoutId="player-next"
-                    transition={{ layout: SPRING.zoom }} 
+                    transition={{ layout: PLAYER_MOTION }} 
                     data-press="true" 
                     onClick={() => {
                       if (handleNextChapter) {
@@ -857,7 +857,7 @@ export default function FullscreenPlayer({
               initial={isMobileFs ? { opacity: 0, y: 12 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
               animate={isMobileFs ? { opacity: 1, y: 0 } : { opacity: 1, width: 'auto', x: 0, scale: 1 }}
               exit={isMobileFs ? { opacity: 0, y: 12 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
-              transition={{ ...SPRING.zoom, opacity: LYRICS_FADE }}
+              transition={{ ...PLAYER_MOTION, opacity: LYRICS_FADE }}
               style={{
                 willChange: 'transform, opacity, width',
                 // Cor de destaque da página deste audiobook (a palavra sendo lida)
@@ -1027,7 +1027,7 @@ export default function FullscreenPlayer({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            transition={{ ...SPRING.zoom, opacity: LYRICS_FADE }}
+            transition={{ ...PLAYER_MOTION, opacity: LYRICS_FADE }}
             role="button"
             tabIndex={0}
             onClick={() => onCloseTranscript?.()}
@@ -1044,7 +1044,7 @@ export default function FullscreenPlayer({
           >
             <motion.img
               layoutId="player-cover"
-              transition={SPRING.zoom}
+              transition={PLAYER_MOTION}
               style={{ borderRadius: 8 }}
               src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)}
               onError={(e) => handleBookCoverError(currentBook, e)}
@@ -1055,7 +1055,7 @@ export default function FullscreenPlayer({
               <motion.p
                 layoutId="player-chapter-title"
                 layout="position"
-                transition={{ layout: SPRING.zoom }}
+                transition={{ layout: PLAYER_MOTION }}
                 className="text-sm font-bold text-[var(--text-main)] truncate"
               >
                 <MarqueeText text={currentChapter.title} />
@@ -1063,7 +1063,7 @@ export default function FullscreenPlayer({
               <motion.p
                 layoutId="player-book-line"
                 layout="position"
-                transition={{ layout: SPRING.zoom }}
+                transition={{ layout: PLAYER_MOTION }}
                 className="text-xs text-[var(--text-muted)] truncate mt-0.5"
               >
                 <MarqueeText text={`${currentBook.title} • ${currentBook.author}`} />
@@ -1087,7 +1087,7 @@ export default function FullscreenPlayer({
             </motion.button>
             <motion.button
               layoutId="player-play"
-              transition={{ layout: SPRING.zoom }}
+              transition={{ layout: PLAYER_MOTION }}
               data-press="true"
               onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }}
               aria-label={isPlaying ? t('pause') : t('listen')}

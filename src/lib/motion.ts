@@ -13,6 +13,9 @@ export const SPRING = {
 };
 
 const FADE_EASE = [0.2, 0, 0, 1] as [number, number, number, number];
+// Abrir e fechar o player: duração curta e fixa. Mola sempre tem uma cauda longa e o player ficava montado até ela acabar
+export const PLAYER_MOTION = { type: 'tween' as const, duration: 0.16, ease: FADE_EASE };
+
 export const FADE_IN = { duration: 0.2, ease: FADE_EASE };
 export const FADE_OUT = { duration: 0.15, ease: FADE_EASE };
 

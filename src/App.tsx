@@ -15441,7 +15441,6 @@ export default function App() {
         {Boolean(isPlayerVisible) && (
           !isFullScreen ? ((isMobile || isCompactPlayer) ? (
             <MobileMiniPlayer
-              currentBookHighlight={currentBookHighlight}
               key="mini-player"
               isQueuePulse={isQueuePulse}
               docked={!isMobile}

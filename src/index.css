@@ -169,7 +169,8 @@ html[data-density="comfortable"] [class*="gap-6"] {
     --winblue: #FF9500;
     --winblue-rgb: 255, 149, 0;
     --bg-mica: #FFFFFF;
-    --button-outline: rgb(0 0 0 / 0.1);
+    --button-outline: rgb(0 0 0 / 0.05);
+    --surface-outline: rgb(0 0 0 / 0.03);
     --shadow-soft: rgb(0 0 0 / 0.08);
     --shadow-mid: rgb(0 0 0 / 0.1);
     --shadow-strong: rgb(0 0 0 / 0.12);
@@ -209,7 +210,8 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
   .dark {
     --bg-mica: #111113;
-    --button-outline: rgb(255 255 255 / 0.16);
+    --button-outline: rgb(255 255 255 / 0.07);
+    --surface-outline: rgb(255 255 255 / 0.04);
     --shadow-soft: rgb(0 0 0 / 0.26);
     --shadow-mid: rgb(0 0 0 / 0.3);
     --shadow-strong: rgb(0 0 0 / 0.36);
@@ -2103,27 +2105,28 @@ input[type="range"].apple-slider:active::-moz-range-track,
   }
 }
 
-/* Pop-up aberto dentro da tela: só ele vem para a frente de tudo. A tela fica no lugar, atrás do cabeçalho, da barra e
+/* Pop-up aberto dentro da área rolável (os do cabeçalho já ficam na frente): só ele vem para a frente de tudo. A tela fica no lugar, atrás do cabeçalho, da barra e
    do miniplayer. Para isso os elementos em volta do pop-up perdem a camada própria, e o resto do conteúdo é isolado,
    senão seus itens com z-index passariam a competir com o cabeçalho */
-main:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])),
-main :has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
+main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot])),
+.app-scroll:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])),
+.app-scroll :has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
   z-index: auto !important;
 }
-.app-scroll > :not(:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])), [data-popup-content]:not([data-search-dropdown], [data-search-slot]), .fixed),
+.app-scroll:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) > :not(:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])), [data-popup-content]:not([data-search-dropdown], [data-search-slot]), .fixed),
 .app-scroll :has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) > :not(:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])), [data-popup-content]:not([data-search-dropdown], [data-search-slot]), .fixed) {
   z-index: 0 !important;
   isolation: isolate;
 }
-main [data-popup-content]:not([data-search-dropdown], [data-search-slot]) {
+.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot]) {
   z-index: 160 !important;
 }
 /* O fundo que fecha o pop-up fica logo abaixo dele, por cima do cabeçalho */
-main .fixed.inset-0:has(~ [data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
+.app-scroll .fixed.inset-0:has(~ [data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
   z-index: 155 !important;
 }
 /* Sem a camada da tela, o desfoque do cabeçalho continua atrás do menu lateral */
-main:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) .apple-header-blur {
+main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot])) .apple-header-blur {
   z-index: 25 !important;
 }
 
@@ -2185,11 +2188,11 @@ html.dark :is(button, [role="button"]) {
   outline-offset: -0.5px;
 }
 :is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *, .settings-list-row *):active {
-  outline-color: color-mix(in srgb, currentColor 34%, transparent);
+  outline-color: color-mix(in srgb, currentColor 20%, transparent);
 }
 @media (hover: hover) and (pointer: fine) {
   :is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *, .settings-list-row *):hover {
-    outline-color: color-mix(in srgb, currentColor 26%, transparent);
+    outline-color: color-mix(in srgb, currentColor 14%, transparent);
   }
 }
 :is(button, [role="button"]):focus-visible {
@@ -2262,6 +2265,11 @@ aside.sidebar-safe,
 [data-player-sheet],
 [data-mobile-sheet],
 :is([class*="bg-card/95"], [class*="bg-card/90"]):not(button, [role="button"], .fixed.inset-0) {
-  outline: 0.5px solid var(--button-outline);
+  outline: 0.5px solid var(--surface-outline);
   outline-offset: -0.5px;
+}
+
+/* Dentro de pop-ups os itens não têm sombra: só o próprio pop-up tem */
+:is([data-popup-content], [data-player-sheet], [data-mobile-sheet]) *:not([class*="bg-card/9"]) {
+  box-shadow: none !important;
 }
