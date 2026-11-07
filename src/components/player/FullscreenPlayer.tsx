@@ -423,86 +423,33 @@ export default function FullscreenPlayer({
           />
         )}
         {/* Orbe 1: Tom principal e variações ricas da capa (mesma cor da capa) */}
-        <motion.div
-          animate={{
-            x: ['-14%', '24%', '-10%', '-14%'],
-            y: ['-12%', '20%', '-16%', '-12%'],
-            scale: [1, 1.3, 0.94, 1],
-          }}
-          // Cor fixa: animar a cor redesenharia o desfoque a cada quadro; só o movimento roda na GPU
+        <div
           style={{ backgroundColor: fullscreenAmbientColors.isDark ? fullscreenAmbientColors.tonePrimary : fullscreenAmbientColors.tonePrimary }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-[18%] -left-[12%] w-[68vw] h-[68vw] max-w-[820px] max-h-[820px] rounded-full opacity-75 dark:opacity-75 blur-[120px] transform-gpu"
+          className="fs-orb fs-orb-1 absolute -top-[18%] -left-[12%] w-[68vw] h-[68vw] max-w-[820px] max-h-[820px] rounded-full opacity-75 dark:opacity-75 blur-[120px] transform-gpu"
         />
 
         {/* Orbe 2: Luz & Tons suaves da capa */}
-        <motion.div
-          animate={{
-            x: ['18%', '-22%', '14%', '18%'],
-            y: ['12%', '-18%', '16%', '12%'],
-            scale: [1.12, 0.88, 1.24, 1.12],
-          }}
-          // Cor fixa: animar a cor redesenharia o desfoque a cada quadro; só o movimento roda na GPU
+        <div
           style={{ backgroundColor: fullscreenAmbientColors.isDark ? fullscreenAmbientColors.toneSecondary : fullscreenAmbientColors.toneSecondary }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-[8%] -right-[14%] w-[60vw] h-[60vw] max-w-[740px] max-h-[740px] rounded-full opacity-75 dark:opacity-25 blur-[130px] transform-gpu"
+          className="fs-orb fs-orb-2 absolute top-[8%] -right-[14%] w-[60vw] h-[60vw] max-w-[740px] max-h-[740px] rounded-full opacity-75 dark:opacity-25 blur-[130px] transform-gpu"
         />
 
         {/* Orbe 3: No escuro: Escuridão & Preto profundo. No claro: Tons médios e primários da capa */}
-        <motion.div
-          animate={{
-            x: ['-10%', '20%', '-18%', '-10%'],
-            y: ['18%', '-14%', '12%', '18%'],
-            scale: [0.95, 1.25, 1.05, 0.95],
-            backgroundColor: fullscreenAmbientColors.isDark ? [
-              '#000000',
-              fullscreenAmbientColors.toneVeryDark,
-              fullscreenAmbientColors.toneDeep,
-              '#000000',
-            ] : [
-              fullscreenAmbientColors.toneMedium,
-              fullscreenAmbientColors.tonePrimary,
-              fullscreenAmbientColors.tonePastel,
-              fullscreenAmbientColors.toneMedium,
-            ],
-          }}
-          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -bottom-[16%] left-[12%] w-[66vw] h-[66vw] max-w-[800px] max-h-[800px] rounded-full opacity-80 dark:opacity-85 blur-[115px] transform-gpu"
+        <div
+          style={{ backgroundColor: fullscreenAmbientColors.isDark ? fullscreenAmbientColors.toneVeryDark : fullscreenAmbientColors.toneMedium }}
+          className="fs-orb fs-orb-3 absolute -bottom-[16%] left-[12%] w-[66vw] h-[66vw] max-w-[800px] max-h-[800px] rounded-full opacity-80 dark:opacity-85 blur-[115px] transform-gpu"
         />
 
         {/* Orbe 4: No escuro: Tons escuros da capa. No claro: Tons médios e suaves da capa */}
-        <motion.div
-          animate={{
-            x: ['14%', '-16%', '10%', '14%'],
-            y: ['-14%', '18%', '-10%', '-14%'],
-            scale: [1.06, 0.92, 1.2, 1.06],
-          }}
-          // Cor fixa: animar a cor redesenharia o desfoque a cada quadro; só o movimento roda na GPU
+        <div
           style={{ backgroundColor: fullscreenAmbientColors.isDark ? fullscreenAmbientColors.toneDeep : fullscreenAmbientColors.toneLight }}
-          transition={{ duration: 27, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute bottom-[10%] -right-[12%] w-[62vw] h-[62vw] max-w-[760px] max-h-[760px] rounded-full opacity-70 dark:opacity-70 blur-[125px] transform-gpu"
+          className="fs-orb fs-orb-4 absolute bottom-[10%] -right-[12%] w-[62vw] h-[62vw] max-w-[760px] max-h-[760px] rounded-full opacity-70 dark:opacity-70 blur-[125px] transform-gpu"
         />
 
         {/* Orbe 5: Feixe central de luz suave e contraste fluido */}
-        <motion.div
-          animate={{
-            x: ['-18%', '16%', '-8%', '-18%'],
-            y: ['14%', '-18%', '12%', '14%'],
-            scale: [0.92, 1.18, 0.88, 0.92],
-            backgroundColor: fullscreenAmbientColors.isDark ? [
-              'rgba(255, 255, 255, 0.75)',
-              fullscreenAmbientColors.toneVeryLight,
-              'rgba(0, 0, 0, 0.65)',
-              'rgba(255, 255, 255, 0.75)',
-            ] : [
-              fullscreenAmbientColors.tonePastel,
-              fullscreenAmbientColors.toneVeryLight,
-              fullscreenAmbientColors.toneWhiteTint,
-              fullscreenAmbientColors.tonePastel,
-            ],
-          }}
-          transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-[28%] left-[22%] w-[48vw] h-[48vw] max-w-[580px] max-h-[580px] rounded-full opacity-65 dark:opacity-20 blur-[135px] transform-gpu"
+        <div
+          style={{ backgroundColor: fullscreenAmbientColors.isDark ? fullscreenAmbientColors.toneVeryLight : fullscreenAmbientColors.tonePastel }}
+          className="fs-orb fs-orb-5 absolute top-[28%] left-[22%] w-[48vw] h-[48vw] max-w-[580px] max-h-[580px] rounded-full opacity-65 dark:opacity-20 blur-[135px] transform-gpu"
         />
 
         {/* Camada sutil da textura da capa com mix-blend suave */}

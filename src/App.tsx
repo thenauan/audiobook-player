@@ -11278,7 +11278,7 @@ export default function App() {
                     title={t('exit_dev_mode')}
                     className="max-md:hidden h-9 px-3.5 rounded-full bg-gradient-to-r from-amber-500/25 via-amber-500/20 to-orange-500/25 text-amber-400 hover:text-amber-300 transition-all backdrop-blur-3xl font-bold text-xs flex items-center gap-1.5 shrink-0 shadow-lg cursor-pointer select-none"
                   >
-                    <Code2 size={13} className="text-amber-400 animate-pulse shrink-0" />
+                    <Code2 size={13} className="text-amber-400 shrink-0" />
                     <span>{t('exit_dev_mode')}</span>
                   </motion.button>
                 )}

@@ -125,7 +125,8 @@ export default function MiniPlayer({
         aria-hidden="true"
         transition={{ layout: SPRING.zoom }}
         className="absolute inset-0 -z-10 pointer-events-none backdrop-blur-3xl shadow-2xl"
-        style={{ ...miniplayerAmbientStyle, borderRadius: 28 }}
+        data-ui-outline="true"
+            style={{ ...miniplayerAmbientStyle, borderRadius: 28 }}
       />
 
       {/* Lado Esquerdo: Controles */}
@@ -444,7 +445,8 @@ export function MobileMiniPlayer({
         aria-hidden="true"
         transition={MORPH_LAYOUT}
         className="absolute inset-0 -z-10 pointer-events-none "
-        style={{ ...miniplayerAmbientStyle, boxShadow: MOBILE_GLASS_SHADOW, borderRadius: docked ? 28 : height / 2 }}
+        data-ui-outline="true"
+            style={{ ...miniplayerAmbientStyle, boxShadow: MOBILE_GLASS_SHADOW, borderRadius: docked ? 28 : height / 2 }}
       />
       <div
         role="button"

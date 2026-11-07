@@ -65,12 +65,10 @@ export function Sidebar({
       } as React.CSSProperties) : undefined}
     >
       <div>
-        <div className="flex items-baseline gap-[3px] px-3 text-[var(--text-main)] text-xl tracking-tight mb-6">
+        {/* Alinhado aos ícones das opções do menu */}
+        <div className="flex items-baseline gap-[5px] pl-[18px] text-[var(--text-main)] text-[40px] leading-none tracking-tight mb-6">
           <AppLogo className="text-[var(--text-main)] shrink-0" />
-          <span>
-            <span className="font-bold">Audiobook</span>
-            <span className="font-normal">Player</span>
-          </span>
+          <span className="font-normal">Player</span>
         </div>
 
         <div className="flex flex-col gap-1.5 px-1">
@@ -392,6 +390,7 @@ const MobileBottomBarView = React.memo(function MobileBottomBarView({
               borderRadius: collapsed ? compact / 2 : size / 2,
             }}
             transition={BAR_SPRING}
+            data-ui-outline="true"
             style={{ boxShadow: MOBILE_GLASS_SHADOW }}
             className={cn("absolute left-0 top-0 pointer-events-none", glass)}
           />
