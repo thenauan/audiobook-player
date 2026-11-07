@@ -1,5 +1,5 @@
 // Service Worker for Audiobook Player PWA
-const CACHE_NAME = 'audiobook-player-v12';
+const CACHE_NAME = 'audiobook-player-v13';
 // Caminhos relativos à pasta do service worker (funciona também numa subpasta, como no GitHub Pages)
 const ASSETS_TO_CACHE = [
   './',
@@ -54,19 +54,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Páginas (index.html): primeiro a rede, para que uma nova versão publicada apareça na hora;
-  // sem conexão, usa a cópia salva
+  // Páginas (index.html): a rede, se responder em até 0,7 s (uma versão nova aparece na hora). Com a rede lenta
+  // ou sem conexão, abre a cópia salva sem esperar, e a rede atualiza a cópia para a próxima abertura
   if (request.mode === 'navigate') {
+    const network = fetch(request).then((networkResponse) => {
+      if (networkResponse && networkResponse.status === 200) {
+        const copy = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+      }
+      return networkResponse;
+    });
+    const saved = () => caches.match(request).then((cached) => cached || caches.match('./index.html'));
+    event.waitUntil(network.catch(() => {}));
     event.respondWith(
-      fetch(request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const copy = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          }
-          return networkResponse;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html')))
+      new Promise((resolve) => {
+        let done = false;
+        const finish = (response) => { if (!done && response) { done = true; resolve(response); } };
+        const timer = setTimeout(() => saved().then(finish), 700);
+        network.then((r) => { clearTimeout(timer); finish(r); }).catch(() => { clearTimeout(timer); saved().then((r) => finish(r || Response.error())); });
+      })
     );
     return;
   }

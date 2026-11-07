@@ -68,14 +68,8 @@ const HelpCenterView = helpCenterLazy.Component;
 const DevToolsModal = React.lazy(() => import('./views/DevToolsModal'));
 const SettingsView = settingsLazy.Component;
 
-// Pré-carrega as telas sob demanda quando o app fica ocioso, para abrirem sem tela de carregamento
-if (typeof window !== 'undefined') {
-  const preload = () => { settingsLazy.load(); helpCenterLazy.load(); imageCropperLazy.load(); };
-  const ric = (window as any).requestIdleCallback as ((cb: () => void, opts?: { timeout: number }) => number) | undefined;
-  if (ric) ric(preload, { timeout: 2500 });
-  else setTimeout(preload, 1500);
-}
-import { getHelpThemes } from './i18n/helpTranslations';
+// Ajustes, Ajuda e o recorte de imagem só são baixados ao abrir: o app abre o mais rápido possível
+import type { HelpTheme } from './data/helpData';
 import { getGenreName, getSubgenreName } from './i18n/genreTranslations';
 import { getNationalityDisplayName, NATIONALITIES_LIST, findNationalityEntry } from './i18n/nationalityTranslations';
 import {
@@ -1486,7 +1480,15 @@ export default function App() {
     return getTranslation(resolvedLanguage, key, params);
   }, [resolvedLanguage]);
 
-  const helpThemes = useMemo(() => getHelpThemes(resolvedLanguage), [resolvedLanguage]);
+  // Textos da Ajuda: baixados só quando a Ajuda é aberta (não pesam na abertura do app)
+  const [helpThemes, setHelpThemes] = useState<HelpTheme[]>([]);
+  const needsHelpThemes = activeScreen.id.startsWith('help') || activeScreen.id === 'settings-atalhos';
+  useEffect(() => {
+    if (!needsHelpThemes) return;
+    let alive = true;
+    import('./i18n/helpTranslations').then(m => { if (alive) setHelpThemes(m.getHelpThemes(resolvedLanguage)); });
+    return () => { alive = false; };
+  }, [needsHelpThemes, resolvedLanguage]);
 
   // Fluxo de Boas-vindas e Ajustes Iniciais na 1ª abertura do app
   // Regras de negócio:
