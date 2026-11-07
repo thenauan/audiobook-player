@@ -16,6 +16,7 @@ import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from '../popups/popup
 import { MobileConfirmCard } from '../popups/MobileConfirm';
 import { MobileContextMenu, useLongPress, isMobileViewport, useIsMobile } from '../popups/MobileContextMenu';
 import { SPRING, FADE_IN, FADE_OUT } from '../../lib/motion';
+import { EmojiIcon } from '../EmojiIcon';
 
 export function _FavoriteChapterCard({
   item,
@@ -623,7 +624,7 @@ export function CollectionPickerPopupContent({
           rowTitle={isInCol ? t('remove_from_collection') : t('add_to_collection')}
           leading={
             <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${col.gradient} flex items-center justify-center text-sm shrink-0 shadow-sm select-none`}>
-              {col.emoji}
+              <EmojiIcon emoji={col.emoji} />
             </div>
           }
           title={col.name}
@@ -693,7 +694,7 @@ export function CollectionPickerPopupContent({
                 rowTitle={isInCol ? t('remove_from_collection') : t('add_to_collection')}
                 leading={
                   <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${col.gradient} flex items-center justify-center text-sm shrink-0 shadow-sm select-none`}>
-                    {col.emoji}
+                    <EmojiIcon emoji={col.emoji} />
                   </div>
                 }
                 title={col.name}
@@ -1956,7 +1957,7 @@ export function CollectionCard({
         <div ref={gradientRef} className={`absolute inset-0 bg-gradient-to-br ${col.gradient} ${selectionMode && selected ? 'opacity-70' : ''}`} />
         <div className="absolute inset-0 bg-black/20" />
         <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
-          {col.emoji}
+          <EmojiIcon emoji={col.emoji} />
         </span>
       </div>
       <div className="relative z-10">

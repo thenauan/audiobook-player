@@ -2023,7 +2023,7 @@ input[type="range"].apple-slider {
   transition: height var(--dur-snappy) var(--spring-snappy), filter var(--dur-fade-in) var(--ease-fade);
 }
 @media (pointer: fine) {
-  input[type="range"].apple-slider:active {
+  .group[data-scrubbing] input[type="range"].apple-slider {
     height: 8px;
   }
 }
@@ -2031,15 +2031,14 @@ input[type="range"].apple-slider {
   input[type="range"].apple-slider {
     transition: background-size var(--dur-snappy) var(--spring-snappy);
   }
-  input[type="range"].apple-slider:active,
-  :has(> [data-seek-overlay]:active) > input[type="range"].apple-slider {
+  .group[data-scrubbing] input[type="range"].apple-slider {
     background-size: 100% 8px !important;
   }
 }
 .group > span {
   transition: scale var(--dur-snappy) var(--spring-snappy), color var(--dur-fade-in) var(--ease-fade);
 }
-.group:has(input[type="range"].apple-slider:active, [data-seek-overlay]:active) > span {
+.group[data-scrubbing] > span {
   scale: 1.18;
   color: var(--text-main);
 }
@@ -2057,5 +2056,32 @@ input[type="range"].apple-slider {
     width: max(100%, 44px);
     height: max(100%, 44px);
     translate: -50% -50%;
+  }
+}
+
+/* Listas sobre fundo sólido: o desfoque não muda nada na tela, só gasta processamento */
+.settings-list-row,
+.settings-option-list {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Reduzir transparência: fundos sólidos e sem desfoque, como no modo leve */
+@media (prefers-reduced-transparency: reduce) {
+  :root, .dark {
+    --bg-card-50: var(--bg-card);
+    --bg-card-60: var(--bg-card);
+    --bg-card-75: var(--bg-card);
+    --bg-card-80: var(--bg-card);
+    --bg-card-85: var(--bg-card);
+    --bg-card-90: var(--bg-card);
+    --bg-card-95: var(--bg-card);
+  }
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .apple-header-blur > .apple-blur-layer {
+    display: none !important;
   }
 }

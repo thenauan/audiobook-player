@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, Reorder } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { X, Search, Settings as SettingsIcon, Volume2, VolumeX, Moon, ChevronLeft, Trash2, ListMusic, CheckCircle2, Power } from 'lucide-react';
+import { X, Search, Settings as SettingsIcon, Volume2, VolumeX, Moon, ChevronLeft, Trash2, ListMusic, CheckCircle2, Power, Languages } from 'lucide-react';
 import { HelpCircle, ArrowRight } from 'lucide-react';
 import { RiApps2Line } from 'react-icons/ri';
 import { 
@@ -102,6 +102,7 @@ import { slimQueueForStorage } from './audio/queueUtils';
 import { cancelLyricCentering, centerLyricLine } from './components/player/lyricScroll';
 import { SPRING, FADE_IN, FADE_OUT } from './lib/motion';
 import { ACCENT_COLORS } from './lib/accentColors';
+import { EmojiIcon } from './components/EmojiIcon';
 
 const getSpeedIcon = (s: number) => {
   if (s < 1) return <Turtle size={14} className="shrink-0" />;
@@ -249,7 +250,6 @@ function getLanguageData(lang: string, currentLang: AppLanguage = 'pt') {
   const resolved = currentLang === 'system' ? getSystemLanguage() : currentLang;
   return {
     name: getLanguageCardName(canonical, resolved),
-    flag: entry ? entry.flag : '🌐',
     gradient: entry ? entry.gradient : 'from-purple-600 via-violet-600 to-indigo-800',
   };
 }
@@ -2308,9 +2308,9 @@ export default function App() {
       localStorage.setItem('app_dev_mode', 'true');
     } catch {}
     setSearchQuery('');
-    showToast('🔔 [Dev] Notificação 1: Temporizador de sono ativo (30 min)');
+    showToast('[Dev] Notificação 1: Temporizador de sono ativo (30 min)');
     setTimeout(() => {
-      showToast('🔔 [Dev] Notificação 2: Audiobook "Duna" adicionado à fila');
+      showToast('[Dev] Notificação 2: Audiobook "Duna" adicionado à fila');
     }, 1500);
   };
 
@@ -2320,7 +2320,7 @@ export default function App() {
       localStorage.setItem('app_dev_mode', 'true');
     } catch {}
     setSearchQuery('');
-    showToast('⚠️ [Dev] Erro simulado: Falha ao decodificar arquivo de áudio.');
+    showToast('[Dev] Erro simulado: Falha ao decodificar arquivo de áudio.');
   };
 
   const handleSimulateFullScreenError = () => {
@@ -4199,7 +4199,7 @@ export default function App() {
                       onClick={() => handleToggleItemInCollection(col.id, itemType, itemId)}
                       leading={
                         <span className={`w-10 h-10 rounded-full bg-gradient-to-br ${col.gradient} flex items-center justify-center text-base shrink-0 shadow-sm select-none`}>
-                          {col.emoji}
+                          <EmojiIcon emoji={col.emoji} />
                         </span>
                       }
                       title={col.name}
@@ -10281,7 +10281,7 @@ export default function App() {
           >
             <div className={`relative w-12 h-12 shrink-0 rounded-[14px] overflow-hidden shadow-sm flex items-center justify-center ${item.type === 'collection' ? `bg-gradient-to-br ${item.collection?.gradient || 'from-slate-600 to-zinc-800'}` : 'bg-winblue/15 text-winblue'}`}>
               {item.type === 'collection' ? (
-                <span className="text-2xl leading-none drop-shadow-sm">{item.collection?.emoji || <FolderOpen size={20} className="text-white" />}</span>
+                <span className="text-2xl leading-none drop-shadow-sm">{item.collection?.emoji ? <EmojiIcon emoji={item.collection.emoji} /> : <FolderOpen size={20} className="text-white" />}</span>
               ) : (
                 <>
                   <img src={cover} alt="" draggable={false} className="w-full h-full object-cover" />
@@ -11331,7 +11331,7 @@ export default function App() {
                                             .map(c => (
                                               <div key={c.id} className="flex items-center gap-3 p-2 rounded-xl bg-white/5">
                                                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center text-xl shrink-0 shadow-sm`}>
-                                                  {c.emoji}
+                                                  <EmojiIcon emoji={c.emoji} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-bold text-[var(--text-main)] truncate">{c.name}</p>
@@ -11363,7 +11363,7 @@ export default function App() {
                                             .map(genre => (
                                               <div key={genre!.id} className="flex items-center gap-3 p-2">
                                                 <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
-                                                  {getGenreEmoji(genre!.id)}
+                                                  <EmojiIcon emoji={getGenreEmoji(genre!.id)} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-bold text-[var(--text-main)] truncate">{getGenreName(genre!.id, resolvedLanguage)}</p>
@@ -11378,7 +11378,7 @@ export default function App() {
                                             .map(langData => (
                                               <div key={langData.name} className="flex items-center gap-3 p-2">
                                                 <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
-                                                  {langData.flag}
+                                                  <Languages size="1em" strokeWidth={1.75} aria-hidden="true" className="inline-block align-[-0.125em]" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-bold text-[var(--text-main)] truncate">{langData.name}</p>
@@ -11536,7 +11536,7 @@ export default function App() {
                                             .map(c => (
                                               <div key={c.id} className="flex items-center gap-3 p-2 rounded-xl bg-white/5">
                                                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center text-xl shrink-0 shadow-sm`}>
-                                                  {c.emoji}
+                                                  <EmojiIcon emoji={c.emoji} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-bold text-[var(--text-main)] truncate">{c.name}</p>
@@ -11568,7 +11568,7 @@ export default function App() {
                                             .map(genre => (
                                               <div key={genre!.id} className="flex items-center gap-3 p-2">
                                                 <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
-                                                  {getGenreEmoji(genre!.id)}
+                                                  <EmojiIcon emoji={getGenreEmoji(genre!.id)} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-bold text-[var(--text-main)] truncate">{getGenreName(genre!.id, resolvedLanguage)}</p>
@@ -11583,7 +11583,7 @@ export default function App() {
                                             .map(langData => (
                                               <div key={langData.name} className="flex items-center gap-3 p-2">
                                                 <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
-                                                  {langData.flag}
+                                                  <Languages size="1em" strokeWidth={1.75} aria-hidden="true" className="inline-block align-[-0.125em]" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-bold text-[var(--text-main)] truncate">{langData.name}</p>
@@ -11887,7 +11887,7 @@ export default function App() {
 
                                         <div className="flex items-center gap-3 p-2 mb-4">
                                           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${headerCol.gradient} flex items-center justify-center text-lg shrink-0 shadow-sm select-none`}>
-                                            {headerCol.emoji}
+                                            <EmojiIcon emoji={headerCol.emoji} />
                                           </div>
                                           <div className="flex-1 min-w-0">
                                             <p className="text-xs font-bold text-[var(--text-main)] truncate">{headerCol.name}</p>
@@ -13089,7 +13089,7 @@ export default function App() {
                                 <div className="absolute inset-0 bg-black/15" />
 
                                 <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
-                                  {getGenreEmoji(genreData.id)}
+                                  <EmojiIcon emoji={getGenreEmoji(genreData.id)} />
                                 </span>
                               </div>
 
@@ -13195,7 +13195,7 @@ export default function App() {
                                 <div className="absolute inset-0 bg-black/15" />
 
                                 <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
-                                  {langData.flag}
+                                  <Languages size="1em" strokeWidth={1.75} aria-hidden="true" className="inline-block align-[-0.125em]" />
                                 </span>
                               </div>
 
@@ -13449,7 +13449,7 @@ export default function App() {
                               <div className="absolute inset-0 bg-black/20" />
                               <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/35 to-transparent" />
                             </div>
-                            <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 md:right-10 md:bottom-4 text-[150px] md:text-[220px] leading-none opacity-40 select-none pointer-events-none">{c.emoji}</span>
+                            <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 md:right-10 md:bottom-4 text-[150px] md:text-[220px] leading-none opacity-40 select-none pointer-events-none"><EmojiIcon emoji={c.emoji} /></span>
                             <div className="absolute inset-x-0 bottom-0 px-5 pb-6 md:px-8 md:pb-10 flex flex-col items-start text-left rtl:items-end rtl:text-right text-white">
                               <h2 data-screen-title="true" className="text-[30px] md:text-5xl font-bold leading-tight tracking-tight line-clamp-2 drop-shadow-md">{c.name}</h2>
                               {desc && <p className="text-[14px] md:text-base font-medium text-white/85 mt-1 md:mt-2 line-clamp-2 max-w-2xl [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{desc}</p>}
@@ -13678,7 +13678,7 @@ export default function App() {
                               <div className="absolute inset-0 bg-black/15" />
 
                               <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
-                                {langData.flag}
+                                <Languages size="1em" strokeWidth={1.75} aria-hidden="true" className="inline-block align-[-0.125em]" />
                               </span>
                             </div>
 
@@ -14025,7 +14025,7 @@ export default function App() {
                               <div className="absolute inset-0 bg-black/15" />
 
                               <span className="absolute -bottom-4 -right-3 text-7xl sm:text-8xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
-                                {getGenreEmoji(genreData.id)}
+                                <EmojiIcon emoji={getGenreEmoji(genreData.id)} />
                               </span>
                             </div>
 
@@ -14235,7 +14235,7 @@ export default function App() {
                                               <div className="absolute inset-0 bg-black/15" />
 
                                               <span className="absolute -bottom-3 -right-2 text-5xl sm:text-6xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-1 translate-y-1">
-                                                {getSubgenreEmoji(subgenre)}
+                                                <EmojiIcon emoji={getSubgenreEmoji(subgenre)} />
                                               </span>
                                             </div>
 
@@ -14447,7 +14447,7 @@ export default function App() {
                                 : ' hover:bg-[var(--ios-fill)] '
                             }`}
                           >
-                            <span>{emoji}</span>
+                            <EmojiIcon emoji={emoji} />
                           </button>
                         );
                       })}

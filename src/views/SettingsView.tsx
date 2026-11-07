@@ -501,7 +501,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 title: t('settings_interface'),
                 subtitle: t('settings_interface_sub'),
                 icon: <Palette size={26} />,
-                emoji: '🎨',
                 gradient: 'from-violet-600 via-purple-600 to-pink-600',
               },
               {
@@ -509,7 +508,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 title: t('settings_library'),
                 subtitle: t('settings_library_sub'),
                 icon: <BookOpen size={26} />,
-                emoji: '📚',
                 gradient: 'from-blue-600 via-indigo-600 to-cyan-500',
               },
               {
@@ -517,7 +515,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 title: t('settings_playback'),
                 subtitle: t('settings_playback_sub'),
                 icon: <BsPlayFill size={32} className="translate-x-[1px]" />,
-                emoji: '🎧',
                 gradient: 'from-emerald-600 via-teal-600 to-cyan-600',
               },
               {
@@ -525,7 +522,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 title: t('settings_notifications'),
                 subtitle: t('settings_notifications_sub'),
                 icon: <Bell size={26} />,
-                emoji: '🔔',
                 gradient: 'from-amber-500 via-orange-500 to-rose-500',
               },
               {
@@ -533,7 +529,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 title: t('settings_sistema'),
                 subtitle: t('settings_sistema_sub'),
                 icon: <SettingsIcon size={26} />,
-                emoji: '⚙️',
                 gradient: 'from-slate-700 via-gray-800 to-zinc-900',
               },
             ].map((card) => (

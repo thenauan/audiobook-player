@@ -149,7 +149,7 @@ export const HELP_THEMES: HelpTheme[] = [
             {
               number: '2',
               title: 'Marque seus Favoritos',
-              desc: 'Passe o mouse sobre qualquer card de audiobook ou autor e clique na estrela ⭐ para favoritá-lo.'
+              desc: 'Passe o mouse sobre qualquer card de audiobook ou autor e clique na estrela para favoritá-lo.'
             },
             {
               number: '3',
@@ -454,7 +454,7 @@ export const HELP_THEMES: HelpTheme[] = [
             {
               number: '1',
               title: 'Clique no Ícone de Lua',
-              desc: 'No player de áudio, clique no ícone de lua 🌙 para abrir o menu do temporizador.'
+              desc: 'No player de áudio, clique no ícone de lua para abrir o menu do temporizador.'
             },
             {
               number: '2',
@@ -648,7 +648,7 @@ export const HELP_THEMES: HelpTheme[] = [
             {
               number: '1',
               title: 'Clique no Ícone de Marcador',
-              desc: 'Durante a reprodução, clique no botão de marcador 🔖 localizado nos controles do player.'
+              desc: 'Durante a reprodução, clique no botão de marcador localizado nos controles do player.'
             },
             {
               number: '2',
@@ -859,7 +859,7 @@ export const HELP_THEMES: HelpTheme[] = [
             {
               number: '4',
               title: 'Apagar Todo o Histórico',
-              desc: 'No canto superior direito, clique no botão circular vermelho de lixeira 🗑️ e confirme para limpar tudo.'
+              desc: 'No canto superior direito, clique no botão circular vermelho de lixeira e confirme para limpar tudo.'
             }
           ],
           highlights: [

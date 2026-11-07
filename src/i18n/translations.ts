@@ -14,7 +14,6 @@ export const LANGUAGE_NATIVE_NAMES: Record<SupportedLanguage, string> = {
 export interface AudiobookLanguageEntry {
   canonicalPt: string;
   countryPt: string;
-  flag: string;
   gradient: string;
   names: Record<SupportedLanguage, string>;
   aliases: string[];
@@ -24,7 +23,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Inglês',
     countryPt: 'Estados Unidos',
-    flag: '🇺🇸',
     gradient: 'from-blue-600 via-indigo-600 to-red-700',
     names: { pt: 'Inglês', en: 'English', es: 'Inglés', ru: 'Английский', ar: 'الإنجليزية' },
     aliases: ['en', 'eng', 'en-us', 'en-gb', 'ingles', 'english', 'inglés', 'английский', 'الإنجليزية'],
@@ -32,7 +30,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Mandarim',
     countryPt: 'China',
-    flag: '🇨🇳',
     gradient: 'from-red-600 via-rose-600 to-amber-600',
     names: { pt: 'Mandarim', en: 'Mandarin', es: 'Mandarín', ru: 'Мандаринский', ar: 'الماندرين' },
     aliases: ['zh', 'zho', 'chi', 'cmn', 'zh-cn', 'zh-tw', 'mandarim', 'mandarin', 'mandarín', 'chinês', 'chines', 'chinese', 'chino', '中文', '普通话', '汉语', 'китайский', 'мандаринский', 'الصينية', 'الماندرين'],
@@ -40,7 +37,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Hindi',
     countryPt: 'Índia',
-    flag: '🇮🇳',
     gradient: 'from-orange-500 via-amber-600 to-emerald-700',
     names: { pt: 'Hindi', en: 'Hindi', es: 'Hindi', ru: 'Хинди', ar: 'الهندية' },
     aliases: ['hi', 'hin', 'hindi', 'híndi', 'हिन्दी', 'हिंदी', 'хинди', 'الهندية'],
@@ -48,7 +44,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Espanhol',
     countryPt: 'México',
-    flag: '🇲🇽',
     gradient: 'from-emerald-600 via-teal-600 to-red-700',
     names: { pt: 'Espanhol', en: 'Spanish', es: 'Español', ru: 'Испанский', ar: 'الإسبانية' },
     aliases: ['es', 'spa', 'es-mx', 'es-es', 'espanhol', 'español', 'espanol', 'spanish', 'castelhano', 'castellano', 'испанский', 'الإسبانية'],
@@ -56,7 +51,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Francês',
     countryPt: 'França',
-    flag: '🇫🇷',
     gradient: 'from-indigo-600 via-blue-600 to-rose-700',
     names: { pt: 'Francês', en: 'French', es: 'Francés', ru: 'Французский', ar: 'الفرنسية' },
     aliases: ['fr', 'fra', 'fre', 'fr-fr', 'fr-ca', 'frances', 'francês', 'français', 'francés', 'french', 'французский', 'الفرنسية'],
@@ -64,7 +58,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Árabe',
     countryPt: 'Egito',
-    flag: '🇪🇬',
     gradient: 'from-red-700 via-amber-700 to-stone-900',
     names: { pt: 'Árabe', en: 'Arabic', es: 'Árabe', ru: 'Арабский', ar: 'العربية' },
     aliases: ['ar', 'ara', 'ar-eg', 'ar-sa', 'arabe', 'árabe', 'arabic', 'العربية', 'عربي', 'арабский'],
@@ -72,7 +65,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Bengali',
     countryPt: 'Bangladesh',
-    flag: '🇧🇩',
     gradient: 'from-emerald-700 via-teal-700 to-red-700',
     names: { pt: 'Bengali', en: 'Bengali', es: 'Bengalí', ru: 'Бенгальский', ar: 'البنغالية' },
     aliases: ['bn', 'ben', 'bengali', 'bengalí', 'bangla', 'বাংলা', 'бенгальский', 'البنغالية'],
@@ -80,7 +72,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Russo',
     countryPt: 'Rússia',
-    flag: '🇷🇺',
     gradient: 'from-cyan-600 via-blue-700 to-red-700',
     names: { pt: 'Russo', en: 'Russian', es: 'Ruso', ru: 'Русский', ar: 'الروسية' },
     aliases: ['ru', 'rus', 'russo', 'russian', 'ruso', 'русский', 'الروسية'],
@@ -88,7 +79,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Português',
     countryPt: 'Brasil',
-    flag: '🇧🇷',
     gradient: 'from-emerald-600 via-teal-600 to-green-700',
     names: { pt: 'Português', en: 'Portuguese', es: 'Portugués', ru: 'Португальский', ar: 'البرتغالية' },
     aliases: ['pt', 'por', 'pt-br', 'pt-pt', 'portugues', 'português', 'portuguese', 'portugués', 'португальский', 'البرتغالية'],
@@ -96,7 +86,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Urdu',
     countryPt: 'Paquistão',
-    flag: '🇵🇰',
     gradient: 'from-emerald-800 via-green-700 to-teal-900',
     names: { pt: 'Urdu', en: 'Urdu', es: 'Urdu', ru: 'Урду', ar: 'الأردية' },
     aliases: ['ur', 'urd', 'urdu', 'اردو', 'урду', 'الأردية'],
@@ -104,7 +93,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Indonésio',
     countryPt: 'Indonésia',
-    flag: '🇮🇩',
     gradient: 'from-red-600 via-rose-600 to-slate-700',
     names: { pt: 'Indonésio', en: 'Indonesian', es: 'Indonesio', ru: 'Индонезийский', ar: 'الإندونيسية' },
     aliases: ['id', 'ind', 'in', 'indonesio', 'indonésio', 'indonesian', 'bahasa indonesia', 'индонезийский', 'الإندونيسية'],
@@ -112,7 +100,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Alemão',
     countryPt: 'Alemanha',
-    flag: '🇩🇪',
     gradient: 'from-yellow-600 via-amber-600 to-stone-800',
     names: { pt: 'Alemão', en: 'German', es: 'Alemán', ru: 'Немецкий', ar: 'الألمانية' },
     aliases: ['de', 'deu', 'ger', 'de-de', 'alemao', 'alemão', 'aleman', 'alemán', 'german', 'deutsch', 'немецкий', 'الألمانية'],
@@ -120,7 +107,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Japonês',
     countryPt: 'Japão',
-    flag: '🇯🇵',
     gradient: 'from-rose-600 via-red-600 to-pink-800',
     names: { pt: 'Japonês', en: 'Japanese', es: 'Japonés', ru: 'Японский', ar: 'اليابانية' },
     aliases: ['ja', 'jpn', 'japones', 'japonês', 'japones', 'japonés', 'japanese', '日本語', 'японский', 'اليابانية'],
@@ -128,7 +114,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Coreano',
     countryPt: 'Coreia do Sul',
-    flag: '🇰🇷',
     gradient: 'from-blue-600 via-indigo-700 to-rose-700',
     names: { pt: 'Coreano', en: 'Korean', es: 'Coreano', ru: 'Корейский', ar: 'الكورية' },
     aliases: ['ko', 'kor', 'coreano', 'korean', '한국어', '조선말', 'корейский', 'الكورية'],
@@ -136,7 +121,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Vietnamita',
     countryPt: 'Vietnã',
-    flag: '🇻🇳',
     gradient: 'from-red-600 via-amber-600 to-rose-800',
     names: { pt: 'Vietnamita', en: 'Vietnamese', es: 'Vietnamita', ru: 'Вьетнамский', ar: 'الفيتنامية' },
     aliases: ['vi', 'vie', 'vietnamita', 'vietnamese', 'tiếng việt', 'tieng viet', 'вьетнамский', 'الفيتنامية'],
@@ -144,7 +128,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Turco',
     countryPt: 'Turquia',
-    flag: '🇹🇷',
     gradient: 'from-red-600 via-rose-700 to-red-900',
     names: { pt: 'Turco', en: 'Turkish', es: 'Turco', ru: 'Турецкий', ar: 'التركية' },
     aliases: ['tr', 'tur', 'turco', 'turkish', 'türkçe', 'turkce', 'турецкий', 'التركية'],
@@ -152,7 +135,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Italiano',
     countryPt: 'Itália',
-    flag: '🇮🇹',
     gradient: 'from-green-600 via-emerald-600 to-red-600',
     names: { pt: 'Italiano', en: 'Italian', es: 'Italiano', ru: 'Итальянский', ar: 'الإيطالية' },
     aliases: ['it', 'ita', 'italiano', 'italian', 'итальянский', 'الإيطالية'],
@@ -160,7 +142,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Tailandês',
     countryPt: 'Tailândia',
-    flag: '🇹🇭',
     gradient: 'from-indigo-700 via-blue-700 to-red-700',
     names: { pt: 'Tailandês', en: 'Thai', es: 'Tailandés', ru: 'Тайский', ar: 'التايلاندية' },
     aliases: ['th', 'tha', 'tailandes', 'tailandês', 'tailandés', 'thai', 'ไทย', 'ภาษาไทย', 'тайский', 'التايلاندية'],
@@ -168,7 +149,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Persa',
     countryPt: 'Irã',
-    flag: '🇮🇷',
     gradient: 'from-emerald-600 via-teal-700 to-red-700',
     names: { pt: 'Persa', en: 'Persian', es: 'Persa', ru: 'Персидский', ar: 'الفارسية' },
     aliases: ['fa', 'per', 'fas', 'persa', 'persian', 'farsi', 'فارسی', 'персидский', 'фарси', 'الفارسية'],
@@ -176,7 +156,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Polonês',
     countryPt: 'Polônia',
-    flag: '🇵🇱',
     gradient: 'from-rose-600 via-red-600 to-pink-700',
     names: { pt: 'Polonês', en: 'Polish', es: 'Polaco', ru: 'Польский', ar: 'البولندية' },
     aliases: ['pl', 'pol', 'polones', 'polonês', 'polaco', 'polish', 'polski', 'польский', 'البولندية'],
@@ -184,7 +163,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Ucraniano',
     countryPt: 'Ucrânia',
-    flag: '🇺🇦',
     gradient: 'from-blue-600 via-sky-600 to-amber-500',
     names: { pt: 'Ucraniano', en: 'Ukrainian', es: 'Ucraniano', ru: 'Украинский', ar: 'الأوكرانية' },
     aliases: ['uk', 'ukr', 'ucraniano', 'ukrainian', 'українська', 'украинский', 'الأوكرانية'],
@@ -192,7 +170,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Malaio',
     countryPt: 'Malásia',
-    flag: '🇲🇾',
     gradient: 'from-blue-700 via-indigo-700 to-amber-600',
     names: { pt: 'Malaio', en: 'Malay', es: 'Malayo', ru: 'Малайский', ar: 'الملايوية' },
     aliases: ['ms', 'msa', 'may', 'malaio', 'malayo', 'malay', 'bahasa melayu', 'малайский', 'الملايوية'],
@@ -200,7 +177,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Tagalo',
     countryPt: 'Filipinas',
-    flag: '🇵🇭',
     gradient: 'from-blue-600 via-red-600 to-amber-500',
     names: { pt: 'Tagalo', en: 'Tagalog', es: 'Tagalo', ru: 'Тагальский', ar: 'التاغالوغية' },
     aliases: ['tl', 'tgl', 'fil', 'tagalo', 'tagalog', 'filipino', 'тагальский', 'التاغالوغية'],
@@ -208,7 +184,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Birmanês',
     countryPt: 'Mianmar',
-    flag: '🇲🇲',
     gradient: 'from-amber-500 via-emerald-600 to-red-700',
     names: { pt: 'Birmanês', en: 'Burmese', es: 'Birmano', ru: 'Бирманский', ar: 'البورمية' },
     aliases: ['my', 'mya', 'bur', 'birmanes', 'birmanês', 'birmano', 'burmese', 'myanmar', 'မြန်မာ', 'бирманский', 'البورمية'],
@@ -216,7 +191,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Amárico',
     countryPt: 'Etiópia',
-    flag: '🇪🇹',
     gradient: 'from-emerald-600 via-amber-500 to-red-600',
     names: { pt: 'Amárico', en: 'Amharic', es: 'Amárico', ru: 'Амхарский', ar: 'الأمهرية' },
     aliases: ['am', 'amh', 'amarico', 'amárico', 'amharic', 'አማርኛ', 'амхарский', 'الأمهرية'],
@@ -224,7 +198,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Suaíli',
     countryPt: 'Tanzânia',
-    flag: '🇹🇿',
     gradient: 'from-emerald-600 via-amber-500 to-sky-600',
     names: { pt: 'Suaíli', en: 'Swahili', es: 'Suajili', ru: 'Суахили', ar: 'السواحيلية' },
     aliases: ['sw', 'swa', 'suaili', 'suaíli', 'suajili', 'swahili', 'kiswahili', 'суахили', 'السواحيلية'],
@@ -232,7 +205,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Iorubá',
     countryPt: 'Nigéria',
-    flag: '🇳🇬',
     gradient: 'from-emerald-700 via-green-600 to-teal-800',
     names: { pt: 'Iorubá', en: 'Yoruba', es: 'Yoruba', ru: 'Йоруба', ar: 'اليوروبا' },
     aliases: ['yo', 'yor', 'ioruba', 'iorubá', 'yoruba', 'èdè yorùbá', 'йоруба', 'اليوروبا'],
@@ -240,7 +212,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Hauçá',
     countryPt: 'Nigéria',
-    flag: '🇳🇬',
     gradient: 'from-green-700 via-emerald-600 to-lime-800',
     names: { pt: 'Hauçá', en: 'Hausa', es: 'Hausa', ru: 'Хауса', ar: 'الهوسا' },
     aliases: ['ha', 'hau', 'hauca', 'hauçá', 'hausa', 'harshen hausa', 'хауса', 'الهوسا'],
@@ -248,7 +219,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Zulu',
     countryPt: 'África do Sul',
-    flag: '🇿🇦',
     gradient: 'from-emerald-600 via-amber-500 to-blue-700',
     names: { pt: 'Zulu', en: 'Zulu', es: 'Zulú', ru: 'Зулу', ar: 'الزولو' },
     aliases: ['zu', 'zul', 'zulu', 'zulú', 'isizulu', 'зулу', 'الزولو'],
@@ -256,7 +226,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Somali',
     countryPt: 'Somália',
-    flag: '🇸🇴',
     gradient: 'from-sky-500 via-blue-600 to-indigo-700',
     names: { pt: 'Somali', en: 'Somali', es: 'Somalí', ru: 'Сомалийский', ar: 'الصومالية' },
     aliases: ['so', 'som', 'somali', 'somalí', 'soomaali', 'сомалийский', 'الصومالية'],
@@ -264,7 +233,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Holandês',
     countryPt: 'Países Baixos',
-    flag: '🇳🇱',
     gradient: 'from-red-600 via-blue-600 to-indigo-800',
     names: { pt: 'Holandês', en: 'Dutch', es: 'Neerlandés', ru: 'Нидерландский', ar: 'الهولندية' },
     aliases: ['nl', 'nld', 'dut', 'holandes', 'holandês', 'neerlandes', 'neerlandês', 'neerlandés', 'holandés', 'dutch', 'nederlands', 'нидерландский', 'голландский', 'الهولندية'],
@@ -272,7 +240,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Grego',
     countryPt: 'Grécia',
-    flag: '🇬🇷',
     gradient: 'from-sky-600 via-blue-600 to-indigo-800',
     names: { pt: 'Grego', en: 'Greek', es: 'Griego', ru: 'Греческий', ar: 'اليونانية' },
     aliases: ['el', 'ell', 'gre', 'grego', 'griego', 'greek', 'ελληνικά', 'греческий', 'اليونانية'],
@@ -280,7 +247,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Romeno',
     countryPt: 'Romênia',
-    flag: '🇷🇴',
     gradient: 'from-blue-600 via-amber-500 to-red-600',
     names: { pt: 'Romeno', en: 'Romanian', es: 'Rumano', ru: 'Румынский', ar: 'الرومانية' },
     aliases: ['ro', 'ron', 'rum', 'romeno', 'rumano', 'romanian', 'română', 'romana', 'румынский', 'الرومانية'],
@@ -288,7 +254,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Tcheco',
     countryPt: 'República Tcheca',
-    flag: '🇨🇿',
     gradient: 'from-blue-700 via-red-600 to-rose-700',
     names: { pt: 'Tcheco', en: 'Czech', es: 'Checo', ru: 'Чешский', ar: 'التشيكية' },
     aliases: ['cs', 'ces', 'cze', 'tcheco', 'checo', 'czech', 'čeština', 'cestina', 'чешский', 'التشيكية'],
@@ -296,7 +261,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Húngaro',
     countryPt: 'Hungria',
-    flag: '🇭🇺',
     gradient: 'from-red-600 via-emerald-600 to-green-800',
     names: { pt: 'Húngaro', en: 'Hungarian', es: 'Húngaro', ru: 'Венгерский', ar: 'المجرية' },
     aliases: ['hu', 'hun', 'hungaro', 'húngaro', 'hungarian', 'magyar', 'венгерский', 'المجرية'],
@@ -304,7 +268,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Sueco',
     countryPt: 'Suécia',
-    flag: '🇸🇪',
     gradient: 'from-blue-600 via-sky-600 to-amber-500',
     names: { pt: 'Sueco', en: 'Swedish', es: 'Sueco', ru: 'Шведский', ar: 'السويدية' },
     aliases: ['sv', 'swe', 'sueco', 'swedish', 'svenska', 'шведский', 'السويدية'],
@@ -312,7 +275,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Finlandês',
     countryPt: 'Finlândia',
-    flag: '🇫🇮',
     gradient: 'from-sky-600 via-blue-700 to-indigo-900',
     names: { pt: 'Finlandês', en: 'Finnish', es: 'Finés', ru: 'Финский', ar: 'الفنلندية' },
     aliases: ['fi', 'fin', 'finlandes', 'finlandês', 'finlandés', 'fines', 'finés', 'finnish', 'suomi', 'финский', 'الفنلندية'],
@@ -320,7 +282,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Dinamarquês',
     countryPt: 'Dinamarca',
-    flag: '🇩🇰',
     gradient: 'from-red-600 via-rose-600 to-red-800',
     names: { pt: 'Dinamarquês', en: 'Danish', es: 'Danés', ru: 'Датский', ar: 'الدنماركية' },
     aliases: ['da', 'dan', 'dinamarques', 'dinamarquês', 'danes', 'danés', 'danish', 'dansk', 'датский', 'الدنماركية'],
@@ -328,7 +289,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Norueguês',
     countryPt: 'Noruega',
-    flag: '🇳🇴',
     gradient: 'from-red-600 via-blue-700 to-indigo-900',
     names: { pt: 'Norueguês', en: 'Norwegian', es: 'Noruego', ru: 'Норвежский', ar: 'النرويجية' },
     aliases: ['no', 'nor', 'nb', 'nn', 'nob', 'nno', 'noruegues', 'norueguês', 'noruego', 'norwegian', 'norsk', 'норвежский', 'النرويجية'],
@@ -336,7 +296,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Hebraico',
     countryPt: 'Israel',
-    flag: '🇮🇱',
     gradient: 'from-blue-600 via-sky-600 to-indigo-800',
     names: { pt: 'Hebraico', en: 'Hebrew', es: 'Hebreo', ru: 'Иврит', ar: 'العبرية' },
     aliases: ['he', 'heb', 'iw', 'hebraico', 'hebreo', 'hebrew', 'עברית', 'иврит', 'العبرية'],
@@ -344,7 +303,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Khmer',
     countryPt: 'Camboja',
-    flag: '🇰🇭',
     gradient: 'from-blue-700 via-red-600 to-indigo-900',
     names: { pt: 'Khmer', en: 'Khmer', es: 'Jemer', ru: 'Кхмерский', ar: 'الخميرية' },
     aliases: ['km', 'khm', 'khmer', 'jemer', 'cambojano', 'cambodian', 'ភាសាខ្មែរ', 'кхмерский', 'الخميرية'],
@@ -352,7 +310,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Lao',
     countryPt: 'Laos',
-    flag: '🇱🇦',
     gradient: 'from-red-600 via-blue-700 to-rose-800',
     names: { pt: 'Lao', en: 'Lao', es: 'Lao', ru: 'Лаосский', ar: 'اللاوية' },
     aliases: ['lo', 'lao', 'laociano', 'laosiano', 'laotian', 'ພາສາລາວ', 'лаосский', 'اللاوية'],
@@ -360,7 +317,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Sérvio',
     countryPt: 'Sérvia',
-    flag: '🇷🇸',
     gradient: 'from-red-600 via-blue-700 to-slate-800',
     names: { pt: 'Sérvio', en: 'Serbian', es: 'Serbio', ru: 'Сербский', ar: 'الصربية' },
     aliases: ['sr', 'srp', 'scc', 'servio', 'sérvio', 'serbio', 'serbian', 'српски', 'srpski', 'сербский', 'الصربية'],
@@ -368,7 +324,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Croata',
     countryPt: 'Croácia',
-    flag: '🇭🇷',
     gradient: 'from-red-600 via-blue-600 to-indigo-800',
     names: { pt: 'Croata', en: 'Croatian', es: 'Croata', ru: 'Хорватский', ar: 'الكرواتية' },
     aliases: ['hr', 'hrv', 'scr', 'croata', 'croatian', 'hrvatski', 'хорватский', 'الكرواتية'],
@@ -376,7 +331,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Búlgaro',
     countryPt: 'Bulgária',
-    flag: '🇧🇬',
     gradient: 'from-emerald-600 via-green-700 to-red-700',
     names: { pt: 'Búlgaro', en: 'Bulgarian', es: 'Búlgaro', ru: 'Болгарский', ar: 'البلغارية' },
     aliases: ['bg', 'bul', 'bulgaro', 'búlgaro', 'bulgarian', 'български', 'болгарский', 'البلغارية'],
@@ -384,7 +338,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Albanês',
     countryPt: 'Albânia',
-    flag: '🇦🇱',
     gradient: 'from-red-700 via-rose-800 to-zinc-900',
     names: { pt: 'Albanês', en: 'Albanian', es: 'Albanés', ru: 'Албанский', ar: 'الألبانية' },
     aliases: ['sq', 'sqi', 'alb', 'albanes', 'albanês', 'albanés', 'albanian', 'shqip', 'албанский', 'الألبانية'],
@@ -392,7 +345,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Armênio',
     countryPt: 'Armênia',
-    flag: '🇦🇲',
     gradient: 'from-red-600 via-blue-700 to-amber-500',
     names: { pt: 'Armênio', en: 'Armenian', es: 'Armenio', ru: 'Армянский', ar: 'الأرمنية' },
     aliases: ['hy', 'hye', 'arm', 'armenio', 'armênio', 'arménio', 'armenian', 'հայերեն', 'армянский', 'الأرمنية'],
@@ -400,7 +352,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Georgiano',
     countryPt: 'Geórgia',
-    flag: '🇬🇪',
     gradient: 'from-red-600 via-rose-600 to-red-800',
     names: { pt: 'Georgiano', en: 'Georgian', es: 'Georgiano', ru: 'Грузинский', ar: 'الجورجية' },
     aliases: ['ka', 'kat', 'geo', 'georgiano', 'georgian', 'ქართული', 'грузинский', 'الجورجية'],
@@ -408,7 +359,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Macedônio',
     countryPt: 'Macedônia do Norte',
-    flag: '🇲🇰',
     gradient: 'from-red-600 via-amber-500 to-orange-600',
     names: { pt: 'Macedônio', en: 'Macedonian', es: 'Macedonio', ru: 'Македонский', ar: 'المقدونية' },
     aliases: ['mk', 'mkd', 'mac', 'macedonio', 'macedônio', 'macedónio', 'macedonian', 'македонски', 'македонский', 'المقدونية'],
@@ -416,7 +366,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Eslovaco',
     countryPt: 'Eslováquia',
-    flag: '🇸🇰',
     gradient: 'from-blue-600 via-indigo-600 to-red-600',
     names: { pt: 'Eslovaco', en: 'Slovak', es: 'Eslovaco', ru: 'Словацкий', ar: 'السلوفاكية' },
     aliases: ['sk', 'slk', 'slo', 'eslovaco', 'slovak', 'slovenčina', 'slovencina', 'словацкий', 'السلوفاكية'],
@@ -424,7 +373,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Esloveno',
     countryPt: 'Eslovênia',
-    flag: '🇸🇮',
     gradient: 'from-sky-600 via-blue-700 to-red-600',
     names: { pt: 'Esloveno', en: 'Slovene', es: 'Esloveno', ru: 'Словенский', ar: 'السلوفينية' },
     aliases: ['sl', 'slv', 'esloveno', 'slovene', 'slovenian', 'slovenščina', 'slovenscina', 'словенский', 'السلوفينية'],
@@ -432,7 +380,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Lituano',
     countryPt: 'Lituânia',
-    flag: '🇱🇹',
     gradient: 'from-amber-500 via-emerald-700 to-red-700',
     names: { pt: 'Lituano', en: 'Lithuanian', es: 'Lituano', ru: 'Литовский', ar: 'الليتوانية' },
     aliases: ['lt', 'lit', 'lituano', 'lithuanian', 'lietuvių', 'lietuviu', 'литовский', 'الليتوانية'],
@@ -440,7 +387,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Letão',
     countryPt: 'Letônia',
-    flag: '🇱🇻',
     gradient: 'from-rose-800 via-red-800 to-stone-900',
     names: { pt: 'Letão', en: 'Latvian', es: 'Letón', ru: 'Латышский', ar: 'اللاتفية' },
     aliases: ['lv', 'lav', 'letao', 'letão', 'leton', 'letón', 'latvian', 'latviešu', 'latviesu', 'латышский', 'اللاتفية'],
@@ -448,7 +394,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Estoniano',
     countryPt: 'Estônia',
-    flag: '🇪🇪',
     gradient: 'from-sky-600 via-slate-800 to-zinc-900',
     names: { pt: 'Estoniano', en: 'Estonian', es: 'Estonio', ru: 'Эстонский', ar: 'الإستونية' },
     aliases: ['et', 'est', 'estoniano', 'estonio', 'estonian', 'eesti', 'эстонский', 'الإستونية'],
@@ -456,7 +401,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Cazaque',
     countryPt: 'Cazaquistão',
-    flag: '🇰🇿',
     gradient: 'from-cyan-500 via-sky-600 to-amber-500',
     names: { pt: 'Cazaque', en: 'Kazakh', es: 'Kazajo', ru: 'Казахский', ar: 'الكازاخية' },
     aliases: ['kk', 'kaz', 'cazaque', 'kazajo', 'kazakh', 'қазақша', 'казахский', 'الكازاخية'],
@@ -464,7 +408,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Usbeque',
     countryPt: 'Uzbequistão',
-    flag: '🇺🇿',
     gradient: 'from-sky-500 via-emerald-600 to-teal-700',
     names: { pt: 'Usbeque', en: 'Uzbek', es: 'Uzbeko', ru: 'Узбекский', ar: 'الأوزبكية' },
     aliases: ['uz', 'uzb', 'usbeque', 'uzbeque', 'uzbeko', 'uzbek', 'oʻzbek', 'ozbek', 'узбекский', 'الأوزبكية'],
@@ -472,7 +415,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Mongol',
     countryPt: 'Mongólia',
-    flag: '🇲🇳',
     gradient: 'from-red-700 via-blue-700 to-amber-600',
     names: { pt: 'Mongol', en: 'Mongolian', es: 'Mongol', ru: 'Монгольский', ar: 'المنغولية' },
     aliases: ['mn', 'mon', 'mongol', 'mondol', 'mongolian', 'монгол', 'монгольский', 'المنغولية'],
@@ -480,7 +422,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Nepalês',
     countryPt: 'Nepal',
-    flag: '🇳🇵',
     gradient: 'from-red-600 via-crimson-700 to-blue-800',
     names: { pt: 'Nepalês', en: 'Nepali', es: 'Nepalí', ru: 'Непальский', ar: 'النيبالية' },
     aliases: ['ne', 'nep', 'nepales', 'nepalês', 'nepali', 'nepalí', 'नेपाली', 'непальский', 'النيبالية'],
@@ -488,7 +429,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Cingalês',
     countryPt: 'Sri Lanka',
-    flag: '🇱🇰',
     gradient: 'from-amber-600 via-orange-600 to-rose-900',
     names: { pt: 'Cingalês', en: 'Sinhala', es: 'Cingalés', ru: 'Сингальский', ar: 'السنهالية' },
     aliases: ['si', 'sin', 'cingales', 'cingalês', 'cingalés', 'sinhala', 'sinhalese', 'සිංහල', 'сингальский', 'السنهالية'],
@@ -496,7 +436,6 @@ export const RECOGNIZED_AUDIOBOOK_LANGUAGES: AudiobookLanguageEntry[] = [
   {
     canonicalPt: 'Pastó',
     countryPt: 'Afeganistão',
-    flag: '🇦🇫',
     gradient: 'from-stone-800 via-red-700 to-emerald-700',
     names: { pt: 'Pastó', en: 'Pashto', es: 'Pastún', ru: 'Пушту', ar: 'البشتوية' },
     aliases: ['ps', 'pus', 'pasto', 'pastó', 'pachto', 'pashto', 'pushto', 'pastun', 'pastún', 'پښتو', 'пушту', 'البشتوية'],
@@ -2900,7 +2839,7 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     no_authors_in_collection: 'В этой коллекции нет авторов',
     no_books_in_collection: 'В этой коллекции нет аудиокниг',
     select_color: 'Цвет карточки',
-    select_icon_or_emoji: 'Иконка или эмодзи',
+    select_icon_or_emoji: 'Иконка',
     no_collections_yet: 'Коллекции еще не созданы',
     no_collections_sub: 'Создавайте персонализированные коллекции для организации любимых книг и авторов.',
     no_items_in_collection: 'Эта коллекция пуста',

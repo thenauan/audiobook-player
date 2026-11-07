@@ -102,6 +102,21 @@ export function installTapBounce(): () => void {
   };
   document.addEventListener('click', onSpin, { capture: true, passive: true });
 
+  // Barra de progresso: marca o arrasto aqui, porque com o dedo o estado :active não é confiável
+  let scrubbing: HTMLElement | null = null;
+  const onScrubDown = (e: PointerEvent) => {
+    const bar = (e.target as HTMLElement | null)?.closest?.('input.apple-slider, [data-seek-overlay]');
+    scrubbing = (bar?.closest('.group') as HTMLElement | null) || null;
+    scrubbing?.setAttribute('data-scrubbing', 'true');
+  };
+  const onScrubEnd = () => {
+    scrubbing?.removeAttribute('data-scrubbing');
+    scrubbing = null;
+  };
+  document.addEventListener('pointerdown', onScrubDown, { capture: true, passive: true });
+  document.addEventListener('pointerup', onScrubEnd, { capture: true, passive: true });
+  document.addEventListener('pointercancel', onScrubEnd, { capture: true, passive: true });
+
   document.addEventListener('pointerdown', onDown, { capture: true, passive: true });
   document.addEventListener('pointermove', onMove, { capture: true, passive: true });
   document.addEventListener('pointerup', release, { capture: true, passive: true });
@@ -109,6 +124,9 @@ export function installTapBounce(): () => void {
   window.addEventListener('blur', release);
   return () => {
     document.removeEventListener('click', onSpin, { capture: true });
+    document.removeEventListener('pointerdown', onScrubDown, { capture: true });
+    document.removeEventListener('pointerup', onScrubEnd, { capture: true });
+    document.removeEventListener('pointercancel', onScrubEnd, { capture: true });
     document.removeEventListener('pointerdown', onDown, { capture: true });
     document.removeEventListener('pointermove', onMove, { capture: true });
     document.removeEventListener('pointerup', release, { capture: true });
