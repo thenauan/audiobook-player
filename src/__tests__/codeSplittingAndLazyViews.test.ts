@@ -46,7 +46,10 @@ describe('Code Splitting & Dynamic Module Imports', { timeout: 20000 }, () => {
   it('verifies standardized loading spinner without text for Settings and Help views', async () => {
     const fs = await import('fs');
     const path = await import('path');
-    const appContent = fs.readFileSync(path.resolve(__dirname, '../App.tsx'), 'utf-8');
+    // O App e as telas extraídas dele (src/views/screens)
+    const screensDir = path.resolve(__dirname, '../views/screens');
+    const appContent = [path.resolve(__dirname, '../App.tsx'), ...fs.readdirSync(screensDir).map(f => path.join(screensDir, f))]
+      .map(f => fs.readFileSync(f, 'utf-8')).join('\n');
 
     // Both Settings and Help Center must use the same standardized spinner with no text
     const expectedSpinner = '<div className="w-8 h-8 rounded-full border-2 border-winblue border-t-transparent animate-spin" />';

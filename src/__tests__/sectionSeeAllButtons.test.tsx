@@ -3,7 +3,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 describe('Conditional "See all" and section header action buttons', () => {
-  const appFile = fs.readFileSync(path.resolve(__dirname, '../App.tsx'), 'utf-8');
+  // O App e as telas extraídas dele (src/views/screens)
+  const screensDir = path.resolve(__dirname, '../views/screens');
+  const appFile = [path.resolve(__dirname, '../App.tsx'), ...fs.readdirSync(screensDir).map(f => path.join(screensDir, f))]
+    .map(f => fs.readFileSync(f, 'utf-8')).join('\n');
 
   it('verifies that in-progress section only displays see_all button when sortedInProgress.length > 6', () => {
     expect(appFile).toContain('sortedInProgress.length > 6 ?');
