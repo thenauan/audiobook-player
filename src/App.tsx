@@ -101,6 +101,7 @@ import { extractCoverPalette } from './lib/coverArt';
 import { slimQueueForStorage } from './audio/queueUtils';
 import { cancelLyricCentering, centerLyricLine } from './components/player/lyricScroll';
 import { SPRING, FADE_IN, FADE_OUT } from './lib/motion';
+import { ACCENT_COLORS } from './lib/accentColors';
 
 const getSpeedIcon = (s: number) => {
   if (s < 1) return <Turtle size={14} className="shrink-0" />;
@@ -1458,18 +1459,18 @@ export default function App() {
   });
 
   // Paleta de Cores de Destaque
-  const ACCENT_COLORS: Record<string, { name: string; hex: string; rgb: string; bgClass: string }> = {
-    blue: { name: 'Azul', hex: '#0086F0', rgb: '0, 134, 240', bgClass: 'bg-[#0086F0]' },
-    purple: { name: 'Roxo', hex: '#8B5CF6', rgb: '139, 92, 246', bgClass: 'bg-[#8B5CF6]' },
-    green: { name: 'Verde', hex: '#10B981', rgb: '16, 185, 129', bgClass: 'bg-[#10B981]' },
-    red: { name: 'Vermelho', hex: '#EF4444', rgb: '239, 68, 68', bgClass: 'bg-[#EF4444]' },
-    orange: { name: 'Laranja', hex: '#F97316', rgb: '249, 115, 22', bgClass: 'bg-[#F97316]' },
-    pink: { name: 'Rosa', hex: '#EC4899', rgb: '236, 72, 153', bgClass: 'bg-[#EC4899]' },
-  };
 
   // Ajustes: Interface
-  const [accentColor, setAccentColor] = useState<string>(() => localStorage.getItem('app_accent_color') || 'blue');
-  const _currentAccentHex = ACCENT_COLORS[accentColor]?.hex || '#0086F0';
+  const [accentColor, setAccentColor] = useState<string>(() => {
+    const saved = localStorage.getItem('app_accent_color');
+    // O azul era o padrão e ficava gravado sem ninguém escolher: passa uma vez para o novo padrão
+    if (!localStorage.getItem('app_accent_v2')) {
+      localStorage.setItem('app_accent_v2', '1');
+      if (saved === 'blue') return 'orange';
+    }
+    return saved || 'orange';
+  });
+  const _currentAccentHex = ACCENT_COLORS[accentColor]?.hex || ACCENT_COLORS.orange.hex;
   void _currentAccentHex;
   const [uiDensity, setUiDensity] = useState<'compact'>('compact');
   const [fontSize, setFontSize] = useState<'standard' | 'large'>(() => {
@@ -3316,14 +3317,26 @@ export default function App() {
     try { localStorage.setItem('app_theme_mode', themeMode); } catch {}
   }, [themeMode]);
 
+  const [moreContrast, setMoreContrast] = useState(() => !!window.matchMedia?.('(prefers-contrast: more)').matches);
   useEffect(() => {
-    const c = ACCENT_COLORS[accentColor] || ACCENT_COLORS.blue;
-    document.documentElement.style.setProperty('--app-winblue', c.hex);
-    document.documentElement.style.setProperty('--app-winblue-rgb', c.rgb);
-    document.documentElement.style.setProperty('--winblue', c.hex);
-    document.documentElement.style.setProperty('--winblue-rgb', c.rgb);
+    const query = window.matchMedia?.('(prefers-contrast: more)');
+    if (!query) return;
+    const update = () => setMoreContrast(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  useEffect(() => {
+    const c = ACCENT_COLORS[accentColor] || ACCENT_COLORS.orange;
+    const dark = resolvedTheme === 'dark';
+    const hex = moreContrast ? (dark ? c.soberDark : c.soberLight) : (dark ? c.dark : c.hex);
+    const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(', ');
+    const root = document.documentElement.style;
+    root.setProperty('--app-winblue', hex);
+    root.setProperty('--app-winblue-rgb', rgb);
+    root.setProperty('--winblue', hex);
+    root.setProperty('--winblue-rgb', rgb);
     try { localStorage.setItem('app_accent_color', accentColor); } catch {}
-  }, [accentColor]);
+  }, [accentColor, resolvedTheme, moreContrast]);
 
   const getCoverColorCacheKey = useCallback((url?: string): string => {
     if (!url) return '';
@@ -3454,7 +3467,7 @@ export default function App() {
   }, [currentCoverHex, resolvedTheme]);
 
   const fullscreenAmbientColors = useMemo(() => {
-    const hex = currentCoverHex || '#0086F0';
+    const hex = currentCoverHex || '#FF9500';
     const { h, s, l } = hexToHsl(hex);
     const isDark = resolvedTheme === 'dark';
 
@@ -3515,7 +3528,7 @@ export default function App() {
   }, [currentCoverHex, currentCoverSecondaryHex, resolvedTheme]);
 
   const miniplayerAmbientStyle = useMemo<React.CSSProperties>(() => {
-    const hex = currentCoverHex || '#0086F0';
+    const hex = currentCoverHex || '#FF9500';
     const { h, s } = hexToHsl(hex);
     const isDark = resolvedTheme === 'dark';
 
@@ -4880,7 +4893,7 @@ export default function App() {
 
   const handleResetSettings = () => {
     setThemeMode('dark');
-    setAccentColor('blue');
+    setAccentColor('orange');
     setUiDensity('compact');
     setFontSize('standard');
     setAppLanguage('system');
@@ -10845,11 +10858,11 @@ export default function App() {
 
       {/* 2. ÁREA DE TELAS PRINCIPAIS */}
       <main 
-        className="flex-1 min-w-0 h-full bg-transparent flex flex-col relative z-20"
+        className="accent-slide flex-1 min-w-0 h-full bg-transparent flex flex-col relative z-20"
         style={sidebarHighlight ? ({
           '--winblue': sidebarHighlight.hex,
           '--winblue-rgb': sidebarHighlight.rgb,
-          '--color-winblue': sidebarHighlight.hex,
+          '--color-winblue': 'var(--winblue)',
           '--book-accent': sidebarHighlight.hex,
           '--book-accent-rgb': sidebarHighlight.rgb,
         } as React.CSSProperties) : undefined}

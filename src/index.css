@@ -11,7 +11,7 @@
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-  --color-winblue: var(--winblue, #0086F0);
+  --color-winblue: var(--winblue, #FF9500);
   --color-success: #438E44;
   --color-error: #B83232;
   --color-warning: #FFB900;
@@ -150,12 +150,12 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
 @layer base {
   :root {
-    --app-winblue: #0086F0;
-    --app-winblue-rgb: 0, 134, 240;
-    --winblue: #0086F0;
-    --winblue-rgb: 0, 134, 240;
-    --bg-mica: #F0F2F5;
-    --bg-card: #FFFFFF;
+    --app-winblue: #FF9500;
+    --app-winblue-rgb: 255, 149, 0;
+    --winblue: #FF9500;
+    --winblue-rgb: 255, 149, 0;
+    --bg-mica: #FFFFFF;
+    --bg-card: #F2F2F7;
     --bg-sheet: #F2F2F7;
     --bg-card-50: rgba(255, 255, 255, 0.28);
     --bg-card-60: rgba(255, 255, 255, 0.35);
@@ -164,11 +164,11 @@ html[data-density="comfortable"] [class*="gap-6"] {
     --bg-card-85: rgba(255, 255, 255, 0.58);
     --bg-card-90: rgba(255, 255, 255, 0.62);
     --bg-card-95: rgba(255, 255, 255, 0.68);
-    --card-hover: #F8F9FA;
-    --text-main: #1A1A1A;
-    --text-muted: #4B5563;
-    --button-secondary-bg: rgba(0, 0, 0, 0.06);
-    --button-secondary-hover: rgba(0, 0, 0, 0.10);
+    --card-hover: #E9E9EE;
+    --text-main: #000000;
+    --text-muted: rgb(60 60 67 / 60%);
+    --button-secondary-bg: rgb(120 120 128 / 0.2);
+    --button-secondary-hover: rgb(120 120 128 / 0.28);
     --dropzone-border: rgba(0, 0, 0, 0.15);
     --toggle-bg-off: #9CA3AF;
     --status-btn-bg: rgba(0, 0, 0, 0.06);
@@ -190,7 +190,7 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
   .dark {
     --bg-mica: #000000;
-    --bg-card: #242424;
+    --bg-card: #1C1C1E;
     --bg-sheet: #1C1C1E;
     --bg-card-50: rgba(30, 30, 34, 0.25);
     --bg-card-60: rgba(30, 30, 34, 0.32);
@@ -199,11 +199,11 @@ html[data-density="comfortable"] [class*="gap-6"] {
     --bg-card-85: rgba(30, 30, 34, 0.56);
     --bg-card-90: rgba(30, 30, 34, 0.62);
     --bg-card-95: rgba(30, 30, 34, 0.68);
-    --card-hover: #2A2A2A;
-    --text-main: #F2F2F2;
-    --text-muted: #9CA3AF;
-    --button-secondary-bg: rgba(255, 255, 255, 0.06);
-    --button-secondary-hover: rgba(255, 255, 255, 0.10);
+    --card-hover: #2C2C2E;
+    --text-main: #FFFFFF;
+    --text-muted: rgb(235 235 245 / 60%);
+    --button-secondary-bg: rgb(120 120 128 / 0.36);
+    --button-secondary-hover: rgb(120 120 128 / 0.44);
     --dropzone-border: rgba(255, 255, 255, 0.12);
     --toggle-bg-off: #4B5563;
     --status-btn-bg: rgba(255, 255, 255, 0.08);
@@ -270,9 +270,9 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
 /* Pop-ups nunca devem ser afetados pela cor de destaque da capa nas páginas dos audiobooks */
 [data-popup-content="true"] {
-  --winblue: var(--app-winblue, #0086F0);
-  --winblue-rgb: var(--app-winblue-rgb, 0, 134, 240);
-  --color-winblue: var(--app-winblue, #0086F0);
+  --winblue: var(--app-winblue, #FF9500);
+  --winblue-rgb: var(--app-winblue-rgb, 255, 149, 0);
+  --color-winblue: var(--app-winblue, #FF9500);
 }
 
 /* Evita múltiplas camadas redundantes de backdrop-filter dentro de pop-ups e miniplayer que já possuem fundo desfocado */
@@ -1817,14 +1817,14 @@ html.lite [style*="blur("] {
 
 /* ===== Destaques como no iOS: preenchimento cinza neutro (nem cor de destaque, nem brilho) ===== */
 :root {
-  --ios-fill: rgb(120 120 128 / 0.14);
-  --ios-fill-strong: rgb(120 120 128 / 0.24);
+  --ios-fill: rgb(118 118 128 / 0.12);
+  --ios-fill-strong: rgb(120 120 128 / 0.2);
   --ios-row: var(--ios-fill);
   --ios-row-strong: var(--ios-fill-strong);
 }
 .dark {
-  --ios-fill: rgb(120 120 128 / 0.3);
-  --ios-fill-strong: rgb(120 120 128 / 0.44);
+  --ios-fill: rgb(118 118 128 / 0.24);
+  --ios-fill-strong: rgb(120 120 128 / 0.36);
   /* Listas sobre o fundo preto: tom bem próximo do fundo */
   --ios-row: rgb(255 255 255 / 0.07);
   --ios-row-strong: rgb(255 255 255 / 0.13);
@@ -1948,4 +1948,34 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* A cor de destaque desliza junto com a navegação ao entrar e sair das telas de livro, autor e coleção */
+@property --winblue {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #FF9500;
+}
+.accent-slide {
+  transition: --winblue 300ms var(--ease-fade);
+}
+
+@layer utilities {
+  /* Texto no destaque: a luminosidade se ajusta ao fundo, para ler bem mesmo com um laranja claro */
+  :where(html:not(.dark)) .text-winblue {
+    color: oklch(from var(--winblue) min(l, 0.55) c h);
+  }
+  :where(html.dark) .text-winblue {
+    color: oklch(from var(--winblue) max(l, 0.72) c h);
+  }
+  /* Texto sobre o destaque preenchido: preto em cores claras (como o laranja), branco nas escuras */
+  .bg-winblue.text-white {
+    color: oklch(from var(--winblue) calc((0.72 - l) * 1000) 0 0);
+  }
+}
+
+/* Aumentar contraste: textos secundários mais fortes (a cor de destaque sóbria vem do App.tsx) */
+@media (prefers-contrast: more) {
+  html:root { --text-muted: rgb(60 60 67 / 85%); }
+  html.dark:root { --text-muted: rgb(235 235 245 / 85%); }
 }

@@ -21,15 +21,8 @@ import {
   getSystemLanguage,
 } from '../i18n/translations';
 import { SPRING } from '../lib/motion';
+import { ACCENT_COLORS } from '../lib/accentColors';
 
-export const ACCENT_COLORS: Record<string, { name: string; hex: string; rgb: string; bgClass: string }> = {
-  blue: { name: 'Azul', hex: '#0086F0', rgb: '0, 134, 240', bgClass: 'bg-[#0086F0]' },
-  purple: { name: 'Roxo', hex: '#8B5CF6', rgb: '139, 92, 246', bgClass: 'bg-[#8B5CF6]' },
-  green: { name: 'Verde', hex: '#10B981', rgb: '16, 185, 129', bgClass: 'bg-[#10B981]' },
-  red: { name: 'Vermelho', hex: '#EF4444', rgb: '239, 68, 68', bgClass: 'bg-[#EF4444]' },
-  orange: { name: 'Laranja', hex: '#F97316', rgb: '249, 115, 22', bgClass: 'bg-[#F97316]' },
-  pink: { name: 'Rosa', hex: '#EC4899', rgb: '236, 72, 153', bgClass: 'bg-[#EC4899]' },
-};
 
 export function SettingToggle({
   checked,
@@ -662,8 +655,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 }}
                 className="h-8 pl-3 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
-                <div className="w-3.5 h-3.5 rounded-full border border-black/10 dark:border-white/20 shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#0086F0' }} />
-                <span>{t('color_' + accentColor) || ACCENT_COLORS[accentColor]?.name || 'Azul'}</span>
+                <div className="w-3.5 h-3.5 rounded-full border border-black/10 dark:border-white/20 shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#FF9500' }} />
+                <span>{t('color_' + accentColor) || ACCENT_COLORS[accentColor]?.name || 'Laranja'}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
               </motion.button>
             </div>

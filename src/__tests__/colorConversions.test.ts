@@ -111,9 +111,12 @@ describe('Color Conversions & Cover Highlight Themes', () => {
       const darkNavy = '#0a192f'; // Very dark blue (l < 20%)
       const theme = getBookHighlightTheme(darkNavy, true); // isDark = true
 
-      const adjustedHsl = hexToHsl(theme.hex);
-      expect(adjustedHsl.l).toBeGreaterThanOrEqual(56);
-      expect(adjustedHsl.l).toBeLessThanOrEqual(68);
+      const [r, g, b] = theme.rgb.split(',').map(v => {
+        const c = Number(v) / 255;
+        return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      });
+      const contrastOnBlack = (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05) / 0.05;
+      expect(contrastOnBlack).toBeGreaterThanOrEqual(3);
       expect(theme.rgb).toBeDefined();
       expect(theme.rgb.split(',').length).toBe(3);
     });

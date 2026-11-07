@@ -243,26 +243,63 @@ export function getGenericCoverColor(coverUrl?: string, title?: string, author?:
   return GENERIC_COVER_COLORS[0].hex;
 }
 
+// Conversões para oklch: ajustar a luminosidade mantendo o tom, sem desvios de cor
+function hexToOklch(hex: string): [number, number, number] {
+  const lin = [1, 3, 5].map(i => {
+    const v = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  const [r, g, b] = lin;
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, Math.hypot(A, B), Math.atan2(B, A)];
+}
+
+function oklchToLinear(L: number, C: number, H: number): [number, number, number] {
+  const A = C * Math.cos(H);
+  const B = C * Math.sin(H);
+  const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3;
+  const m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3;
+  const s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
+  return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s];
+}
+
+function linearToHex(rgb: [number, number, number]): string {
+  return '#' + rgb.map(v => {
+    const c = Math.min(1, Math.max(0, v));
+    const e = c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055;
+    return Math.round(e * 255).toString(16).padStart(2, '0');
+  }).join('');
+}
+
+const luminance = (rgb: [number, number, number]) => {
+  const [r, g, b] = rgb.map(v => Math.min(1, Math.max(0, v)));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+const MAX_ACCENT_CHROMA = 0.17;
+const MIN_ACCENT_CHROMA = 0.04;
+const MIN_ACCENT_CONTRAST = 3;
+
+// Destaque tirado da capa: sem croma suficiente (capa preta e branca) vale o laranja do player. A croma tem um teto,
+// para nenhuma capa gerar um destaque berrante, e a luminosidade muda até dar contraste com o fundo da tela
 export function getBookHighlightTheme(rawHex: string, isDark: boolean): { hex: string; rgb: string } {
-  const clean = (rawHex || '#F97316').replace('#', '');
-  const { h, s, l } = hexToHsl(clean.length === 6 ? `#${clean}` : '#F97316');
-  let finalHex = clean.length === 6 ? `#${clean}` : '#F97316';
-
-  if (isDark) {
-    if (l < 46) {
-      finalHex = hslToHex(h, Math.max(s, 45), Math.min(68, Math.max(56, l + 26)));
-    }
-  } else {
-    if (l > 48) {
-      finalHex = hslToHex(h, Math.max(s, 55), Math.max(32, Math.min(42, l - 25)));
-    }
+  const fallback = isDark ? '#FF9F0A' : '#FF9500';
+  const valid = /^#?[0-9a-f]{6}$/i.test(rawHex || '');
+  const source = valid ? `#${rawHex.replace('#', '')}` : fallback;
+  let [L, C, H] = hexToOklch(source);
+  let finalHex = fallback;
+  if (C >= MIN_ACCENT_CHROMA) {
+    C = Math.min(C, MAX_ACCENT_CHROMA);
+    const contrast = (lum: number) => (isDark ? (lum + 0.05) / 0.05 : 1.05 / (lum + 0.05));
+    for (let i = 0; i < 60 && contrast(luminance(oklchToLinear(L, C, H))) < MIN_ACCENT_CONTRAST; i++) L += isDark ? 0.01 : -0.01;
+    finalHex = linearToHex(oklchToLinear(L, C, H));
   }
-
-  const c = finalHex.replace('#', '');
-  const r = parseInt(c.substring(0, 2), 16) || 0;
-  const g = parseInt(c.substring(2, 4), 16) || 0;
-  const b = parseInt(c.substring(4, 6), 16) || 0;
-  return { hex: finalHex, rgb: `${r}, ${g}, ${b}` };
+  const rgb = [1, 3, 5].map(i => parseInt(finalHex.slice(i, i + 2), 16)).join(', ');
+  return { hex: finalHex, rgb };
 }
 
 function wrapTitleForCover(title: string, maxCharsPerLine = 18, maxLines = 3): string[] {
