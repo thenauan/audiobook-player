@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { AlertTriangle, RefreshCw, Database, Copy, Check, Eye } from 'lucide-react';
 import { type SupportedLanguage, getSystemLanguage } from '../i18n/translations';
 import { SPRING, FADE_OUT } from '../lib/motion';
+import { AmbientBackground } from './AmbientBackground';
 
 function getAppLanguageAtError(): SupportedLanguage {
   try {
@@ -190,46 +191,12 @@ ${error.stack || 'No stack trace available'}`;
   return (
     <div
       dir={isRtl ? 'rtl' : 'ltr'}
-      className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-center p-8 bg-[#04070f] text-white select-none"
+      className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-center p-8 text-white select-none ambient-screen"
       style={{
         fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       }}
     >
-      {/* Fundo animado com gradiente se mexendo em azul escuro, vermelho escuro e verde escuro + blur intenso (idêntico à 1ª abertura) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Azul escuro */}
-        <motion.div
-          animate={{
-            x: ['-12%', '22%', '-8%', '-12%'],
-            y: ['-10%', '18%', '-14%', '-10%'],
-            scale: [1, 1.28, 0.94, 1],
-          }}
-          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-[15%] -left-[10%] w-[65vw] h-[65vw] max-w-[780px] max-h-[780px] rounded-full bg-[#092b68] opacity-80 blur-[110px] transform-gpu"
-        />
-        {/* Vermelho escuro */}
-        <motion.div
-          animate={{
-            x: ['16%', '-20%', '10%', '16%'],
-            y: ['12%', '-18%', '16%', '12%'],
-            scale: [1.12, 0.9, 1.24, 1.12],
-          }}
-          transition={{ duration: 19, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-[10%] -right-[12%] w-[60vw] h-[60vw] max-w-[740px] max-h-[740px] rounded-full bg-[#680e20] opacity-75 blur-[115px] transform-gpu"
-        />
-        {/* Verde escuro */}
-        <motion.div
-          animate={{
-            x: ['-10%', '18%', '-16%', '-10%'],
-            y: ['18%', '-15%', '12%', '18%'],
-            scale: [0.95, 1.22, 1.05, 0.95],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -bottom-[18%] left-[15%] w-[65vw] h-[65vw] max-w-[760px] max-h-[760px] rounded-full bg-[#07472f] opacity-80 blur-[115px] transform-gpu"
-        />
-        {/* Camada de vidro com blur sobre o gradiente em movimento */}
-        <div className="absolute inset-0 bg-black/35 backdrop-blur-3xl" />
-      </div>
+      <AmbientBackground />
 
       <style>{`
         .error-reload-btn {
@@ -239,9 +206,9 @@ ${error.stack || 'No stack trace available'}`;
           gap: 10px;
           padding: 12px 26px;
           border-radius: 9999px;
-          border: 1.5px solid #3b82f6;
-          background: rgba(59, 130, 246, 0.18);
-          color: #3b82f6;
+          border: 1.5px solid var(--winblue, #FF9500);
+          background: rgba(255, 149, 0, 0.18);
+          color: var(--winblue, #FF9500);
           font-weight: 600;
           font-size: 14px;
           cursor: pointer;
@@ -250,10 +217,10 @@ ${error.stack || 'No stack trace available'}`;
         }
         .error-reload-btn:hover {
           transform: scale(1.06);
-          border-color: #60a5fa;
-          color: #60a5fa;
-          background: rgba(59, 130, 246, 0.30);
-          box-shadow: 0 0 25px rgba(59, 130, 246, 0.85), 0 0 50px rgba(37, 99, 235, 0.45);
+          border-color: var(--winblue, #FF9500);
+          color: var(--winblue, #FF9500);
+          background: rgba(255, 149, 0, 0.30);
+          box-shadow: 0 0 25px rgba(255, 149, 0, 0.85), 0 0 50px rgba(201, 52, 0, 0.45);
         }
         .error-reload-btn:active {
           transform: scale(1.02);
@@ -266,9 +233,9 @@ ${error.stack || 'No stack trace available'}`;
           gap: 10px;
           padding: 12px 26px;
           border-radius: 9999px;
-          border: 1.5px solid rgba(255, 255, 255, 0.25);
-          background: rgba(255, 255, 255, 0.08);
-          color: #ffffff;
+          border: 1.5px solid rgb(var(--ambient-ink) / 0.25);
+          background: rgb(var(--ambient-ink) / 0.08);
+          color: rgb(var(--ambient-ink));
           font-weight: 600;
           font-size: 14px;
           cursor: pointer;
@@ -277,9 +244,9 @@ ${error.stack || 'No stack trace available'}`;
         }
         .error-restore-btn:hover {
           transform: scale(1.06);
-          border-color: rgba(255, 255, 255, 0.85);
-          background: rgba(255, 255, 255, 0.18);
-          box-shadow: 0 0 25px rgba(255, 255, 255, 0.75), 0 0 50px rgba(255, 255, 255, 0.35);
+          border-color: rgb(var(--ambient-ink) / 0.85);
+          background: rgb(var(--ambient-ink) / 0.18);
+          box-shadow: 0 0 25px rgb(var(--ambient-ink) / 0.75), 0 0 50px rgb(var(--ambient-ink) / 0.35);
         }
         .error-restore-btn:active {
           transform: scale(1.02);
@@ -289,11 +256,11 @@ ${error.stack || 'No stack trace available'}`;
           height: 32px;
           padding: 0 15px 0 14px;
           border-radius: 9999px;
-          background: rgba(255, 255, 255, 0.08);
+          background: rgb(var(--ambient-ink) / 0.08);
           backdrop-filter: blur(28px) saturate(180%);
           -webkit-backdrop-filter: blur(28px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.28);
-          color: #ffffff;
+          border: 1px solid rgb(var(--ambient-ink) / 0.28);
+          color: rgb(var(--ambient-ink));
           font-size: 12px;
           font-weight: 600;
           display: inline-flex;
@@ -307,9 +274,9 @@ ${error.stack || 'No stack trace available'}`;
         }
         .error-small-pill-btn:hover {
           transform: scale(1.06);
-          background: rgba(255, 255, 255, 0.16);
-          border-color: rgba(255, 255, 255, 0.55);
-          box-shadow: 0 0 15px rgba(255, 255, 255, 0.32), 0 4px 12px rgba(0, 0, 0, 0.5);
+          background: rgb(var(--ambient-ink) / 0.16);
+          border-color: rgb(var(--ambient-ink) / 0.55);
+          box-shadow: 0 0 15px rgb(var(--ambient-ink) / 0.32), 0 4px 12px rgba(0, 0, 0, 0.5);
         }
         .error-small-pill-btn:active {
           transform: scale(0.95);
@@ -343,7 +310,7 @@ ${error.stack || 'No stack trace available'}`;
           fontSize: '16px',
           fontWeight: 600,
           margin: '0 0 12px 0',
-          color: '#ffffff',
+          color: 'rgb(var(--ambient-ink))',
           letterSpacing: '-0.01em'
         }}>
           {t.scopeBadge}
@@ -352,7 +319,7 @@ ${error.stack || 'No stack trace available'}`;
         {/* Descrição do erro */}
         <p style={{
           fontSize: '14px',
-          color: '#a3a3a3',
+          color: 'rgb(var(--ambient-ink) / 0.62)',
           lineHeight: '1.6',
           margin: '0 0 14px 0'
         }}>
@@ -362,16 +329,16 @@ ${error.stack || 'No stack trace available'}`;
         {/* Parágrafo com os recursos indisponíveis destacados em negrito */}
         <p style={{
           fontSize: '14px',
-          color: '#a3a3a3',
+          color: 'rgb(var(--ambient-ink) / 0.62)',
           lineHeight: '1.6',
           margin: '0 0 24px 0'
         }}>
           {t.inaccessiblePrefix}
-          <strong style={{ color: '#ffffff', fontWeight: 700 }}>{t.inaccessibleItems[0]}</strong>
+          <strong style={{ color: 'rgb(var(--ambient-ink))', fontWeight: 700 }}>{t.inaccessibleItems[0]}</strong>
           {', '}
-          <strong style={{ color: '#ffffff', fontWeight: 700 }}>{t.inaccessibleItems[1]}</strong>
+          <strong style={{ color: 'rgb(var(--ambient-ink))', fontWeight: 700 }}>{t.inaccessibleItems[1]}</strong>
           {t.inaccessibleConjunction}
-          <strong style={{ color: '#ffffff', fontWeight: 700 }}>{t.inaccessibleItems[2]}</strong>
+          <strong style={{ color: 'rgb(var(--ambient-ink))', fontWeight: 700 }}>{t.inaccessibleItems[2]}</strong>
           {t.inaccessibleSuffix}
         </p>
 
@@ -451,10 +418,10 @@ ${error.stack || 'No stack trace available'}`;
                       transformOrigin: 'bottom center',
                       width: '480px',
                       maxWidth: 'calc(100vw - 32px)',
-                      backgroundColor: 'rgba(30, 30, 34, 0.92)',
+                      backgroundColor: 'var(--ambient-card)',
                       backdropFilter: 'blur(28px) saturate(180%)',
                       WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      border: '1px solid rgb(var(--ambient-ink) / 0.12)',
                       borderRadius: '26px',
                       boxShadow: '0 0 50px 0 rgba(0, 0, 0, 0.85)',
                       padding: '16px',
@@ -474,7 +441,7 @@ ${error.stack || 'No stack trace available'}`;
                       <span style={{
                         fontSize: '14px',
                         fontWeight: 700,
-                        color: '#ffffff'
+                        color: 'rgb(var(--ambient-ink))'
                       }}>
                         {t.stackPopupTitle}
                       </span>
@@ -485,7 +452,7 @@ ${error.stack || 'No stack trace available'}`;
                         margin: 0,
                         padding: '12px 14px',
                         backgroundColor: 'rgba(0, 0, 0, 0.45)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgb(var(--ambient-ink) / 0.08)',
                         borderRadius: '18px',
                         fontFamily: 'inherit',
                         fontSize: '12px',

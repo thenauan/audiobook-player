@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppLogo } from './AppLogo';
-import { Check, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { APP_VERSION } from '../version';
 import type { SupportedLanguage } from '../i18n/translations';
 import { SPRING, FADE_IN } from '../lib/motion';
+import { AmbientBackground } from './AmbientBackground';
 
 // ===== Tela de novidades =====
 // Aparece uma vez depois de o app ser atualizado, no mesmo visual da tela inicial. Ao publicar uma versão,
@@ -155,12 +156,9 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.02 }}
           transition={FADE_IN}
-          className="fixed inset-0 z-[9800] overflow-y-auto bg-[#04070f] text-white select-none"
+          className="ambient-screen fixed inset-0 z-[9800] overflow-y-auto text-white select-none"
         >
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-[15%] -left-[10%] w-[70vw] h-[70vw] rounded-full bg-[#092b68] opacity-70 blur-[110px]" />
-            <div className="absolute -bottom-[15%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-[#4a0d24] opacity-50 blur-[110px]" />
-          </div>
+          <AmbientBackground />
           <div
             className="relative w-full max-w-xl mx-auto min-h-full flex flex-col items-center justify-center text-center px-6"
             style={{ paddingTop: 'calc(var(--safe-top) + 32px)', paddingBottom: 'calc(env(safe-area-inset-bottom) + 32px)' }}
@@ -181,7 +179,7 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
             <ul className="w-full max-w-md mt-7 p-2 rounded-[26px] bg-white/[0.07] backdrop-blur-3xl shadow-xl text-left rtl:text-right">
               {notes.map(note => (
                 <li key={note} className="flex items-start gap-3 px-3 py-2.5 text-sm sm:text-[15px] leading-snug text-white/90">
-                  <span className="mt-0.5 w-5 h-5 rounded-full bg-winblue/25 text-winblue flex items-center justify-center shrink-0"><Check size={12} /></span>
+                  <span aria-hidden="true" className="mt-[0.45em] w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0" />
                   <span>{note}</span>
                 </li>
               ))}

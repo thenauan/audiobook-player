@@ -104,6 +104,7 @@ import { SPRING, FADE_IN, FADE_OUT } from './lib/motion';
 import { ACCENT_COLORS } from './lib/accentColors';
 import { EmojiIcon } from './components/EmojiIcon';
 import { canSendSuggestion, crossedBookMilestone, getSentSuggestions, markSuggestionSent, markSuggestionTime, pickContentSuggestion, takeWeeklySeconds } from './lib/contentNotifications';
+import { AmbientBackground } from './components/AmbientBackground';
 
 const getSpeedIcon = (s: number) => {
   if (s < 1) return <Turtle size={14} className="shrink-0" />;
@@ -15556,43 +15557,9 @@ export default function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
             transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[5000] overflow-hidden flex flex-col bg-[#04070f] text-white select-none"
+            className="ambient-screen fixed inset-0 z-[5000] overflow-hidden flex flex-col text-white select-none"
           >
-            {/* Fundo animado com gradiente se mexendo em azul escuro, vermelho escuro e verde escuro + blur intenso */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-              {/* Azul escuro */}
-              <motion.div
-                animate={{
-                  x: ['-12%', '22%', '-8%', '-12%'],
-                  y: ['-10%', '18%', '-14%', '-10%'],
-                  scale: [1, 1.28, 0.94, 1],
-                }}
-                transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -top-[15%] -left-[10%] w-[65vw] h-[65vw] max-w-[780px] max-h-[780px] rounded-full bg-[#092b68] opacity-80 blur-[110px] transform-gpu"
-              />
-              {/* Vermelho escuro */}
-              <motion.div
-                animate={{
-                  x: ['16%', '-20%', '10%', '16%'],
-                  y: ['12%', '-18%', '16%', '12%'],
-                  scale: [1.12, 0.9, 1.24, 1.12],
-                }}
-                transition={{ duration: 19, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute top-[10%] -right-[12%] w-[60vw] h-[60vw] max-w-[740px] max-h-[740px] rounded-full bg-[#680e20] opacity-75 blur-[115px] transform-gpu"
-              />
-              {/* Verde escuro */}
-              <motion.div
-                animate={{
-                  x: ['-10%', '18%', '-16%', '-10%'],
-                  y: ['18%', '-15%', '12%', '18%'],
-                  scale: [0.95, 1.22, 1.05, 0.95],
-                }}
-                transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -bottom-[18%] left-[15%] w-[65vw] h-[65vw] max-w-[760px] max-h-[760px] rounded-full bg-[#07472f] opacity-80 blur-[115px] transform-gpu"
-              />
-              {/* Camada de vidro com blur sobre o gradiente em movimento */}
-              <div className="absolute inset-0 bg-black/35 backdrop-blur-3xl" />
-            </div>
+            <AmbientBackground />
 
             {/* Conteúdo das etapas (1. Boas-vindas / 2. Ajustes iniciais) */}
             <div ref={onboardingScrollRef} onScroll={handleOnboardingScroll} className="safe-area-pad relative z-10 flex-1 w-full h-full overflow-y-auto custom-scrollbar flex flex-col">
