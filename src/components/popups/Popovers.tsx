@@ -596,7 +596,7 @@ export const MORPH_CONTENT_MOTION = {
 // Ao fechar, no instante em que o pop-up termina de encolher para dentro dele, o botão reaparece maior e
 // "volta para o lugar" com uma mola até o tamanho normal (o pop-up parece entrar no botão)
 export const TRIGGER_RETURN_SCALE = 1.2;
-export const TRIGGER_RETURN_SPRING = SPRING.bouncy;
+export const TRIGGER_RETURN_SPRING = { ...SPRING.bouncy, stiffness: 600, damping: 29 };
 export function morphTriggerAnimate(isOpen: boolean) {
   return isOpen
     ? {

@@ -11,7 +11,8 @@ import {
   Palette, BookOpen, Bell, Settings as SettingsIcon, Moon, Sun, Laptop, Monitor, ChevronDown,
   Sliders, Type, ALargeSmall, Globe, FolderOpen, RefreshCw, Clock, Download, Upload,
   Gauge, Play, FileText, Activity, CheckCircle2, ListPlus, Database, Trash2, Info,
-  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight, Feather, Copy, Highlighter, WholeWord, AlignLeft
+  Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight, Feather, Copy, Highlighter, WholeWord, AlignLeft,
+  Sparkles,
 } from 'lucide-react';
 import { BsPlayFill, BsArrowClockwise, BsArrowCounterclockwise } from 'react-icons/bs';
 import {
@@ -122,6 +123,8 @@ export interface SettingsViewProps {
   notifyBookCompleted: boolean;
   setNotifyBookCompleted: (val: boolean) => void;
   notifyBookAdded: boolean;
+  notifyContent: boolean;
+  setNotifyContent: (val: boolean) => void;
   setNotifyBookAdded: (val: boolean) => void;
   dataFolder: string;
   handleOpenDataFolder: () => void;
@@ -183,6 +186,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   notifyBookCompleted,
   setNotifyBookCompleted,
   notifyBookAdded,
+  notifyContent,
+  setNotifyContent,
   setNotifyBookAdded,
   dataFolder,
   handleOpenDataFolder,
@@ -1201,7 +1206,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
 
                 {/* Novo audiobook adicionado */}
-                <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)] cursor-pointer flex items-center justify-between gap-4`}>
+                <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)] cursor-pointer flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                       <ListPlus size={20} />
@@ -1212,6 +1217,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     </div>
                   </div>
                   <SettingToggle checked={notifyBookAdded} onChange={setNotifyBookAdded} />
+                </div>
+
+                <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)] cursor-pointer flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                      <Sparkles size={20} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-base text-[var(--text-main)]">{t('settings_notif_content')}</span>
+                      <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('settings_notif_content_sub')}</span>
+                    </div>
+                  </div>
+                  <SettingToggle checked={notifyContent} onChange={setNotifyContent} />
                 </div>
               </div>
             )}

@@ -169,19 +169,20 @@ html[data-density="comfortable"] [class*="gap-6"] {
     --winblue: #FF9500;
     --winblue-rgb: 255, 149, 0;
     --bg-mica: #FFFFFF;
+    --button-outline: rgb(0 0 0 / 0.1);
     --shadow-soft: rgb(0 0 0 / 0.08);
     --shadow-mid: rgb(0 0 0 / 0.1);
     --shadow-strong: rgb(0 0 0 / 0.12);
     --hover-fill: rgb(120 120 128 / 0.26);
     --bg-card: #F2F2F7;
     --bg-sheet: #F2F2F7;
-    --bg-card-50: rgba(255, 255, 255, 0.2);
-    --bg-card-60: rgba(255, 255, 255, 0.26);
-    --bg-card-75: rgba(255, 255, 255, 0.34);
-    --bg-card-80: rgba(255, 255, 255, 0.4);
-    --bg-card-85: rgba(255, 255, 255, 0.46);
-    --bg-card-90: rgba(255, 255, 255, 0.52);
-    --bg-card-95: rgba(255, 255, 255, 0.58);
+    --bg-card-50: rgba(255, 255, 255, 0.14);
+    --bg-card-60: rgba(255, 255, 255, 0.18);
+    --bg-card-75: rgba(255, 255, 255, 0.24);
+    --bg-card-80: rgba(255, 255, 255, 0.28);
+    --bg-card-85: rgba(255, 255, 255, 0.32);
+    --bg-card-90: rgba(255, 255, 255, 0.36);
+    --bg-card-95: rgba(255, 255, 255, 0.42);
     --card-hover: #E9E9EE;
     --text-main: #000000;
     --text-muted: rgb(60 60 67 / 60%);
@@ -208,19 +209,20 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
   .dark {
     --bg-mica: #111113;
+    --button-outline: rgb(255 255 255 / 0.16);
     --shadow-soft: rgb(0 0 0 / 0.26);
     --shadow-mid: rgb(0 0 0 / 0.3);
     --shadow-strong: rgb(0 0 0 / 0.36);
     --hover-fill: rgb(255 255 255 / 0.18);
     --bg-card: #2C2C2E;
     --bg-sheet: #2C2C2E;
-    --bg-card-50: rgba(62, 62, 68, 0.4);
-    --bg-card-60: rgba(62, 62, 68, 0.46);
-    --bg-card-75: rgba(62, 62, 68, 0.54);
-    --bg-card-80: rgba(62, 62, 68, 0.6);
-    --bg-card-85: rgba(62, 62, 68, 0.66);
-    --bg-card-90: rgba(62, 62, 68, 0.72);
-    --bg-card-95: rgba(62, 62, 68, 0.78);
+    --bg-card-50: rgba(28, 28, 32, 0.22);
+    --bg-card-60: rgba(28, 28, 32, 0.26);
+    --bg-card-75: rgba(28, 28, 32, 0.32);
+    --bg-card-80: rgba(28, 28, 32, 0.36);
+    --bg-card-85: rgba(28, 28, 32, 0.4);
+    --bg-card-90: rgba(28, 28, 32, 0.44);
+    --bg-card-95: rgba(28, 28, 32, 0.5);
     --card-hover: #3A3A3C;
     --text-main: #FFFFFF;
     --text-muted: rgb(235 235 245 / 72%);
@@ -246,20 +248,20 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
 @layer utilities {
   .backdrop-blur-3xl {
-    -webkit-backdrop-filter: blur(16px) saturate(190%);
-    backdrop-filter: blur(16px) saturate(190%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
   }
   .backdrop-blur-2xl {
-    -webkit-backdrop-filter: blur(14px) saturate(185%);
-    backdrop-filter: blur(14px) saturate(185%);
+    -webkit-backdrop-filter: blur(16px) saturate(175%);
+    backdrop-filter: blur(16px) saturate(175%);
   }
   .backdrop-blur-xl {
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(170%);
+    backdrop-filter: blur(12px) saturate(170%);
   }
   .backdrop-blur-md {
-    -webkit-backdrop-filter: blur(7px) saturate(170%);
-    backdrop-filter: blur(7px) saturate(170%);
+    -webkit-backdrop-filter: blur(8px) saturate(160%);
+    backdrop-filter: blur(8px) saturate(160%);
   }
 
   /* Impede que .transition-all do CSS entre em conflito a cada frame com transform, width, height e filter do Framer Motion */
@@ -1778,15 +1780,6 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
   }
 }
 
-/* Pop-ups de opções sempre na frente de tudo: enquanto houver um pop-up aberto dentro da tela, a área dela
-   sobe acima do cabeçalho, da barra de abas e do miniplayer (nada da interface cobre o pop-up) */
-main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
-  z-index: 150 !important;
-}
-.app-scroll:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
-  z-index: 60 !important;
-}
-
 /* ===== Modo leve (Ajustes › Sistema): sem desfoque de fundo, cards e pop-ups opacos ===== */
 /* (o tema escuro também põe .dark no contêiner do app, que redefine as cores translúcidas: vale para os dois) */
 html.lite,
@@ -1993,11 +1986,11 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
   :is(button, [role="button"]).transition-colors:hover {
     transition-duration: 120ms;
   }
-  /* Botões que abrem pop-ups crescem um pouco */
-  :is([data-app-header] button:not([data-instant]), button[style*="pointer-events: auto"]) {
+  /* Botões do cabeçalho, os que abrem pop-ups e os de abrir o player crescem um pouco */
+  :is([data-app-header] button, button[style*="pointer-events: auto"], button.hover-grow) {
     transition: scale var(--dur-snappy) var(--spring-snappy), background-color 200ms var(--ease-fade), color 200ms var(--ease-fade), opacity 200ms var(--ease-fade);
   }
-  :is([data-app-header] button:not([data-instant]), button[style*="pointer-events: auto"]):hover {
+  :is([data-app-header] button, button[style*="pointer-events: auto"], button.hover-grow):hover {
     scale: 1.07;
   }
 }
@@ -2110,21 +2103,28 @@ input[type="range"].apple-slider:active::-moz-range-track,
   }
 }
 
-/* Computador: com um pop-up aberto, só ele fica na frente do miniplayer. A tela continua atrás, senão as capas passam
-   por cima do miniplayer */
-@media (min-width: 1024px) {
-  main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot])),
-  .app-scroll:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])),
-  main :has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
-    z-index: auto !important;
-  }
-  main [data-popup-content]:not([data-search-dropdown], [data-search-slot]) {
-    z-index: 160 !important;
-  }
-  /* Sem a camada da tela, o desfoque do cabeçalho continua atrás do menu lateral */
-  main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot])) .apple-header-blur {
-    z-index: 25 !important;
-  }
+/* Pop-up aberto dentro da tela: só ele vem para a frente de tudo. A tela fica no lugar, atrás do cabeçalho, da barra e
+   do miniplayer. Para isso os elementos em volta do pop-up perdem a camada própria, e o resto do conteúdo é isolado,
+   senão seus itens com z-index passariam a competir com o cabeçalho */
+main:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])),
+main :has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
+  z-index: auto !important;
+}
+.app-scroll > :not(:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])), [data-popup-content]:not([data-search-dropdown], [data-search-slot]), .fixed),
+.app-scroll :has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) > :not(:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])), [data-popup-content]:not([data-search-dropdown], [data-search-slot]), .fixed) {
+  z-index: 0 !important;
+  isolation: isolate;
+}
+main [data-popup-content]:not([data-search-dropdown], [data-search-slot]) {
+  z-index: 160 !important;
+}
+/* O fundo que fecha o pop-up fica logo abaixo dele, por cima do cabeçalho */
+main .fixed.inset-0:has(~ [data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
+  z-index: 155 !important;
+}
+/* Sem a camada da tela, o desfoque do cabeçalho continua atrás do menu lateral */
+main:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) .apple-header-blur {
+  z-index: 25 !important;
 }
 
 /* Letra: as cores vêm do fundo do player (definidas no FullscreenPlayer) */
@@ -2136,13 +2136,9 @@ input[type="range"].apple-slider:active::-moz-range-track,
   .lyric-past:hover, .lyric-next:hover { color: rgb(var(--lyric-rgb)); }
 }
 
-/* Menu lateral: sempre um plano próprio, mesmo sobre as telas com a cor do livro, autor ou coleção */
+/* Menu lateral: mesmo vidro dos pop-ups, com sombra leve */
 aside.sidebar-safe {
-  background-color: color-mix(in srgb, var(--bg-mica) 68%, transparent) !important;
   box-shadow: 0 0 24px var(--shadow-soft);
-}
-html.dark aside.sidebar-safe {
-  background-color: color-mix(in srgb, #2C2C2E 72%, transparent) !important;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -2182,15 +2178,18 @@ html.dark :is(button, [role="button"]) {
   --shadow-strong: rgb(0 0 0 / 0.28);
 }
 
-/* Botões com fundo: contorno bem discreto, a partir da cor do texto (acompanha o destaque do botão). O foco por
-   teclado tem prioridade */
-:is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *) {
-  outline: 0.5px solid color-mix(in srgb, currentColor 14%, transparent);
+/* Botões com fundo: contorno bem discreto na cor do fundo do botão. A cor do ícone só aparece no destaque, ao passar o
+   mouse e ao clicar. O foco por teclado tem prioridade */
+:is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *) {
+  outline: 0.5px solid var(--button-outline);
   outline-offset: -0.5px;
 }
+:is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *):active {
+  outline-color: color-mix(in srgb, currentColor 34%, transparent);
+}
 @media (hover: hover) and (pointer: fine) {
-  :is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *):hover {
-    outline-color: color-mix(in srgb, currentColor 22%, transparent);
+  :is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *):hover {
+    outline-color: color-mix(in srgb, currentColor 26%, transparent);
   }
 }
 :is(button, [role="button"]):focus-visible {

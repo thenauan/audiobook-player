@@ -45,6 +45,8 @@ describe('Settings Popup Option Icons', () => {
     setDynamicCompressionEnabled: vi.fn(),
     notificationsEnabled: true,
     setNotificationsEnabled: vi.fn(),
+    notifyContent: false,
+    setNotifyContent: vi.fn(),
     notifyChapterCompleted: true,
     setNotifyChapterCompleted: vi.fn(),
     notifyBookCompleted: true,

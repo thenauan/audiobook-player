@@ -57,7 +57,7 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <aside 
-      className="sidebar-safe fixed left-4 rtl:left-auto rtl:right-4 top-4 bottom-4 w-64 bg-card/75 backdrop-blur-3xl rounded-3xl p-5 pt-6 pb-6 flex flex-col justify-between hidden md:flex z-30 shadow-2xl overflow-hidden overscroll-none select-none"
+      className="sidebar-safe fixed left-4 rtl:left-auto rtl:right-4 top-4 bottom-4 w-64 bg-card/95 backdrop-blur-3xl rounded-3xl p-5 pt-6 pb-6 flex flex-col justify-between hidden md:flex z-30 shadow-2xl overflow-hidden overscroll-none select-none"
       style={sidebarHighlight ? ({
         '--winblue': sidebarHighlight.hex,
         '--winblue-rgb': sidebarHighlight.rgb,
@@ -201,8 +201,8 @@ export function useMiniPresent(): boolean {
   return React.useSyncExternalStore(miniPresenceStore.subscribe, miniPresenceStore.get, miniPresenceStore.get);
 }
 
-const BAR_SPRING = SPRING.snappy;
-const ICON_SPRING = SPRING.snappy;
+const BAR_SPRING = SPRING.zoom;
+const ICON_SPRING = SPRING.zoom;
 // iOS 26: ao tocar, a barra cresce um pouco e o destaque "levanta" (fica maior que a barra, como uma lente);
 // ao soltar, ele assenta com uma mola elástica e o ícone escolhido dá um pulinho
 const PRESS_SPRING = SPRING.bouncy;

@@ -187,7 +187,7 @@ export function MobileSheet({
             onDragEnd={onDragEnd}
             className={isDesktop
               ? "fixed z-[9001] flex flex-col p-3 rounded-[28px] bg-card/95 backdrop-blur-3xl shadow-2xl overflow-hidden text-[var(--text-main)]"
-              : "fixed inset-x-0 z-[9001] flex flex-col rounded-t-[38px] bg-[var(--bg-sheet)] shadow-[0_0_40px_-12px_rgba(0,0,0,0.45)] overflow-hidden text-[var(--text-main)]"}
+              : "fixed inset-x-0 z-[9001] flex flex-col rounded-t-[38px] bg-card/95 backdrop-blur-3xl shadow-2xl overflow-hidden text-[var(--text-main)]"}
             style={place ? place.style : {
               top: 'calc(var(--safe-top) + 12px)',
               bottom: -keyboard.shrink,

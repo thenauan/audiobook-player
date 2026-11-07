@@ -398,7 +398,7 @@ export default function FullscreenPlayer({
       onPointerDownCapture={onPlayerPointerDownCapture}
       initial={{ clipPath: miniClip, opacity: 1 }}
       animate={{ clipPath: FULLSCREEN_CLIP, opacity: 1 }}
-      exit={{ clipPath: miniClip, opacity: 0, transition: { clipPath: SPRING.zoom, opacity: { duration: 0.1, delay: 0.08 } } }}
+      exit={{ clipPath: miniClip, opacity: 0, transition: { clipPath: SPRING.zoom, opacity: { duration: 0.1, delay: 0.12 } } }}
       transition={{ clipPath: SPRING.zoom, opacity: FADE_OUT }}
       style={{ willChange: 'clip-path, opacity' }}
       onAnimationComplete={() => setIsIntroDone(true)}
@@ -428,18 +428,9 @@ export default function FullscreenPlayer({
             x: ['-14%', '24%', '-10%', '-14%'],
             y: ['-12%', '20%', '-16%', '-12%'],
             scale: [1, 1.3, 0.94, 1],
-            backgroundColor: fullscreenAmbientColors.isDark ? [
-              fullscreenAmbientColors.tonePrimary,
-              fullscreenAmbientColors.toneLight,
-              fullscreenAmbientColors.toneDeep,
-              fullscreenAmbientColors.tonePrimary,
-            ] : [
-              fullscreenAmbientColors.tonePrimary,
-              fullscreenAmbientColors.toneMedium,
-              fullscreenAmbientColors.toneLight,
-              fullscreenAmbientColors.tonePrimary,
-            ],
           }}
+          // Cor fixa: animar a cor redesenharia o desfoque a cada quadro; só o movimento roda na GPU
+          style={{ backgroundColor: fullscreenAmbientColors.isDark ? fullscreenAmbientColors.tonePrimary : fullscreenAmbientColors.tonePrimary }}
           transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute -top-[18%] -left-[12%] w-[68vw] h-[68vw] max-w-[820px] max-h-[820px] rounded-full opacity-75 dark:opacity-75 blur-[120px] transform-gpu"
         />
@@ -450,18 +441,9 @@ export default function FullscreenPlayer({
             x: ['18%', '-22%', '14%', '18%'],
             y: ['12%', '-18%', '16%', '12%'],
             scale: [1.12, 0.88, 1.24, 1.12],
-            backgroundColor: fullscreenAmbientColors.isDark ? [
-              fullscreenAmbientColors.toneSecondary,
-              fullscreenAmbientColors.toneVeryLight,
-              fullscreenAmbientColors.toneLight,
-              fullscreenAmbientColors.toneSecondary,
-            ] : [
-              fullscreenAmbientColors.toneSecondary,
-              fullscreenAmbientColors.tonePastel,
-              fullscreenAmbientColors.tonePrimary,
-              fullscreenAmbientColors.toneSecondary,
-            ],
           }}
+          // Cor fixa: animar a cor redesenharia o desfoque a cada quadro; só o movimento roda na GPU
+          style={{ backgroundColor: fullscreenAmbientColors.isDark ? fullscreenAmbientColors.toneSecondary : fullscreenAmbientColors.toneSecondary }}
           transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute top-[8%] -right-[14%] w-[60vw] h-[60vw] max-w-[740px] max-h-[740px] rounded-full opacity-75 dark:opacity-25 blur-[130px] transform-gpu"
         />
@@ -494,18 +476,9 @@ export default function FullscreenPlayer({
             x: ['14%', '-16%', '10%', '14%'],
             y: ['-14%', '18%', '-10%', '-14%'],
             scale: [1.06, 0.92, 1.2, 1.06],
-            backgroundColor: fullscreenAmbientColors.isDark ? [
-              fullscreenAmbientColors.toneDeep,
-              fullscreenAmbientColors.tonePrimary,
-              fullscreenAmbientColors.toneVeryDark,
-              fullscreenAmbientColors.toneDeep,
-            ] : [
-              fullscreenAmbientColors.toneLight,
-              fullscreenAmbientColors.tonePrimary,
-              fullscreenAmbientColors.toneMedium,
-              fullscreenAmbientColors.toneLight,
-            ],
           }}
+          // Cor fixa: animar a cor redesenharia o desfoque a cada quadro; só o movimento roda na GPU
+          style={{ backgroundColor: fullscreenAmbientColors.isDark ? fullscreenAmbientColors.toneDeep : fullscreenAmbientColors.toneLight }}
           transition={{ duration: 27, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute bottom-[10%] -right-[12%] w-[62vw] h-[62vw] max-w-[760px] max-h-[760px] rounded-full opacity-70 dark:opacity-70 blur-[125px] transform-gpu"
         />
@@ -541,7 +514,7 @@ export default function FullscreenPlayer({
         />
 
         {/* Camada de vidro com blur e equilíbrio de contraste: branco no claro, escuro no escuro */}
-        <div className="absolute inset-0 bg-white/40 dark:bg-black/55 backdrop-blur-3xl" />
+        <div className="absolute inset-0 bg-white/40 dark:bg-black/55" />
       </motion.div>
 
       {/* Cabeçalho do Player em Tela Cheia (distância superior = pt-6 = 24px) */}
@@ -637,7 +610,7 @@ export default function FullscreenPlayer({
                     initial={{ opacity: 0, scale: 0.55, width: 0, marginLeft: 0 }}
                     animate={{ opacity: 1, scale: 1, width: 44, marginLeft: 8 }}
                     exit={{ opacity: 0, scale: 0.55, width: 0, marginLeft: 0 }}
-                    transition={SPRING.snappy}
+                    transition={SPRING.zoom}
                     onClick={closeLyricSearch}
                     aria-label={t('clear_search')}
                     className="h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)]"
@@ -668,7 +641,7 @@ export default function FullscreenPlayer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ ...SPRING.snappy, opacity: LYRICS_FADE }}
+          transition={{ ...SPRING.zoom, opacity: LYRICS_FADE }}
           className="fs-column w-full max-w-sm sm:max-w-md [@media(max-height:520px)]:max-w-3xl flex flex-col items-center text-center justify-between h-full min-h-0 shrink-0 transform-gpu pb-3"
         >
           <div className="fs-body flex flex-col items-center justify-between h-full min-h-0 w-full">
@@ -937,7 +910,7 @@ export default function FullscreenPlayer({
               initial={isMobileFs ? { opacity: 0, y: 12 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
               animate={isMobileFs ? { opacity: 1, y: 0 } : { opacity: 1, width: 'auto', x: 0, scale: 1 }}
               exit={isMobileFs ? { opacity: 0, y: 12 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
-              transition={{ ...SPRING.snappy, opacity: LYRICS_FADE }}
+              transition={{ ...SPRING.zoom, opacity: LYRICS_FADE }}
               style={{
                 willChange: 'transform, opacity, width',
                 // Cor de destaque da página deste audiobook (a palavra sendo lida)
@@ -1107,7 +1080,7 @@ export default function FullscreenPlayer({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            transition={{ ...SPRING.snappy, opacity: LYRICS_FADE }}
+            transition={{ ...SPRING.zoom, opacity: LYRICS_FADE }}
             role="button"
             tabIndex={0}
             onClick={() => onCloseTranscript?.()}

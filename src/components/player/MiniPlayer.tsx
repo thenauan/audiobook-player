@@ -110,7 +110,7 @@ export default function MiniPlayer({
       initial={enterFromFullscreen ? 'fromFullscreen' : 'hidden'}
       animate="visible"
       exit="exit"
-      transition={SPRING.snappy}
+      transition={SPRING.zoom}
       className="desk-mini-safe fixed bottom-[88px] md:bottom-4 left-4 right-4 md:left-[296px] md:right-4 rtl:md:left-4 rtl:md:right-[296px] max-w-[848px] mx-auto z-[100] pointer-events-auto isolate flex items-center py-1.5"
       style={{
         gap: '22px',
@@ -169,7 +169,8 @@ export default function MiniPlayer({
           whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => setIsPlaying(!isPlaying)}
-          className="w-[38px] h-[38px] rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0"
+          style={{ '--winblue': currentBookHighlight.hex } as React.CSSProperties}
+          className="w-[38px] h-[38px] rounded-full flex items-center justify-center bg-winblue/20 backdrop-blur-3xl text-winblue hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0"
           title={isPlaying ? t('pause') : t('listen')}
         >
           {isPlaying ? <BsPauseFill size={22} /> : <BsPlayFill size={22} className="translate-x-[1px]" />}
@@ -352,6 +353,7 @@ export interface MobileMiniPlayerProps {
   setIsFullScreen: (full: boolean) => void;
   closeAllPopups: () => void;
   handleBookCoverError: (b: Audiobook, e: any) => void;
+  currentBookHighlight: { hex: string; rgb: string };
   miniplayerAmbientStyle: React.CSSProperties;
   enterFromFullscreen?: boolean;
   onPlayerPointerDownCapture?: (e: React.PointerEvent) => void;
@@ -367,6 +369,7 @@ export function MobileMiniPlayer({
   setIsFullScreen,
   closeAllPopups,
   handleBookCoverError,
+  currentBookHighlight,
   miniplayerAmbientStyle,
   enterFromFullscreen = false,
   onPlayerPointerDownCapture,
@@ -424,7 +427,7 @@ export function MobileMiniPlayer({
       initial={enterFromFullscreen ? 'fromFullscreen' : 'hidden'}
       animate="visible"
       exit="exit"
-      transition={SPRING.snappy}
+      transition={SPRING.zoom}
       className={docked
         ? "fixed z-[100] pointer-events-auto isolate left-[288px] right-4 rtl:left-4 rtl:right-[288px] mx-auto max-w-[520px]"
         : "fixed z-[96] pointer-events-auto isolate"}
@@ -487,7 +490,7 @@ export function MobileMiniPlayer({
               initial={{ opacity: 0, scale: 0.5, width: 0 }}
               animate={{ opacity: 1, scale: 1, width: 24 }}
               exit={{ opacity: 0, scale: 0.5, width: 0 }}
-              transition={SPRING.snappy}
+              transition={SPRING.zoom}
               aria-hidden="true"
               className="shrink-0 flex items-center justify-center text-winblue"
             >
@@ -505,7 +508,8 @@ export function MobileMiniPlayer({
             if (split && barCollapsed && !docked) tabBarStore.set(false);
           }}
           aria-label={isPlaying ? t('pause') : t('listen')}
-          className="mobile-press w-10 h-10 rounded-full flex items-center justify-center bg-card/75 text-[var(--text-main)] shrink-0"
+          style={{ '--winblue': currentBookHighlight.hex } as React.CSSProperties}
+          className="mobile-press w-10 h-10 rounded-full flex items-center justify-center bg-winblue/20 backdrop-blur-3xl text-winblue shrink-0"
         >
           {isPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} className="translate-x-[1px]" />}
         </motion.button>

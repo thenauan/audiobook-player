@@ -37,6 +37,8 @@ export async function showSystemNotification(title: string, body: string) {
 export function notifySystem(prefKey: string, title: string, body: string) {
   try {
     if (localStorage.getItem('app_notifications_enabled') === 'false' || localStorage.getItem(prefKey) === 'false') return;
+    // Sugestões só com a chave ligada de propósito
+    if (prefKey === 'app_notify_content' && localStorage.getItem(prefKey) !== 'true') return;
   } catch {}
   void showSystemNotification(title, body);
 }

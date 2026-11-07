@@ -103,6 +103,7 @@ import { cancelLyricCentering, centerLyricLine } from './components/player/lyric
 import { SPRING, FADE_IN, FADE_OUT } from './lib/motion';
 import { ACCENT_COLORS } from './lib/accentColors';
 import { EmojiIcon } from './components/EmojiIcon';
+import { canSendSuggestion, crossedBookMilestone, getSentSuggestions, markSuggestionSent, markSuggestionTime, pickContentSuggestion, takeWeeklySeconds } from './lib/contentNotifications';
 
 const getSpeedIcon = (s: number) => {
   if (s < 1) return <Turtle size={14} className="shrink-0" />;
@@ -180,7 +181,7 @@ const exitOverlay = () => ({
 });
 const transicaoConteudo: any = {
   get escondido() {
-    if (!isMobileNav()) return { opacity: 0, scale: 0.985, y: 8, x: 0, transformOrigin: 'center top' };
+    if (!isMobileNav()) return { opacity: 0, scale: 1, y: 4, x: 0 };
     // "relative": sem isso o zIndex da tela que entra não vale e a que sai (absoluta) fica por cima dela
     if (navDirection === 'push') return { x: '100%', opacity: 1, scale: 1, y: 0, zIndex: 2, position: 'relative' };
     if (navDirection === 'instant') return { opacity: 1, x: 0, scale: 1, y: 0, zIndex: 1 };
@@ -196,7 +197,7 @@ const transicaoConteudo: any = {
     if (!isMobileNav()) {
       return {
         opacity: 1, scale: 1, y: 0, x: 0,
-        transition: { ...SPRING.snappy, opacity: FADE_OUT },
+        transition: { y: SPRING.press, opacity: FADE_IN },
       };
     }
     if (navDirection === 'tab') return { opacity: 1, x: 0, scale: 1, y: 0, transition: FADE_IN };
@@ -204,7 +205,7 @@ const transicaoConteudo: any = {
     return { opacity: 1, x: 0, scale: 1, y: 0, transition: { x: IOS_NAV, opacity: FADE_IN } };
   },
   get saindo() {
-    if (!isMobileNav()) return { opacity: 0, scale: 0.99, y: -4, transition: { duration: 0.08, ease: [0.32, 0, 0.67, 0] } };
+    if (!isMobileNav()) return { opacity: 0, scale: 1, y: 0, transition: { duration: 0.08 } };
     if (navDirection === 'push') return { ...exitOverlay(), x: '-30%', opacity: 0, zIndex: 1, transition: { ...OVERLAY_T, x: IOS_NAV, opacity: FADE_IN } };
     if (navDirection === 'pop') return { ...exitOverlay(), x: '100%', opacity: 0, zIndex: 2, transition: { ...OVERLAY_T, x: IOS_NAV, opacity: FADE_IN } };
     if (navDirection === 'popSwipe') {
@@ -1954,6 +1955,7 @@ export default function App() {
   };
   const [notifyChapterCompleted, setNotifyChapterCompleted] = useState<boolean>(() => localStorage.getItem('app_notify_chapter') !== 'false');
   const [notifyBookCompleted, setNotifyBookCompleted] = useState<boolean>(() => localStorage.getItem('app_notify_book') !== 'false');
+  const [notifyContent, setNotifyContent] = useState<boolean>(() => localStorage.getItem('app_notify_content') === 'true');
   const [notifyBookAdded, setNotifyBookAdded] = useState<boolean>(() => localStorage.getItem('app_notify_added') !== 'false');
 
   // Ajustes: Sistema
@@ -2987,6 +2989,11 @@ export default function App() {
     if (!prev || prev.bookId !== bookId || time <= prev.time || time - prev.time > 4) return;
     const book = currentBook;
     if (!book || book.id !== bookId) return;
+    const milestone = crossedBookMilestone(prev.time, time, (book.chapters || []).reduce((sum, c) => sum + (c.duration || 0), 0));
+    if (milestone && notifyContent && !getSentSuggestions().includes(`${milestone}:${book.id}`)) {
+      markSuggestionSent(`${milestone}:${book.id}`);
+      notifySystem('app_notify_content', t('settings_notif_content'), t(milestone === 'half' ? 'notif_content_half' : 'notif_content_end', { title: book.title }));
+    }
     for (const chap of book.chapters || []) {
       const end = (chap.startTime || 0) + (chap.duration || 0);
       if (!chap.duration) continue;
@@ -3618,6 +3625,36 @@ export default function App() {
       ['wheel', 'touchstart', 'touchmove', 'pointerdown'].forEach(name => document.removeEventListener(name, onGesture, options));
       document.removeEventListener('scroll', onScroll, options);
       window.removeEventListener('lyrics-recenter', onRecenter);
+    };
+  }, []);
+
+  // Sugestões de conteúdo: no máximo uma por dia, sem interromper quem está ouvindo
+  const sendContentSuggestionRef = useRef<() => void>(() => {});
+  sendContentSuggestionRef.current = () => {
+    const now = Date.now();
+    if (!notifyContent || isPlaying || !canSendSuggestion(now)) return;
+    const seconds = Object.values(userListeningStats.bookSeconds).reduce((sum, v) => sum + v, 0);
+    const week = takeWeeklySeconds(seconds, now);
+    if (week && week >= 60) {
+      markSuggestionTime(now);
+      const minutes = Math.round(week / 60);
+      notifySystem('app_notify_content', t('settings_notif_content'), t('notif_content_week', { hours: minutes >= 60 ? `${Math.floor(minutes / 60)} h ${minutes % 60} min` : `${minutes} min` }));
+      return;
+    }
+    const pick = pickContentSuggestion({ books, lastPlayed: userListeningStats.bookLastPlayed, isStarted: isBookStarted, isCompleted: isBookCompleted, now, sent: getSentSuggestions() });
+    if (!pick) return;
+    markSuggestionSent(pick.id);
+    markSuggestionTime(now);
+    notifySystem('app_notify_content', t('settings_notif_content'), t(`notif_content_${pick.kind}`, { title: pick.book.title, author: pick.book.author }));
+  };
+  useEffect(() => {
+    const send = () => sendContentSuggestionRef.current();
+    const onVisibility = () => { if (document.hidden) send(); };
+    const timer = setTimeout(send, 30000);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
 
@@ -4881,6 +4918,9 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem('app_notify_added', String(notifyBookAdded)); } catch {}
   }, [notifyBookAdded]);
+  useEffect(() => {
+    try { localStorage.setItem('app_notify_content', String(notifyContent)); } catch {}
+  }, [notifyContent]);
 
   useEffect(() => {
     try { localStorage.setItem('app_data_folder', dataFolder); } catch {}
@@ -4912,7 +4952,7 @@ export default function App() {
       'app_library_folder', 'app_data_folder', 'app_detect_files', 'app_check_startup',
       'app_default_speed', 'app_seek_forward', 'app_seek_backward',
       'app_resume_playback', 'app_auto_show_text', 'app_notifications_enabled',
-      'app_notify_chapter', 'app_notify_book', 'app_notify_added',
+      'app_notify_chapter', 'app_notify_book', 'app_notify_added', 'app_notify_content',
       'app_playback_queue', 'app_last_played_time'
     ];
     keysToRemove.forEach(k => {
@@ -9517,7 +9557,7 @@ export default function App() {
             closeAllPopups();
             setIsFullScreen(true);
           }}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0"
+          className="hover-grow w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0"
           title={t('expand_player')}
         >
           <Maximize2 size={13} />
@@ -15286,6 +15326,8 @@ export default function App() {
                 notifyBookCompleted={notifyBookCompleted}
                 setNotifyBookCompleted={setNotifyBookCompleted}
                 notifyBookAdded={notifyBookAdded}
+                notifyContent={notifyContent}
+                setNotifyContent={setNotifyContent}
                 setNotifyBookAdded={setNotifyBookAdded}
                 dataFolder={dataFolder}
                 handleOpenDataFolder={handleOpenDataFolder}
@@ -15399,6 +15441,7 @@ export default function App() {
         {Boolean(isPlayerVisible) && (
           !isFullScreen ? ((isMobile || isCompactPlayer) ? (
             <MobileMiniPlayer
+              currentBookHighlight={currentBookHighlight}
               key="mini-player"
               isQueuePulse={isQueuePulse}
               docked={!isMobile}
