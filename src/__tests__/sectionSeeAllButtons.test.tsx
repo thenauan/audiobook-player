@@ -3,9 +3,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 describe('Conditional "See all" and section header action buttons', () => {
-  // O App e as telas extraídas dele (src/views/screens)
+  // O App e o que foi extraído dele (src/views/screens e src/app)
   const screensDir = path.resolve(__dirname, '../views/screens');
-  const appFile = [path.resolve(__dirname, '../App.tsx'), ...fs.readdirSync(screensDir).map(f => path.join(screensDir, f))]
+  const appFile = [path.resolve(__dirname, '../App.tsx'), ...fs.readdirSync(screensDir).map(f => path.join(screensDir, f)), ...fs.readdirSync(path.resolve(__dirname, '../app')).map(f => path.resolve(__dirname, '../app', f))]
     .map(f => fs.readFileSync(f, 'utf-8')).join('\n');
 
   it('verifies that in-progress section only displays see_all button when sortedInProgress.length > 6', () => {

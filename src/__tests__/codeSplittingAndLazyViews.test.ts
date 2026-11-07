@@ -46,9 +46,9 @@ describe('Code Splitting & Dynamic Module Imports', { timeout: 20000 }, () => {
   it('verifies standardized loading spinner without text for Settings and Help views', async () => {
     const fs = await import('fs');
     const path = await import('path');
-    // O App e as telas extraídas dele (src/views/screens)
+    // O App e o que foi extraído dele (src/views/screens e src/app)
     const screensDir = path.resolve(__dirname, '../views/screens');
-    const appContent = [path.resolve(__dirname, '../App.tsx'), ...fs.readdirSync(screensDir).map(f => path.join(screensDir, f))]
+    const appContent = [path.resolve(__dirname, '../App.tsx'), ...fs.readdirSync(screensDir).map(f => path.join(screensDir, f)), ...fs.readdirSync(path.resolve(__dirname, '../app')).map(f => path.resolve(__dirname, '../app', f))]
       .map(f => fs.readFileSync(f, 'utf-8')).join('\n');
 
     // Both Settings and Help Center must use the same standardized spinner with no text
