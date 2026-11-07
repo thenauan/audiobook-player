@@ -1979,3 +1979,19 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
   html:root { --text-muted: rgb(60 60 67 / 85%); }
   html.dark:root { --text-muted: rgb(235 235 245 / 85%); }
 }
+
+/* Teclado: o anel de foco é o único contorno da interface. Campos de texto se destacam pelo preenchimento */
+:focus-visible:not(input, textarea, select) {
+  outline: 2px solid var(--winblue);
+  outline-offset: 2px;
+}
+
+/* Mouse: o destaque entra rápido e sai mais devagar, para não piscar ao passar por uma lista */
+@media (hover: hover) and (pointer: fine) {
+  :is(button, [role="button"], .settings-list-row) {
+    transition-duration: 200ms;
+  }
+  :is(button, [role="button"], .settings-list-row):hover {
+    transition-duration: 120ms;
+  }
+}

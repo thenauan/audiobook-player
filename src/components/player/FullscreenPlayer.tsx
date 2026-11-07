@@ -567,19 +567,18 @@ export default function FullscreenPlayer({
             }}
             aria-label={t('minimize_fullscreen')}
             data-instant="true"
-            className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl text-[var(--text-main)] backdrop-blur-3xl"
+            className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 shadow-xl text-[var(--text-main)] backdrop-blur-3xl"
           >
             <Minimize2 size={18} />
           </motion.button>
         ) : (
         <motion.button 
-          whileHover={{ scale: 1.08 }}
           data-press="true"
           onClick={() => {
             closeAllPopups();
             setIsFullScreen(false);
           }}
-          className="h-9 flex items-center justify-center gap-1.5 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-lg dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+          className="h-9 flex items-center justify-center gap-1.5 px-4 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
           title={t('minimize_fullscreen')}
           data-instant="true"
         >
@@ -608,7 +607,7 @@ export default function FullscreenPlayer({
             >
               <div
                 onClick={() => setLyricSearchOpen(true)}
-                className="flex-1 min-w-0 h-9 flex items-center gap-2 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-muted)] focus-within:bg-white/15 focus-within:border-winblue/40 focus-within:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.3)] focus-within:text-winblue transition-all"
+                className="flex-1 min-w-0 h-9 flex items-center gap-2 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-muted)] focus-within:bg-winblue/15 focus-within:text-winblue transition-all"
               >
                 <TextSearch size={15} className="shrink-0" />
                 {lyricSearchOpen ? (
@@ -641,7 +640,7 @@ export default function FullscreenPlayer({
                     transition={SPRING.snappy}
                     onClick={closeLyricSearch}
                     aria-label={t('clear_search')}
-                    className="h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)]"
+                    className="h-9 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)]"
                   >
                     <X size={15} className="shrink-0" />
                   </motion.button>
@@ -831,7 +830,6 @@ export default function FullscreenPlayer({
                   <motion.button
                     layoutId="player-prev"
                     transition={{ layout: SPRING.zoom }} 
-                    whileHover={{ scale: 1.12 }} 
                     data-press="true" 
                     onClick={() => {
                       if (handlePrevChapter) {
@@ -842,7 +840,7 @@ export default function FullscreenPlayer({
                         handleSeek(currentChapter.startTime);
                       }
                     }}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0"
                     title={t('previous_chapter')}
                   >
                     <SkipBack size={17} />
@@ -852,10 +850,9 @@ export default function FullscreenPlayer({
                   <motion.button
                     layoutId="player-seek-back"
                     transition={{ layout: SPRING.zoom }} 
-                    whileHover={{ scale: 1.12 }} 
                     data-press="true" 
                     onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0"
                     title={t('seek_backward', { sec: seekBackwardTime })}
                   >
                     <BsArrowCounterclockwise data-spin="-1" size={22} />
@@ -866,11 +863,10 @@ export default function FullscreenPlayer({
                   <motion.button
                     layoutId="player-play"
                     transition={{ layout: SPRING.zoom }} 
-                    whileHover={{ scale: 1.08 }} 
                     data-press="true" 
                     onClick={() => setIsPlaying(!isPlaying)}
                     data-fs-main-play="true"
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/20 hover:border-black/20 dark:hover:border-white/40 hover:shadow-xl dark:hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] transition-all shadow-lg shrink-0"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-[var(--ios-fill)] transition-all shadow-lg shrink-0"
                     title={isPlaying ? t('pause') : t('listen')}
                   >
                     {isPlaying ? (
@@ -884,10 +880,9 @@ export default function FullscreenPlayer({
                   <motion.button
                     layoutId="player-seek-fwd"
                     transition={{ layout: SPRING.zoom }} 
-                    whileHover={{ scale: 1.12 }} 
                     data-press="true" 
                     onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0"
                     title={t('seek_forward', { sec: seekForwardTime })}
                   >
                     <BsArrowClockwise data-spin="1" size={22} />
@@ -898,7 +893,6 @@ export default function FullscreenPlayer({
                   <motion.button
                     layoutId="player-next"
                     transition={{ layout: SPRING.zoom }} 
-                    whileHover={{ scale: 1.12 }} 
                     data-press="true" 
                     onClick={() => {
                       if (handleNextChapter) {
@@ -914,7 +908,7 @@ export default function FullscreenPlayer({
                         handleSeek(currentBook.chapters[currentChapterIndex + 1].startTime);
                       }
                     }}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0"
                     title={t('next_chapter')}
                   >
                     <SkipForward size={17} />
@@ -1152,7 +1146,7 @@ export default function FullscreenPlayer({
             {isLandFs && (
               <motion.button layoutId="player-prev" data-press="true" title={t('previous_chapter')}
                 onClick={(e) => { e.stopPropagation(); if (handlePrevChapter) handlePrevChapter(); else handleSeek(currentChapter.startTime); }}
-                className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
+                className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 text-[var(--text-main)] shrink-0 relative">
                 <SkipBack size={17} />
               </motion.button>
             )}
@@ -1160,7 +1154,7 @@ export default function FullscreenPlayer({
             <motion.button layoutId="player-seek-back" data-press="true" title={t('seek_backward', { sec: seekBackwardTime })}
               aria-label={t('seek_backward', { sec: seekBackwardTime })}
               onClick={(e) => { e.stopPropagation(); handleSeek(Math.max(0, currentTime - seekBackwardTime)); }}
-              className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
+              className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 text-[var(--text-main)] shrink-0 relative">
               <BsArrowCounterclockwise data-spin="-1" size={20} />
               <span className="absolute text-[7px] font-bold mt-[1px]">{seekBackwardTime}</span>
             </motion.button>
@@ -1170,7 +1164,7 @@ export default function FullscreenPlayer({
               data-press="true"
               onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }}
               aria-label={isPlaying ? t('pause') : t('listen')}
-              className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0"
+              className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 text-[var(--text-main)] shrink-0"
             >
               {isPlaying ? <BsPauseFill size={20} /> : <BsPlayFill size={20} className="translate-x-[1px]" />}
             </motion.button>
@@ -1178,13 +1172,13 @@ export default function FullscreenPlayer({
               <>
                 <motion.button layoutId="player-seek-fwd" data-press="true" title={t('seek_forward', { sec: seekForwardTime })}
                   onClick={(e) => { e.stopPropagation(); handleSeek(Math.min(totalDuration, currentTime + seekForwardTime)); }}
-                  className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
+                  className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 text-[var(--text-main)] shrink-0 relative">
                   <BsArrowClockwise data-spin="1" size={20} />
                   <span className="absolute text-[7px] font-bold mt-[1px]">{seekForwardTime}</span>
                 </motion.button>
                 <motion.button layoutId="player-next" data-press="true" title={t('next_chapter')}
                   onClick={(e) => { e.stopPropagation(); handleNextChapter?.(); }}
-                  className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0 relative">
+                  className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 text-[var(--text-main)] shrink-0 relative">
                   <SkipForward size={17} />
                 </motion.button>
               </>
@@ -1211,7 +1205,7 @@ export default function FullscreenPlayer({
         targetRadius={20}
         estimatedMenuHeight={160}
         preview={lineMenu ? (
-          <div className="px-4 py-3 rounded-3xl bg-card/95 border border-[var(--text-main)]/10 shadow-2xl text-xl sm:text-2xl font-bold text-[var(--text-main)] leading-snug">
+          <div className="px-4 py-3 rounded-3xl bg-card/95 shadow-2xl text-xl sm:text-2xl font-bold text-[var(--text-main)] leading-snug">
             {lineText(lineMenu.line)}
           </div>
         ) : null}

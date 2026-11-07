@@ -55,10 +55,10 @@ export function SettingToggle({
         type="button"
         role="switch"
         aria-checked={checked}
-        className={`relative w-[48px] h-[28px] rounded-full p-[4px] transition-[background-color,border-color,box-shadow] duration-150 flex items-center border cursor-pointer ${
+        className={`relative w-[48px] h-[28px] rounded-full p-[4px] transition-[background-color,border-color,box-shadow] duration-150 flex items-center cursor-pointer ${
           checked
-            ? 'bg-winblue/20 border-winblue/40 hover:bg-winblue/25 hover:border-winblue/55 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.2)] group-hover:bg-winblue/25 group-hover:border-winblue/55 group-hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.2)]'
-            : 'bg-card/75 backdrop-blur-3xl border-[var(--text-main)]/10 hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)] group-hover:bg-white/15 group-hover:border-white/20 group-hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+            ? 'bg-winblue/20 hover:bg-winblue/25 group-hover:bg-winblue/25 '
+            : 'bg-card/75 backdrop-blur-3xl hover:bg-[var(--ios-fill)] group-hover:bg-[var(--ios-fill)] '
         }`}
       >
         <span
@@ -206,18 +206,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <div 
                   data-path-pill="true"
                   title={libraryFolder}
-                  className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-xs text-winblue flex items-center max-w-[200px] md:max-w-xs truncate select-all"
+                  className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-xs text-winblue flex items-center max-w-[200px] md:max-w-xs truncate select-all"
                 >
                   <span className="truncate">{libraryFolder}</span>
                 </div>
                 <motion.button
-                  whileHover={{ scale: 1.06 }}
                   data-press="true"
                   onClick={() => handleSyncLibraryNow()}
                   className={`h-8 px-4 rounded-full backdrop-blur-3xl font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
                     isSyncingLibrary
-                      ? 'bg-winblue/20 border border-winblue text-winblue shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)]'
-                      : 'bg-card/75 border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]'
+                      ? 'bg-winblue/20 text-winblue '
+                      : 'bg-card/75 shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
                   }`}
                   title={t('sync_now')}
                 >
@@ -225,10 +224,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   <RefreshCw size={14} className={isSyncingLibrary ? "animate-spin text-winblue" : ""} />
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.06 }}
                   data-press="true"
                   onClick={handleSelectLibraryFolder}
-                  className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                   title={t('select_folder')}
                 >
                   <span>{t('select_folder')}</span>
@@ -242,10 +240,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     <>
 
               <motion.button
-                whileHover={{ scale: 1.06 }}
                 data-press="true"
                 onClick={handleExportLibraryBackup}
-                className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
+                className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
                 title={t('export_library_btn')}
               >
                 <Download size={14} />
@@ -271,10 +268,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 }}
               />
               <motion.button
-                whileHover={{ scale: 1.06 }}
                 data-press="true"
                 onClick={() => backupFileInputRef.current?.click()}
-                className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
+                className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
                 title={t('import_backup_btn')}
               >
                 <Upload size={14} />
@@ -295,15 +291,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   <div 
                     data-path-pill="true"
                     title={dataFolderClean}
-                    className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-xs text-winblue flex items-center max-w-[220px] md:max-w-xs min-w-0"
+                    className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-xs text-winblue flex items-center max-w-[220px] md:max-w-xs min-w-0"
                   >
                     <span className="truncate whitespace-nowrap">{dataFolderShort}</span>
                   </div>
                   <motion.button
-                    whileHover={{ scale: 1.06 }}
                     data-press="true"
                     onClick={handleOpenDataFolder}
-                    className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                    className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                     title={t('settings_open_folder')}
                   >
                     <span>{t('settings_open_folder')}</span>
@@ -317,10 +312,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     <>
 
                 <motion.button
-                  whileHover={{ scale: 1.06 }}
                   data-press="true"
                   onClick={() => showToast(t('settings_cache_cleared'))}
-                  className="self-start sm:self-center h-8 px-4 rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 font-semibold text-xs transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer"
+                  className="self-start sm:self-center h-8 px-4 rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 font-semibold text-xs transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>{t('settings_clear_cache_btn')}</span>
                   <Trash2 size={14} />
@@ -331,7 +325,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const actionControls_playback_diag = () => (
     <div className="flex items-center gap-2 shrink-0">
       <motion.button
-        whileHover={{ scale: 1.06 }}
         data-press="true"
         onClick={async () => {
           const text = getDiagText();
@@ -341,16 +334,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             window.prompt(t('settings_diag_title'), text);
           }
         }}
-        className="h-8 px-4 rounded-full text-winblue bg-winblue/10 hover:bg-winblue/20 border border-winblue/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+        className="h-8 px-4 rounded-full text-winblue bg-winblue/10 hover:bg-winblue/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
         <span>{t('settings_diag_copy')}</span>
         <Copy size={14} />
       </motion.button>
       <motion.button
-        whileHover={{ scale: 1.06 }}
         data-press="true"
         onClick={() => { clearDiag(); showToast(t('settings_diag_cleared')); }}
-        className="h-8 px-4 rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+        className="h-8 px-4 rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 font-semibold text-xs transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
         <span>{t('settings_diag_clear')}</span>
         <Trash2 size={14} />
@@ -359,7 +351,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   );
   // Celular: a licença aparece direto na tela do ajuste, no lugar do botão
   const actionControls_version_label_inline = () => (
-    <section className="settings-license-inline w-full text-left rtl:text-right p-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 space-y-3 text-sm text-[var(--text-muted)] leading-relaxed select-text">
+    <section className="settings-license-inline w-full text-left rtl:text-right p-5 rounded-[32px] bg-card/60 backdrop-blur-xl space-y-3 text-sm text-[var(--text-muted)] leading-relaxed select-text">
       <h3 className="text-[15px] font-bold text-[var(--text-main)]">{t('license')} — MIT License</h3>
       <p className="text-[var(--text-main)] font-semibold">Copyright (c) 2026 Nauan</p>
       <p>
@@ -381,7 +373,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                         key="btn-license"
                         layoutId="license-popup-morph"
                         layout
-                        whileHover={{ scale: 1.06 }}
                         data-press="true"
                         transition={SPRING.snappy}
                         onClick={(e) => {
@@ -389,7 +380,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                           closeAllPopups();
                           setShowLicensesModal(true);
                         }}
-                        className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 select-none cursor-pointer shadow-sm"
+                        className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 select-none cursor-pointer shadow-sm"
                       >
                         <span>{t('license')}</span>
                         <FileText size={14} />
@@ -407,7 +398,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                           transition={SPRING.snappy}
                           data-popup-content="true"
                           onClick={(e) => e.stopPropagation()}
-                          className="absolute bottom-0 right-0 w-[340px] max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[26px] shadow-2xl p-4 z-50 flex flex-col text-left overflow-hidden select-none"
+                          className="absolute bottom-0 right-0 w-[340px] max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[26px] shadow-2xl p-4 z-50 flex flex-col text-left overflow-hidden select-none"
                         >
                           <div className="mb-2.5 px-1">
                             <h3 className="text-sm font-bold text-[var(--text-main)]">
@@ -548,9 +539,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             ].map((card) => (
               <motion.button
                 key={card.id}
-                whileTap={{ scale: 0.985 }}
                 onClick={() => navigateTo(card.id)}
-                className="settings-list-row w-full flex items-center gap-3.5 px-4 py-3 text-left rtl:text-right rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer"
+                className="settings-list-row w-full flex items-center gap-3.5 px-4 py-3 text-left rtl:text-right rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer"
               >
                 <span className={`w-10 h-10 rounded-full bg-gradient-to-br ${card.gradient} text-white flex items-center justify-center shrink-0 shadow-sm [&_svg]:w-[18px] [&_svg]:h-[18px]`}>
                   {card.icon}
@@ -575,7 +565,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="space-y-2.5">
             {/* 1. Tema */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Moon size={20} />
@@ -586,7 +576,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button 
-                whileHover={{ scale: 1.06 }} 
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'theme')}
                 onClick={(e) => {
@@ -610,7 +599,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setThemeMode(val)
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{themeMode === 'system' ? t('theme_system') : themeMode === 'light' ? t('theme_light') : t('theme_dark')}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -618,7 +607,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 2. Cor de destaque */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Palette size={20} />
@@ -629,7 +618,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button 
-                whileHover={{ scale: 1.06 }} 
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'accent-color')}
                 onClick={(e) => {
@@ -653,16 +641,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setAccentColor(val)
                   });
                 }}
-                className="h-8 pl-3 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
-                <div className="w-3.5 h-3.5 rounded-full border border-black/10 dark:border-white/20 shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#FF9500' }} />
+                <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#FF9500' }} />
                 <span>{t('color_' + accentColor) || ACCENT_COLORS[accentColor]?.name || 'Laranja'}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
               </motion.button>
             </div>
 
             {/* 3. Tamanho da fonte */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Type size={20} />
@@ -673,7 +661,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button 
-                whileHover={{ scale: 1.06 }} 
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'font-size')}
                 onClick={(e) => {
@@ -696,7 +683,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setFontSize(val)
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{fontSize === 'large' ? t('font_large') : t('font_standard')}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -704,7 +691,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 5. Idioma */}
-            <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
+            <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4`}>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Globe size={20} />
@@ -715,7 +702,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button 
-                whileHover={{ scale: 1.06 }} 
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'app-language')}
                 onClick={(e) => {
@@ -747,10 +733,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setAppLanguage(val)
                   });
                 }}
-                className={`h-8 pl-3.5 pr-2.5 max-md:px-0 max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none max-md:!text-[var(--text-muted)] rounded-full backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 text-[var(--text-main)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer ${
+                className={`h-8 pl-3.5 pr-2.5 max-md:px-0 max-md:!bg-transparent max-md:!shadow-none max-md:!text-[var(--text-muted)] rounded-full backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none text-[var(--text-main)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer ${
                   activeSettingSelector?.id === 'app-language'
-                    ? 'bg-card/95 border-white/20'
-                    : 'bg-card/75 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]'
+                    ? 'bg-card/95 '
+                    : 'bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] '
                 }`}
               >
                 <span>
@@ -775,7 +761,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="space-y-2.5">
             {/* 1. Pasta da biblioteca — só no computador: navegadores de celular/tablet (iPhone, iPad e Android)
                 não deixam o app escolher nem lembrar uma pasta do aparelho */}
-            <div data-setting-action="settings_lib_folder" data-setting-title={t('settings_lib_folder')} data-setting-subtitle={t('settings_lib_folder_sub')} onClick={handleSettingRowClick} className="max-md:hidden [@media(pointer:coarse)]:hidden settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
+            <div data-setting-action="settings_lib_folder" data-setting-title={t('settings_lib_folder')} data-setting-subtitle={t('settings_lib_folder_sub')} onClick={handleSettingRowClick} className="max-md:hidden [@media(pointer:coarse)]:hidden settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <FolderOpen size={20} />
                 </div>
@@ -790,7 +776,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 2. Detectar novos arquivos */}
-            <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4`}>
+            <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] flex flex-row items-center justify-between gap-4`}>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <RefreshCw size={20} />
@@ -801,7 +787,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button 
-                whileHover={{ scale: 1.06 }} 
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'detect-new-files')}
                 onClick={(e) => {
@@ -825,10 +810,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setDetectNewFiles(val)
                   });
                 }}
-                className={`h-8 pl-3.5 pr-2.5 rounded-full backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 self-start sm:self-center select-none cursor-pointer max-md:max-w-[45%] max-md:self-center max-md:[&>span]:truncate ${
+                className={`h-8 pl-3.5 pr-2.5 rounded-full backdrop-blur-3xl text-[var(--text-main)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 self-start sm:self-center select-none cursor-pointer max-md:max-w-[45%] max-md:self-center max-md:[&>span]:truncate ${
                   activeSettingSelector?.id === 'detect-new-files'
-                    ? 'bg-card/95 border-white/20'
-                    : 'bg-card/75 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]'
+                    ? 'bg-card/95 '
+                    : 'bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] '
                 }`}
               >
                 <span>
@@ -843,7 +828,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 3. Verificar biblioteca ao iniciar */}
-            <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
+            <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4`}>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Clock size={20} />
@@ -857,7 +842,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 4. Exportar Biblioteca (Backup JSON) */}
-            <div data-setting-action="export_library" data-setting-title={t('export_library')} data-setting-subtitle={t('export_library_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
+            <div data-setting-action="export_library" data-setting-title={t('export_library')} data-setting-subtitle={t('export_library_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Download size={20} />
                 </div>
@@ -872,7 +857,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 5. Importar Backup */}
-            <div data-setting-action="import_backup" data-setting-title={t('import_backup')} data-setting-subtitle={t('import_backup_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
+            <div data-setting-action="import_backup" data-setting-title={t('import_backup')} data-setting-subtitle={t('import_backup_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Upload size={20} />
                 </div>
@@ -898,7 +883,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="space-y-2.5">
             {/* 1. Velocidade padrão */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Gauge size={20} />
@@ -909,7 +894,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button 
-                whileHover={{ scale: 1.06 }} 
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'default-speed')}
                 onClick={(e) => {
@@ -939,7 +923,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     }
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{defaultPlaybackSpeed.toFixed(2).replace('.00', '').replace('.', ',')}×</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -947,7 +931,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 2. Tempo de avanço */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <BsArrowClockwise size={20} />
@@ -958,7 +942,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button 
-                whileHover={{ scale: 1.06 }} 
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'seek-forward-setting')}
                 onClick={(e) => {
@@ -983,7 +966,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setSeekForwardTime(val)
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{seekForwardTime >= 60 ? '1m' : `${seekForwardTime}s`}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -991,7 +974,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 3. Tempo de retrocesso */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <BsArrowCounterclockwise size={20} />
@@ -1002,7 +985,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button 
-                whileHover={{ scale: 1.06 }} 
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'seek-backward-setting')}
                 onClick={(e) => {
@@ -1027,7 +1009,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setSeekBackwardTime(val)
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{seekBackwardTime >= 60 ? '1m' : `${seekBackwardTime}s`}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -1035,7 +1017,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 4. Continuar reprodução */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Play size={20} />
@@ -1049,7 +1031,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 5. Mostrar texto automaticamente */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <FileText size={20} />
@@ -1063,7 +1045,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* Capítulos extras (introdução, agradecimentos e afins) */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <BookOpen size={20} />
@@ -1077,7 +1059,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* Destaque da letra no player em tela cheia */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Highlighter size={20} />
@@ -1088,7 +1070,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
               <motion.button
-                whileHover={{ scale: 1.06 }}
                 data-press="true"
                 animate={morphTriggerAnimate(activeSettingSelector?.id === 'lyrics-highlight')}
                 onClick={(e) => {
@@ -1112,7 +1093,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     onSelect: (val: any) => setLyricsHighlight(val),
                   });
                 }}
-                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!border-transparent max-md:!shadow-none border border-[var(--text-main)]/10 max-md:border-transparent shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{lyricsHighlightLabels[lyricsHighlight]}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
@@ -1122,7 +1103,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             {/* Realce e normalização usam o Web Audio, que não é usado no iPhone/iPad (travava o áudio) */}
             {!IS_APPLE_TOUCH && (<>
             {/* 6. Realce de voz humana (Web Audio API) */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Sliders size={20} />
@@ -1143,7 +1124,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* 7. Normalização dinâmica (DynamicsCompressorNode) */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Activity size={20} />
@@ -1176,7 +1157,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="space-y-2.5">
             {/* 1. Ativar notificações */}
-            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                   <Bell size={20} />
@@ -1197,7 +1178,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </h2>
 
                 {/* Capítulo concluído */}
-                <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+                <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                       <BookOpen size={20} />
@@ -1211,7 +1192,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
 
                 {/* Audiobook concluído */}
-                <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+                <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                       <CheckCircle2 size={20} />
@@ -1225,7 +1206,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
 
                 {/* Novo audiobook adicionado */}
-                <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4`}>
+                <div onClick={handleSettingRowClick} className={`${IS_INSTALLED_APP ? 'max-md:hidden [@media(pointer:coarse)]:hidden' : 'hidden'} settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4`}>
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                       <ListPlus size={20} />
@@ -1253,7 +1234,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="space-y-6">
             <div className="space-y-2.5">
               {/* Modo leve: sem desfoque e brilhos, para aparelhos mais simples (com a configuração do aparelho) */}
-              <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4">
+              <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                     <Feather size={20} />
@@ -1272,7 +1253,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
 
               {/* Pasta de dados — só no computador (no celular/tablet os dados ficam dentro do próprio navegador) */}
-              <div data-setting-action="settings_data_folder" data-setting-title={t('settings_data_folder')} data-setting-subtitle={t('settings_data_folder_sub')} onClick={handleSettingRowClick} className="max-md:hidden [@media(pointer:coarse)]:hidden settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
+              <div data-setting-action="settings_data_folder" data-setting-title={t('settings_data_folder')} data-setting-subtitle={t('settings_data_folder_sub')} onClick={handleSettingRowClick} className="max-md:hidden [@media(pointer:coarse)]:hidden settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                     <Database size={20} />
                   </div>
@@ -1287,7 +1268,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
               {/* Limpar cache */}
-              <div data-setting-action="settings_clear_cache" data-setting-title={t('settings_clear_cache')} data-setting-subtitle={t('settings_clear_cache_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-start gap-4">
+              <div data-setting-action="settings_clear_cache" data-setting-title={t('settings_clear_cache')} data-setting-subtitle={t('settings_clear_cache_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] flex flex-row items-center justify-between gap-4"><div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0 mt-0.5">
                     <Trash2 size={20} />
                   </div>
@@ -1302,7 +1283,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
               {/* Diagnóstico da reprodução (registro do caminho da posição, para enviar ao desenvolvedor) */}
-              <div data-setting-action="playback_diag" data-setting-title={t('settings_diag_title')} data-setting-subtitle={t('settings_diag_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
+              <div data-setting-action="playback_diag" data-setting-title={t('settings_diag_title')} data-setting-subtitle={t('settings_diag_sub')} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                     <Activity size={20} />
                   </div>
@@ -1316,7 +1297,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
               {/* Informações da Versão e Autoria */}
-              <div data-setting-action="version_label" data-setting-title={t('version_label', { ver: APP_VERSION })} data-setting-subtitle={t('developed_by', { name: 'Nauan' })} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10 cursor-pointer flex items-center justify-between gap-4"><div className="flex items-center gap-4">
+              <div data-setting-action="version_label" data-setting-title={t('version_label', { ver: APP_VERSION })} data-setting-subtitle={t('developed_by', { name: 'Nauan' })} onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)] cursor-pointer flex items-center justify-between gap-4"><div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
                     <Info size={20} />
                   </div>

@@ -76,7 +76,7 @@ export function _FavoriteChapterCard({
 
         {/* Estrela de favorito */}
         <div 
-          className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-yellow-400/40 flex items-center justify-center shadow-[0_0_12px_rgba(250,204,21,0.4)] text-yellow-400 cursor-pointer hover:scale-110 transition-transform"
+          className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-yellow-400 cursor-pointer hover:scale-[1.05] transition-transform"
           onClick={(e) => {
             e.stopPropagation();
             onToggleFavorite();
@@ -89,10 +89,10 @@ export function _FavoriteChapterCard({
         {/* Botão Reproduzir sobre o capítulo */}
         <div className="max-md:hidden absolute inset-0 bg-black/30 opacity-0 group-hover/favchap:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
           <motion.button 
-            whileHover={{ scale: 1.15 }}
+            whileHover={{ scale: 1.05 }}
             data-press="true"
             onClick={(e) => { e.stopPropagation(); onPlay(); }} 
-            className="w-13 h-13 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-2xl border border-white/30 hover:border-white/75 shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto hover:shadow-[0_0_25px_rgba(255,255,255,0.65)]"
+            className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--ios-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto "
             title={t('listen_chapter')}
           >
             <BsPlayFill size={28} className="translate-x-[2px] transition-colors" />
@@ -134,7 +134,7 @@ export function _FavoriteChapterCard({
 
           <motion.button 
             key="btn"
-            whileHover={{ scale: 1.15 }}
+            whileHover={{ scale: 1.05 }}
             data-press="true"
             animate={morphTriggerAnimate(showOptions)}
             onClick={(e) => { 
@@ -150,7 +150,7 @@ export function _FavoriteChapterCard({
                 setShowOptions(false);
               }
             }}
-            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] bg-card/75 hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
             title={t('more_options_chapter')}
           >
             <MoreHorizontal size={16} />
@@ -165,7 +165,7 @@ export function _FavoriteChapterCard({
                   transformOrigin: `${openUp ? 'bottom' : 'top'} ${alignLeft ? 'left' : 'right'}`
                 }}
                 onClick={(e) => e.stopPropagation()}
-                className={`absolute ${openUp ? 'bottom-0' : 'top-0'} ${alignLeft ? 'left-0' : 'right-0'} bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-50 p-2 flex flex-col text-left overflow-hidden w-56`}
+                className={`absolute ${openUp ? 'bottom-0' : 'top-0'} ${alignLeft ? 'left-0' : 'right-0'} bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-50 p-2 flex flex-col text-left overflow-hidden w-56`}
               >
                 <motion.div
                   initial={{ opacity: 0, scale: 0.94, filter: "blur(3px)" }}
@@ -275,10 +275,10 @@ export function PopupSelectableRow({
         e.stopPropagation();
         onClick();
       }}
-      className={`relative w-full flex items-center justify-between gap-2.5 px-2.5 py-1.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border text-left rtl:text-right group ${
+      className={`relative w-full flex items-center justify-between gap-2.5 px-2.5 py-1.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 text-left rtl:text-right group ${
         selected
-          ? 'bg-winblue/15 border-winblue shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] hover:bg-winblue/25 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)]'
-          : 'border-transparent hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+          ? 'bg-winblue/15 hover:bg-winblue/25 '
+          : ' hover:bg-[var(--ios-fill)] '
       }`}
     >
       <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -300,7 +300,7 @@ export function PopupSelectableRow({
 }
 
 // Telas cheias do celular (submenus): opções num único destaque, como nas opções dos ajustes
-export const SCREEN_GROUP_CLASS = "settings-option-list p-1.5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 space-y-0.5";
+export const SCREEN_GROUP_CLASS = "settings-option-list p-1.5 rounded-[32px] bg-card/60 backdrop-blur-xl space-y-0.5";
 
 export function ScreenSelectableRow({
   selected,
@@ -321,8 +321,8 @@ export function ScreenSelectableRow({
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); onClick(); }}
-      className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] border transition-colors select-none ${
-        selected ? 'bg-winblue/15 border-winblue/30' : 'border-transparent'
+      className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] transition-colors select-none ${
+        selected ? 'bg-winblue/15 ' : ''
       }`}
     >
       {leading}
@@ -357,7 +357,7 @@ export function PopupSearchField({
   const isMobileField = useIsMobile();
   return (
     <div className="flex items-center gap-2 px-1 pb-1">
-      <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] focus-within:bg-white/15 focus-within:border-winblue/40 focus-within:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.3)] text-[var(--text-main)] transition-all backdrop-blur-3xl">
+      <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] focus-within:bg-winblue/15 text-[var(--text-main)] transition-all backdrop-blur-3xl">
         <Icon size={13} className="text-[var(--text-muted)] group-focus-within/popsearch:text-winblue transition-colors shrink-0" />
         <input
           ref={inputRef}
@@ -385,14 +385,14 @@ export function PopupSearchField({
             animate={{ opacity: 1, scale: 1, width: isMobileField ? 44 : 36, marginLeft: 0 }}
             exit={{ opacity: 0, scale: 0.55, width: 0, marginLeft: -8 }}
             transition={SPRING.snappy}
-            whileHover={{ scale: 1.12 }}
+            whileHover={{ scale: 1.05 }}
             data-press="true"
             onClick={(e) => {
               e.stopPropagation();
               onChange('');
               inputRef.current?.focus();
             }}
-            className="h-9 max-md:h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-colors cursor-pointer overflow-hidden"
+            className="h-9 max-md:h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-colors cursor-pointer overflow-hidden"
             title={t('clear_search')}
           >
             <X size={13} className="shrink-0" />
@@ -662,7 +662,7 @@ export function CollectionPickerPopupContent({
               e.stopPropagation();
               onBack();
             }}
-            className="h-7 px-2.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/25 transition-all shrink-0 cursor-pointer text-xs font-semibold"
+            className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
             title={t('more_options')}
           >
             <ChevronLeft size={14} className="rtl:rotate-180" />
@@ -901,7 +901,7 @@ export function AuthorCard({
       >
         <div className={`relative w-full h-full rounded-3xl ring-2 transition-all ${
           isSelectionMode && isSelected 
-            ? 'ring-winblue shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]' 
+            ? 'ring-winblue ' 
             : 'ring-transparent group-hover/author:ring-winblue/40'
         }`}>
           <img 
@@ -920,7 +920,7 @@ export function AuthorCard({
         {isSelectionMode && (
           <div className="absolute inset-0 rounded-3xl flex items-center justify-center bg-black/25 pointer-events-none">
             <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all ${
-              isSelected ? 'bg-winblue border-winblue text-white shadow-lg' : 'border-white/70 bg-black/30 text-transparent'
+              isSelected ? 'bg-winblue text-white shadow-lg' : ' bg-black/30 text-transparent'
             }`}
             >
               <CheckCircle2 size={18} />
@@ -931,7 +931,7 @@ export function AuthorCard({
         {/* Estrela de Favorito sobre a foto */}
         {!isSelectionMode && isFavorite && (
           <div 
-            className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-yellow-400/40 flex items-center justify-center shadow-[0_0_12px_rgba(250,204,21,0.4)] text-yellow-400 cursor-pointer hover:scale-110 transition-transform"
+            className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-yellow-400 cursor-pointer hover:scale-[1.05] transition-transform"
             onClick={(e) => {
               e.stopPropagation();
               onToggleFavorite?.();
@@ -985,7 +985,7 @@ export function AuthorCard({
 
             <motion.button
               key="btn"
-              whileHover={{ scale: 1.15 }}
+              whileHover={{ scale: 1.05 }}
               data-press="true"
               animate={morphTriggerAnimate(showOptions)}
               onClick={(e) => {
@@ -1002,7 +1002,7 @@ export function AuthorCard({
                   handleClose();
                 }
               }}
-              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] bg-card/75 hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
               title={t('more_options_author')}
             >
               <MoreHorizontal size={16} />
@@ -1159,7 +1159,7 @@ export function OtherAppCard({
                           e.stopPropagation();
                           setShowDetails(false);
                         }}
-                        className="h-7 px-2.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/25 transition-all shrink-0 cursor-pointer text-xs font-semibold"
+                        className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
                         title={t('more_options')}
                       >
                         <ChevronLeft size={14} className="rtl:rotate-180" />
@@ -1236,13 +1236,13 @@ export function OtherAppCard({
         {/* Botão de Ir para o App na Web no centro ao passar o mouse (estilo Play dos audiobooks) */}
         <div className="absolute inset-0 rounded-[23%] bg-black/30 opacity-0 group-hover/appcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-20">
           <motion.button
-            whileHover={{ scale: 1.15 }}
+            whileHover={{ scale: 1.05 }}
             data-press="true"
             onClick={(e) => {
               e.stopPropagation();
               onOpenUrl(app.url);
             }}
-            className="w-13 h-13 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-2xl border border-white/30 hover:border-white/75 shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto hover:shadow-[0_0_25px_rgba(255,255,255,0.65)] cursor-pointer"
+            className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--ios-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto cursor-pointer"
             title={t('go_to_app')}
           >
             <ExternalLink size={24} className="transition-colors" />
@@ -1287,7 +1287,7 @@ export function OtherAppCard({
 
           <motion.button
             key="btn"
-            whileHover={{ scale: 1.15 }}
+            whileHover={{ scale: 1.05 }}
             data-press="true"
             animate={morphTriggerAnimate(showOptions)}
             onClick={(e) => {
@@ -1304,7 +1304,7 @@ export function OtherAppCard({
                 handleClose();
               }
             }}
-            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] bg-card/75 hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
             title={t('more_options')}
           >
             <MoreHorizontal size={16} />
@@ -1619,7 +1619,7 @@ export function BookCard({
                           handleClose();
                           onDelete?.();
                         }}
-                        className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <Trash2 size={13} />
                         <span>{t('delete')}</span>
@@ -1631,7 +1631,7 @@ export function BookCard({
                           e.stopPropagation();
                           setMenuMode('options');
                         }}
-                        className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <X size={13} />
                         <span>{t('cancel')}</span>
@@ -1687,17 +1687,17 @@ export function BookCard({
 
         {/* Destaque de favorito com a mesma altura do badge de status (ouvindo/concluído) */}
         {isFavorite && (
-          <div className="absolute top-2.5 right-2.5 z-10 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md border border-yellow-400/40 flex items-center justify-center shadow-[0_0_12px_rgba(250,204,21,0.4)] text-yellow-400 pointer-events-none">
+          <div className="absolute top-2.5 right-2.5 z-10 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-yellow-400 pointer-events-none">
             <Star size={12} className="fill-yellow-400 text-yellow-400" />
           </div>
         )}
         {isCompleted ? (
-          <div aria-label={t('completed')} className="absolute top-2.5 left-2.5 z-10 h-6 max-md:w-6 md:px-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold">
+          <div aria-label={t('completed')} className="absolute top-2.5 left-2.5 z-10 h-6 max-md:w-6 md:px-2.5 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold">
             <CheckCircle2 size={12} />
             <span className="max-md:hidden">{t('completed')}</span>
           </div>
         ) : isStarted ? (
-          <div aria-label={t('listening')} className="absolute top-2.5 left-2.5 z-10 h-6 max-md:w-6 md:px-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold">
+          <div aria-label={t('listening')} className="absolute top-2.5 left-2.5 z-10 h-6 max-md:w-6 md:px-2.5 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold">
             <Headphones size={12} />
             <span className="max-md:hidden">{t('listening')}</span>
           </div>
@@ -1715,10 +1715,10 @@ export function BookCard({
         {!isSelectionMode && (
           <div className="max-md:hidden absolute inset-0 bg-black/30 opacity-0 group-hover/bookcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
             <motion.button 
-              whileHover={{ scale: 1.15 }}
+              whileHover={{ scale: 1.05 }}
               data-press="true"
               onClick={(e) => { e.stopPropagation(); onPlay(); }} 
-              className="w-13 h-13 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-2xl border border-white/30 hover:border-white/75 shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto hover:shadow-[0_0_25px_rgba(255,255,255,0.65)]"
+              className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--ios-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto "
               title={isBookPlaying ? t('pause') : t('listen')}
             >
               {isBookPlaying ? (
@@ -1780,7 +1780,7 @@ export function BookCard({
 
           <motion.button 
             key="btn"
-            whileHover={{ scale: 1.15 }}
+            whileHover={{ scale: 1.05 }}
             data-press="true"
             animate={morphTriggerAnimate(showOptions)}
             onClick={(e) => { 
@@ -1797,7 +1797,7 @@ export function BookCard({
                 handleClose();
               }
             }}
-            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] bg-card/75 hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
             title={t('more_options')}
           >
             <MoreHorizontal size={16} />
@@ -1872,7 +1872,7 @@ export function BookCard({
                           setMobileDeleteOpen(false);
                           onDelete?.();
                         }}
-                        className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <Trash2 size={13} />
                         <span>{t('delete')}</span>
@@ -1884,7 +1884,7 @@ export function BookCard({
                           e.stopPropagation();
                           setMobileDeleteOpen(false);
                         }}
-                        className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <X size={13} />
                         <span>{t('cancel')}</span>
@@ -1955,12 +1955,12 @@ export function CollectionCard({
       <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
         <div ref={gradientRef} className={`absolute inset-0 bg-gradient-to-br ${col.gradient} ${selectionMode && selected ? 'opacity-70' : ''}`} />
         <div className="absolute inset-0 bg-black/20" />
-        <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
+        <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
           {col.emoji}
         </span>
       </div>
       <div className="relative z-10">
-        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105 truncate">{col.name}</h3>
+        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02] truncate">{col.name}</h3>
         {col.description && (
           <p className="text-xs font-medium text-white/80 mt-0.5 line-clamp-1 truncate">{col.description}</p>
         )}
@@ -1978,7 +1978,6 @@ export function CollectionCard({
         animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
         exit={{ opacity: 0, scale: 0.92, filter: 'blur(4px)' }}
         transition={FADE_IN}
-        whileTap={{ scale: 0.97 }}
         onClick={handleOpen}
         data-zoom-key={`collection-${col.id}`}
         // Toque longo (Android e navegadores que disparam o menu de contexto ao segurar)
@@ -1990,10 +1989,10 @@ export function CollectionCard({
           window.dispatchEvent(new Event('close-all-popups'));
           setDesktopMenu(true);
         }}
-        className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${desktopMenu ? 'z-50' : ''} ${
+        className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${desktopMenu ? 'z-50' : ''} ${
           selectionMode && selected
-            ? 'border-transparent shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
-            : 'border-white/15 hover:border-white/30'
+            ? ' '
+            : ' '
         }`}
       >
         {face}
@@ -2005,7 +2004,7 @@ export function CollectionCard({
           >
             {desktopMenu && <div className="fixed inset-0 z-40 cursor-default" {...getBackdropProps(close)} />}
             <motion.button
-              whileHover={{ scale: 1.15 }}
+              whileHover={{ scale: 1.05 }}
               data-press="true"
               animate={morphTriggerAnimate(desktopMenu)}
               onClick={(e) => {
@@ -2014,7 +2013,7 @@ export function CollectionCard({
                 window.dispatchEvent(new Event('close-all-popups'));
                 setDesktopMenu(next);
               }}
-              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl border border-white/25 text-white bg-black/25 hover:bg-black/40 transition-all cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-white bg-black/25 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
               aria-label="..."
             >
               <MoreHorizontal size={16} />
@@ -2047,7 +2046,7 @@ export function CollectionCard({
         {selectionMode && (
           <div className="absolute top-4 right-4 z-20">
             <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-              selected ? 'bg-winblue border-winblue text-white shadow-lg' : 'border-white/70 bg-black/30 text-transparent'
+              selected ? 'bg-winblue text-white shadow-lg' : ' bg-black/30 text-transparent'
             }`}>
               <CheckCircle2 size={16} />
             </div>
@@ -2060,7 +2059,7 @@ export function CollectionCard({
         rect={contextRect}
         sourceEl={contextElRef.current}
         preview={
-          <div className="relative isolate aspect-[16/9] w-full rounded-3xl shadow-2xl border border-white/15 p-5 flex flex-col justify-end overflow-hidden">
+          <div className="relative isolate aspect-[16/9] w-full rounded-3xl shadow-2xl p-5 flex flex-col justify-end overflow-hidden">
             {face}
           </div>
         }

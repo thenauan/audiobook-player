@@ -24,9 +24,9 @@ export interface MobileHeaderAction {
   panelWidth?: number;
 }
 
-const circleBtn = "w-11 h-11 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl text-[var(--text-main)] backdrop-blur-3xl transition-all";
+const circleBtn = "w-11 h-11 flex items-center justify-center rounded-full bg-card/75 shadow-xl text-[var(--text-main)] backdrop-blur-3xl transition-all";
 // Com dois botões, eles viram uma pílula só (como nos apps do iOS)
-const pillShell = "flex items-center h-11 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl backdrop-blur-3xl";
+const pillShell = "flex items-center h-11 rounded-full bg-card/75 shadow-xl backdrop-blur-3xl";
 const pillBtn = "w-11 h-11 flex items-center justify-center rounded-full text-[var(--text-main)] transition-colors";
 
 function ConfirmView({ action, onCancel }: { action: MobileHeaderAction; onCancel: () => void }) {
@@ -40,7 +40,7 @@ function ConfirmView({ action, onCancel }: { action: MobileHeaderAction; onCance
         <motion.button
           data-press="true"
           onClick={(e) => { e.stopPropagation(); c.onConfirm(); onCancel(); }}
-          className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md text-red-500 font-semibold text-xs flex items-center gap-1.5"
+          className="h-8 px-4 rounded-full bg-card/75 shadow-md text-red-500 font-semibold text-xs flex items-center gap-1.5"
         >
           {c.icon || <Trash2 size={13} />}
           <span>{c.confirmLabel}</span>
@@ -48,7 +48,7 @@ function ConfirmView({ action, onCancel }: { action: MobileHeaderAction; onCance
         <motion.button
           data-press="true"
           onClick={(e) => { e.stopPropagation(); onCancel(); }}
-          className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] font-semibold text-xs flex items-center gap-1.5"
+          className="h-8 px-4 rounded-full bg-card/75 shadow-sm text-[var(--text-main)] font-semibold text-xs flex items-center gap-1.5"
         >
           <X size={13} />
           <span>{t('cancel')}</span>
@@ -97,7 +97,7 @@ function QuickActionButton({ action, inPill = false }: { action: MobileHeaderAct
             action.onClick?.(btnRef.current);
           }
         }}
-        className={`${inPill ? pillBtn : circleBtn} ${action.active ? 'text-winblue border-winblue/40 bg-winblue/15' : ''} ${action.danger ? 'text-red-500 border-red-500/20' : ''}`}
+        className={`${inPill ? pillBtn : circleBtn} ${action.active ? 'text-winblue bg-winblue/15' : ''} ${action.danger ? 'text-red-500 ' : ''}`}
       >
         {action.icon}
       </motion.button>
@@ -112,7 +112,7 @@ function QuickActionButton({ action, inPill = false }: { action: MobileHeaderAct
               data-popup-content="true"
               onClick={(e) => e.stopPropagation()}
               style={{ transformOrigin: 'top right', width: action.panelWidth || 300 }}
-              className="absolute top-0 right-0 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-50 flex flex-col overflow-hidden"
+              className="absolute top-0 right-0 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-50 flex flex-col overflow-hidden"
             >
               {action.panel}
             </MorphPopup>

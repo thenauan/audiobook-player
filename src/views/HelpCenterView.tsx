@@ -140,10 +140,9 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
             {helpThemes.map((theme) => (
               <motion.div
                 key={theme.id}
-                whileTap={{ scale: 0.985 }}
                 onClick={() => navigateTo('help-theme', { id: theme.id, title: theme.title })}
                 data-tap-card="true"
-                className="relative isolate flex items-center justify-between p-5 sm:p-6 rounded-[28px] cursor-pointer shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] group"
+                className="relative isolate flex items-center justify-between p-5 sm:p-6 rounded-[28px] cursor-pointer shadow-lg transition-[border-color,box-shadow] group"
               >
                 {/* Camada interna recortada com fundo e ícone com zoom */}
                 <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
@@ -151,13 +150,13 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                   <div className="absolute inset-0 bg-black/15" />
 
                   {/* Ícone grande cortado no limite do card à direita (marca d'água) */}
-                  <div className="absolute -bottom-6 -right-3 select-none pointer-events-none opacity-20 group-hover:scale-110 transition-transform duration-500 transform text-white">
+                  <div className="absolute -bottom-6 -right-3 select-none pointer-events-none opacity-20 group-hover:scale-[1.02] transition-transform duration-500 transform text-white">
                     {renderHelpIcon(theme.id || theme.emoji, 110, "stroke-[1.3]")}
                   </div>
                 </div>
 
                 {/* Conteúdo: textos */}
-                <div className="relative z-10 flex flex-col text-left origin-left rtl:origin-right transition-transform duration-500 group-hover:scale-105">
+                <div className="relative z-10 flex flex-col text-left origin-left rtl:origin-right transition-transform duration-500 group-hover:scale-[1.02]">
                   <span className="text-lg sm:text-xl font-bold text-white drop-shadow-sm tracking-tight">{theme.title}</span>
                   <span className="text-xs sm:text-sm text-white/85 font-medium mt-0.5">{theme.subtitle}</span>
                 </div>
@@ -198,10 +197,9 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                 return (
                   <motion.div
                     key={sub.id}
-                    whileTap={{ scale: 0.985 }}
                     onClick={() => navigateTo('help-article', { themeId: currentTheme.id, subthemeId: sub.id, theme: currentTheme, subtheme: sub })}
                     data-tap-card="true"
-                className="relative isolate flex items-center justify-between p-5 sm:p-6 rounded-[28px] cursor-pointer shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] group"
+                className="relative isolate flex items-center justify-between p-5 sm:p-6 rounded-[28px] cursor-pointer shadow-lg transition-[border-color,box-shadow] group"
                   >
                     {/* Camada interna recortada com fundo e ícone com zoom */}
                     <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
@@ -209,13 +207,13 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                       <div className="absolute inset-0 bg-black/15" />
 
                       {/* Ícone grande cortado no limite do card à direita (marca d'água) */}
-                      <div className="absolute -bottom-6 -right-3 select-none pointer-events-none opacity-20 group-hover:scale-110 transition-transform duration-500 transform text-white">
+                      <div className="absolute -bottom-6 -right-3 select-none pointer-events-none opacity-20 group-hover:scale-[1.02] transition-transform duration-500 transform text-white">
                         {renderHelpIcon(sub.id || sub.emoji, 110, "stroke-[1.3]")}
                       </div>
                     </div>
 
                     {/* Conteúdo: textos */}
-                    <div className="relative z-10 flex flex-col text-left origin-left rtl:origin-right transition-transform duration-500 group-hover:scale-105">
+                    <div className="relative z-10 flex flex-col text-left origin-left rtl:origin-right transition-transform duration-500 group-hover:scale-[1.02]">
                       <span className="text-lg sm:text-xl font-bold text-white drop-shadow-sm tracking-tight">{sub.title}</span>
                       <span className="text-xs sm:text-sm text-white/85 font-medium mt-0.5">{sub.subtitle}</span>
                     </div>
@@ -266,7 +264,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                         key={idx} 
                         className="flex items-start gap-4 py-1.5"
                       >
-                        <div className="w-8 h-8 rounded-full bg-winblue/15 border border-winblue/30 text-winblue font-extrabold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <div className="w-8 h-8 rounded-full bg-winblue/15 text-winblue font-extrabold text-sm flex items-center justify-center shrink-0 shadow-sm mt-0.5">
                           {step.number}
                         </div>
                         <div className="flex flex-col">
@@ -322,7 +320,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
                           {sc.keys.map((k, kIdx) => (
                             <React.Fragment key={kIdx}>
                               {kIdx > 0 && <span className="text-xs text-[var(--text-muted)] font-semibold">+</span>}
-                              <kbd className="min-w-[28px] px-2 py-0.5 text-xs font-bold bg-white/80 dark:bg-neutral-800/80 border border-black/10 dark:border-white/10 rounded-md shadow-sm text-[var(--text-main)] text-center">
+                              <kbd className="min-w-[28px] px-2 py-0.5 text-xs font-bold bg-white/80 dark:bg-neutral-800/80 rounded-md shadow-sm text-[var(--text-main)] text-center">
                                 {k}
                               </kbd>
                             </React.Fragment>
@@ -336,8 +334,8 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
 
               {/* Dica de Ouro */}
               {article.tip && (
-                <div className="p-5 rounded-[22px] bg-amber-500/10 border border-amber-500/20 backdrop-blur-3xl shadow-sm flex items-start gap-4 my-2">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm">
+                <div className="p-5 rounded-[22px] bg-amber-500/10 backdrop-blur-3xl shadow-sm flex items-start gap-4 my-2">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm">
                     <Lightbulb size={22} />
                   </div>
                   <div className="flex flex-col">
@@ -377,7 +375,7 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
             </h1>
           </div>
 
-          <div className="p-5 rounded-[26px] bg-card/75 border border-[var(--text-main)]/10 backdrop-blur-3xl shadow-sm space-y-1">
+          <div className="p-5 rounded-[26px] bg-card/75 backdrop-blur-3xl shadow-sm space-y-1">
             {[
               { action: t('shortcut_play_pause'), keys: [t('key_space')] },
               { action: t('shortcut_seek_back_15'), keys: ['←'] },
@@ -390,13 +388,13 @@ export const HelpCenterView: React.FC<HelpCenterViewProps> = ({
               { action: t('shortcut_fullscreen'), keys: ['F11'] },
               { action: t('shortcut_close_modals'), keys: ['Esc'] },
             ].map((item, idx) => (
-              <div key={idx} className="py-3.5 sm:py-4 flex items-center justify-between border-b border-[var(--text-main)]/5 last:border-b-0">
+              <div key={idx} className="py-3.5 sm:py-4 flex items-center justify-between ">
                 <span className="font-semibold text-sm sm:text-base text-[var(--text-main)]">{item.action}</span>
                 <div className="flex items-center gap-1.5">
                   {item.keys.map((k, kIdx) => (
                     <React.Fragment key={kIdx}>
                       {kIdx > 0 && <span className="text-xs text-[var(--text-muted)] font-semibold">+</span>}
-                      <kbd className="min-w-[32px] px-2.5 py-1 text-xs font-bold bg-white/70 dark:bg-neutral-800/80 border border-black/10 dark:border-white/10 rounded-lg shadow-sm text-[var(--text-main)] text-center">
+                      <kbd className="min-w-[32px] px-2.5 py-1 text-xs font-bold bg-white/70 dark:bg-neutral-800/80 rounded-lg shadow-sm text-[var(--text-main)] text-center">
                         {k}
                       </kbd>
                     </React.Fragment>

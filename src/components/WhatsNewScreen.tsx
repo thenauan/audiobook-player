@@ -178,7 +178,7 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
               </span>
             </motion.div>
             <h2 className="text-xl sm:text-2xl font-semibold text-white/95 tracking-tight mt-1">{t('whats_new_title', { ver: APP_VERSION })}</h2>
-            <ul className="w-full max-w-md mt-7 p-2 rounded-[26px] bg-white/[0.07] backdrop-blur-3xl border border-white/15 shadow-xl text-left rtl:text-right">
+            <ul className="w-full max-w-md mt-7 p-2 rounded-[26px] bg-white/[0.07] backdrop-blur-3xl shadow-xl text-left rtl:text-right">
               {notes.map(note => (
                 <li key={note} className="flex items-start gap-3 px-3 py-2.5 text-sm sm:text-[15px] leading-snug text-white/90">
                   <span className="mt-0.5 w-5 h-5 rounded-full bg-winblue/25 text-winblue flex items-center justify-center shrink-0"><Check size={12} /></span>
@@ -187,10 +187,9 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
               ))}
             </ul>
             <motion.button
-              whileHover={{ scale: 1.04 }}
               data-press="true"
               onClick={close}
-              className="mt-8 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 border border-winblue text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all shadow-[0_0_20px_rgba(var(--winblue-rgb),0.25)] hover:shadow-[0_0_28px_rgba(var(--winblue-rgb),0.4)] backdrop-blur-3xl cursor-pointer"
+              className="mt-8 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
             >
               <span>{t('whats_new_go')}</span>
               <ArrowRight size={18} className="shrink-0 rtl:rotate-180" />

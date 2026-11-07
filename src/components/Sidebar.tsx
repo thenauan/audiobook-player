@@ -26,10 +26,10 @@ export function SidebarItem({ icon, label, active, onClick }: SidebarItemProps) 
       onClick={onClick} 
       aria-current={active ? 'page' : undefined}
       className={cn(
-        "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-150 select-none border",
+        "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-150 select-none ",
         active 
-          ? "bg-[var(--ios-fill)] text-winblue border-transparent"
-          : "border-transparent text-[var(--text-main)] hover:bg-[var(--ios-fill)]"
+          ? "bg-[var(--ios-fill)] text-winblue "
+          : " text-[var(--text-main)] hover:bg-[var(--ios-fill)]"
       )}
     >
       <span className="shrink-0 flex items-center justify-center text-inherit">{icon}</span>
@@ -57,7 +57,7 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <aside 
-      className="sidebar-safe fixed left-4 rtl:left-auto rtl:right-4 top-4 bottom-4 w-64 bg-card/75 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-3xl p-5 pt-6 pb-6 flex flex-col justify-between hidden md:flex z-30 shadow-2xl overflow-hidden overscroll-none select-none"
+      className="sidebar-safe fixed left-4 rtl:left-auto rtl:right-4 top-4 bottom-4 w-64 bg-card/75 backdrop-blur-3xl rounded-3xl p-5 pt-6 pb-6 flex flex-col justify-between hidden md:flex z-30 shadow-2xl overflow-hidden overscroll-none select-none"
       style={sidebarHighlight ? ({
         '--winblue': sidebarHighlight.hex,
         '--winblue-rgb': sidebarHighlight.rgb,
@@ -276,7 +276,7 @@ const MobileBottomBarView = React.memo(function MobileBottomBarView({
     navigateTo(id);
     if (id === 'search' && onFocusSearch) setTimeout(onFocusSearch, 60);
   };
-  const glass = "bg-card/80 backdrop-blur-xl border border-[var(--button-secondary-bg)]";
+  const glass = "bg-card/80 backdrop-blur-xl ";
   const { size, compact } = MOBILE_BAR;
 
   // Ao reabrir a partir dos botões redondos, a pesquisa fica parada no lugar do botão até a barra

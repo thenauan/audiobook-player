@@ -161,7 +161,7 @@ const MobilePlayerSheet = React.forwardRef<HTMLDivElement, { source: HTMLElement
         ref={setRefs}
         data-player-sheet="true"
         onClick={onClick}
-        className={`fixed z-[9999] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] shadow-2xl text-[var(--text-main)] overflow-hidden ${keep}`}
+        className={`fixed z-[9999] bg-card/95 backdrop-blur-3xl shadow-2xl text-[var(--text-main)] overflow-hidden ${keep}`}
         style={{
           left: 'var(--mobile-bar-inset)',
           right: 'var(--mobile-bar-inset)',

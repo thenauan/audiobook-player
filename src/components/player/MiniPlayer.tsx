@@ -124,7 +124,7 @@ export default function MiniPlayer({
         layoutId="player-shell"
         aria-hidden="true"
         transition={{ layout: SPRING.zoom }}
-        className="absolute inset-0 -z-10 pointer-events-none backdrop-blur-3xl border shadow-2xl"
+        className="absolute inset-0 -z-10 pointer-events-none backdrop-blur-3xl shadow-2xl"
         style={{ ...miniplayerAmbientStyle, borderRadius: 28 }}
       />
 
@@ -133,7 +133,7 @@ export default function MiniPlayer({
         <motion.button
                     layoutId="player-prev"
                     transition={{ layout: SPRING.zoom }} 
-          whileHover={{ scale: 1.12 }} 
+          whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => {
             if (handlePrevChapter) {
@@ -144,7 +144,7 @@ export default function MiniPlayer({
               handleSeek(currentChapter.startTime);
             }
           }}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm hidden md:flex shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm hidden md:flex shrink-0"
           title={t('previous_chapter')}
         >
           <SkipBack size={13} />
@@ -153,10 +153,10 @@ export default function MiniPlayer({
         <motion.button
                     layoutId="player-seek-back"
                     transition={{ layout: SPRING.zoom }} 
-          whileHover={{ scale: 1.12 }} 
+          whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0"
           title={t('seek_backward', { sec: seekBackwardTime })}
         >
           <BsArrowCounterclockwise data-spin="-1" size={17} />
@@ -166,10 +166,10 @@ export default function MiniPlayer({
         <motion.button
                     layoutId="player-play"
                     transition={{ layout: SPRING.zoom }} 
-          whileHover={{ scale: 1.12 }} 
+          whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => setIsPlaying(!isPlaying)}
-          className="w-[38px] h-[38px] rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/20 hover:border-black/20 dark:hover:border-white/40 hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all shadow-sm shrink-0"
+          className="w-[38px] h-[38px] rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0"
           title={isPlaying ? t('pause') : t('listen')}
         >
           {isPlaying ? <BsPauseFill size={22} /> : <BsPlayFill size={22} className="translate-x-[1px]" />}
@@ -178,10 +178,10 @@ export default function MiniPlayer({
         <motion.button
                     layoutId="player-seek-fwd"
                     transition={{ layout: SPRING.zoom }} 
-          whileHover={{ scale: 1.12 }} 
+          whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0"
           title={t('seek_forward', { sec: seekForwardTime })}
         >
           <BsArrowClockwise data-spin="1" size={17} />
@@ -191,7 +191,7 @@ export default function MiniPlayer({
         <motion.button
                     layoutId="player-next"
                     transition={{ layout: SPRING.zoom }} 
-          whileHover={{ scale: 1.12 }} 
+          whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => {
             if (handleNextChapter) {
@@ -207,7 +207,7 @@ export default function MiniPlayer({
               handleSeek(currentBook.chapters[currentChapterIndex + 1].startTime);
             }
           }}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm hidden md:flex shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm hidden md:flex shrink-0"
           title={t('next_chapter')}
         >
           <SkipForward size={13} />
@@ -440,7 +440,7 @@ export function MobileMiniPlayer({
         layoutId="player-shell"
         aria-hidden="true"
         transition={MORPH_LAYOUT}
-        className="absolute inset-0 -z-10 pointer-events-none border"
+        className="absolute inset-0 -z-10 pointer-events-none "
         style={{ ...miniplayerAmbientStyle, boxShadow: MOBILE_GLASS_SHADOW, borderRadius: docked ? 28 : height / 2 }}
       />
       <div
@@ -505,7 +505,7 @@ export function MobileMiniPlayer({
             if (split && barCollapsed && !docked) tabBarStore.set(false);
           }}
           aria-label={isPlaying ? t('pause') : t('listen')}
-          className="mobile-press w-10 h-10 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] shrink-0"
+          className="mobile-press w-10 h-10 rounded-full flex items-center justify-center bg-card/75 text-[var(--text-main)] shrink-0"
         >
           {isPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} className="translate-x-[1px]" />}
         </motion.button>

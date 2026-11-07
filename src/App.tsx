@@ -3548,7 +3548,7 @@ export default function App() {
         backdropFilter: 'blur(28px) saturate(170%)',
         WebkitBackdropFilter: 'blur(28px) saturate(170%)',
         boxShadow: `0 20px 40px -12px rgba(0, 0, 0, 0.7), 0 0 28px -4px ${darkBorder}33`,
-        transition: 'background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease',
+        transition: 'background 0.45s ease, 0.45s ease, box-shadow 0.45s ease',
       } as React.CSSProperties;
     } else {
       // No modo claro: tom visível e elegante da cor da capa, mantendo harmonia e ótima legibilidade
@@ -3563,7 +3563,7 @@ export default function App() {
         backdropFilter: 'blur(28px) saturate(170%)',
         WebkitBackdropFilter: 'blur(28px) saturate(170%)',
         boxShadow: `0 20px 35px -10px rgba(0, 0, 0, 0.12), 0 0 28px -4px ${lightBorder}55`,
-        transition: 'background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease',
+        transition: 'background 0.45s ease, 0.45s ease, box-shadow 0.45s ease',
       } as React.CSSProperties;
     }
   }, [currentCoverHex, resolvedTheme]);
@@ -3802,13 +3802,12 @@ export default function App() {
                                                         </p>
                                                       </div>
                                                       {IS_INSTALLED_APP && (<motion.button
-                                                        whileHover={{ scale: 1.05 }}
                                                         data-press="true"
                                                         onClick={(e) => {
                                                           e.stopPropagation();
                                                           handleOpenBookInFolder(activeBk);
                                                         }}
-                                                        className="shrink-0 h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer"
+                                                        className="shrink-0 h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer"
                                                         title={t('view_in_folder')}
                                                       >
                                                         <FolderOpen size={13} />
@@ -3910,7 +3909,7 @@ export default function App() {
     };
     const prevLabel = pageIdx === 0 ? t('onb_welcome') : pages[pageIdx - 1].title;
     const nextLabel = isLast ? t('onb_finish') : pages[pageIdx + 1].title;
-    const navBtn = "h-12 rounded-full flex items-center gap-1.5 backdrop-blur-3xl border shadow-lg text-[14px] md:text-[15px] font-semibold min-w-0 max-md:flex-1 max-md:max-w-[42%] max-md:justify-center";
+    const navBtn = "h-12 rounded-full flex items-center gap-1.5 backdrop-blur-3xl shadow-lg text-[14px] md:text-[15px] font-semibold min-w-0 max-md:flex-1 max-md:max-w-[42%] max-md:justify-center";
     return (
       <motion.div
         key="onboarding-settings"
@@ -3961,21 +3960,19 @@ export default function App() {
                   <section key={setting.id}>
                     <h2 className="text-[15px] md:text-base font-bold text-white">{setting.title}</h2>
                     <p className="text-[13px] md:text-sm text-white/65 mt-0.5 mb-3">{setting.subtitle}</p>
-                    <div className="settings-option-list p-1.5 rounded-[32px] bg-white/[0.07] backdrop-blur-xl border border-white/15 space-y-0.5">
+                    <div className="settings-option-list p-1.5 rounded-[32px] bg-white/[0.07] backdrop-blur-xl space-y-0.5">
                       {setting.options.map((option, idx) => {
                         const selected = setting.value === option.value;
                         return (
                           <motion.button
                             key={idx}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
                             transition={SPRING.snappy}
                             onClick={() => setting.onSelect(option.value)}
-                            className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] border transition-[background-color,border-color,box-shadow] duration-150 ${selected ? 'bg-winblue/20 border-winblue/40 hover:shadow-[0_0_16px_rgba(var(--winblue-rgb),0.35)]' : 'border-transparent hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_14px_rgba(255,255,255,0.15)]'}`}
+                            className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] transition-[background-color,border-color,box-shadow] duration-150 ${selected ? 'bg-winblue/20 ' : ' hover:bg-[var(--ios-fill)] '}`}
                           >
                             <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${selected ? 'bg-winblue/25 text-winblue' : 'bg-white/10 text-white/85'}`}>
                               {option.colorPreview
-                                ? <span className="w-5 h-5 rounded-full border border-white/25" style={{ backgroundColor: option.colorPreview }} />
+                                ? <span className="w-5 h-5 rounded-full " style={{ backgroundColor: option.colorPreview }} />
                                 : option.icon}
                             </span>
                             <span className="flex-1 min-w-0 flex flex-col">
@@ -4021,10 +4018,9 @@ export default function App() {
           />
           <div className="max-w-xl md:max-w-5xl mx-auto md:px-10 flex items-center justify-between gap-3">
             <motion.button
-              whileHover={{ scale: 1.05 }}
               data-press="true"
               onClick={goPrev}
-              className={`${navBtn} pl-2.5 pr-4 md:pl-3 md:pr-5 bg-white/10 border-white/20 text-white transition-[background-color,border-color,box-shadow] hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_20px_rgba(255,255,255,0.22)]`}
+              className={`${navBtn} pl-2.5 pr-4 md:pl-3 md:pr-5 bg-white/10 text-white transition-[background-color,border-color,box-shadow] hover:bg-[var(--ios-fill)] `}
             >
               <ChevronLeft size={22} className="shrink-0 rtl:rotate-180" />
               <span className="truncate">{prevLabel}</span>
@@ -4035,10 +4031,9 @@ export default function App() {
               ))}
             </div>
             <motion.button
-              whileHover={{ scale: 1.05 }}
               data-press="true"
               onClick={goNext}
-              className={`${navBtn} pl-4 pr-2.5 md:pl-5 md:pr-3 bg-winblue/30 border-winblue text-winblue transition-[background-color,box-shadow] hover:bg-winblue/40 hover:shadow-[0_0_24px_rgba(var(--winblue-rgb),0.45)]`}
+              className={`${navBtn} pl-4 pr-2.5 md:pl-5 md:pr-3 bg-winblue/30 text-winblue transition-[background-color,box-shadow] hover:bg-winblue/40 `}
             >
               <span className="truncate">{nextLabel}</span>
               {isLast ? <Check size={20} className="shrink-0" /> : <ChevronRight size={22} className="shrink-0 rtl:rotate-180" />}
@@ -4179,7 +4174,7 @@ export default function App() {
               <ScreenSelectableRow
                 selected={false}
                 onClick={() => { setMobileSheet(null); handleStartCreateCollection({ type: itemType, id: itemId }); }}
-                leading={<span className="w-10 h-10 rounded-full bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] flex items-center justify-center shrink-0"><FolderPlus size={17} /></span>}
+                leading={<span className="w-10 h-10 rounded-full bg-card/75 text-[var(--text-main)] flex items-center justify-center shrink-0"><FolderPlus size={17} /></span>}
                 title={t('create_collection')}
                 unselectedTrailing={<ChevronRight size={16} className="rtl:rotate-180" />}
               />
@@ -4294,7 +4289,7 @@ export default function App() {
                       key={mark.id}
                       type="button"
                       onClick={() => openMobileSheet({ kind: 'bookmarks', bookId: bk.id, chapterId: chapter.id })}
-                      className="w-full flex items-start gap-3 px-3 py-2.5 text-left rtl:text-right rounded-[24px] border border-transparent transition-colors hover:bg-white/10"
+                      className="w-full flex items-start gap-3 px-3 py-2.5 text-left rtl:text-right rounded-[24px] transition-colors hover:bg-[var(--ios-fill)]"
                     >
                       <span className="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-winblue/15 text-winblue">
                         <Bookmark size={13} />
@@ -4345,7 +4340,7 @@ export default function App() {
                     key={idx}
                     type="button"
                     onClick={() => toggle(idx)}
-                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] border transition-colors select-none ${selected ? 'bg-winblue/15 border-winblue/30' : 'border-transparent hover:bg-white/10'}`}
+                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] transition-colors select-none ${selected ? 'bg-winblue/15 ' : ' hover:bg-[var(--ios-fill)]'}`}
                   >
                     <span className="flex-1 min-w-0 flex flex-col">
                       <span className={`text-[15px] leading-snug ${selected ? 'text-winblue font-semibold' : 'text-[var(--text-main)]'}`}>{transcriptLineText(line)}</span>
@@ -4366,7 +4361,7 @@ export default function App() {
               data-press="true"
               disabled={lyricsSelection.length === 0 || isGeneratingShare}
               onClick={() => openShareImage('quote', bk, lyricsSelection.map(i => transcriptLineText(transcript[i])))}
-              className="h-12 px-7 rounded-full bg-winblue/20 border border-winblue/45 text-winblue shadow-sm text-[15px] font-bold flex items-center justify-center gap-2 disabled:opacity-40"
+              className="h-12 px-7 rounded-full bg-winblue/20 text-winblue shadow-sm text-[15px] font-bold flex items-center justify-center gap-2 disabled:opacity-40"
             >
               {isGeneratingShare ? <div className="w-4 h-4 rounded-full border-2 border-winblue border-t-transparent animate-spin" /> : <Share size={17} />}
               <span>{t('share_excerpt')}{lyricsSelection.length > 0 ? ` (${lyricsSelection.length})` : ''}</span>
@@ -4401,16 +4396,16 @@ export default function App() {
                   <button
                     key={opt.id}
                     onClick={() => { handleSelectSort(opt.id as SortOption); onPicked?.(); }}
-                    className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group ${
+                    className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group ${
                       isSelected
-                        ? 'hover:bg-winblue/25 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)]'
-                        : 'hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+                        ? 'hover:bg-winblue/25 '
+                        : 'hover:bg-[var(--ios-fill)] '
                     }`}
                   >
                     {isSelected && (
                       <motion.div
                         layoutId="sort-active-pill"
-                        className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
+                        className="absolute inset-0 bg-winblue/15 rounded-2xl pointer-events-none z-0"
                         transition={SPRING.snappy}
                       />
                     )}
@@ -5246,7 +5241,6 @@ export default function App() {
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.6, transition: FADE_OUT }}
-          whileHover={{ scale: 1.08 }}
           data-press="true"
           transition={SPRING.snappy}
           onClick={(e) => {
@@ -5259,7 +5253,7 @@ export default function App() {
           className="absolute top-1/2 z-20 flex items-center cursor-pointer pointer-events-auto select-none"
           title={returnTooltip}
         >
-          <div className="bg-white text-slate-900 h-4 px-1.5 rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.35),0_0_6px_rgba(255,255,255,0.7)] border border-black/10 dark:border-white/30 flex items-center gap-0.5 font-bold font-mono text-[8px] leading-none whitespace-nowrap hover:bg-slate-50 transition-colors max-w-[112px] sm:max-w-[160px]">
+          <div className="bg-white text-slate-900 h-4 px-1.5 rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.35),0_0_6px_rgba(255,255,255,0.7)] flex items-center gap-0.5 font-bold font-mono text-[8px] leading-none whitespace-nowrap hover:bg-slate-50 transition-colors max-w-[112px] sm:max-w-[160px]">
             {isReturnAnterior ? (
               <>
                 <ChevronLeft size={10} className="stroke-[2.5] text-slate-900 shrink-0 rtl:rotate-180 -ml-0.5" />
@@ -7931,13 +7925,12 @@ export default function App() {
         {!asScreen && <div className="px-3.5 pt-3 pb-1 flex items-center gap-2.5 shrink-0">
           {showBackToOptions && !isMobile && (
             <motion.button
-              whileHover={{ scale: 1.05 }}
               data-press="true"
               onClick={(e) => {
                 e.stopPropagation();
                 setActiveChapterMenuMode('options');
               }}
-              className="h-7 px-2.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/25 transition-all shrink-0 cursor-pointer text-xs font-semibold"
+              className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
               title={t('more_options')}
             >
               <ChevronLeft size={14} className="rtl:rotate-180" />
@@ -7962,10 +7955,8 @@ export default function App() {
             {!isAddingComment ? (
               <div className="flex flex-col py-1.5 px-1">
                 <motion.button 
-                  whileHover={{ scale: 1.015 }}
-                  whileTap={{ scale: 0.98 }}
                   onClick={(e) => { e.stopPropagation(); setIsAddingComment(true); setAddingCommentText(''); }}
-                  className="w-full h-11 border border-dashed border-[var(--text-main)]/20 rounded-2xl flex items-center justify-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-white hover:border-white/35 hover:bg-white/10 hover:shadow-[0_0_14px_rgba(255,255,255,0.22)] transition-[background-color,border-color,color,box-shadow]"
+                  className="w-full h-11 border border-dashed border-[var(--text-main)]/20 rounded-2xl flex items-center justify-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-white hover:border-white/35 hover:bg-[var(--ios-fill)] transition-[background-color,border-color,color,box-shadow]"
                 >
                   <Bookmark size={15} />
                   <span>{t('add_bookmark') || t('add_comment')}</span>
@@ -7977,7 +7968,7 @@ export default function App() {
                 )}
               </div>
             ) : (
-              <div className="bg-card/90 p-3.5 rounded-2xl border border-[var(--text-main)]/15 flex flex-col gap-2 mx-0.5 my-1" onClick={e => e.stopPropagation()}>
+              <div className="bg-card/90 p-3.5 rounded-2xl flex flex-col gap-2 mx-0.5 my-1" onClick={e => e.stopPropagation()}>
                 <textarea 
                   value={addingCommentText}
                   onChange={(e) => {
@@ -7993,19 +7984,17 @@ export default function App() {
                   </span>
                   <div className="flex items-center gap-2.5">
                     <motion.button 
-                      whileHover={{ scale: 1.06 }} 
                       data-press="true" 
                       onClick={() => { setIsAddingComment(false); setAddingCommentText(''); }} 
-                      className="h-7 px-3 rounded-full bg-card/75 border border-[var(--text-main)]/15 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.22)] flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
+                      className="h-7 px-3 rounded-full bg-card/75 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--ios-fill)] hover:text-white flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                     >
                       <X size={12} />
                       <span>{t('cancel')}</span>
                     </motion.button>
                     <motion.button 
-                      whileHover={{ scale: 1.06 }} 
                       data-press="true" 
                       onClick={handleSaveComment} 
-                      className="h-7 px-3 rounded-full bg-card/75 border border-winblue/40 shadow-sm text-xs font-semibold text-winblue hover:bg-winblue/15 hover:border-winblue/60 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)] flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
+                      className="h-7 px-3 rounded-full bg-card/75 shadow-sm text-xs font-semibold text-winblue hover:bg-winblue/15 flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                     >
                       <Check size={12} />
                       <span>{t('done')}</span>
@@ -8046,7 +8035,7 @@ export default function App() {
                   onClick={e => e.stopPropagation()}
                 >
                   <div className="pt-3 px-0.5">
-                    <div className="relative group bg-card/60 border border-[var(--text-main)]/10 p-3.5 rounded-2xl hover:border-[var(--text-main)]/20 shadow-sm transition-colors overflow-visible">
+                    <div className="relative group bg-card/60 p-3.5 rounded-2xl shadow-sm transition-colors overflow-visible">
                       <SmoothSubMorph activeKey={commentModeKey} direction={commentDir}>
                         {isEditing ? (
                           <div className="flex flex-col gap-2">
@@ -8064,19 +8053,17 @@ export default function App() {
                               </span>
                               <div className="flex items-center gap-2.5">
                                 <motion.button 
-                                  whileHover={{ scale: 1.06 }} 
                                   data-press="true" 
                                   onClick={() => { setEditingCommentId(null); setEditingCommentText(''); }} 
-                                  className="h-7 px-3 rounded-full bg-card/75 border border-[var(--text-main)]/15 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.22)] flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
+                                  className="h-7 px-3 rounded-full bg-card/75 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--ios-fill)] hover:text-white flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                                 >
                                   <X size={12} />
                                   <span>{t('cancel')}</span>
                                 </motion.button>
                                 <motion.button 
-                                  whileHover={{ scale: 1.06 }} 
                                   data-press="true" 
                                   onClick={() => handleSaveEditComment(com.id)} 
-                                  className="h-7 px-3 rounded-full bg-card/75 border border-winblue/40 shadow-sm text-xs font-semibold text-winblue hover:bg-winblue/15 hover:border-winblue/60 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)] flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
+                                  className="h-7 px-3 rounded-full bg-card/75 shadow-sm text-xs font-semibold text-winblue hover:bg-winblue/15 flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                                 >
                                   <Check size={12} />
                                   <span>{t('save')}</span>
@@ -8089,19 +8076,17 @@ export default function App() {
                             <span className="text-sm font-bold text-[var(--text-main)]">{t('confirm_delete_bookmark') || t('confirm_delete_comment')}</span>
                             <div className="flex items-center gap-3 py-1 px-2">
                               <motion.button 
-                                whileHover={{ scale: 1.06 }} 
                                 data-press="true" 
                                 onClick={() => handleDeleteComment(com.id)} 
-                                className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-sm hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-[background-color,border-color,color,box-shadow] font-semibold text-xs flex items-center gap-1.5"
+                                className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-red-500/20 text-red-500 transition-[background-color,border-color,color,box-shadow] font-semibold text-xs flex items-center gap-1.5"
                               >
                                 <Trash2 size={13} />
                                 <span>{t('delete')}</span>
                               </motion.button>
                               <motion.button 
-                                whileHover={{ scale: 1.06 }} 
                                 data-press="true" 
                                 onClick={() => setDeletingCommentId(null)} 
-                                className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/15 shadow-sm hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.22)] text-[var(--text-main)] transition-[background-color,border-color,color,box-shadow] font-semibold text-xs flex items-center gap-1.5"
+                                className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] hover:text-white text-[var(--text-main)] transition-[background-color,border-color,color,box-shadow] font-semibold text-xs flex items-center gap-1.5"
                               >
                                 <X size={13} />
                                 <span>{t('cancel')}</span>
@@ -8114,35 +8099,32 @@ export default function App() {
                               {com.timestamp !== undefined && com.timestamp >= 0 ? (
                                 <motion.button
                                   type="button"
-                                  whileHover={{ scale: 1.08 }}
                                   data-press="true"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleJumpToComment(liveBook, liveChapter, com.timestamp);
                                   }}
-                                  className="h-6 px-2.5 rounded-full bg-winblue/15 hover:bg-winblue/25 text-winblue hover:text-winblue border border-winblue/30 hover:border-winblue/50 shadow-sm hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.35)] flex items-center gap-1.5 text-[10px] font-bold transition-all cursor-pointer group/timebtn"
+                                  className="h-6 px-2.5 rounded-full bg-winblue/15 hover:bg-winblue/25 text-winblue hover:text-winblue shadow-sm flex items-center gap-1.5 text-[10px] font-bold transition-all cursor-pointer group/timebtn"
                                   title={t('jump_to_timestamp')}
                                 >
                                   <Play size={10} className="fill-current text-winblue group-hover/timebtn:scale-110 transition-transform" />
                                   <span>{timeStr}</span>
                                 </motion.button>
                               ) : (
-                                <span className="text-[10px] font-bold text-winblue bg-winblue/10 border border-winblue/20 px-2 py-0.5 rounded-full">{timeStr}</span>
+                                <span className="text-[10px] font-bold text-winblue bg-winblue/10 px-2 py-0.5 rounded-full">{timeStr}</span>
                               )}
                               
                               {/* Botoes redondos de editar e excluir com destaque, contorno, sombra, crescer e brilhar */}
                               <div className="flex items-center gap-2 py-1 px-1.5 -my-0.5 -mr-0.5">
                                 <motion.button 
-                                  whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   onClick={() => { setDeletingCommentId(null); setEditingCommentId(com.id); setEditingCommentText(com.text); }} 
-                                  className="w-7 h-7 rounded-full bg-card/75 border border-[var(--text-main)]/15 shadow-sm flex items-center justify-center text-[var(--text-main)] hover:bg-white/15 hover:border-white/30 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.25)] transition-[background-color,border-color,color,box-shadow]"
+                                  className="w-7 h-7 rounded-full bg-card/75 shadow-sm flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--ios-fill)] hover:text-white transition-[background-color,border-color,color,box-shadow]"
                                   title={t('edit_bookmark') || t('edit_comment')}
                                 >
                                   <Edit3 size={12} />
                                 </motion.button>
                                 <motion.button 
-                                  whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   onClick={() => {
                                     setEditingCommentId(null);
@@ -8157,7 +8139,7 @@ export default function App() {
                                     }
                                     setDeletingCommentId(com.id);
                                   }}  
-                                  className="w-7 h-7 rounded-full bg-card/75 border border-red-500/20 shadow-sm flex items-center justify-center text-red-500 hover:bg-red-500/15 hover:border-red-500/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.3)] transition-[background-color,border-color,color,box-shadow]"
+                                  className="w-7 h-7 rounded-full bg-card/75 shadow-sm flex items-center justify-center text-red-500 hover:bg-red-500/15 transition-[background-color,border-color,color,box-shadow]"
                                   title={t('delete_bookmark') || t('delete_comment')}
                                 >
                                   <Trash2 size={12} />
@@ -8222,7 +8204,6 @@ export default function App() {
       <div data-fs-ctrl="comments" className={`relative w-9 h-9 shrink-0 ${showCommentsPopover ? 'z-50' : 'z-10'}`}>
         <motion.button 
           key="btn-fs-comments"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showCommentsPopover)}
           onClick={(e) => { 
@@ -8236,7 +8217,7 @@ export default function App() {
             closeAllPopups(); 
             setShowCommentsPopover(!p); 
           }}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all relative"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all relative"
           title={t('chapter_bookmarks') || t('chapter_comments') || t('comments')}
         >
           <Bookmark size={14} />
@@ -8259,7 +8240,7 @@ export default function App() {
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute top-0 right-0 w-80 sm:w-96 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl p-3 z-50 flex flex-col text-[var(--text-main)] max-h-[460px] overflow-hidden"
+                className="absolute top-0 right-0 w-80 sm:w-96 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl p-3 z-50 flex flex-col text-[var(--text-main)] max-h-[460px] overflow-hidden"
               
                 {...fsRowPopupProps('comments')}
               >
@@ -8276,7 +8257,6 @@ export default function App() {
       <div data-fs-ctrl="speed" className={`relative w-9 h-9 shrink-0 ${showSpeedMenu ? 'z-50' : 'z-10'}`}>
         <motion.button 
           key="btn-fs-speed"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showSpeedMenu)}
           onClick={(e) => { 
@@ -8285,7 +8265,7 @@ export default function App() {
             closeAllPopups(); 
             setShowSpeedMenu(!p); 
           }}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all"
           title={`${t('speed')} (${playbackSpeed}x)`}
         >
           <Gauge size={14} />
@@ -8303,7 +8283,7 @@ export default function App() {
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute top-0 right-0 w-56 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl p-2 z-50 flex flex-col text-[var(--text-main)] overflow-hidden"
+                className="absolute top-0 right-0 w-56 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl p-2 z-50 flex flex-col text-[var(--text-main)] overflow-hidden"
               
                 {...fsRowPopupProps('speed')}
               >
@@ -8317,16 +8297,16 @@ export default function App() {
                       <button
                         key={s}
                         onClick={() => handleSelectSpeed(s)}
-                        className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group ${
+                        className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group ${
                           isSelected
-                            ? 'hover:bg-winblue/25 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)]'
-                            : 'hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/20 hover:shadow-sm dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+                            ? 'hover:bg-winblue/25 '
+                            : 'hover:bg-[var(--ios-fill)] '
                         }`}
                       >
                         {isSelected && (
                           <motion.div
                             layoutId="fs-speed-active-pill"
-                            className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
+                            className="absolute inset-0 bg-winblue/15 rounded-2xl pointer-events-none z-0"
                             transition={SPRING.snappy}
                           />
                         )}
@@ -8361,7 +8341,6 @@ export default function App() {
       <div data-fs-ctrl="sleep" className={`relative w-9 h-9 shrink-0 ${showSleepTimerMenu ? 'z-50' : 'z-10'}`}>
         <motion.button 
           key="btn-fs-sleep"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showSleepTimerMenu)}
           onClick={(e) => { 
@@ -8370,7 +8349,7 @@ export default function App() {
             closeAllPopups(); 
             setShowSleepTimerMenu(!p); 
           }}
-          className="w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] relative"
+          className="w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] relative"
           title={sleepTimerMode ? t('sleep_timer_active', { time: formatCountdown(sleepTimerMode === 'end-of-chapter' ? Math.max(0, currentChapter.duration - chapterElapsed) : (sleepTimerRemaining || 0)) }) : t('sleep_timer')}
         >
           <Moon size={14} />
@@ -8395,7 +8374,7 @@ export default function App() {
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute top-0 right-0 w-64 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl p-2 overflow-hidden z-50 flex flex-col text-[var(--text-main)]"
+                className="absolute top-0 right-0 w-64 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl p-2 overflow-hidden z-50 flex flex-col text-[var(--text-main)]"
               
                 {...fsRowPopupProps('sleep')}
               >
@@ -8427,20 +8406,18 @@ export default function App() {
 
                         <div className="w-full flex items-center gap-2 mt-2">
                           <motion.button
-                            whileHover={{ scale: 1.04 }}
                             data-press="true"
                             onClick={() => {
                               setIsSleepTimerPaused(!isSleepTimerPaused);
                               showToast(!isSleepTimerPaused ? t('sleep_timer_paused') : t('sleep_timer_resume'));
                             }}
-                            className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/15 shadow-md hover:bg-white/15 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
+                            className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
                           >
                             {isSleepTimerPaused ? <Play size={14} /> : <Pause size={14} />}
                             <span>{isSleepTimerPaused ? t('sleep_timer_resume') : t('sleep_timer_pause')}</span>
                           </motion.button>
 
                           <motion.button
-                            whileHover={{ scale: 1.04 }}
                             data-press="true"
                             onClick={() => {
                               setSleepTimerRemaining(null);
@@ -8449,7 +8426,7 @@ export default function App() {
                               setShowSleepTimerMenu(false);
                               showToast(t('sleep_timer_canceled'));
                             }}
-                            className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/15 shadow-md hover:bg-white/15 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
+                            className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
                           >
                             <X size={14} />
                             <span>{t('cancel')}</span>
@@ -8466,7 +8443,7 @@ export default function App() {
                             setShowSleepTimerMenu(false);
                             showToast(t('sleep_timer_until_end'));
                           }}
-                          className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/20 hover:shadow-sm dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                          className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] "
                         >
                           <div className="relative z-10 flex items-center gap-2.5 min-w-0">
                             <span className="text-[var(--text-main)] dark:group-hover:text-white transition-colors shrink-0">
@@ -8491,7 +8468,7 @@ export default function App() {
                               setShowSleepTimerMenu(false);
                               showToast(t('sleep_timer_mins', { mins }));
                             }}
-                            className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/20 hover:shadow-sm dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                            className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] "
                           >
                             <div className="relative z-10 flex items-center gap-2.5">
                               <span className="text-[var(--text-main)] dark:group-hover:text-white transition-colors shrink-0">
@@ -8517,7 +8494,6 @@ export default function App() {
       <div data-fs-ctrl="queue" className={`relative w-9 h-9 shrink-0 ${showQueuePopup ? 'z-50' : 'z-10'}`}>
         <motion.button 
           key="btn-fs-queue"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={showQueuePopup 
             ? morphTriggerAnimate(true) 
@@ -8532,7 +8508,7 @@ export default function App() {
             closeAllPopups(); 
             setShowQueuePopup(!p); 
           }}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all overflow-hidden relative"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all overflow-hidden relative"
           title={t('queue')}
         >
           <AnimatePresence mode="wait" initial={false}>
@@ -8550,19 +8526,19 @@ export default function App() {
                     <img
                       src={queueAddedAnim.cover}
                       alt=""
-                      className="absolute top-0 right-0 w-[14.5px] h-[22.5px] aspect-[1/1.6] rounded-[3px] object-cover opacity-80 brightness-75 border border-white/25 shadow-sm translate-x-[1px] -translate-y-[0.5px] rotate-[6deg]"
+                      className="absolute top-0 right-0 w-[14.5px] h-[22.5px] aspect-[1/1.6] rounded-[3px] object-cover opacity-80 brightness-75 shadow-sm translate-x-[1px] -translate-y-[0.5px] rotate-[6deg]"
                     />
                     <img
                       src={queueAddedAnim.cover}
                       alt=""
-                      className="absolute bottom-0 left-0 w-[14.5px] h-[22.5px] aspect-[1/1.6] rounded-[3px] object-cover border border-white/35 shadow-md"
+                      className="absolute bottom-0 left-0 w-[14.5px] h-[22.5px] aspect-[1/1.6] rounded-[3px] object-cover shadow-md"
                     />
                   </div>
                 ) : (
                   <img
                     src={queueAddedAnim.cover}
                     alt=""
-                    className="w-[14px] h-[22px] aspect-[1/1.6] rounded-[4px] object-cover border border-white/30 shadow-md pointer-events-none"
+                    className="w-[14px] h-[22px] aspect-[1/1.6] rounded-[4px] object-cover shadow-md pointer-events-none"
                   />
                 )}
               </motion.div>
@@ -8593,7 +8569,7 @@ export default function App() {
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute top-0 right-0 w-80 sm:w-96 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl p-3.5 z-50 flex flex-col max-h-[420px] text-[var(--text-main)] overflow-hidden"
+                className="absolute top-0 right-0 w-80 sm:w-96 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl p-3.5 z-50 flex flex-col max-h-[420px] text-[var(--text-main)] overflow-hidden"
               
                 {...fsRowPopupProps('queue')}
               >
@@ -8612,7 +8588,7 @@ export default function App() {
                         onClick={() => {
                           setIsPlaying(true);
                         }}
-                        className="group relative flex items-center gap-3 p-2 rounded-2xl bg-winblue/10 border border-winblue/25 cursor-pointer hover:bg-winblue/15 transition-all shadow-sm"
+                        className="group relative flex items-center gap-3 p-2 rounded-2xl bg-winblue/10 cursor-pointer hover:bg-winblue/15 transition-all shadow-sm"
                         title={t('play') || 'Reproduzir'}
                       >
                         <div className="relative shrink-0">
@@ -8627,9 +8603,9 @@ export default function App() {
                               {/* Brilho luminoso: cinza no modo claro, branco no modo escuro */}
                               <div className="absolute w-4 h-4 rounded-full bg-slate-400/80 dark:bg-white/60 blur-[5px] pointer-events-none" />
                               <div className="relative z-10 flex items-end justify-center h-3 gap-[2px] w-4">
-                                <span className={`w-[2px] bg-black dark:bg-white rounded-full drop-shadow-[0_0_4px_rgba(100,116,139,0.85)] dark:drop-shadow-[0_0_6px_rgba(255,255,255,0.9)] ${isPlaying ? 'audio-bar-1' : 'h-2'}`} />
-                                <span className={`w-[2px] bg-black dark:bg-white rounded-full drop-shadow-[0_0_4px_rgba(100,116,139,0.85)] dark:drop-shadow-[0_0_6px_rgba(255,255,255,0.9)] ${isPlaying ? 'audio-bar-2' : 'h-3'}`} />
-                                <span className={`w-[2px] bg-black dark:bg-white rounded-full drop-shadow-[0_0_4px_rgba(100,116,139,0.85)] dark:drop-shadow-[0_0_6px_rgba(255,255,255,0.9)] ${isPlaying ? 'audio-bar-3' : 'h-1.5'}`} />
+                                <span className={`w-[2px] bg-black dark:bg-white rounded-full ${isPlaying ? 'audio-bar-1' : 'h-2'}`} />
+                                <span className={`w-[2px] bg-black dark:bg-white rounded-full ${isPlaying ? 'audio-bar-2' : 'h-3'}`} />
+                                <span className={`w-[2px] bg-black dark:bg-white rounded-full ${isPlaying ? 'audio-bar-3' : 'h-1.5'}`} />
                               </div>
                             </div>
                           </div>
@@ -8711,7 +8687,6 @@ export default function App() {
       <div data-fs-ctrl="volume" className={`relative w-9 h-9 shrink-0 ${showVolumePopup ? 'z-50' : 'z-10'}`}>
         <motion.button 
           key="btn-fs-vol"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showVolumePopup)}
           onClick={(e) => {
@@ -8724,10 +8699,10 @@ export default function App() {
             e.stopPropagation();
             setIsMuted(!isMuted);
           }}
-          className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all shadow-xl backdrop-blur-3xl ${
+          className={`w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl ${
             isMuted || volume === 0
-              ? 'bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.35)]'
-              : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+              ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 '
+              : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
           }`}
           title={isMuted || volume === 0 ? t('mute_click_to_open') : t('volume')}
         >
@@ -8746,7 +8721,7 @@ export default function App() {
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute top-0 right-0 w-64 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl p-3.5 z-50 flex flex-col gap-3 text-[var(--text-main)] overflow-hidden"
+                className="absolute top-0 right-0 w-64 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl p-3.5 z-50 flex flex-col gap-3 text-[var(--text-main)] overflow-hidden"
               
                 {...fsRowPopupProps('volume')}
               >
@@ -8821,13 +8796,12 @@ export default function App() {
           {hasTranscript ? (
             <motion.button 
               key="btn-fs-text"
-              whileHover={{ scale: 1.12 }}
               data-press="true"
               onClick={() => setShowTranscript(prev => !prev)}
               className={`w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl ${
                 showTranscript 
-                  ? 'bg-winblue/20 border border-winblue/45 text-winblue shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] hover:bg-winblue/30 hover:border-winblue/70 hover:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.5)]' 
-                  : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                  ? 'bg-winblue/20 text-winblue hover:bg-winblue/30 ' 
+                  : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
               }`}
               title={showTranscript ? t('hide_text') : t('show_text')}
             >
@@ -8836,7 +8810,6 @@ export default function App() {
           ) : (
             <motion.button 
               key="btn-fs-add-text"
-              whileHover={{ scale: 1.12 }}
               data-press="true"
               animate={morphTriggerAnimate(showAddTextPopup)}
               onClick={(e) => {
@@ -8845,7 +8818,7 @@ export default function App() {
                 closeAllPopups();
                 setShowAddTextPopup(!p);
               }}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] transition-all shadow-xl cursor-pointer"
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-xl cursor-pointer"
               title={t('add_text')}
             >
               <FilePlus2 size={14} />
@@ -8865,7 +8838,7 @@ export default function App() {
                 data-popup-content="true"
                 style={{ transformOrigin: "top right" }}
                 onClick={(e) => e.stopPropagation()}
-                className="absolute top-0 right-0 w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl p-3.5 z-50 flex flex-col gap-2 text-[var(--text-main)] overflow-hidden"
+                className="absolute top-0 right-0 w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl p-3.5 z-50 flex flex-col gap-2 text-[var(--text-main)] overflow-hidden"
               >
                 <div className="relative z-10 flex flex-col gap-2">
                   <div className="px-2 pt-1 pb-0.5 flex flex-col">
@@ -8882,7 +8855,7 @@ export default function App() {
                           addTextInputRef.current.click();
                         }
                       }}
-                      className="relative w-full flex items-center justify-between gap-3 px-3 py-2.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)] text-left cursor-pointer"
+                      className="relative w-full flex items-center justify-between gap-3 px-3 py-2.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] text-left cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span className="text-[var(--text-main)] group-hover:text-white shrink-0">
@@ -8916,7 +8889,6 @@ export default function App() {
         <motion.button 
           ref={miniCommentsBtnRef}
           key="btn-mini-comments"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showCommentsPopover)}
           onClick={(e) => { 
@@ -8933,7 +8905,7 @@ export default function App() {
               setShowCommentsPopover(true);
             }
           }} 
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0`}
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0`}
           title={t('chapter_bookmarks') || t('chapter_comments')}
         >
           <Bookmark size={isFullScreenMode ? 16 : 13} />
@@ -8966,7 +8938,7 @@ export default function App() {
                     'right'
                   )}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-64 sm:w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-[9999] p-2.5 flex flex-col text-[var(--text-main)] max-h-[368px] overflow-hidden text-left"
+                  className="w-64 sm:w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-[9999] p-2.5 flex flex-col text-[var(--text-main)] max-h-[368px] overflow-hidden text-left"
                 >
                   <div className="relative z-10 flex flex-col min-h-0 overflow-hidden">
                     {renderCommentsContent(currentBook, currentChapter, true)}
@@ -8984,7 +8956,6 @@ export default function App() {
         <motion.button 
           ref={miniSpeedBtnRef}
           key="btn-mini-speed"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showSpeedMenu)}
           onClick={(e) => { 
@@ -8996,7 +8967,7 @@ export default function App() {
               setShowSpeedMenu(true);
             }
           }} 
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm shrink-0`}
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0`}
           title={t('playback_speed_title', { speed: playbackSpeed })}
         >
           <Gauge size={isFullScreenMode ? 16 : 13} />
@@ -9019,7 +8990,7 @@ export default function App() {
                   data-popup-content="true"
                   style={getButtonCoverPopupStyle(miniSpeedBtnAnchor || miniSpeedBtnRef.current, 224, 224, 'right')}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-56 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-[9999] p-2 flex flex-col text-left overflow-hidden text-[var(--text-main)]"
+                  className="w-56 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-[9999] p-2 flex flex-col text-left overflow-hidden text-[var(--text-main)]"
                 >
                   <div className="relative z-10 flex flex-col">
                     <div className="px-3 py-2 mb-1 flex items-center justify-between">
@@ -9031,16 +9002,16 @@ export default function App() {
                         <button
                           key={s}
                           onClick={() => handleSelectSpeed(s)}
-                          className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group ${
+                          className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group ${
                             isSelected
-                              ? 'hover:bg-winblue/25 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)]'
-                              : 'hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/20 hover:shadow-sm dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+                              ? 'hover:bg-winblue/25 '
+                              : 'hover:bg-[var(--ios-fill)] '
                           }`}
                         >
                           {isSelected && (
                             <motion.div
                               layoutId="mini-speed-active-pill"
-                              className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
+                              className="absolute inset-0 bg-winblue/15 rounded-2xl pointer-events-none z-0"
                               transition={SPRING.snappy}
                             />
                           )}
@@ -9078,7 +9049,6 @@ export default function App() {
         <motion.button 
           ref={miniSleepBtnRef}
           key="btn-mini-sleep"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showSleepTimerMenu)}
           onClick={(e) => { 
@@ -9090,7 +9060,7 @@ export default function App() {
               setShowSleepTimerMenu(true);
             }
           }} 
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full transition-all shadow-sm shrink-0 relative bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]`}
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full transition-all shadow-sm shrink-0 relative bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] `}
           title={sleepTimerMode ? t('sleep_timer_active', { time: formatCountdown(sleepTimerMode === 'end-of-chapter' ? Math.max(0, currentChapter.duration - chapterElapsed) : (sleepTimerRemaining || 0)) }) : t('sleep_timer')}
         >
           <Moon size={isFullScreenMode ? 16 : 13} />
@@ -9120,7 +9090,7 @@ export default function App() {
                   data-popup-content="true"
                   style={getButtonCoverPopupStyle(miniSleepBtnAnchor || miniSleepBtnRef.current, 205, 256, 'right')}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-52 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-[9999] p-2 overflow-hidden flex flex-col text-left text-[var(--text-main)]"
+                  className="w-52 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-[9999] p-2 overflow-hidden flex flex-col text-left text-[var(--text-main)]"
                 >
                   <div className="relative z-10 flex flex-col">
                     <div className="px-3 py-2 mb-1 flex items-center justify-between">
@@ -9152,13 +9122,12 @@ export default function App() {
                           <div className="w-full flex items-center gap-2 mt-2">
                             {/* Pausar/Retomar à ESQUERDA com design dos botões da interface */}
                             <motion.button
-                              whileHover={{ scale: 1.04 }}
                               data-press="true"
                               onClick={() => {
                                 setIsSleepTimerPaused(!isSleepTimerPaused);
                                 showToast(!isSleepTimerPaused ? t('sleep_timer_paused') : t('sleep_timer_resume'));
                               }}
-                              className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/15 shadow-md hover:bg-white/15 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
+                              className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
                               title={isSleepTimerPaused ? t('sleep_timer_resume') : t('sleep_timer_pause')}
                             >
                               {isSleepTimerPaused ? <Play size={14} /> : <Pause size={14} />}
@@ -9167,7 +9136,6 @@ export default function App() {
 
                             {/* Cancelar à DIREITA com design dos botões da interface */}
                             <motion.button
-                              whileHover={{ scale: 1.04 }}
                               data-press="true"
                               onClick={() => {
                                 setSleepTimerRemaining(null);
@@ -9176,7 +9144,7 @@ export default function App() {
                                 setShowSleepTimerMenu(false);
                                 showToast(t('sleep_timer_canceled'));
                               }}
-                              className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/15 shadow-md hover:bg-white/15 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
+                              className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
                               title={t('cancel_timer')}
                             >
                               <X size={14} />
@@ -9194,7 +9162,7 @@ export default function App() {
                               setShowSleepTimerMenu(false);
                               showToast(t('sleep_timer_until_end'));
                             }}
-                            className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/20 hover:shadow-sm dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                            className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] "
                           >
                             <div className="relative z-10 flex items-center gap-2.5 min-w-0">
                               <span className="text-[var(--text-main)] dark:group-hover:text-white transition-colors shrink-0">
@@ -9219,7 +9187,7 @@ export default function App() {
                                 setShowSleepTimerMenu(false);
                                 showToast(t('sleep_timer_mins', { mins }));
                               }}
-                              className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group hover:bg-black/5 dark:hover:bg-white/15 hover:border-black/10 dark:hover:border-white/20 hover:shadow-sm dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                              className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] "
                             >
                               <div className="relative z-10 flex items-center gap-2.5">
                                 <span className="text-[var(--text-main)] dark:group-hover:text-white transition-colors shrink-0">
@@ -9248,7 +9216,6 @@ export default function App() {
         <motion.button 
           ref={miniQueueBtnRef}
           key="btn-mini-queue"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={showQueuePopup 
             ? morphTriggerAnimate(true) 
@@ -9266,7 +9233,7 @@ export default function App() {
               setShowQueuePopup(true);
             }
           }} 
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm relative shrink-0 overflow-hidden`}
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0 overflow-hidden`}
           title={t('queue')}
         >
           <AnimatePresence mode="wait" initial={false}>
@@ -9284,19 +9251,19 @@ export default function App() {
                     <img
                       src={queueAddedAnim.cover}
                       alt=""
-                      className="absolute top-0 right-0 w-[12px] h-[19px] aspect-[1/1.6] rounded-[2.5px] object-cover opacity-80 brightness-75 border border-white/25 shadow-sm translate-x-[1px] -translate-y-[0.5px] rotate-[6deg]"
+                      className="absolute top-0 right-0 w-[12px] h-[19px] aspect-[1/1.6] rounded-[2.5px] object-cover opacity-80 brightness-75 shadow-sm translate-x-[1px] -translate-y-[0.5px] rotate-[6deg]"
                     />
                     <img
                       src={queueAddedAnim.cover}
                       alt=""
-                      className="absolute bottom-0 left-0 w-[12px] h-[19px] aspect-[1/1.6] rounded-[2.5px] object-cover border border-white/35 shadow-md"
+                      className="absolute bottom-0 left-0 w-[12px] h-[19px] aspect-[1/1.6] rounded-[2.5px] object-cover shadow-md"
                     />
                   </div>
                 ) : (
                   <img
                     src={queueAddedAnim.cover}
                     alt=""
-                    className="w-[15px] h-[23px] aspect-[1/1.6] rounded-[3.5px] object-cover border border-white/30 shadow-md pointer-events-none"
+                    className="w-[15px] h-[23px] aspect-[1/1.6] rounded-[3.5px] object-cover shadow-md pointer-events-none"
                   />
                 )}
               </motion.div>
@@ -9337,7 +9304,7 @@ export default function App() {
                     'right'
                   )}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-64 sm:w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-[9999] p-3 flex flex-col max-h-[336px] text-[var(--text-main)] overflow-hidden text-left"
+                  className="w-64 sm:w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-[9999] p-3 flex flex-col max-h-[336px] text-[var(--text-main)] overflow-hidden text-left"
                 >
                   <div className="relative z-10 flex flex-col min-h-0 max-h-[310px] overflow-hidden">
                     <div className="px-3 py-2 mb-1 flex items-center justify-between pb-2 shrink-0">
@@ -9356,7 +9323,7 @@ export default function App() {
                           onClick={() => {
                             setIsPlaying(true);
                           }}
-                          className="group relative flex items-center gap-3 p-2 rounded-2xl bg-winblue/10 border border-winblue/25 cursor-pointer hover:bg-winblue/15 transition-all shadow-sm"
+                          className="group relative flex items-center gap-3 p-2 rounded-2xl bg-winblue/10 cursor-pointer hover:bg-winblue/15 transition-all shadow-sm"
                           title={t('play') || 'Reproduzir'}
                         >
                           <div className="relative shrink-0">
@@ -9371,9 +9338,9 @@ export default function App() {
                                 {/* Brilho luminoso: cinza no modo claro, branco no modo escuro */}
                                 <div className="absolute w-4 h-4 rounded-full bg-slate-400/80 dark:bg-white/60 blur-[5px] pointer-events-none" />
                                 <div className="relative z-10 flex items-end justify-center h-3 gap-[2px] w-4">
-                                  <span className={`w-[2px] bg-black dark:bg-white rounded-full drop-shadow-[0_0_4px_rgba(100,116,139,0.85)] dark:drop-shadow-[0_0_6px_rgba(255,255,255,0.9)] ${isPlaying ? 'audio-bar-1' : 'h-2'}`} />
-                                  <span className={`w-[2px] bg-black dark:bg-white rounded-full drop-shadow-[0_0_4px_rgba(100,116,139,0.85)] dark:drop-shadow-[0_0_6px_rgba(255,255,255,0.9)] ${isPlaying ? 'audio-bar-2' : 'h-3'}`} />
-                                  <span className={`w-[2px] bg-black dark:bg-white rounded-full drop-shadow-[0_0_4px_rgba(100,116,139,0.85)] dark:drop-shadow-[0_0_6px_rgba(255,255,255,0.9)] ${isPlaying ? 'audio-bar-3' : 'h-1.5'}`} />
+                                  <span className={`w-[2px] bg-black dark:bg-white rounded-full ${isPlaying ? 'audio-bar-1' : 'h-2'}`} />
+                                  <span className={`w-[2px] bg-black dark:bg-white rounded-full ${isPlaying ? 'audio-bar-2' : 'h-3'}`} />
+                                  <span className={`w-[2px] bg-black dark:bg-white rounded-full ${isPlaying ? 'audio-bar-3' : 'h-1.5'}`} />
                                 </div>
                               </div>
                             </div>
@@ -9455,7 +9422,6 @@ export default function App() {
         <motion.button 
           ref={miniVolumeBtnRef}
           key="btn-mini-volume"
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           animate={morphTriggerAnimate(showVolumePopup)}
           onClick={(e) => {
@@ -9471,10 +9437,10 @@ export default function App() {
             e.stopPropagation();
             setIsMuted(!isMuted);
           }}
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full border transition-all shadow-sm shrink-0 ${
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full transition-all shadow-sm shrink-0 ${
             isMuted || volume === 0
-              ? 'bg-red-500/15 border-red-500/30 text-red-400 hover:bg-red-500/25 hover:shadow-[0_0_12px_rgba(239,68,68,0.3)]'
-              : 'bg-card/75 backdrop-blur-3xl border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]'
+              ? 'bg-red-500/15 text-red-400 hover:bg-red-500/25 '
+              : 'bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
           }`}
           title={isMuted || volume === 0 ? t('mute_click_to_open') : t('volume')}
         >
@@ -9498,7 +9464,7 @@ export default function App() {
                   data-popup-content="true"
                   style={getButtonCoverPopupStyle(miniVolumeBtnAnchor || miniVolumeBtnRef.current, 205, 100, 'right')}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-52 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-[9999] p-2.5 flex flex-col gap-2.5 text-[var(--text-main)] overflow-hidden text-left"
+                  className="w-52 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-[9999] p-2.5 flex flex-col gap-2.5 text-[var(--text-main)] overflow-hidden text-left"
                 >
                   <div className="relative z-10 flex flex-col gap-2.5">
                     <div className="px-1 flex items-center justify-between">
@@ -9546,13 +9512,12 @@ export default function App() {
       {/* 5. EXPANDIR PLAYER */}
       {!isFullScreenMode && (
         <motion.button 
-          whileHover={{ scale: 1.12 }}
           data-press="true"
           onClick={() => {
             closeAllPopups();
             setIsFullScreen(true);
           }}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/80 dark:hover:bg-white/15 hover:border-black/15 dark:hover:border-white/25 hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] transition-all shadow-sm shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0"
           title={t('expand_player')}
         >
           <Maximize2 size={13} />
@@ -9976,10 +9941,10 @@ export default function App() {
               setSearchMenuAnchor(btn);
               setActiveSearchMenuId(item.id);
             }}
-            className={`group/searchitem relative flex items-center gap-3.5 py-2.5 pl-2.5 pr-[18px] rtl:pl-[18px] rtl:pr-2.5 rounded-3xl cursor-pointer transition-all border ${
+            className={`group/searchitem relative flex items-center gap-3.5 py-2.5 pl-2.5 pr-[18px] rtl:pl-[18px] rtl:pr-2.5 rounded-3xl cursor-pointer transition-all ${
               isSelected 
-                ? 'bg-[var(--button-secondary-bg)]/50 border-transparent shadow-sm' 
-                : 'border-transparent hover:bg-[var(--button-secondary-bg)]/50'
+                ? 'bg-[var(--button-secondary-bg)]/50 shadow-sm' 
+                : ' hover:bg-[var(--button-secondary-bg)]/50'
             } ${
               isMenuOpen ? 'z-30' : 'z-10'
             }`}
@@ -10027,7 +9992,6 @@ export default function App() {
               isMenuOpen ? 'opacity-100 z-50' : isSelected ? 'opacity-100' : 'opacity-0 max-md:opacity-100 group-hover/searchitem:opacity-100'
             }`}>
               <motion.button 
-                whileHover={{ scale: 1.12 }}
                 data-press="true"
                 animate={morphTriggerAnimate(isMenuOpen)}
                 onClick={(e) => { 
@@ -10046,10 +10010,10 @@ export default function App() {
                     setActiveSearchMenuId(item.id); 
                   }
                 }}
-                className={`w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl transition-colors shrink-0 bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] ${
+                className={`w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl transition-colors shrink-0 bg-card/75 text-[var(--text-main)] ${
                   isMenuOpen
                     ? ''
-                    : 'hover:bg-white/20 hover:border-white/30 hover:shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                    : 'hover:bg-[var(--ios-fill)] '
                 }`}
                 title={t('more_options')}
               >
@@ -10255,7 +10219,6 @@ export default function App() {
 
                             <div className="flex items-center justify-end gap-2.5 pt-1">
                               <motion.button
-                                whileHover={{ scale: 1.05 }}
                                 data-press="true"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -10267,20 +10230,19 @@ export default function App() {
                                   clearButtonCoverAnchorCache(searchMenuAnchor);
                                   setSearchMenuAnchor(null);
                                 }}
-                                className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                               >
                                 <Trash2 size={13} />
                                 <span>{t('delete')}</span>
                               </motion.button>
                               <motion.button
-                                whileHover={{ scale: 1.05 }}
                                 data-press="true"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setConfirmDeleteSearchId(null);
     setSearchCollectionTarget(null);
                                 }}
-                                className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                               >
                                 <X size={13} />
                                 <span>{t('cancel')}</span>
@@ -10313,8 +10275,8 @@ export default function App() {
             onMouseEnter={() => setSearchSelectedIndex(index)}
             data-popup-option="true"
             onClick={() => handleSelectSearchItem(item)}
-            className={`group/searchitem relative flex items-center gap-3.5 py-2.5 pl-2.5 pr-[18px] rtl:pl-[18px] rtl:pr-2.5 rounded-3xl cursor-pointer transition-all border ${
-              isSelected ? 'bg-[var(--button-secondary-bg)]/50 border-transparent shadow-sm' : 'border-transparent hover:bg-[var(--button-secondary-bg)]/50'
+            className={`group/searchitem relative flex items-center gap-3.5 py-2.5 pl-2.5 pr-[18px] rtl:pl-[18px] rtl:pr-2.5 rounded-3xl cursor-pointer transition-all ${
+              isSelected ? 'bg-[var(--button-secondary-bg)]/50 shadow-sm' : ' hover:bg-[var(--button-secondary-bg)]/50'
             }`}
           >
             <div className={`relative w-12 h-12 shrink-0 rounded-[14px] overflow-hidden shadow-sm flex items-center justify-center ${item.type === 'collection' ? `bg-gradient-to-br ${item.collection?.gradient || 'from-slate-600 to-zinc-800'}` : 'bg-winblue/15 text-winblue'}`}>
@@ -10323,7 +10285,7 @@ export default function App() {
               ) : (
                 <>
                   <img src={cover} alt="" draggable={false} className="w-full h-full object-cover" />
-                  <span className="absolute right-0.5 bottom-0.5 w-5 h-5 rounded-full bg-card/90 border border-[var(--text-main)]/10 flex items-center justify-center text-[var(--text-main)]">
+                  <span className="absolute right-0.5 bottom-0.5 w-5 h-5 rounded-full bg-card/90 flex items-center justify-center text-[var(--text-main)]">
                     {item.type === 'bookmark' ? <Bookmark size={11} /> : <ListMusic size={11} />}
                   </span>
                 </>
@@ -10360,10 +10322,10 @@ export default function App() {
               setSearchMenuAnchor(btn);
               setActiveSearchMenuId(item.id);
             }}
-            className={`group/searchitem relative flex items-center gap-3.5 py-2.5 pl-2.5 pr-[18px] rtl:pl-[18px] rtl:pr-2.5 rounded-3xl cursor-pointer transition-all border ${
+            className={`group/searchitem relative flex items-center gap-3.5 py-2.5 pl-2.5 pr-[18px] rtl:pl-[18px] rtl:pr-2.5 rounded-3xl cursor-pointer transition-all ${
               isSelected 
-                ? 'bg-[var(--button-secondary-bg)]/50 border-transparent shadow-sm' 
-                : 'border-transparent hover:bg-[var(--button-secondary-bg)]/50'
+                ? 'bg-[var(--button-secondary-bg)]/50 shadow-sm' 
+                : ' hover:bg-[var(--button-secondary-bg)]/50'
             } ${
               isMenuOpen ? 'z-30' : 'z-10'
             }`}
@@ -10399,7 +10361,6 @@ export default function App() {
               isMenuOpen ? 'opacity-100 z-50' : isSelected ? 'opacity-100' : 'opacity-0 max-md:opacity-100 group-hover/searchitem:opacity-100'
             }`}>
               <motion.button 
-                whileHover={{ scale: 1.12 }}
                 data-press="true"
                 animate={morphTriggerAnimate(isMenuOpen)}
                 onClick={(e) => { 
@@ -10416,10 +10377,10 @@ export default function App() {
                     setActiveSearchMenuId(item.id); 
                   }
                 }}
-                className={`w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl transition-colors shrink-0 bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] ${
+                className={`w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl transition-colors shrink-0 bg-card/75 text-[var(--text-main)] ${
                   isMenuOpen
                     ? ''
-                    : 'hover:bg-white/20 hover:border-white/30 hover:shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                    : 'hover:bg-[var(--ios-fill)] '
                 }`}
                 title={t('more_options_author')}
               >
@@ -10654,7 +10615,7 @@ export default function App() {
     const isRtl = () => document.documentElement.dir === 'rtl';
     const reset = (animateBack: boolean) => {
       if (target) {
-        target.style.transition = animateBack ? 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.28s ease' : '';
+        target.style.transition = animateBack ? 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), 0.28s ease' : '';
         target.style.transform = '';
         target.style.borderRadius = '';
         const el = target;
@@ -10828,7 +10789,7 @@ export default function App() {
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="max-md:hidden fixed top-6 left-1/2 md:left-[calc(50vw+136px)] rtl:md:left-auto rtl:md:right-[calc(50vw+136px)] -translate-x-1/2 rtl:translate-x-1/2 z-[300] bg-card/90 backdrop-blur-xl border border-winblue/20 text-winblue px-5 py-2.5 rounded-2xl text-xs font-semibold shadow-2xl flex items-center gap-2"
+            className="max-md:hidden fixed top-6 left-1/2 md:left-[calc(50vw+136px)] rtl:md:left-auto rtl:md:right-[calc(50vw+136px)] -translate-x-1/2 rtl:translate-x-1/2 z-[300] bg-card/90 backdrop-blur-xl text-winblue px-5 py-2.5 rounded-2xl text-xs font-semibold shadow-2xl flex items-center gap-2"
           >
             <CheckCircle2 size={16} />
             <span>{notification}</span>
@@ -10905,7 +10866,6 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.08 } }}
                     transition={SPRING.snappy}
-                    whileHover={{ scale: 1.12 }}
                     data-press="true"
                     onClick={goBack}
                     // Celular: ao rolar, a pílula encolhe suavemente até virar um círculo só com a seta
@@ -10913,9 +10873,9 @@ export default function App() {
                     style={{
                       paddingLeft: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
                       paddingRight: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
-                      transition: 'padding 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s',
+                      transition: 'padding 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, 0.2s, box-shadow 0.2s',
                     }}
-                    className="h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] backdrop-blur-3xl"
+                    className="h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] backdrop-blur-3xl"
                     aria-label={t('back') || undefined}
                   >
                     <ChevronLeft size={14} className="text-[var(--text-main)] rtl:rotate-180 shrink-0" />
@@ -11058,8 +11018,8 @@ export default function App() {
                 >
                   <div className="relative group/searchbar max-md:w-full">
                     <div
-                      style={isMobile ? { width: searchQuery.length > 0 ? 'calc(100% - 52px)' : '100%', transition: 'width 0.32s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s, border-color 0.15s' } : undefined}
-                      className="h-9 max-md:h-11 w-64 sm:w-80 md:w-[380px] flex items-center gap-2 px-3.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] focus-within:bg-white/15 focus-within:border-winblue/40 focus-within:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.3)] text-[var(--text-main)] transition-all backdrop-blur-3xl">
+                      style={isMobile ? { width: searchQuery.length > 0 ? 'calc(100% - 52px)' : '100%', transition: 'width 0.32s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s, 0.15s' } : undefined}
+                      className="h-9 max-md:h-11 w-64 sm:w-80 md:w-[380px] flex items-center gap-2 px-3.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] focus-within:bg-winblue/15 text-[var(--text-main)] transition-all backdrop-blur-3xl">
                       <Search size={14} className="text-[var(--text-muted)] group-focus-within/searchbar:text-winblue transition-colors shrink-0" />
                       <input
                         ref={searchInputRef}
@@ -11139,7 +11099,7 @@ export default function App() {
                             onClick={(e) => e.stopPropagation()}
                             className={isMobile
                               ? "relative w-full flex flex-col"
-                              : "absolute top-full left-1/2 -translate-x-1/2 mt-3 w-full min-w-[272px] sm:min-w-[368px] md:min-w-[416px] max-h-[calc(100vh-220px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[28px] shadow-2xl z-[100] flex flex-col overflow-hidden"}
+                              : "absolute top-full left-1/2 -translate-x-1/2 mt-3 w-full min-w-[272px] sm:min-w-[368px] md:min-w-[416px] max-h-[calc(100vh-220px)] bg-card/95 backdrop-blur-3xl rounded-[28px] shadow-2xl z-[100] flex flex-col overflow-hidden"}
                           >
                             {searchQuery.trim().toLowerCase() === '//dev' ? (
                               <Suspense fallback={
@@ -11212,7 +11172,6 @@ export default function App() {
                         animate={{ opacity: 1, scale: 1, x: 0 }}
                         exit={{ opacity: 0, scale: 0.55, x: resolvedLanguage === 'ar' ? 18 : -18 }}
                         transition={SPRING.snappy}
-                        whileHover={{ scale: 1.12 }}
                         data-press="true"
                         onClick={() => {
                           setSearchQuery('');
@@ -11224,7 +11183,7 @@ export default function App() {
                           setSearchSelectedIndex(-1);
                           searchInputRef.current?.focus();
                         }}
-                        className="absolute left-full rtl:left-auto rtl:right-full ml-3 rtl:ml-0 rtl:mr-3 max-md:left-auto max-md:right-0 max-md:ml-0 rtl:max-md:right-auto rtl:max-md:left-0 rtl:max-md:mr-0 top-0 z-[110] w-9 h-9 max-md:w-11 max-md:h-11 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl shrink-0 cursor-pointer"
+                        className="absolute left-full rtl:left-auto rtl:right-full ml-3 rtl:ml-0 rtl:mr-3 max-md:left-auto max-md:right-0 max-md:ml-0 rtl:max-md:right-auto rtl:max-md:left-0 rtl:max-md:mr-0 top-0 z-[110] w-9 h-9 max-md:w-11 max-md:h-11 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl shrink-0 cursor-pointer"
                         title={t('clear_search')}
                       >
                         <X size={13} />
@@ -11274,11 +11233,10 @@ export default function App() {
                     initial={{ opacity: 0, scale: 0.85, x: -10 }}
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.85, x: -10 }}
-                    whileHover={{ scale: 1.05 }}
                     data-press="true"
                     onClick={handleExitDevMode}
                     title={t('exit_dev_mode')}
-                    className="max-md:hidden h-9 px-3.5 rounded-full bg-gradient-to-r from-amber-500/25 via-amber-500/20 to-orange-500/25 border border-amber-500/50 text-amber-400 hover:text-amber-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all backdrop-blur-3xl font-bold text-xs flex items-center gap-1.5 shrink-0 shadow-lg cursor-pointer select-none"
+                    className="max-md:hidden h-9 px-3.5 rounded-full bg-gradient-to-r from-amber-500/25 via-amber-500/20 to-orange-500/25 text-amber-400 hover:text-amber-300 transition-all backdrop-blur-3xl font-bold text-xs flex items-center gap-1.5 shrink-0 shadow-lg cursor-pointer select-none"
                   >
                     <Code2 size={13} className="text-amber-400 animate-pulse shrink-0" />
                     <span>{t('exit_dev_mode')}</span>
@@ -11316,7 +11274,6 @@ export default function App() {
                             <>
                               <motion.button 
                                 key="btn"
-                                whileHover={{ scale: 1.12 }}
                                 data-press="true"
                                 animate={morphTriggerAnimate(showDeleteSelectionConfirm)}
                                 onClick={(e) => {
@@ -11340,7 +11297,7 @@ export default function App() {
                                 // Celular: só o ícone (botão redondo); computador: ícone e texto
                                 aria-label={`${t('delete')}${currentSelectionCount > 0 ? ` (${currentSelectionCount})` : ''}`}
                                 title={`${t('delete')}${currentSelectionCount > 0 ? ` (${currentSelectionCount})` : ''}`}
-                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs"
+                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs"
                               >
                                 <Trash2 size={13} className="max-md:w-5 max-md:h-5" />
                                 <span className="max-md:hidden">{t('delete')} {currentSelectionCount > 0 ? `(${currentSelectionCount})` : ''}</span>
@@ -11405,7 +11362,7 @@ export default function App() {
                                             .filter(Boolean)
                                             .map(genre => (
                                               <div key={genre!.id} className="flex items-center gap-3 p-2">
-                                                <div className="w-11 h-11 rounded-xl bg-card/80 border border-white/10 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
                                                   {getGenreEmoji(genre!.id)}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -11420,7 +11377,7 @@ export default function App() {
                                             .filter(Boolean)
                                             .map(langData => (
                                               <div key={langData.name} className="flex items-center gap-3 p-2">
-                                                <div className="w-11 h-11 rounded-xl bg-card/80 border border-white/10 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
                                                   {langData.flag}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -11452,7 +11409,6 @@ export default function App() {
 
                                       <div className="flex items-center justify-end gap-2.5 pt-1">
                                         <motion.button
-                                          whileHover={{ scale: 1.05 }}
                                           data-press="true"
                                           onClick={() => {
                                             if (isCollectionsScreen) {
@@ -11514,13 +11470,12 @@ export default function App() {
                                               showToast(t('toast_items_deleted', { count }));
                                             }
                                           }}
-                                          className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                          className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                         >
                                           <Trash2 size={13} />
                                           <span>{t('delete')}</span>
                                         </motion.button>
                                         <motion.button
-                                          whileHover={{ scale: 1.05 }}
                                           data-press="true"
                                           onClick={() => {
                                             setShowDeleteSelectionConfirm(false);
@@ -11531,7 +11486,7 @@ export default function App() {
                                             setSelectedLanguages([]);
                                             setSelectedCollectionIds([]);
                                           }}
-                                          className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                          className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                         >
                                           <X size={13} />
                                           <span>{t('cancel')}</span>
@@ -11555,7 +11510,7 @@ export default function App() {
                                       }}
                                       style={{ transformOrigin: "top right" }}
                                       onClick={(e) => e.stopPropagation()}
-                                      className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[28px] shadow-2xl p-3.5 z-50 flex flex-col"
+                                      className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl rounded-[28px] shadow-2xl p-3.5 z-50 flex flex-col"
                                     >
                                       <h4 className="text-sm font-bold text-[var(--text-main)] px-1 mb-1">
                                         {isCollectionsScreen
@@ -11612,7 +11567,7 @@ export default function App() {
                                             .filter(Boolean)
                                             .map(genre => (
                                               <div key={genre!.id} className="flex items-center gap-3 p-2">
-                                                <div className="w-11 h-11 rounded-xl bg-card/80 border border-white/10 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
                                                   {getGenreEmoji(genre!.id)}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -11627,7 +11582,7 @@ export default function App() {
                                             .filter(Boolean)
                                             .map(langData => (
                                               <div key={langData.name} className="flex items-center gap-3 p-2">
-                                                <div className="w-11 h-11 rounded-xl bg-card/80 border border-white/10 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
                                                   {langData.flag}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -11659,7 +11614,6 @@ export default function App() {
 
                                       <div className="flex items-center justify-end gap-2.5 pt-1">
                                         <motion.button
-                                          whileHover={{ scale: 1.05 }}
                                           data-press="true"
                                           onClick={() => {
                                             if (isCollectionsScreen) {
@@ -11721,13 +11675,12 @@ export default function App() {
                                               showToast(t('toast_items_deleted', { count }));
                                             }
                                           }}
-                                          className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                          className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                         >
                                           <Trash2 size={13} />
                                           <span>{t('delete')}</span>
                                         </motion.button>
                                         <motion.button
-                                          whileHover={{ scale: 1.05 }}
                                           data-press="true"
                                           onClick={() => {
                                             setShowDeleteSelectionConfirm(false);
@@ -11738,7 +11691,7 @@ export default function App() {
                                             setSelectedLanguages([]);
                                             setSelectedCollectionIds([]);
                                           }}
-                                          className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                          className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                         >
                                           <X size={13} />
                                           <span>{t('cancel')}</span>
@@ -11753,7 +11706,6 @@ export default function App() {
                         })()}
                       </div>
                       <motion.button 
-                        whileHover={{ scale: 1.12 }}
                         data-press="true"
                         animate={showDeleteSelectionConfirm
                           ? { scale: 0.85, opacity: 0, pointerEvents: 'none', transition: FADE_OUT }
@@ -11769,7 +11721,7 @@ export default function App() {
                         }}
                         aria-label={t('cancel')}
                         title={t('cancel')}
-                        className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
+                        className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
                       >
                         <X size={13} className="max-md:w-5 max-md:h-5" />
                         <span className="max-md:hidden">{t('cancel')}</span>
@@ -11788,21 +11740,19 @@ export default function App() {
                       {(activeScreen.id === 'create-collection' || activeScreen.id === 'edit-collection') ? (
                         <div className="flex items-center gap-2.5">
                           <motion.button 
-                            whileHover={{ scale: 1.08 }} 
                             data-press="true" 
                             title={t('save')} 
                             onClick={handleSaveCollectionForm}
-                            className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 border border-winblue/45 shadow-[0_0_15px_rgba(var(--winblue-rgb),0.15)] hover:bg-winblue/30 hover:border-winblue/75 hover:shadow-[0_0_22px_rgba(var(--winblue-rgb),0.45)] text-winblue transition-all backdrop-blur-3xl font-semibold text-xs cursor-pointer"
+                            className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 hover:bg-winblue/30 text-winblue transition-all backdrop-blur-3xl font-semibold text-xs cursor-pointer"
                           >
                             <Check size={13} className="max-md:w-5 max-md:h-5" />
                             <span className="max-md:hidden">{t('save')}</span>
                           </motion.button>
                           <motion.button 
-                            whileHover={{ scale: 1.12 }} 
                             data-press="true" 
                             title={t('cancel')} 
                             onClick={goBack}
-                            className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs cursor-pointer"
+                            className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs cursor-pointer"
                           >
                             <X size={13} className="max-md:w-5 max-md:h-5" />
                             <span className="max-md:hidden">{t('cancel')}</span>
@@ -11818,7 +11768,6 @@ export default function App() {
                               {/* Adicionar itens à coleção (o pop-up nasce do próprio botão) */}
                               <div className={`relative w-9 h-9 shrink-0 ${showCollectionHeaderAddPopup ? 'z-50' : 'z-10'}`}>
                                 <motion.button
-                                  whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   animate={morphTriggerAnimate(showCollectionHeaderAddPopup)}
                                   title={t('add_to_collection')}
@@ -11828,7 +11777,7 @@ export default function App() {
                                     closeAllPopups();
                                     setShowCollectionHeaderAddPopup(next);
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
                                 >
                                   <Plus size={14} />
                                 </motion.button>
@@ -11846,7 +11795,7 @@ export default function App() {
                                         data-popup-content="true"
                                         onClick={(e) => e.stopPropagation()}
                                         style={{ transformOrigin: "top right" }}
-                                        className="absolute top-0 right-0 w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl z-50 flex flex-col overflow-hidden"
+                                        className="absolute top-0 right-0 w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-50 flex flex-col overflow-hidden"
                                       >
                                         <CollectionItemsPickerContent
                                           mode="all"
@@ -11864,11 +11813,10 @@ export default function App() {
                               </div>
 
                               <motion.button
-                                whileHover={{ scale: 1.12 }}
                                 data-press="true"
                                 title={t('edit_collection')}
                                 onClick={() => handleStartEditCurrentCollection()}
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
                               >
                                 <Edit3 size={13} />
                               </motion.button>
@@ -11877,7 +11825,6 @@ export default function App() {
                               <div className={`relative w-9 h-9 shrink-0 ${showSortMenu ? 'z-50' : 'z-10'}`}>
                                 <motion.button 
                                   ref={sortBtnRef}
-                                  whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   animate={morphTriggerAnimate(showSortMenu)}
                                   transition={SPRING.bouncy}
@@ -11894,7 +11841,7 @@ export default function App() {
                                       setSortBtnAnchor(null);
                                     }
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                                 >
                                   <ArrowUpDown size={13} />
                                 </motion.button>
@@ -11903,7 +11850,6 @@ export default function App() {
                               {/* Excluir coleção (confirmação nasce do botão, mesmo padrão de excluir audiobook) */}
                               <div className={`relative w-9 h-9 shrink-0 ${showDeleteCurrentCollectionConfirm ? 'z-50' : 'z-10'}`}>
                                 <motion.button
-                                  whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   animate={morphTriggerAnimate(showDeleteCurrentCollectionConfirm)}
                                   title={t('delete_collection')}
@@ -11912,7 +11858,7 @@ export default function App() {
                                     closeAllPopups();
                                     setShowDeleteCurrentCollectionConfirm(true);
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl cursor-pointer"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl cursor-pointer"
                                 >
                                   <Trash2 size={13} />
                                 </motion.button>
@@ -11930,7 +11876,7 @@ export default function App() {
                                         data-popup-content="true"
                                         onClick={(e) => e.stopPropagation()}
                                         style={{ transformOrigin: "top right" }}
-                                        className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[28px] shadow-2xl p-4 z-50 flex flex-col text-[var(--text-main)]"
+                                        className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl rounded-[28px] shadow-2xl p-4 z-50 flex flex-col text-[var(--text-main)]"
                                       >
                                         <h4 className="text-sm font-bold text-[var(--text-main)] px-1 mb-1.5">
                                           {t('delete_collection')}
@@ -11951,22 +11897,20 @@ export default function App() {
 
                                         <div className="flex items-center justify-end gap-2.5 pt-1">
                                           <motion.button
-                                            whileHover={{ scale: 1.05 }}
                                             data-press="true"
                                             onClick={() => {
                                               setShowDeleteCurrentCollectionConfirm(false);
                                               handleDeleteCollection(headerCol.id);
                                             }}
-                                            className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                                            className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                                           >
                                             <Trash2 size={13} />
                                             <span>{t('delete')}</span>
                                           </motion.button>
                                           <motion.button
-                                            whileHover={{ scale: 1.05 }}
                                             data-press="true"
                                             onClick={() => setShowDeleteCurrentCollectionConfirm(false)}
-                                            className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                                            className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                                           >
                                             <X size={13} />
                                             <span>{t('cancel')}</span>
@@ -11983,11 +11927,10 @@ export default function App() {
                       ) : activeScreen.id === 'library-colecoes' ? (
                         <>
                           <motion.button 
-                            whileHover={{ scale: 1.12 }} 
                             data-press="true" 
                             title={t('add_collection')} 
                             onClick={() => handleStartCreateCollection()}
-                            className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
+                            className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
                           >
                             <Plus size={14} />
                           </motion.button>
@@ -11995,7 +11938,6 @@ export default function App() {
                           <div className={`relative w-9 h-9 shrink-0 ${showSortMenu ? 'z-50' : 'z-10'}`}>
                             <motion.button 
                               ref={sortBtnRef}
-                              whileHover={{ scale: 1.12 }}
                               data-press="true"
                               animate={morphTriggerAnimate(showSortMenu)}
                               transition={SPRING.bouncy}
@@ -12012,21 +11954,20 @@ export default function App() {
                                   setSortBtnAnchor(null);
                                 }
                               }}
-                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                             >
                               <ArrowUpDown size={13} />
                             </motion.button>
                           </div>
                           {collections.length > 0 && (
                             <motion.button 
-                              whileHover={{ scale: 1.12 }} 
                               data-press="true" 
                               title={t('delete_collections')} 
                               onClick={() => {
                                 setIsSelectionMode(true);
                                 setSelectedCollectionIds([]);
                               }}
-                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl"
+                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl"
                             >
                               <Trash2 size={13} />
                             </motion.button>
@@ -12038,24 +11979,22 @@ export default function App() {
                           {books.length > 0 && (
                             <>
                               <motion.button 
-                                whileHover={{ scale: 1.12 }}
                                 data-press="true"
                                 title={t('upload_audiobooks')}
                                 onClick={() => fileInputRef.current?.click()} 
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                               >
                                 <Upload size={13} />
                               </motion.button>
                               {IS_INSTALLED_APP && activeScreen.id.startsWith('library') && (
                                 <motion.button
-                                  whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   title={t('sync_now')}
                                   onClick={() => handleSyncLibraryNow()}
                                   className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl cursor-pointer ${
                                     isSyncingLibrary
-                                      ? 'bg-winblue/20 border border-winblue text-winblue shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)]'
-                                      : 'bg-card/75 border border-[var(--text-main)]/10 hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)]'
+                                      ? 'bg-winblue/20 text-winblue '
+                                      : 'bg-card/75 hover:bg-[var(--ios-fill)] text-[var(--text-main)]'
                                   }`}
                                 >
                                   <RefreshCw size={13} className={isSyncingLibrary ? "animate-spin text-winblue" : ""} />
@@ -12064,7 +12003,6 @@ export default function App() {
                               <div className={`relative w-9 h-9 shrink-0 ${showSortMenu ? 'z-50' : 'z-10'}`}>
                                 <motion.button 
                                   ref={sortBtnRef}
-                                  whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   animate={morphTriggerAnimate(showSortMenu)}
                                   transition={SPRING.bouncy}
@@ -12081,17 +12019,16 @@ export default function App() {
                                       setSortBtnAnchor(null);
                                     }
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                                 >
                                   <ArrowUpDown size={13} />
                                 </motion.button>
                               </div>
                               <motion.button 
-                                whileHover={{ scale: 1.12 }}
                                 data-press="true"
                                 title={t('delete_multiple')}
                                 onClick={() => setIsSelectionMode(true)} 
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl"
                               >
                                 <Trash2 size={13} />
                               </motion.button>
@@ -12109,7 +12046,6 @@ export default function App() {
                               <div className="relative">
                                 <motion.button 
                                   ref={authorCollectionBtnRef}
-                                  whileHover={{ scale: 1.12 }} 
                                   data-press="true" 
                                   animate={morphTriggerAnimate(showAuthorCollectionPopup)}
                                   title={t('add_to_collection')}
@@ -12131,8 +12067,8 @@ export default function App() {
                                   }}
                                   className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl ${
                                     showAuthorCollectionPopup
-                                      ? 'bg-winblue/20 border border-winblue/45 text-winblue shadow-[0_0_15px_rgba(var(--winblue-rgb),0.25)]'
-                                      : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                                      ? 'bg-winblue/20 text-winblue '
+                                      : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
                                   }`}
                                 >
                                   <FolderPlus size={14} />
@@ -12140,7 +12076,6 @@ export default function App() {
                               </div>
 
                               <motion.button 
-                                whileHover={{ scale: 1.12 }} 
                                 data-press="true" 
                                 title={favoriteAuthorIds.includes(activeScreen.data?.id) ? t('remove_favorite_author') : t('favorite_author')}
                                 onClick={() => {
@@ -12148,27 +12083,25 @@ export default function App() {
                                 }}
                                 className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl ${
                                   favoriteAuthorIds.includes(activeScreen.data?.id)
-                                    ? 'bg-yellow-400/20 border border-yellow-400/40 text-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.3)] hover:bg-yellow-400/30'
-                                    : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                                    ? 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30'
+                                    : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
                                 }`}
                               >
                                 <Star size={14} className={favoriteAuthorIds.includes(activeScreen.data?.id) ? "fill-yellow-400 text-yellow-400" : ""} />
                               </motion.button>
                               <motion.button 
-                                whileHover={{ scale: 1.12 }} 
                                 data-press="true" 
                                 title={t('edit_author')} 
                                 onClick={handleStartEditAuthor}
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                               >
                                 <Edit3 size={13} />
                               </motion.button>
                               <motion.button 
-                                whileHover={{ scale: 1.12 }}
                                 data-press="true" 
                                 title={t('delete_multiple')}
                                 onClick={() => setIsSelectionMode(true)} 
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl"
                               >
                                 <Trash2 size={13} />
                               </motion.button>
@@ -12176,21 +12109,19 @@ export default function App() {
                           ) : (
                             <div className="flex items-center gap-2.5">
                               <motion.button 
-                                whileHover={{ scale: 1.08 }} 
                                 data-press="true" 
                                 title={t('save_changes')} 
                                 onClick={handleSaveAuthorEdits}
-                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 border border-winblue/45 shadow-[0_0_15px_rgba(var(--winblue-rgb),0.15)] hover:bg-winblue/30 hover:border-winblue/75 hover:shadow-[0_0_22px_rgba(var(--winblue-rgb),0.45)] text-winblue transition-all backdrop-blur-3xl font-semibold text-xs"
+                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 hover:bg-winblue/30 text-winblue transition-all backdrop-blur-3xl font-semibold text-xs"
                               >
                                 <Check size={13} className="max-md:w-5 max-md:h-5" />
                                 <span className="max-md:hidden">{t('save')}</span>
                               </motion.button>
                               <motion.button 
-                                whileHover={{ scale: 1.12 }} 
                                 data-press="true" 
                                 title={t('cancel_edit')} 
                                 onClick={handleCancelAuthorEdits}
-                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
+                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
                               >
                                 <X size={13} className="max-md:w-5 max-md:h-5" />
                                 <span className="max-md:hidden">{t('cancel')}</span>
@@ -12209,7 +12140,6 @@ export default function App() {
                               <div className="relative">
                                 <motion.button 
                                   ref={bookCollectionBtnRef}
-                                  whileHover={{ scale: 1.12 }} 
                                   data-press="true" 
                                   animate={morphTriggerAnimate(showBookCollectionPopup)}
                                   title={t('add_to_collection')}
@@ -12232,8 +12162,8 @@ export default function App() {
                                   }}
                                   className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl ${
                                     showBookCollectionPopup
-                                      ? 'bg-winblue/20 border border-winblue/45 text-winblue shadow-[0_0_15px_rgba(var(--winblue-rgb),0.25)]'
-                                      : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                                      ? 'bg-winblue/20 text-winblue '
+                                      : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
                                   }`}
                                 >
                                   <FolderPlus size={14} />
@@ -12241,7 +12171,6 @@ export default function App() {
                               </div>
 
                               <motion.button 
-                                whileHover={{ scale: 1.12 }} 
                                 data-press="true" 
                                 title={favoriteBookIds.includes((activeScreen.data || selectedBook)?.id) ? t('remove_from_favorites') : t('favorite')} 
                                 onClick={() => {
@@ -12250,18 +12179,17 @@ export default function App() {
                                 }}
                                 className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl ${
                                   favoriteBookIds.includes((activeScreen.data || selectedBook)?.id)
-                                    ? 'bg-yellow-400/20 border border-yellow-400/40 text-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.3)] hover:bg-yellow-400/30'
-                                    : 'bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)]'
+                                    ? 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30'
+                                    : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
                                 }`}
                               >
                                 <Star size={14} className={favoriteBookIds.includes((activeScreen.data || selectedBook)?.id) ? "fill-yellow-400 text-yellow-400" : "text-[var(--text-main)]"} />
                               </motion.button>
                               <motion.button 
-                                whileHover={{ scale: 1.12 }} 
                                 data-press="true" 
                                 title={t('edit_audiobook')} 
                                 onClick={handleStartEditBook}
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                               >
                                 <Edit3 size={13} />
                               </motion.button>
@@ -12269,7 +12197,6 @@ export default function App() {
                               <div className={`relative w-9 h-9 ${showShareBookMenu ? 'z-50' : 'z-10'}`}>
                                 <motion.button
                                   key="btn"
-                                  whileHover={{ scale: 1.12 }}
                                   data-press="true"
                                   animate={morphTriggerAnimate(showShareBookMenu)}
                                   title={t('share')}
@@ -12281,7 +12208,7 @@ export default function App() {
                                     if (!target.transcript?.length) { openShareImage('book', target); return; }
                                     setShowShareBookMenu(true);
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                                 >
                                   {isGeneratingShare ? <div className="w-3.5 h-3.5 rounded-full border-2 border-[var(--text-main)] border-t-transparent animate-spin" /> : <Share size={13} />}
                                 </motion.button>
@@ -12297,7 +12224,7 @@ export default function App() {
                                         data-popup-content="true"
                                         style={{ transformOrigin: "top right" }}
                                         onClick={(e) => e.stopPropagation()}
-                                        className="absolute top-0 right-0 w-60 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[20px] shadow-2xl p-1.5 z-50 flex flex-col"
+                                        className="absolute top-0 right-0 w-60 bg-card/95 backdrop-blur-3xl rounded-[20px] shadow-2xl p-1.5 z-50 flex flex-col"
                                       >
                                         {(() => {
                                           const target = books.find(b => b.id === (activeScreen.data?.id || selectedBook?.id)) || activeScreen.data || selectedBook;
@@ -12320,7 +12247,6 @@ export default function App() {
                               <div className={`relative w-9 h-9 ${showBookDetailsPopup ? 'z-50' : 'z-10'}`}>
                                 <motion.button 
                                   key="btn"
-                                  whileHover={{ scale: 1.12 }} 
                                   data-press="true" 
                                   animate={morphTriggerAnimate(showBookDetailsPopup)}
                                   title={t('more_details')} 
@@ -12329,7 +12255,7 @@ export default function App() {
                                     closeAllPopups();
                                     setShowBookDetailsPopup(true);
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                                 >
                                   <Info size={13} />
                                 </motion.button>
@@ -12345,7 +12271,7 @@ export default function App() {
                                         data-popup-content="true"
                                         style={{ transformOrigin: "top right" }}
                                         onClick={(e) => e.stopPropagation()}
-                                        className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl p-4 z-50 flex flex-col"
+                                        className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl p-4 z-50 flex flex-col"
                                       >
                                         {renderBookDetailsContent()}
                                       </MorphPopup>
@@ -12356,7 +12282,6 @@ export default function App() {
                               <div className={`relative w-9 h-9 ${showDeleteBookDetailConfirm ? 'z-50' : 'z-10'}`}>
                                 <motion.button 
                                   key="btn"
-                                  whileHover={{ scale: 1.12 }} 
                                   data-press="true" 
                                   animate={morphTriggerAnimate(showDeleteBookDetailConfirm)}
                                   title={t('delete')} 
@@ -12365,7 +12290,7 @@ export default function App() {
                                     closeAllPopups();
                                     setShowDeleteBookDetailConfirm(true);
                                   }} 
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl"
                                 >
                                   <Trash2 size={13} />
                                 </motion.button>
@@ -12381,7 +12306,7 @@ export default function App() {
                                         data-popup-content="true"
                                         style={{ transformOrigin: "top right" }}
                                         onClick={(e) => e.stopPropagation()}
-                                        className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[28px] shadow-2xl p-4 z-50 flex flex-col"
+                                        className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl rounded-[28px] shadow-2xl p-4 z-50 flex flex-col"
                                       >
                                         <h4 className="text-sm font-bold text-[var(--text-main)] px-1 mb-3">
                                           {t('confirm_delete_single_book')}
@@ -12410,7 +12335,6 @@ export default function App() {
 
                                         <div className="flex items-center justify-end gap-2.5 pt-1">
                                           <motion.button
-                                            whileHover={{ scale: 1.05 }}
                                             data-press="true"
                                             onClick={() => {
                                               const target = activeScreen.data || selectedBook;
@@ -12422,16 +12346,15 @@ export default function App() {
                                                 showToast(t('toast_book_deleted', { title: target.title }));
                                               }
                                             }}
-                                            className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                            className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                           >
                                             <Trash2 size={13} />
                                             <span>{t('delete')}</span>
                                           </motion.button>
                                           <motion.button
-                                            whileHover={{ scale: 1.05 }}
                                             data-press="true"
                                             onClick={() => setShowDeleteBookDetailConfirm(false)}
-                                            className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                            className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                           >
                                             <X size={13} />
                                             <span>{t('cancel')}</span>
@@ -12446,21 +12369,19 @@ export default function App() {
                           ) : (
                             <div className="flex items-center gap-2.5">
                               <motion.button 
-                                whileHover={{ scale: 1.08 }} 
                                 data-press="true" 
                                 title={t('save_changes')} 
                                 onClick={handleSaveBookEdits}
-                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 border border-winblue/45 shadow-[0_0_15px_rgba(var(--winblue-rgb),0.15)] hover:bg-winblue/30 hover:border-winblue/75 hover:shadow-[0_0_22px_rgba(var(--winblue-rgb),0.45)] text-winblue transition-all backdrop-blur-3xl font-semibold text-xs"
+                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-winblue/20 hover:bg-winblue/30 text-winblue transition-all backdrop-blur-3xl font-semibold text-xs"
                               >
                                 <Check size={13} className="max-md:w-5 max-md:h-5" />
                                 <span className="max-md:hidden">{t('save')}</span>
                               </motion.button>
                               <motion.button 
-                                whileHover={{ scale: 1.12 }} 
                                 data-press="true" 
                                 title={t('cancel_edit')} 
                                 onClick={handleCancelBookEdits}
-                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
+                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
                               >
                                 <X size={13} className="max-md:w-5 max-md:h-5" />
                                 <span className="max-md:hidden">{t('cancel')}</span>
@@ -12476,7 +12397,6 @@ export default function App() {
                           <div className={`relative w-9 h-9 shrink-0 ${showResetSettingsConfirm ? 'z-50' : 'z-10'}`}>
                             <motion.button 
                               key="btn-reset-settings"
-                              whileHover={{ scale: 1.12 }}
                               data-press="true"
                               animate={morphTriggerAnimate(showResetSettingsConfirm)}
                               title={t('settings_reset')} 
@@ -12485,7 +12405,7 @@ export default function App() {
                                 closeAllPopups();
                                 setShowResetSettingsConfirm(true); 
                               }}
-                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                             >
                               <RotateCcw size={13} />
                             </motion.button>
@@ -12501,7 +12421,7 @@ export default function App() {
                                     data-popup-content="true"
                                     style={{ transformOrigin: "top right" }}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[28px] shadow-2xl p-4 z-50 flex flex-col text-[var(--text-main)]"
+                                    className="absolute top-0 right-0 w-64 sm:w-80 bg-card/95 backdrop-blur-3xl rounded-[28px] shadow-2xl p-4 z-50 flex flex-col text-[var(--text-main)]"
                                   >
                                     <h4 className="text-sm font-bold text-[var(--text-main)] px-1 mb-1.5">
                                       {t('settings_reset_confirm_title')}
@@ -12512,22 +12432,20 @@ export default function App() {
 
                                     <div className="flex items-center justify-end gap-2.5 pt-1">
                                       <motion.button
-                                        whileHover={{ scale: 1.05 }}
                                         data-press="true"
                                         onClick={() => {
                                           handleResetSettings();
                                           setShowResetSettingsConfirm(false);
                                         }}
-                                        className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                        className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                       >
                                         <RotateCcw size={13} />
                                         <span>{t('settings_reset_btn')}</span>
                                       </motion.button>
                                       <motion.button
-                                        whileHover={{ scale: 1.05 }}
                                         data-press="true"
                                         onClick={() => setShowResetSettingsConfirm(false)}
-                                        className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                       >
                                         <X size={13} />
                                         <span>{t('cancel')}</span>
@@ -12540,7 +12458,6 @@ export default function App() {
                           </div>
 
                           <motion.button 
-                            whileHover={{ scale: 1.12 }}
                             data-press="true"
                             onClick={() => {
                               if ((window as any).electron) {
@@ -12549,7 +12466,7 @@ export default function App() {
                                 showToast(t('close_desktop_only'));
                               }
                             }}
-                            className="px-3.5 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs"
+                            className="px-3.5 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs"
                           >
                             <Power size={13} />
                             <span>{t('close_app')}</span>
@@ -12653,7 +12570,6 @@ export default function App() {
                     <div className={`relative w-11 h-11 shrink-0 ${showDeleteSearchHistoryConfirm ? 'z-50' : 'z-10'}`}>
                       <motion.button
                         key="btn-clear-history"
-                        whileHover={{ scale: 1.12 }}
                         data-press="true"
                         animate={morphTriggerAnimate(showDeleteSearchHistoryConfirm)}
                         title={t('clear_search_history')}
@@ -12662,7 +12578,7 @@ export default function App() {
                           closeAllPopups();
                           setShowDeleteSearchHistoryConfirm(true);
                         }}
-                        className="w-11 h-11 flex items-center justify-center rounded-full bg-card/75 border border-red-500/20 shadow-xl hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl shrink-0"
+                        className="w-11 h-11 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl shrink-0"
                       >
                         <Trash2 size={16} />
                       </motion.button>
@@ -12679,7 +12595,6 @@ export default function App() {
 
                               <div className="flex items-center justify-end gap-2.5 pt-1">
                                 <motion.button
-                                  whileHover={{ scale: 1.05 }}
                                   data-press="true"
                                   onClick={() => {
                                     setSearchHistory([]);
@@ -12689,16 +12604,15 @@ export default function App() {
                                     setShowDeleteSearchHistoryConfirm(false);
                                     showToast(t('search_history_cleared'));
                                   }}
-                                  className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                  className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                 >
                                   <Trash2 size={13} />
                                   <span>{t('delete')}</span>
                                 </motion.button>
                                 <motion.button
-                                  whileHover={{ scale: 1.05 }}
                                   data-press="true"
                                   onClick={() => setShowDeleteSearchHistoryConfirm(false)}
-                                  className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                  className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                 >
                                   <X size={13} />
                                   <span>{t('cancel')}</span>
@@ -12715,7 +12629,7 @@ export default function App() {
                               data-popup-content="true"
                               style={{ transformOrigin: "top right" }}
                               onClick={(e) => e.stopPropagation()}
-                              className="absolute top-0 right-0 w-80 sm:w-96 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[28px] shadow-2xl p-4 z-50 flex flex-col text-[var(--text-main)]"
+                              className="absolute top-0 right-0 w-80 sm:w-96 bg-card/95 backdrop-blur-3xl rounded-[28px] shadow-2xl p-4 z-50 flex flex-col text-[var(--text-main)]"
                             >
                               <h4 className="text-sm font-bold text-[var(--text-main)] px-1 mb-1.5">
                                 {t('clear_search_history_confirm_title')}
@@ -12726,7 +12640,6 @@ export default function App() {
 
                               <div className="flex items-center justify-end gap-2.5 pt-1">
                                 <motion.button
-                                  whileHover={{ scale: 1.05 }}
                                   data-press="true"
                                   onClick={() => {
                                     setSearchHistory([]);
@@ -12736,16 +12649,15 @@ export default function App() {
                                     setShowDeleteSearchHistoryConfirm(false);
                                     showToast(t('search_history_cleared'));
                                   }}
-                                  className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md hover:bg-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_12px_rgba(239,68,68,0.25)] text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                  className="h-8 px-4 rounded-full bg-card/75 shadow-md hover:bg-red-500/20 text-red-500 transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                 >
                                   <Trash2 size={13} />
                                   <span>{t('delete')}</span>
                                 </motion.button>
                                 <motion.button
-                                  whileHover={{ scale: 1.05 }}
                                   data-press="true"
                                   onClick={() => setShowDeleteSearchHistoryConfirm(false)}
-                                  className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                  className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                 >
                                   <X size={13} />
                                   <span>{t('cancel')}</span>
@@ -12773,14 +12685,14 @@ export default function App() {
                           setSearchQuery(term);
                           searchInputRef.current?.focus();
                         }}
-                        className="group flex items-center justify-between h-[52px] pl-[18px] pr-5 rounded-full hover:bg-[var(--button-secondary-bg)]/50 border border-transparent cursor-pointer transition-all w-full select-none"
+                        className="group flex items-center justify-between h-[52px] pl-[18px] pr-5 rounded-full hover:bg-[var(--button-secondary-bg)]/50 cursor-pointer transition-all w-full select-none"
                       >
                         <div className="flex items-center gap-4 min-w-0">
                           <div className="relative w-4 h-4 flex items-center justify-center shrink-0">
                             <Clock size={16} className="text-[var(--text-muted)] group-hover:hidden transition-colors" />
                             <div className="hidden group-hover:flex items-center justify-center relative">
                               <div className="absolute w-4 h-4 bg-white/70 blur-[6px] rounded-full pointer-events-none" />
-                              <Search size={16} className="relative z-10 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.95)]" />
+                              <Search size={16} className="relative z-10 text-white " />
                             </div>
                           </div>
                           <span className="text-sm font-semibold text-[var(--text-main)] transition-colors truncate">{term}</span>
@@ -12810,7 +12722,7 @@ export default function App() {
                   {t('nav_home')}
                 </h1>
                 <div className="flex flex-col items-center justify-center min-h-[55vh] text-center px-4">
-                  <div className="w-20 h-20 rounded-full bg-card/75 border border-[var(--text-main)]/10 flex items-center justify-center text-winblue shadow-xl backdrop-blur-3xl mb-5">
+                  <div className="w-20 h-20 rounded-full bg-card/75 flex items-center justify-center text-winblue shadow-xl backdrop-blur-3xl mb-5">
                     <RiBookOpenLine size={36} />
                   </div>
                   <h2 className="text-2xl sm:text-3xl font-semibold text-[var(--text-main)] tracking-tight mb-2.5">
@@ -12820,10 +12732,9 @@ export default function App() {
                     {t('empty_home_desc')}
                   </p>
                   <motion.button
-                    whileHover={{ scale: 1.06 }}
                     data-press="true"
                     onClick={() => fileInputRef.current?.click()}
-                    className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/20 shadow-xl hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_24px_rgba(255,255,255,0.3)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
+                    className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
                   >
                     <Upload size={16} />
                     <span>{t('add_audiobooks_button')}</span>
@@ -12850,10 +12761,9 @@ export default function App() {
                         <h2 className="text-xl font-bold text-[var(--text-main)]">{section.title}</h2>
                         {section.buttonLabel && section.onButtonClick && (
                           <motion.button 
-                            whileHover={{ scale: 1.06 }} 
                             data-press="true"
                             onClick={section.onButtonClick}
-                            className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all shrink-0 ml-3"
+                            className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all shrink-0 ml-3"
                           >
                             <span>{section.buttonLabel}</span>
                             <ChevronRight size={15} className="-mr-0.5" />
@@ -12925,7 +12835,7 @@ export default function App() {
                   {t('nav_library')}
                 </h1>
                 <div className="flex flex-col items-center justify-center min-h-[55vh] text-center px-4">
-                  <div className="w-20 h-20 rounded-full bg-card/75 border border-[var(--text-main)]/10 flex items-center justify-center text-winblue shadow-xl backdrop-blur-3xl mb-5">
+                  <div className="w-20 h-20 rounded-full bg-card/75 flex items-center justify-center text-winblue shadow-xl backdrop-blur-3xl mb-5">
                     <RiBookOpenLine size={36} />
                   </div>
                   <h2 className="text-2xl sm:text-3xl font-semibold text-[var(--text-main)] tracking-tight mb-2.5">
@@ -12936,23 +12846,21 @@ export default function App() {
                   </p>
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     {IS_INSTALLED_APP && (<motion.button
-                      whileHover={{ scale: 1.06 }}
                       data-press="true"
                       onClick={() => handleSyncLibraryNow()}
                       className={`h-11 px-6 rounded-full backdrop-blur-3xl font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer ${
                         isSyncingLibrary
-                          ? 'bg-winblue/20 border border-winblue text-winblue shadow-[0_0_24px_rgba(var(--winblue-rgb),0.35)]'
-                          : 'bg-card/75 border border-[var(--text-main)]/20 shadow-xl hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_24px_rgba(255,255,255,0.3)] text-[var(--text-main)]'
+                          ? 'bg-winblue/20 text-winblue '
+                          : 'bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)]'
                       }`}
                     >
                       <RefreshCw size={16} className={isSyncingLibrary ? "animate-spin text-winblue" : ""} />
                       <span>{t('sync_now')}</span>
                     </motion.button>)}
                     <motion.button
-                      whileHover={{ scale: 1.06 }}
                       data-press="true"
                       onClick={() => fileInputRef.current?.click()}
-                      className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/20 shadow-xl hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_24px_rgba(255,255,255,0.3)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
+                      className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
                     >
                       <Upload size={16} />
                       <span>{t('add_audiobooks_button')}</span>
@@ -12970,7 +12878,7 @@ export default function App() {
               {statusFilter !== 'all' && (
                 <div className="flex items-center gap-2 -mb-6">
                   <span className="text-xs text-[var(--text-muted)] font-medium">{t('filter_active')}</span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-winblue/15 border border-winblue/30 text-xs font-semibold text-winblue shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-winblue/15 text-xs font-semibold text-winblue shadow-sm">
                     {statusFilter === 'in-progress' && t('filter_in_progress')}
                     {statusFilter === 'completed' && t('filter_completed')}
                     {statusFilter === 'unstarted' && t('filter_unstarted')}
@@ -13001,10 +12909,9 @@ export default function App() {
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('favorite_audiobooks')}</h2>
                       {books.filter(b => favoriteBookIds.includes(b.id)).length > 6 && (
                         <motion.button 
-                          whileHover={{ scale: 1.06 }} 
                           data-press="true"
                           onClick={() => navigateTo('library-audiobooks-favoritos')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13071,10 +12978,9 @@ export default function App() {
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('favorite_authors')}</h2>
                       {sortedAuthors.filter(a => favoriteAuthorIds.includes(a.id)).length > 6 && (
                         <motion.button 
-                          whileHover={{ scale: 1.06 }} 
                           data-press="true"
                           onClick={() => navigateTo('library-autores-favoritos')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13114,10 +13020,9 @@ export default function App() {
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('collections')}</h2>
                       {collections.length > (isMobile ? 6 : 4) && (
                         <motion.button 
-                          whileHover={{ scale: 1.06 }} 
                           data-press="true"
                           onClick={() => navigateTo('library-colecoes')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13155,10 +13060,9 @@ export default function App() {
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('genres')}</h2>
                       {sortedGenres.length > (isMobile ? 6 : 4) && (
                         <motion.button 
-                          whileHover={{ scale: 1.06 }} 
                           data-press="true"
                           onClick={() => navigateTo('library-gêneros')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13176,22 +13080,21 @@ export default function App() {
                               animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                               exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
                               transition={FADE_IN}
-                              whileTap={{ scale: 0.97 }}
                               onClick={() => navigateTo('library-genre-' + genreData.id)}
-                              className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
+                              className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
                             >
                               {/* Camada interna recortada com fundo e ícone com zoom */}
                               <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
                                 <div className={`absolute inset-0 bg-gradient-to-br ${genreData.gradient}`} />
                                 <div className="absolute inset-0 bg-black/15" />
 
-                                <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-30 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
+                                <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
                                   {getGenreEmoji(genreData.id)}
                                 </span>
                               </div>
 
                               <div className="relative z-10">
-                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105">{getGenreName(genreData.id, resolvedLanguage)}</h3>
+                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{getGenreName(genreData.id, resolvedLanguage)}</h3>
                               </div>
                             </motion.div>
                           );
@@ -13217,10 +13120,9 @@ export default function App() {
                       <h2 className="text-xl font-bold text-[var(--text-main)]">{t('authors')}</h2>
                       {sortedAuthors.length > 6 && (
                         <motion.button 
-                          whileHover={{ scale: 1.06 }} 
                           data-press="true"
                           onClick={() => navigateTo('library-autores')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13260,10 +13162,9 @@ export default function App() {
                       {/* Só quando há mais idiomas do que a seção mostra */}
                       {sortedLanguages.length > (isMobile ? 6 : 4) && (
                       <motion.button 
-                        whileHover={{ scale: 1.06 }} 
                         data-press="true"
                         onClick={() => navigateTo('library-idiomas')} 
-                        className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
+                        className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                       >
                         <span>{t('see_all')}</span>
                         <ChevronRight size={15} className="-mr-0.5" />
@@ -13282,25 +13183,24 @@ export default function App() {
                               animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                               exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
                               transition={FADE_IN}
-                              whileTap={{ scale: 0.97 }}
                               onClick={() => {
                                 setHistoryStack([{ id: 'library' }, { id: 'library-idiomas' }]);
                                 setActiveScreen({ id: 'library-idioma-' + lang.toLowerCase(), data: lang });
                               }}
-                              className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border border-white/15 hover:border-white/30 transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
+                              className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
                             >
                               {/* Camada interna recortada com fundo e bandeira com zoom */}
                               <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
                                 <div className={`absolute inset-0 bg-gradient-to-br ${langData.gradient}`} />
                                 <div className="absolute inset-0 bg-black/15" />
 
-                                <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
+                                <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
                                   {langData.flag}
                                 </span>
                               </div>
 
                               <div className="relative z-10">
-                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105">{langData.name}</h3>
+                                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{langData.name}</h3>
                               </div>
                             </motion.div>
                           );
@@ -13319,10 +13219,9 @@ export default function App() {
                   <h2 className="text-xl font-bold text-[var(--text-main)]">{t('all_audiobooks')}</h2>
                   {filteredBooks.length > 6 && (
                     <motion.button 
-                      whileHover={{ scale: 1.06 }} 
                       data-press="true"
                       onClick={() => navigateTo('library-títulos')} 
-                      className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
+                      className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                     >
                       <span>{t('see_all')}</span>
                       <ChevronRight size={15} className="-mr-0.5" />
@@ -13393,7 +13292,7 @@ export default function App() {
                     {statusFilter !== 'all' && (
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-[var(--text-muted)] font-medium">{t('filter_active')}</span>
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-winblue/15 border border-winblue/30 text-xs font-semibold text-winblue shadow-sm">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-winblue/15 text-xs font-semibold text-winblue shadow-sm">
                           {statusFilter === 'in-progress' && t('filter_in_progress')}
                           {statusFilter === 'completed' && t('filter_completed')}
                           {statusFilter === 'unstarted' && t('filter_unstarted')}
@@ -13484,7 +13383,7 @@ export default function App() {
                         >
                           <nav
                             {...mobileNavHandlers}
-                            className={`w-full flex flex-col items-center no-scrollbar select-none transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] border border-[var(--text-main)]/10 ${
+                            className={`w-full flex flex-col items-center no-scrollbar select-none transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
                               isCompactNav
                                 ? 'p-0.5 gap-0 rounded-full bg-card/55 backdrop-blur-xl shadow-md overflow-hidden'
                                 : `p-1.5 bg-card/85 backdrop-blur-3xl shadow-2xl ${isMobile ? 'overflow-hidden' : 'overflow-y-auto'} ${isAlphabetMode ? 'rounded-full gap-1' : 'rounded-[18px] gap-1.5'}`
@@ -13512,8 +13411,8 @@ export default function App() {
                                           : `${isMobile ? 'max-h-7' : 'w-full h-7'} px-1 rounded-[12px] text-[10px] tracking-tight`
                                         } ${
                                           isSelected
-                                            ? 'bg-winblue/20 text-winblue border border-transparent shadow-[0_0_14px_rgba(var(--winblue-rgb),0.45)] hover:bg-winblue/25 hover:shadow-[0_0_18px_rgba(var(--winblue-rgb),0.6)]'
-                                            : 'text-[var(--text-muted)] border border-transparent hover:text-white hover:bg-white/20 hover:border-white/35 hover:shadow-[0_0_12px_rgba(255,255,255,0.35)]'
+                                            ? 'bg-winblue/20 text-winblue hover:bg-winblue/25 '
+                                            : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--ios-fill)] '
                                         }`
                                   }`}
                                   title={group.title}
@@ -13623,7 +13522,7 @@ export default function App() {
                   {statusFilter !== 'all' && activeScreen.id !== 'library-autores' && activeScreen.id !== 'library-autores-favoritos' && (
                     <div className="flex items-center gap-2 -mt-4 mb-4">
                       <span className="text-xs text-[var(--text-muted)] font-medium">{t('filter_active')}</span>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-winblue/15 border border-winblue/30 text-xs font-semibold text-winblue shadow-sm">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-winblue/15 text-xs font-semibold text-winblue shadow-sm">
                         {statusFilter === 'in-progress' && t('filter_in_progress')}
                         {statusFilter === 'completed' && t('filter_completed')}
                         {statusFilter === 'unstarted' && t('filter_unstarted')}
@@ -13756,7 +13655,6 @@ export default function App() {
                             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                             exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
                             transition={FADE_IN}
-                            whileTap={{ scale: 0.97 }} 
                             onClick={() => {
                               if (isSelectionMode) {
                                 if (isSelected) {
@@ -13768,10 +13666,10 @@ export default function App() {
                                 navigateTo('library-idioma-' + lang.toLowerCase(), lang);
                               }
                             }}
-                            className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
+                            className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
                               isSelectionMode && isSelected
-                                ? 'border-transparent shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
-                                : 'border-white/15 hover:border-white/30'
+                                ? ' '
+                                : ' '
                             }`}
                           >
                             {/* Camada interna recortada com fundo e bandeira com zoom */}
@@ -13779,7 +13677,7 @@ export default function App() {
                               <div className={`absolute inset-0 bg-gradient-to-br ${langData.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
                               <div className="absolute inset-0 bg-black/15" />
 
-                              <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
+                              <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
                                 {langData.flag}
                               </span>
                             </div>
@@ -13787,7 +13685,7 @@ export default function App() {
                             {isSelectionMode && (
                               <div className="absolute top-4 right-4 z-20">
                                 <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                                  isSelected ? 'bg-winblue border-winblue text-white shadow-lg' : 'border-white/70 bg-black/30 text-transparent'
+                                  isSelected ? 'bg-winblue text-white shadow-lg' : ' bg-black/30 text-transparent'
                                 }`}>
                                   <CheckCircle2 size={16} />
                                 </div>
@@ -13795,7 +13693,7 @@ export default function App() {
                             )}
 
                             <div className="relative z-10">
-                              <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105">{langData.name}</h3>
+                              <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{langData.name}</h3>
                             </div>
                           </motion.div>
                         );
@@ -13911,10 +13809,9 @@ export default function App() {
                     <h3 className="text-xl font-bold text-[var(--text-main)] mb-1">{t('no_collections_yet')}</h3>
                     <p className="text-sm text-[var(--text-muted)] max-w-sm mb-6">{t('no_collections_sub')}</p>
                     <motion.button
-                      whileHover={{ scale: 1.06 }}
                       data-press="true"
                       onClick={() => handleStartCreateCollection()}
-                      className="h-10 px-5 rounded-full bg-winblue text-white font-semibold text-xs shadow-lg hover:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.4)] transition-all flex items-center gap-2 cursor-pointer"
+                      className="h-10 px-5 rounded-full bg-winblue text-white font-semibold text-xs shadow-lg transition-all flex items-center gap-2 cursor-pointer"
                     >
                       <Plus size={16} />
                       <span>{t('create_collection')}</span>
@@ -13992,10 +13889,9 @@ export default function App() {
                             <h2 className="text-xl font-bold text-[var(--text-main)]">{t('authors')}</h2>
                             {colAuthors.length > 6 && (
                               <motion.button
-                                whileHover={{ scale: 1.06 }}
                                 data-press="true"
                                 onClick={() => navigateTo('library-col-autores-' + currentCollection.id, currentCollection)}
-                                className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
+                                className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                               >
                                 <span>{t('see_all')}</span>
                                 <ChevronRight size={15} className="-mr-0.5 rtl:rotate-180" />
@@ -14017,10 +13913,9 @@ export default function App() {
                             <h2 className="text-xl font-bold text-[var(--text-main)]">{t('audiobooks_label')}</h2>
                             {colBooks.length > 6 && (
                               <motion.button
-                                whileHover={{ scale: 1.06 }}
                                 data-press="true"
                                 onClick={() => navigateTo('library-col-audiobooks-' + currentCollection.id, currentCollection)}
-                                className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all"
+                                className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                               >
                                 <span>{t('see_all')}</span>
                                 <ChevronRight size={15} className="-mr-0.5 rtl:rotate-180" />
@@ -14044,10 +13939,9 @@ export default function App() {
                           <h3 className="text-xl font-bold text-[var(--text-main)] mb-1">{t('no_items_in_collection')}</h3>
                           <p className="text-sm text-[var(--text-muted)] max-w-sm mb-6">{t('no_items_in_collection_sub')}</p>
                           <motion.button
-                            whileHover={{ scale: 1.06 }}
                             data-press="true"
                             onClick={() => handleStartEditCurrentCollection(currentCollection)}
-                            className="h-10 px-5 rounded-full bg-winblue text-white font-semibold text-xs shadow-lg hover:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.4)] transition-all flex items-center gap-2 cursor-pointer"
+                            className="h-10 px-5 rounded-full bg-winblue text-white font-semibold text-xs shadow-lg transition-all flex items-center gap-2 cursor-pointer"
                           >
                             <Edit3 size={15} />
                             <span>{t('edit_collection')}</span>
@@ -14108,7 +14002,6 @@ export default function App() {
                             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                             exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
                             transition={FADE_IN}
-                            whileTap={{ scale: 0.97 }} 
                             onClick={() => {
                               if (isSelectionMode) {
                                 if (isSelected) {
@@ -14120,10 +14013,10 @@ export default function App() {
                                 navigateTo('library-genre-' + genreData.id);
                               }
                             }}
-                            className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
+                            className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
                               isSelectionMode && isSelected 
-                                ? 'border-transparent shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]' 
-                                : 'border-white/15 hover:border-white/30'
+                                ? ' ' 
+                                : ' '
                             }`}
                           >
                             {/* Camada interna recortada com fundo e ícone com zoom */}
@@ -14131,7 +14024,7 @@ export default function App() {
                               <div className={`absolute inset-0 bg-gradient-to-br ${genreData.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
                               <div className="absolute inset-0 bg-black/15" />
 
-                              <span className="absolute -bottom-4 -right-3 text-7xl sm:text-8xl select-none pointer-events-none opacity-30 group-hover:scale-110 transition-transform duration-500 transform translate-x-2 translate-y-2">
+                              <span className="absolute -bottom-4 -right-3 text-7xl sm:text-8xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
                                 {getGenreEmoji(genreData.id)}
                               </span>
                             </div>
@@ -14139,7 +14032,7 @@ export default function App() {
                             {isSelectionMode && (
                               <div className="absolute top-4 right-4 z-20">
                                 <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                                  isSelected ? 'bg-winblue border-winblue text-white shadow-lg' : 'border-white/70 bg-black/30 text-transparent'
+                                  isSelected ? 'bg-winblue text-white shadow-lg' : ' bg-black/30 text-transparent'
                                 }`}>
                                   <CheckCircle2 size={16} />
                                 </div>
@@ -14148,7 +14041,7 @@ export default function App() {
 
                             {/* Nome do Gênero com texto maior */}
                             <div className="relative z-10">
-                              <h3 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105">{getGenreName(genreData.id, resolvedLanguage)}</h3>
+                              <h3 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{getGenreName(genreData.id, resolvedLanguage)}</h3>
                             </div>
                           </motion.div>
                         );
@@ -14319,7 +14212,6 @@ export default function App() {
                                             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                                             exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
                                             transition={FADE_IN}
-                                            whileTap={{ scale: 0.98 }}
                                             onClick={() => {
                                               if (isSelectionMode) {
                                                 if (isAllSelected) {
@@ -14331,10 +14223,10 @@ export default function App() {
                                                 navigateTo(`library-subgenre-${genreData.id}-${subgenre}`, { genre: genreData, subgenre });
                                               }
                                             }}
-                                            className={`relative isolate h-28 rounded-3xl cursor-pointer group shadow-lg border transition-[border-color,box-shadow] p-4 flex flex-col justify-end ${
+                                            className={`relative isolate h-28 rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-4 flex flex-col justify-end ${
                                               isSelectionMode && isAllSelected
-                                                ? 'border-transparent shadow-[0_0_20px_rgba(var(--winblue-rgb),0.35)]'
-                                                : 'border-white/15 hover:border-white/30'
+                                                ? ' '
+                                                : ' '
                                             }`}
                                           >
                                             {/* Camada interna recortada com fundo e ícone com zoom */}
@@ -14342,7 +14234,7 @@ export default function App() {
                                               <div className={`absolute inset-0 bg-gradient-to-br ${gradient} ${isSelectionMode && isAllSelected ? 'opacity-70' : ''}`} />
                                               <div className="absolute inset-0 bg-black/15" />
 
-                                              <span className="absolute -bottom-3 -right-2 text-5xl sm:text-6xl select-none pointer-events-none opacity-30 group-hover:scale-125 transition-transform duration-500 transform translate-x-1 translate-y-1">
+                                              <span className="absolute -bottom-3 -right-2 text-5xl sm:text-6xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-1 translate-y-1">
                                                 {getSubgenreEmoji(subgenre)}
                                               </span>
                                             </div>
@@ -14350,7 +14242,7 @@ export default function App() {
                                             {isSelectionMode && (
                                               <div className="absolute top-3 right-3 z-20">
                                                 <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
-                                                  isAllSelected ? 'bg-winblue border-winblue text-white shadow-lg' : 'border-white/70 bg-black/30 text-transparent'
+                                                  isAllSelected ? 'bg-winblue text-white shadow-lg' : ' bg-black/30 text-transparent'
                                                 }`}>
                                                   <CheckCircle2 size={14} />
                                                 </div>
@@ -14359,7 +14251,7 @@ export default function App() {
 
                                             {/* Nome do Subgênero com texto maior */}
                                             <div className="relative z-10">
-                                              <h4 className="text-base sm:text-lg font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-105">{getSubgenreName(subgenre, resolvedLanguage)}</h4>
+                                              <h4 className="text-base sm:text-lg font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 group-hover:scale-[1.02]">{getSubgenreName(subgenre, resolvedLanguage)}</h4>
                                             </div>
                                           </motion.div>
                                         );
@@ -14437,11 +14329,11 @@ export default function App() {
 
           {/* SCREEN: CRIAR OU EDITAR COLEÇÃO (MESMO PADRÃO DE EDITAR AUDIOBOOK/AUTOR) */}
           {(activeScreen.id === 'create-collection' || activeScreen.id === 'edit-collection') && (() => {
-            const editInputClass = "w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all";
-            const addButtonClass = "h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer";
-            const pickerPopupClass = "absolute right-0 top-0 w-80 max-w-[calc(100vw-32px)] rounded-[24px] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] shadow-2xl z-50 flex flex-col overflow-hidden";
-            const listRowClass = "group flex items-center justify-between py-2 pl-4 sm:pl-5 pr-2.5 rtl:pl-2.5 rtl:pr-4 rtl:sm:pr-5 rounded-full bg-card/40 border border-[var(--text-main)]/5 hover:bg-[var(--button-secondary-bg)]/50 mb-1.5 transition-all";
-            const removeButtonClass = "w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all cursor-pointer";
+            const editInputClass = "w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all";
+            const addButtonClass = "h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer";
+            const pickerPopupClass = "absolute right-0 top-0 w-80 max-w-[calc(100vw-32px)] rounded-[24px] bg-card/95 backdrop-blur-3xl shadow-2xl z-50 flex flex-col overflow-hidden";
+            const listRowClass = "group flex items-center justify-between py-2 pl-4 sm:pl-5 pr-2.5 rtl:pl-2.5 rtl:pr-4 rtl:sm:pr-5 rounded-full bg-card/40 hover:bg-[var(--button-secondary-bg)]/50 mb-1.5 transition-all";
+            const removeButtonClass = "w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all cursor-pointer";
 
             return (
             <motion.div
@@ -14455,7 +14347,7 @@ export default function App() {
               <div className="flex flex-col md:flex-row items-start gap-8 w-full">
                 {/* Prévia do card (no lugar da capa/foto) + seletor de cor; no celular, centralizada */}
                 <div className="flex flex-col items-center shrink-0 max-md:self-center">
-                  <div className="relative isolate shrink-0 rounded-3xl overflow-hidden shadow-2xl w-56 aspect-[16/9] border border-white/15 p-4 flex flex-col justify-end">
+                  <div className="relative isolate shrink-0 rounded-3xl overflow-hidden shadow-2xl w-56 aspect-[16/9] p-4 flex flex-col justify-end">
                     <div className={`absolute inset-0 bg-gradient-to-br ${colFormPalette.gradient}`} />
                     <div className="absolute inset-0 bg-black/20" />
                     <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 transform translate-x-2 translate-y-2">
@@ -14477,7 +14369,7 @@ export default function App() {
                     <span className="text-xs font-semibold text-[var(--text-muted)]">
                       {t('select_color')}
                     </span>
-                    <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-3 py-3 rounded-2xl bg-card/60 backdrop-blur-md border border-[var(--text-main)]/10 shadow-sm w-full">
+                    <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-3 py-3 rounded-2xl bg-card/60 backdrop-blur-md shadow-sm w-full">
                       {COLLECTION_AVAILABLE_PALETTES.map((pal) => {
                         const isSelected = colFormPalette.id === pal.id;
                         return (
@@ -14489,8 +14381,8 @@ export default function App() {
                             style={{ backgroundColor: pal.hex }}
                             className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer ${
                               isSelected
-                                ? 'ring-2 ring-winblue ring-offset-[1.5px] ring-offset-black/50 shadow-[0_0_10px_rgba(var(--winblue-rgb),0.5)] hover:shadow-[0_0_14px_rgba(var(--winblue-rgb),0.75)]'
-                                : 'opacity-85 hover:opacity-100 hover:ring-2 hover:ring-white/90 hover:ring-offset-[1.5px] hover:ring-offset-black/40 hover:shadow-[0_0_12px_rgba(255,255,255,0.75)]'
+                                ? 'ring-2 ring-winblue ring-offset-[1.5px] ring-offset-black/50 '
+                                : 'opacity-85 hover:opacity-100 hover:ring-2 hover:ring-white/90 hover:ring-offset-[1.5px] hover:ring-offset-black/40 '
                             }`}
                           >
                             {isSelected && (
@@ -14541,7 +14433,7 @@ export default function App() {
                     <label className="text-xs font-semibold text-[var(--text-muted)] block mb-1.5">
                       {t('select_icon_or_emoji')}
                     </label>
-                    <div className="grid grid-cols-8 sm:grid-cols-12 gap-1.5 p-2 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 shadow-sm backdrop-blur-3xl">
+                    <div className="grid grid-cols-8 sm:grid-cols-12 gap-1.5 p-2 rounded-2xl bg-card/75 shadow-sm backdrop-blur-3xl">
                       {COLLECTION_AVAILABLE_EMOJIS.map((emoji) => {
                         const isSelected = colFormEmoji === emoji;
                         return (
@@ -14549,10 +14441,10 @@ export default function App() {
                             key={emoji}
                             type="button"
                             onClick={() => setColFormEmoji(emoji)}
-                            className={`h-9 rounded-xl flex items-center justify-center text-lg border transition-all duration-150 cursor-pointer ${
+                            className={`h-9 rounded-xl flex items-center justify-center text-lg transition-all duration-150 cursor-pointer ${
                               isSelected
-                                ? 'bg-winblue/15 border-winblue/40 shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)]'
-                                : 'border-transparent hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+                                ? 'bg-winblue/15 '
+                                : ' hover:bg-[var(--ios-fill)] '
                             }`}
                           >
                             <span>{emoji}</span>
@@ -14572,7 +14464,6 @@ export default function App() {
                   </h2>
                   <div className={`relative shrink-0 ${showAddAuthorPopup ? 'z-50' : 'z-10'}`}>
                     <motion.button
-                      whileHover={{ scale: 1.06 }}
                       data-press="true"
                       animate={morphTriggerAnimate(showAddAuthorPopup)}
                       onClick={(e) => {
@@ -14651,7 +14542,6 @@ export default function App() {
                             </span>
                           </div>
                           <motion.button
-                            whileHover={{ scale: 1.15 }}
                             data-press="true"
                             onClick={() => setColSelectedAuthorIds(prev => prev.filter(id => id !== author.id))}
                             className={removeButtonClass}
@@ -14674,7 +14564,6 @@ export default function App() {
                   </h2>
                   <div className={`relative shrink-0 ${showAddBookPopup ? 'z-50' : 'z-10'}`}>
                     <motion.button
-                      whileHover={{ scale: 1.06 }}
                       data-press="true"
                       animate={morphTriggerAnimate(showAddBookPopup)}
                       onClick={(e) => {
@@ -14758,7 +14647,6 @@ export default function App() {
                             </div>
                           </div>
                           <motion.button
-                            whileHover={{ scale: 1.15 }}
                             data-press="true"
                             onClick={() => setColSelectedBookIds(prev => prev.filter(id => id !== book.id))}
                             className={removeButtonClass}
@@ -14986,7 +14874,7 @@ export default function App() {
                         className="w-full h-full aspect-square rounded-3xl object-cover"
                       />
                       {favoriteAuthorIds.includes(authorData.id) && (
-                        <div className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-yellow-400/40 flex items-center justify-center shadow-[0_0_12px_rgba(250,204,21,0.4)] text-yellow-400 pointer-events-none">
+                        <div className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-yellow-400 pointer-events-none">
                           <Star size={16} className="fill-yellow-400 text-yellow-400" />
                         </div>
                       )}
@@ -15014,7 +14902,7 @@ export default function App() {
                     <div className="flex flex-col items-center shrink-0 max-md:self-center">
                       {authorCropImage ? (
                         <Suspense fallback={
-                          <div className="w-56 h-56 flex items-center justify-center rounded-3xl bg-black/10 dark:bg-white/5 border border-white/10">
+                          <div className="w-56 h-56 flex items-center justify-center rounded-3xl bg-black/10 dark:bg-white/5 ">
                             <div className="w-8 h-8 rounded-full border-2 border-winblue border-t-transparent animate-spin" />
                           </div>
                         }>
@@ -15045,19 +14933,17 @@ export default function App() {
                             {hasCustomAuthorPic && (
                               <motion.button 
                                 type="button"
-                                whileHover={{ scale: 1.05 }}
                                 data-press="true"
                                 onClick={handleRemoveAuthorPicture}
-                                className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl border border-red-500/35 text-red-400 shadow-xl flex items-center gap-2 text-xs font-semibold hover:bg-red-500/20 hover:border-red-500/60 hover:text-red-300 transition-all cursor-pointer"
+                                className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl text-red-400 shadow-xl flex items-center gap-2 text-xs font-semibold hover:bg-red-500/20 hover:text-red-300 transition-all cursor-pointer"
                               >
                                 <Trash2 size={14} />
                                 <span className="max-md:hidden">{t('remove_photo')}</span>
                               </motion.button>
                             )}
                             <motion.label 
-                              whileHover={{ scale: 1.05 }}
                               data-press="true"
-                              className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl border border-white/20 shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-white/20 hover:border-white/30 transition-all cursor-pointer"
+                              className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
                               title={t('choose_photo_computer')}
                             >
                               <Upload size={14} />
@@ -15091,7 +14977,7 @@ export default function App() {
                           <span className="text-xs font-semibold text-[var(--text-muted)]">
                             {t('profile_color')}
                           </span>
-                          <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-3 py-3 rounded-2xl bg-card/60 backdrop-blur-md border border-[var(--text-main)]/10 shadow-sm w-full">
+                          <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-3 py-3 rounded-2xl bg-card/60 backdrop-blur-md shadow-sm w-full">
                             {GENERIC_COVER_COLORS.map(c => {
                               const isSelected = !hasCustomAuthorPic && editAuthorColor.toLowerCase() === c.hex.toLowerCase();
                               return (
@@ -15106,8 +14992,8 @@ export default function App() {
                                   style={{ backgroundColor: c.hex }}
                                   className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer ${
                                     isSelected 
-                                      ? 'ring-2 ring-winblue ring-offset-[1.5px] ring-offset-black/50 shadow-[0_0_10px_rgba(var(--winblue-rgb),0.5)] hover:shadow-[0_0_14px_rgba(var(--winblue-rgb),0.75)]' 
-                                      : 'opacity-85 hover:opacity-100 hover:ring-2 hover:ring-white/90 hover:ring-offset-[1.5px] hover:ring-offset-black/40 hover:shadow-[0_0_12px_rgba(255,255,255,0.75)]'
+                                      ? 'ring-2 ring-winblue ring-offset-[1.5px] ring-offset-black/50 ' 
+                                      : 'opacity-85 hover:opacity-100 hover:ring-2 hover:ring-white/90 hover:ring-offset-[1.5px] hover:ring-offset-black/40 '
                                   }`}
                                 >
                                   {isSelected && (
@@ -15136,7 +15022,7 @@ export default function App() {
                               setEditAuthorPicture(getAuthorAvatar(val.trim() || authorData.name, editAuthorColor));
                             }
                           }}
-                          className="w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all"
+                          className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
                           placeholder={t('author_label')}
                         />
                       </div>
@@ -15150,7 +15036,7 @@ export default function App() {
                           list="author-nationalities-list"
                           value={editAuthorNationality}
                           onChange={(e) => setEditAuthorNationality(e.target.value)}
-                          className="w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all"
+                          className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
                           placeholder={t('nationality_label')}
                         />
                         <datalist id="author-nationalities-list">
@@ -15170,7 +15056,7 @@ export default function App() {
                             onChange={(e) => setEditAuthorBio(e.target.value.slice(0, 350))}
                             maxLength={350}
                             rows={4}
-                            className="w-full h-[116px] p-3.5 pb-7 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm leading-relaxed shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all resize-none custom-scrollbar"
+                            className="w-full h-[116px] p-3.5 pb-7 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all resize-none custom-scrollbar"
                             placeholder={t('author_bio')}
                           />
                           <span className="absolute bottom-2.5 right-3.5 text-[10px] text-[var(--text-muted)] pointer-events-none select-none">
@@ -15288,9 +15174,8 @@ export default function App() {
                 ))}
               </div>
               <motion.button
-                whileTap={{ scale: 0.97 }}
                 onClick={() => handleOpenExternalUrl(activeScreen.data.url)}
-                className="mt-8 h-12 w-full rounded-full bg-winblue/20 border border-winblue/45 text-winblue text-sm font-bold flex items-center justify-center gap-2 shadow-sm"
+                className="mt-8 h-12 w-full rounded-full bg-winblue/20 text-winblue text-sm font-bold flex items-center justify-center gap-2 shadow-sm"
               >
                 <ExternalLink size={16} />
                 <span>{t('go_to_app')}</span>
@@ -15313,7 +15198,7 @@ export default function App() {
                 ) : null;
               })()}
               <div className="h-7 max-md:h-5" />
-              <div className="settings-option-list p-1.5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 space-y-0.5">
+              <div className="settings-option-list p-1.5 rounded-[32px] bg-card/60 backdrop-blur-xl space-y-0.5">
                 {(activeScreen.data.options || []).map((option: any, idx: number) => {
                   const isSelected = activeScreen.data.currentValue === option.value;
                   return (
@@ -15323,15 +15208,15 @@ export default function App() {
                         activeScreen.data.onSelect?.(option.value);
                         setActiveScreen(prev => ({ ...prev, data: { ...prev.data, currentValue: option.value } }));
                       }}
-                      className={`w-full flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] border transition-colors ${
+                      className={`w-full flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] transition-colors ${
                         isSelected
-                          ? 'bg-winblue/15 border-winblue/30'
-                          : 'border-transparent hover:bg-white/10'
+                          ? 'bg-winblue/15 '
+                          : ' hover:bg-[var(--ios-fill)]'
                       }`}
                     >
                       <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isSelected ? 'bg-winblue/20 text-winblue' : 'bg-winblue/10 text-winblue'}`}>
                         {option.colorPreview
-                          ? <span className="w-5 h-5 rounded-full border border-black/10 dark:border-white/20" style={{ backgroundColor: option.colorPreview }} />
+                          ? <span className="w-5 h-5 rounded-full " style={{ backgroundColor: option.colorPreview }} />
                           : (option.icon || <Check size={16} />)}
                       </span>
                       <span className="flex-1 min-w-0 flex flex-col">
@@ -15438,7 +15323,7 @@ export default function App() {
                     <button
                       key={item.id}
                       onClick={() => navigateTo(item.id)}
-                      className="settings-list-row w-full flex items-center gap-3.5 px-4 py-3 text-left rtl:text-right rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 transition-colors hover:bg-white/10"
+                      className="settings-list-row w-full flex items-center gap-3.5 px-4 py-3 text-left rtl:text-right rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)]"
                     >
                       <span className={`w-10 h-10 rounded-full bg-gradient-to-br ${item.tint} text-white flex items-center justify-center shrink-0 shadow-sm`}>
                         {item.icon}
@@ -15702,9 +15587,9 @@ export default function App() {
                     </p>
 
                     {/* Opção de selecionar ou confirmar idioma (apenas 'Idioma' sem legenda) */}
-                    <div className="w-full max-w-md mt-8 p-4 rounded-[26px] bg-white/[0.07] backdrop-blur-3xl border border-white/15 shadow-xl flex items-center justify-between gap-4">
+                    <div className="w-full max-w-md mt-8 p-4 rounded-[26px] bg-white/[0.07] backdrop-blur-3xl shadow-xl flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3.5 min-w-0 text-left rtl:text-right">
-                        <div className="w-10 h-10 rounded-full bg-winblue/20 text-winblue flex items-center justify-center shrink-0 border border-winblue/30">
+                        <div className="w-10 h-10 rounded-full bg-winblue/20 text-winblue flex items-center justify-center shrink-0 ">
                           <Globe size={20} />
                         </div>
                         <span className="text-sm font-semibold text-white truncate">
@@ -15713,7 +15598,6 @@ export default function App() {
                       </div>
 
                       <motion.button
-                        whileHover={{ scale: 1.05 }}
                         data-press="true"
                         animate={morphTriggerAnimate(activeSettingSelector?.id === 'app-language')}
                         transition={SPRING.bouncy}
@@ -15747,7 +15631,7 @@ export default function App() {
                             onSelect: (val) => setAppLanguage(val),
                           });
                         }}
-                        className="h-9 pl-4 pr-3 rounded-full bg-white/12 hover:bg-white/20 backdrop-blur-3xl border border-white/20 hover:border-white/35 text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 shadow-sm hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] cursor-pointer"
+                        className="h-9 pl-4 pr-3 rounded-full bg-white/12 hover:bg-[var(--ios-fill)] backdrop-blur-3xl text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 shadow-sm cursor-pointer"
                       >
                         <span>
                           {appLanguage === 'system'
@@ -15761,23 +15645,21 @@ export default function App() {
                     {/* 2 Botões abaixo: Ir para o app (com ícone à esquerda) e Configurar agora (fundo claro/transparência) */}
                     <div className="w-full max-w-md mt-6 flex flex-col sm:flex-row items-center gap-3">
                       <motion.button
-                        whileHover={{ scale: 1.03 }}
                         data-press="true"
                         onClick={completeOnboarding}
-                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 border border-winblue text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all shadow-[0_0_20px_rgba(var(--winblue-rgb),0.25)] hover:shadow-[0_0_28px_rgba(var(--winblue-rgb),0.4)] backdrop-blur-3xl cursor-pointer"
+                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
                       >
                         <span>{t('go_to_app')}</span>
                         <ArrowRight size={18} className="shrink-0 text-winblue rtl:rotate-180" />
                       </motion.button>
 
                       <motion.button
-                        whileHover={{ scale: 1.03 }}
                         data-press="true"
                         onClick={() => {
                           setActiveSettingSelector(null);
                           setOnboardingStep('settings');
                         }}
-                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-white/10 hover:bg-white/18 backdrop-blur-3xl border border-white/20 hover:border-white/35 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer"
+                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-white/10 hover:bg-[var(--ios-fill)] backdrop-blur-3xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
                       >
                         <SettingsIcon size={16} />
                         <span>{t('configure_now')}</span>
@@ -15823,7 +15705,7 @@ export default function App() {
             })()}
             data-popup-content="true"
             onClick={(e) => e.stopPropagation()}
-            className="bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[24px] shadow-2xl p-2 z-[9999] flex flex-col text-left rtl:text-right overflow-hidden text-[var(--text-main)]"
+            className="bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl p-2 z-[9999] flex flex-col text-left rtl:text-right overflow-hidden text-[var(--text-main)]"
           >
             <div className="overflow-y-auto custom-scrollbar space-y-1 p-0.5 max-h-[320px]">
               {activeSettingSelector.options.map((option, idx) => {
@@ -15838,27 +15720,27 @@ export default function App() {
                       activeSettingSelector.onSelect(option.value);
                       setActiveSettingSelector(null);
                     }}
-                    className={`relative w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 border border-transparent group ${
+                    className={`relative w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group ${
                       isSelected
-                        ? 'hover:bg-winblue/25 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.3)]'
-                        : 'hover:bg-white/15 hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+                        ? 'hover:bg-winblue/25 '
+                        : 'hover:bg-[var(--ios-fill)] '
                     }`}
                   >
                     {isSelected && (
                       <motion.div
                         layoutId="setting-active-pill"
-                        className="absolute inset-0 bg-winblue/15 border border-winblue rounded-2xl shadow-[0_0_10px_rgba(var(--winblue-rgb),0.2)] pointer-events-none z-0"
+                        className="absolute inset-0 bg-winblue/15 rounded-2xl pointer-events-none z-0"
                         transition={SPRING.snappy}
                       />
                     )}
-                    <div className={`relative z-10 flex items-center gap-2.5 transition-colors min-w-0 ${isSelected ? 'text-winblue font-bold' : 'text-[var(--text-main)] group-hover:text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'}`}>
+                    <div className={`relative z-10 flex items-center gap-2.5 transition-colors min-w-0 ${isSelected ? 'text-winblue font-bold' : 'text-[var(--text-main)] group-hover:text-white '}`}>
                       {option.icon ? (
                         <span className={`transition-colors shrink-0 ${isSelected ? 'text-winblue' : 'text-[var(--text-muted)] group-hover:text-white'}`}>
                           {option.icon}
                         </span>
                       ) : option.colorPreview ? (
                         <div 
-                          className="w-4 h-4 rounded-full border border-black/10 dark:border-white/20 shrink-0 shadow-sm"
+                          className="w-4 h-4 rounded-full shrink-0 shadow-sm"
                           style={{ backgroundColor: option.colorPreview }}
                         />
                       ) : null}
@@ -15904,9 +15786,9 @@ export default function App() {
               transition={SPRING.snappy}
               data-popup-content="true"
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-card/90 backdrop-blur-3xl border border-[var(--text-main)]/10 rounded-3xl shadow-2xl p-6 overflow-hidden flex flex-col max-h-[85vh]"
+              className="w-full max-w-md bg-card/90 backdrop-blur-3xl rounded-3xl shadow-2xl p-6 overflow-hidden flex flex-col max-h-[85vh]"
             >
-              <div className="flex items-center justify-between mb-4 pb-2 border-b border-[var(--text-main)]/5">
+              <div className="flex items-center justify-between mb-4 pb-2 ">
                 <h3 className="text-lg font-bold text-[var(--text-main)]">{t('credits')}</h3>
                 <button
                   onClick={() => setShowCreditsModal(false)}
@@ -15921,7 +15803,7 @@ export default function App() {
                   <p className="text-xs">{t('version_label', { ver: APP_VERSION })}</p>
                   <p className="text-xs mt-1">{t('designed_and_developed_by', { name: 'Nauan' })}</p>
                 </div>
-                <div className="border-t border-[var(--text-main)]/5 pt-3">
+                <div className=" pt-3">
                   <h5 className="font-semibold text-[var(--text-main)] mb-2">{t('technologies_and_libraries')}</h5>
                   <ul className="space-y-1 text-xs list-disc list-inside">
                     <li><strong className="text-[var(--text-main)]">React 19</strong> & TypeScript</li>
@@ -15932,7 +15814,7 @@ export default function App() {
                   </ul>
                 </div>
               </div>
-              <div className="mt-6 pt-3 border-t border-[var(--text-main)]/5 flex justify-end">
+              <div className="mt-6 pt-3 flex justify-end">
                 <button
                   onClick={() => setShowCreditsModal(false)}
                   className="px-5 py-2 rounded-full bg-winblue text-white font-semibold text-xs hover:opacity-90 transition-all"
@@ -15963,7 +15845,7 @@ export default function App() {
             style={getButtonCoverPopupStyle(authorCollectionAnchor || authorCollectionBtnRef.current, 260, 260, 'right')}
             data-popup-content="true"
             onClick={(e) => e.stopPropagation()}
-            className="w-64 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[20px] shadow-2xl z-[9999] overflow-hidden"
+            className="w-64 bg-card/95 backdrop-blur-3xl rounded-[20px] shadow-2xl z-[9999] overflow-hidden"
           >
             <CollectionPickerPopupContent
               itemType="author"
@@ -15996,7 +15878,7 @@ export default function App() {
             style={getButtonCoverPopupStyle(bookCollectionAnchor || bookCollectionBtnRef.current, 260, 260, 'right')}
             data-popup-content="true"
             onClick={(e) => e.stopPropagation()}
-            className="w-64 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[20px] shadow-2xl z-[9999] overflow-hidden"
+            className="w-64 bg-card/95 backdrop-blur-3xl rounded-[20px] shadow-2xl z-[9999] overflow-hidden"
           >
             <CollectionPickerPopupContent
               itemType="book"
@@ -16029,7 +15911,7 @@ export default function App() {
             style={getButtonCoverPopupStyle(sortBtnAnchor || sortBtnRef.current, 205, 228, 'right')}
             data-popup-content="true"
             onClick={(e) => e.stopPropagation()}
-            className="w-52 bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] rounded-[20px] shadow-2xl z-[9999] p-1.5 flex flex-col text-left overflow-hidden"
+            className="w-52 bg-card/95 backdrop-blur-3xl rounded-[20px] shadow-2xl z-[9999] p-1.5 flex flex-col text-left overflow-hidden"
           >
             {/* Título: Ordenar por (maiúsculas e minúsculas, sem linhas divisórias) */}
             <div className="px-3 pt-2 pb-1.5">
@@ -16140,7 +16022,7 @@ export default function App() {
                     data-press="true"
                     onClick={closeSharePreview}
                     aria-label={t('back')}
-                    className="w-11 h-11 rounded-full flex items-center justify-center bg-white/10 border border-white/15 text-white backdrop-blur-3xl"
+                    className="w-11 h-11 rounded-full flex items-center justify-center bg-white/10 text-white backdrop-blur-3xl"
                   >
                     <ChevronLeft size={20} className="rtl:rotate-180" />
                   </motion.button>
@@ -16159,7 +16041,7 @@ export default function App() {
                   <motion.button
                     data-press="true"
                     onClick={() => { if (shareBlobRef.current) downloadShareBlob(shareBlobRef.current, sharePreview.fileName); }}
-                    className="h-10 px-4 rounded-full bg-white/10 border border-white/15 text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap backdrop-blur-3xl"
+                    className="h-10 px-4 rounded-full bg-white/10 text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap backdrop-blur-3xl"
                   >
                     <Download size={15} />
                     <span>{t('save_image')}</span>
@@ -16171,7 +16053,7 @@ export default function App() {
                       const result = await shareStoryBlob(shareBlobRef.current, sharePreview.fileName, sharePreview.title);
                       if (result === 'downloaded') showToast(t('image_saved'));
                     }}
-                    className="h-10 px-5 rounded-full bg-winblue/25 border border-winblue/50 text-winblue text-[13px] font-bold flex items-center justify-center gap-1.5 whitespace-nowrap"
+                    className="h-10 px-5 rounded-full bg-winblue/25 text-winblue text-[13px] font-bold flex items-center justify-center gap-1.5 whitespace-nowrap"
                   >
                     <Share size={15} />
                     <span>{t('share')}</span>
@@ -16195,7 +16077,7 @@ export default function App() {
                   <motion.button
                     data-press="true"
                     onClick={(e) => { e.stopPropagation(); const c = mobileConfirm; setMobileConfirm(null); c.onConfirm(); }}
-                    className="h-8 px-4 rounded-full bg-card/75 border border-red-500/20 shadow-md text-red-500 font-semibold text-xs flex items-center gap-1.5"
+                    className="h-8 px-4 rounded-full bg-card/75 shadow-md text-red-500 font-semibold text-xs flex items-center gap-1.5"
                   >
                     <Trash2 size={13} />
                     <span>{mobileConfirm.confirmLabel}</span>
@@ -16203,7 +16085,7 @@ export default function App() {
                   <motion.button
                     data-press="true"
                     onClick={(e) => { e.stopPropagation(); setMobileConfirm(null); }}
-                    className="h-8 px-4 rounded-full bg-card/75 border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] font-semibold text-xs flex items-center gap-1.5"
+                    className="h-8 px-4 rounded-full bg-card/75 shadow-sm text-[var(--text-main)] font-semibold text-xs flex items-center gap-1.5"
                   >
                     <X size={13} />
                     <span>{t('cancel')}</span>

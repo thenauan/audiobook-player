@@ -79,7 +79,7 @@ export const DevToolsModal: React.FC<DevToolsModalProps> = ({
           <div
             key={idx}
             onClick={opt.onClick}
-            className="group/searchitem relative flex items-center py-2.5 px-4 rounded-full cursor-pointer transition-all border border-transparent hover:bg-[var(--button-secondary-bg)]/50 select-none"
+            className="group/searchitem relative flex items-center py-2.5 px-4 rounded-full cursor-pointer transition-all hover:bg-[var(--button-secondary-bg)]/50 select-none"
           >
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-bold text-[var(--text-main)] truncate">{opt.title}</p>

@@ -176,7 +176,7 @@ export function QueueItemRow({
             <motion.button
               type="button"
               onClick={(e) => { e.stopPropagation(); removeWithSwipe(); }}
-              className="pointer-events-auto w-11 h-11 shrink-0 rounded-full flex items-center justify-center bg-card/75 border border-red-500/25 text-red-500 shadow-md backdrop-blur-3xl"
+              className="pointer-events-auto w-11 h-11 shrink-0 rounded-full flex items-center justify-center bg-card/75 text-red-500 shadow-md backdrop-blur-3xl"
               style={{ opacity: removeOpacity, scale: removeScale }}
               aria-label={t('remove_from_queue')}
               title={t('remove_from_queue')}
@@ -215,7 +215,7 @@ export function QueueItemRow({
                 <div className="absolute w-4 h-4 rounded-full bg-slate-400/80 dark:bg-white/55 blur-[5px] pointer-events-none group-hover/cover:bg-slate-500/90 dark:group-hover/cover:bg-white/80 group-hover/cover:blur-[7px] transition-all duration-200" />
                 <Play 
                   size={13} 
-                  className="relative fill-black text-black dark:fill-white dark:text-white drop-shadow-[0_0_6px_rgba(100,116,139,0.85)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,1)] translate-x-[0.5px]" 
+                  className="relative fill-black text-black dark:fill-white dark:text-white translate-x-[0.5px]" 
                 />
               </div>
             </div>
@@ -258,10 +258,10 @@ export function QueueItemRow({
                 setIsPointerDown(true);
                 dragControls.start(e);
               }}
-              className={`w-7 h-7 flex items-center justify-center rounded-full backdrop-blur-3xl border text-slate-800 dark:text-white cursor-grab active:cursor-grabbing transition-all duration-200 select-none touch-none pointer-events-auto ${
+              className={`w-7 h-7 flex items-center justify-center rounded-full backdrop-blur-3xl text-slate-800 dark:text-white cursor-grab active:cursor-grabbing transition-all duration-200 select-none touch-none pointer-events-auto ${
                 isActiveDrag 
-                  ? 'scale-115 border-slate-500 dark:border-white/70 shadow-md dark:shadow-[0_0_16px_rgba(255,255,255,0.75)] bg-slate-300/90 dark:bg-white/25' 
-                  : 'bg-slate-200/80 hover:bg-slate-300/90 dark:bg-[var(--bg-card-75)] dark:hover:bg-white/25 border-slate-300 dark:border-white/25 hover:border-slate-400 dark:hover:border-white/60 hover:scale-115 shadow-sm hover:shadow-md dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.5)] active:scale-110'
+                  ? 'scale-115 shadow-md bg-slate-300/90 dark:bg-white/25' 
+                  : 'bg-slate-200/80 hover:bg-slate-300/90 dark:bg-[var(--bg-card-75)] hover:scale-[1.05] shadow-sm active:scale-110'
               }`}
               style={{ touchAction: 'none' }}
               title={t('reorder') || 'Mover na fila'}
@@ -271,13 +271,12 @@ export function QueueItemRow({
 
             <motion.button 
               type="button"
-              whileHover={{ scale: 1.15 }}
               data-press="true"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove();
               }} 
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-card/75 border border-red-500/25 text-red-500 shadow-md hover:bg-red-500/20 hover:border-red-400/50 hover:shadow-[0_0_12px_rgba(239,68,68,0.35)] transition-all backdrop-blur-3xl cursor-pointer pointer-events-auto"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-card/75 text-red-500 shadow-md hover:bg-red-500/20 transition-all backdrop-blur-3xl cursor-pointer pointer-events-auto"
               title={t('remove_from_queue')}
             >
               <X size={13} />
@@ -333,20 +332,19 @@ export function MenuOptionItem({
 
   const variantClasses = isDanger
     ? (clicked
-        ? "bg-red-500/20 text-red-500 ring-1 ring-red-500/40 border-red-500/30 shadow-[0_0_12px_rgba(239,68,68,0.25)]"
-        : "text-red-500 hover:bg-red-500/15 hover:text-red-400 hover:border-red-500/30 hover:shadow-[0_0_12px_rgba(239,68,68,0.2)]")
+        ? "bg-red-500/20 text-red-500 ring-1 ring-red-500/40 "
+        : "text-red-500 hover:bg-red-500/15 hover:text-red-400 ")
     : (clicked
-        ? "bg-slate-400/25 text-slate-900 ring-1 ring-slate-400/40 border-slate-400/30 shadow-[0_0_12px_rgba(100,116,139,0.3)] dark:bg-white/20 dark:text-white dark:ring-white/30 dark:border-white/30 dark:shadow-[0_0_12px_rgba(255,255,255,0.2)]"
-        : "text-[var(--text-main)] hover:bg-white/15 hover:text-white hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.15)]");
+        ? "bg-slate-400/25 text-slate-900 ring-1 ring-slate-400/40 dark:bg-white/20 dark:text-white dark:ring-white/30 "
+        : "text-[var(--text-main)] hover:bg-[var(--ios-fill)] hover:text-white ");
 
   return (
     <motion.button
       animate={clicked ? { scale: 1.03 } : { scale: 1 }}
-      whileTap={{ scale: 0.97 }}
       transition={SPRING.snappy}
       onClick={handleClick}
       className={cn(
-        "group w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium rounded-2xl transition-all duration-150 select-none text-left border border-transparent [&_svg]:transition-colors [&_svg]:shrink-0",
+        "group w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium rounded-2xl transition-all duration-150 select-none text-left [&_svg]:transition-colors [&_svg]:shrink-0",
         variantClasses,
         className
       )}
@@ -863,7 +861,7 @@ export function PopupMorphContainer({
       style={outerStyle}
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] shadow-2xl flex flex-col text-left overflow-hidden",
+        "bg-card/95 backdrop-blur-3xl shadow-2xl flex flex-col text-left overflow-hidden",
         className
       )}
     >

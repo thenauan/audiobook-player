@@ -35,7 +35,7 @@ export class ScreenErrorBoundary extends React.Component<Props, State> {
     const { labels, onBack } = this.props;
     return (
       <div role="alert" className="w-full min-h-[50vh] flex flex-col items-center justify-center text-center gap-4 px-6">
-        <div className="w-14 h-14 rounded-full bg-card/70 border border-[var(--text-main)]/10 flex items-center justify-center text-amber-400">
+        <div className="w-14 h-14 rounded-full bg-card/70 flex items-center justify-center text-amber-400">
           <AlertTriangle size={26} />
         </div>
         <div>
@@ -46,7 +46,7 @@ export class ScreenErrorBoundary extends React.Component<Props, State> {
           {onBack && (
             <button
               onClick={onBack}
-              className="mobile-press h-11 px-5 rounded-full bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold flex items-center gap-1.5"
+              className="mobile-press h-11 px-5 rounded-full bg-card/75 text-[var(--text-main)] text-sm font-semibold flex items-center gap-1.5"
             >
               <ChevronLeft size={16} className="rtl:rotate-180" />
               <span>{labels.back}</span>
@@ -54,7 +54,7 @@ export class ScreenErrorBoundary extends React.Component<Props, State> {
           )}
           <button
             onClick={() => this.setState({ error: null })}
-            className="mobile-press h-11 px-5 rounded-full bg-winblue/20 border border-winblue/45 text-winblue text-sm font-semibold flex items-center gap-1.5"
+            className="mobile-press h-11 px-5 rounded-full bg-winblue/20 text-winblue text-sm font-semibold flex items-center gap-1.5"
           >
             <RefreshCw size={15} />
             <span>{labels.retry}</span>

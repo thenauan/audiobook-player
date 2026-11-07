@@ -305,7 +305,7 @@ export default function BookDetailView({
                     onClick={toggleCompleted}
                     aria-label={bookCompleted ? t('mark_as_unstarted') : t('mark_as_completed')}
                     title={bookCompleted ? t('mark_as_unstarted') : t('mark_as_completed')}
-                    className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur-3xl border shadow-sm ${bookCompleted ? 'bg-winblue/20 border-winblue/45 text-winblue' : 'bg-card/75 border-[var(--text-main)]/10 text-[var(--text-main)]'}`}
+                    className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur-3xl shadow-sm ${bookCompleted ? 'bg-winblue/20 text-winblue' : 'bg-card/75 text-[var(--text-main)]'}`}
                   >
                     {bookCompleted ? <Headphones size={18} /> : <CheckCircle2 size={18} />}
                   </motion.button>
@@ -315,7 +315,7 @@ export default function BookDetailView({
                       if (isThisBookCurrent) setIsPlaying(!isPlaying);
                       else handlePlayBookFromStart(activeBook);
                     }}
-                    className="h-11 px-8 min-w-[132px] rounded-full bg-winblue border border-white/15 shadow-md text-white text-sm font-bold flex items-center justify-center gap-2"
+                    className="h-11 px-8 min-w-[132px] rounded-full bg-winblue shadow-md text-white text-sm font-bold flex items-center justify-center gap-2"
                   >
                     {isBookPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} />}
                     <span>{isBookPlaying ? t('pause') : t('listen')}</span>
@@ -325,7 +325,7 @@ export default function BookDetailView({
                     onClick={() => handleAddToQueue(activeBook, 'next')}
                     aria-label={t('next_in_queue')}
                     title={t('next_in_queue')}
-                    className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] backdrop-blur-3xl shadow-sm"
+                    className="w-11 h-11 rounded-full flex items-center justify-center bg-card/75 text-[var(--text-main)] backdrop-blur-3xl shadow-sm"
                   >
                     <ListMusic size={18} />
                   </motion.button>
@@ -424,17 +424,17 @@ export default function BookDetailView({
                 className="w-[175px] h-[280px] max-md:w-[150px] max-md:h-[240px] rounded-3xl object-cover shadow-2xl shrink-0 aspect-[1/1.6]"
               />
               {favoriteBookIds.includes(activeBook.id) && (
-                <div className="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-yellow-400/40 flex items-center justify-center shadow-[0_0_12px_rgba(250,204,21,0.4)] text-yellow-400 pointer-events-none">
+                <div className="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-yellow-400 pointer-events-none">
                   <Star size={13} className="fill-yellow-400 text-yellow-400" />
                 </div>
               )}
               {isBookCompleted(activeBook) ? (
-                <div className="absolute top-3 left-3 z-10 h-7 px-3 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center gap-1.5 shadow-lg text-white pointer-events-none text-xs font-bold">
+                <div className="absolute top-3 left-3 z-10 h-7 px-3 rounded-full bg-black/60 backdrop-blur-md flex items-center gap-1.5 shadow-lg text-white pointer-events-none text-xs font-bold">
                   <CheckCircle2 size={13} />
                   <span>{t('completed')}</span>
                 </div>
               ) : isBookStarted(activeBook) ? (
-                <div className="absolute top-3 left-3 z-10 h-7 px-3 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center gap-1.5 shadow-lg text-white pointer-events-none text-xs font-bold">
+                <div className="absolute top-3 left-3 z-10 h-7 px-3 rounded-full bg-black/60 backdrop-blur-md flex items-center gap-1.5 shadow-lg text-white pointer-events-none text-xs font-bold">
                   <Headphones size={13} />
                   <span>{t('listening')}</span>
                 </div>
@@ -511,7 +511,6 @@ export default function BookDetailView({
 
               <div className="flex flex-wrap items-center gap-3 pt-2 max-md:flex-col max-md:w-full max-md:gap-3">
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
                   data-press="true"
                   onClick={() => {
                     if (isThisBookCurrent) {
@@ -520,7 +519,7 @@ export default function BookDetailView({
                       handlePlayBookFromStart(activeBook);
                     }
                   }}
-                  className="h-10 px-5 max-md:h-12 max-md:w-full max-md:max-w-[280px] max-md:text-sm justify-center rounded-full bg-winblue/20 border border-winblue/45 shadow-xl backdrop-blur-3xl hover:bg-winblue/30 hover:border-winblue/75 hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.25),0_0_22px_rgba(var(--winblue-rgb),0.45)] text-winblue text-xs font-bold transition-all flex items-center gap-2"
+                  className="h-10 px-5 max-md:h-12 max-md:w-full max-md:max-w-[280px] max-md:text-sm justify-center rounded-full bg-winblue/20 shadow-xl backdrop-blur-3xl hover:bg-winblue/30 text-winblue text-xs font-bold transition-all flex items-center gap-2"
                 >
                   {isBookPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} />}
                   <span>{isBookPlaying ? t('pause') : t('listen')}</span>
@@ -531,17 +530,17 @@ export default function BookDetailView({
                 {!isThisBookCurrent && (
                   <>
                     <motion.button 
-                      whileHover={{ scale: 1.05 }} data-press="true"
+ data-press="true"
                       onClick={() => handleAddToQueue(activeBook, 'next')}
-                      className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
+                      className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
                     >
                       <ListMusic size={14} />
                       <span>{t('next_in_queue')}</span>
                     </motion.button>
                     <motion.button 
-                      whileHover={{ scale: 1.05 }} data-press="true"
+ data-press="true"
                       onClick={() => handleAddToQueue(activeBook, 'last')}
-                      className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
+                      className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
                     >
                       <ListPlus size={14} />
                       <span>{t('end_of_queue')}</span>
@@ -550,7 +549,6 @@ export default function BookDetailView({
                 )}
 
                 <motion.button 
-                  whileHover={{ scale: 1.05 }} 
                   data-press="true"
                   onClick={() => {
                     const isCompleted = isBookCompleted(activeBook);
@@ -565,7 +563,7 @@ export default function BookDetailView({
                       showToast(t('toast_book_marked_completed', { title: activeBook.title }));
                     }
                   }}
-                  className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-xl hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
+                  className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
                 >
                   {isBookCompleted(activeBook) ? (
                     <Headphones size={14} />
@@ -583,7 +581,7 @@ export default function BookDetailView({
             <div className="flex flex-col items-center shrink-0 max-md:self-center">
               {bookCropImage ? (
                 <Suspense fallback={
-                  <div className="w-56 h-72 flex items-center justify-center rounded-2xl bg-black/10 dark:bg-white/5 border border-white/10">
+                  <div className="w-56 h-72 flex items-center justify-center rounded-2xl bg-black/10 dark:bg-white/5 ">
                     <div className="w-8 h-8 rounded-full border-2 border-winblue border-t-transparent animate-spin" />
                   </div>
                 }>
@@ -615,19 +613,17 @@ export default function BookDetailView({
                     {hasCustomCover && (
                       <motion.button 
                         type="button"
-                        whileHover={{ scale: 1.05 }}
                         data-press="true"
                         onClick={handleRemoveBookCover}
-                        className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl border border-red-500/35 text-red-400 shadow-xl flex items-center gap-2 text-xs font-semibold hover:bg-red-500/20 hover:border-red-500/60 hover:text-red-300 transition-all cursor-pointer"
+                        className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl text-red-400 shadow-xl flex items-center gap-2 text-xs font-semibold hover:bg-red-500/20 hover:text-red-300 transition-all cursor-pointer"
                       >
                         <Trash2 size={14} />
                         <span className="max-md:hidden">{t('remove_cover')}</span>
                       </motion.button>
                     )}
                     <motion.label 
-                      whileHover={{ scale: 1.05 }}
                       data-press="true"
-                      className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl border border-white/20 shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-white/20 hover:border-white/30 transition-all cursor-pointer"
+                      className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
                       title={t('choose_cover_computer')}
                     >
                       <Upload size={14} />
@@ -660,7 +656,7 @@ export default function BookDetailView({
                   <span className="text-xs font-semibold text-[var(--text-muted)]">
                     {t('cover_color')}
                   </span>
-                  <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-2.5 py-3 rounded-2xl bg-card/60 backdrop-blur-md border border-[var(--text-main)]/10 shadow-sm w-full">
+                  <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-2.5 py-3 rounded-2xl bg-card/60 backdrop-blur-md shadow-sm w-full">
                     {GENERIC_COVER_COLORS.map((c: any) => {
                       const isSelected = !hasCustomCover && editCoverColor.toLowerCase() === c.hex.toLowerCase();
                       return (
@@ -675,8 +671,8 @@ export default function BookDetailView({
                           style={{ backgroundColor: c.hex }}
                           className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer ${
                             isSelected 
-                              ? 'ring-2 ring-winblue ring-offset-[1.5px] ring-offset-black/50 shadow-[0_0_10px_rgba(var(--winblue-rgb),0.5)] hover:shadow-[0_0_14px_rgba(var(--winblue-rgb),0.75)]' 
-                              : 'opacity-85 hover:opacity-100 hover:ring-2 hover:ring-white/90 hover:ring-offset-[1.5px] hover:ring-offset-black/40 hover:shadow-[0_0_12px_rgba(255,255,255,0.75)]'
+                              ? 'ring-2 ring-winblue ring-offset-[1.5px] ring-offset-black/50 ' 
+                              : 'opacity-85 hover:opacity-100 hover:ring-2 hover:ring-white/90 hover:ring-offset-[1.5px] hover:ring-offset-black/40 '
                           }`}
                         >
                           {isSelected && (
@@ -705,7 +701,7 @@ export default function BookDetailView({
                       setEditBookCover(getGenericBookCover(val, editBookAuthor || activeBook.author, editCoverColor));
                     }
                   }}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
                   placeholder={t('book_title_label')}
                 />
               </div>
@@ -724,7 +720,7 @@ export default function BookDetailView({
                       setEditBookCover(getGenericBookCover(editBookTitle || activeBook.title, val, editCoverColor));
                     }
                   }}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
                   placeholder={t('author_label')}
                 />
               </div>
@@ -737,7 +733,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookCategory}
                   onChange={(e) => setEditBookCategory(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
                   placeholder={t('genre_category_label')}
                 />
               </div>
@@ -750,7 +746,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookSubgenre}
                   onChange={(e) => setEditBookSubgenre(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
                   placeholder={t('subgenre_label')}
                 />
               </div>
@@ -763,7 +759,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookNarrator}
                   onChange={(e) => setEditBookNarrator(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
                   placeholder={t('narrator_label')}
                 />
               </div>
@@ -776,7 +772,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookLanguage}
                   onChange={(e) => setEditBookLanguage(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
                   placeholder={t('language_label')}
                 />
               </div>
@@ -792,7 +788,7 @@ export default function BookDetailView({
                         ? (editBookTranscriptSource === 'upload' && editBookTranscriptFileName ? editBookTranscriptFileName : t('text_in_metadata'))
                         : t('text_not_found')
                     }
-                    className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-xs text-winblue flex items-center max-w-[240px] md:max-w-xs truncate select-all"
+                    className="h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-xs text-winblue flex items-center max-w-[240px] md:max-w-xs truncate select-all"
                   >
                     <span className="truncate">
                       {editBookTranscript && editBookTranscript.length > 0
@@ -819,7 +815,6 @@ export default function BookDetailView({
                     <>
                       <motion.button
                         type="button"
-                        whileHover={{ scale: 1.06 }}
                         data-press="true"
                         onClick={() => {
                           setEditBookTranscript([]);
@@ -829,7 +824,7 @@ export default function BookDetailView({
                         }}
                         title={t('remove_text')}
                         aria-label={t('remove_text')}
-                        className="h-8 px-4 max-md:w-11 max-md:h-11 max-md:px-0 max-md:justify-center rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-400/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] font-semibold text-xs transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer"
+                        className="h-8 px-4 max-md:w-11 max-md:h-11 max-md:px-0 max-md:justify-center rounded-full text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 font-semibold text-xs transition-all shadow-sm shrink-0 flex items-center gap-1.5 cursor-pointer"
                       >
                         <Trash2 size={14} />
                         <span className="max-md:hidden">{t('remove_text')}</span>
@@ -837,12 +832,11 @@ export default function BookDetailView({
 
                       <motion.button
                         type="button"
-                        whileHover={{ scale: 1.06 }}
                         data-press="true"
                         onClick={() => editBookTextInputRef.current?.click()}
                         title={t('change_text')}
                         aria-label={t('change_text')}
-                        className="h-8 px-4 max-md:w-11 max-md:h-11 max-md:px-0 max-md:justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                        className="h-8 px-4 max-md:w-11 max-md:h-11 max-md:px-0 max-md:justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                       >
                         <Upload size={14} />
                         <span className="max-md:hidden">{t('change_text')}</span>
@@ -851,10 +845,9 @@ export default function BookDetailView({
                   ) : (
                     <motion.button
                       type="button"
-                      whileHover={{ scale: 1.06 }}
                       data-press="true"
                       onClick={() => editBookTextInputRef.current?.click()}
-                      className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                      className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                     >
                       <Upload size={14} />
                       <span>{t('upload_text')}</span>
@@ -879,7 +872,7 @@ export default function BookDetailView({
               onChange={(e) => setEditBookDescription(e.target.value.slice(0, 1500))}
               maxLength={1500}
               rows={8}
-              className="w-full h-[232px] p-4 pb-7 rounded-2xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm leading-relaxed shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all resize-none custom-scrollbar"
+              className="w-full h-[232px] p-4 pb-7 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all resize-none custom-scrollbar"
               placeholder={t('synopsis')}
             />
             <span className="absolute bottom-2.5 right-3.5 text-[10px] text-[var(--text-muted)] pointer-events-none select-none">
@@ -896,10 +889,9 @@ export default function BookDetailView({
               </h2>
               {isSynopsisTruncated && (
                 <motion.button 
-                  whileHover={{ scale: 1.06 }} 
                   data-press="true"
                   onClick={() => navigateTo('book-synopsis', activeBook)} 
-                  className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 shadow-sm text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer shrink-0 ml-3"
+                  className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer shrink-0 ml-3"
                 >
                   <span>{t('read_full_synopsis')}</span>
                   <ChevronRight size={15} className="-mr-0.5" />
@@ -937,7 +929,7 @@ export default function BookDetailView({
               return (
                 <div 
                   key={cap.id}
-                  className="flex items-center justify-between py-2 px-4 sm:px-5 rounded-full bg-card/40 border border-[var(--text-main)]/5 mb-1.5 transition-all"
+                  className="flex items-center justify-between py-2 px-4 sm:px-5 rounded-full bg-card/40 mb-1.5 transition-all"
                 >
                   <div className="flex items-center gap-3.5 flex-1 w-full">
                     <span className="w-6 text-center text-xs text-[var(--text-muted)] shrink-0">
@@ -956,7 +948,7 @@ export default function BookDetailView({
                           return base;
                         });
                       }}
-                      className="h-10 px-3.5 rounded-xl bg-card/75 border border-[var(--text-main)]/10 text-[var(--text-main)] text-sm font-medium shadow-sm backdrop-blur-3xl focus:outline-none focus:border-winblue/60 focus:ring-2 focus:ring-winblue/30 focus:shadow-[0_0_15px_rgba(var(--winblue-rgb),0.35)] transition-all flex-1"
+                      className="h-10 px-3.5 rounded-xl bg-card/75 text-[var(--text-main)] text-sm font-medium shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all flex-1"
                       placeholder={t('chapter_title_placeholder', { num: i + 1 })}
                     />
                   </div>
@@ -995,8 +987,8 @@ export default function BookDetailView({
                   isThisChapterMenuOpen || isThisChapterCommentsOpen ? 'z-50' : 'z-10'
                 } ${
                   isCurrentChapter 
-                    ? 'bg-winblue/15 border border-winblue/30 shadow-[0_0_20px_rgba(var(--winblue-rgb),0.18)]' 
-                    : 'hover:bg-[var(--button-secondary-bg)]/50 border border-transparent'
+                    ? 'bg-winblue/15 ' 
+                    : 'hover:bg-[var(--button-secondary-bg)]/50 '
                 }`}
               >
                 <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
@@ -1013,7 +1005,7 @@ export default function BookDetailView({
                         <span className="text-[var(--text-muted)] group-hover:hidden">{i + 1}</span>
                         <div className="hidden group-hover:flex items-center justify-center relative">
                           <div className="absolute w-4 h-4 bg-slate-400/80 dark:bg-white/70 blur-[6px] rounded-full pointer-events-none" />
-                          <BsPlayFill size={16} className="relative z-10 fill-black text-black dark:fill-white dark:text-white drop-shadow-[0_0_6px_rgba(100,116,139,0.85)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.95)] translate-x-[1px]" />
+                          <BsPlayFill size={16} className="relative z-10 fill-black text-black dark:fill-white dark:text-white translate-x-[1px]" />
                         </div>
                       </>
                     )}
@@ -1029,7 +1021,7 @@ export default function BookDetailView({
                     {favoriteChapters.includes(chapIdKey) && (
                       <span 
                         title={t('favorite')} 
-                        className="w-5 h-5 rounded-full bg-black/60 backdrop-blur-md border border-yellow-400/40 flex items-center justify-center shadow-sm text-yellow-400 select-none shrink-0"
+                        className="w-5 h-5 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center shadow-sm text-yellow-400 select-none shrink-0"
                       >
                         <Star size={10} className="fill-yellow-400 text-yellow-400" />
                       </span>
@@ -1043,7 +1035,6 @@ export default function BookDetailView({
                         <motion.button
                           type="button"
                           key="btn-chap-comments"
-                          whileHover={{ scale: 1.08 }}
                           data-press="true"
                           animate={morphTriggerAnimate(isThisChapterCommentsOpen)}
                           title={t('bookmarks_count', { count: cap.bookmarks?.length || cap.comments?.length || 0 }) || t('comments_count', { count: cap.bookmarks?.length || cap.comments?.length || 0 })}
@@ -1058,10 +1049,10 @@ export default function BookDetailView({
                               setActiveChapterCommentsPopupId(chapIdKey);
                             }
                           }}
-                          className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 max-md:px-1 max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none rounded-full shadow-sm select-none cursor-pointer transition-all ${
+                          className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 max-md:px-1 max-md:!bg-transparent max-md:!shadow-none rounded-full shadow-sm select-none cursor-pointer transition-all ${
                             isCurrentChapter
-                              ? 'text-winblue bg-winblue/15 border border-winblue/35 hover:bg-winblue/25 hover:border-winblue/60 hover:shadow-[0_0_12px_rgba(var(--winblue-rgb),0.35)]'
-                              : 'text-[var(--text-main)] bg-[var(--text-main)]/10 border border-[var(--text-main)]/25 hover:bg-white/20 hover:border-white/40 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                              ? 'text-winblue bg-winblue/15 hover:bg-winblue/25 '
+                              : 'text-[var(--text-main)] bg-[var(--text-main)]/10 hover:bg-[var(--ios-fill)] hover:text-white '
                           }`}
                         >
                           <Bookmark size={10} className="fill-current" />
@@ -1101,10 +1092,10 @@ export default function BookDetailView({
                     {isChapterCompleted(activeBook.id, cap.id) ? (
                       <span
                         title={t('completed')}
-                        className={`flex items-center gap-1 whitespace-nowrap ${chapterStatusSize(t('completed'))} font-bold px-2 py-0.5 max-md:p-0 max-md:w-6 max-md:h-6 max-md:justify-center max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none rounded-full shadow-sm pointer-events-none select-none ${
+                        className={`flex items-center gap-1 whitespace-nowrap ${chapterStatusSize(t('completed'))} font-bold px-2 py-0.5 max-md:p-0 max-md:w-6 max-md:h-6 max-md:justify-center max-md:!bg-transparent max-md:!shadow-none rounded-full shadow-sm pointer-events-none select-none ${
                           isCurrentChapter
-                            ? 'text-winblue bg-winblue/15 border border-winblue/35'
-                            : 'text-[var(--text-main)] bg-[var(--text-main)]/10 border border-[var(--text-main)]/25'
+                            ? 'text-winblue bg-winblue/15 '
+                            : 'text-[var(--text-main)] bg-[var(--text-main)]/10 '
                         }`}
                       >
                         <CheckCircle2 size={11} />
@@ -1113,10 +1104,10 @@ export default function BookDetailView({
                     ) : isChapterStarted(activeBook.id, cap.id) ? (
                       <span
                         title={t('listening')}
-                        className={`flex items-center gap-1 whitespace-nowrap ${chapterStatusSize(t('listening'))} font-bold px-2 py-0.5 max-md:p-0 max-md:w-6 max-md:h-6 max-md:justify-center max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none rounded-full shadow-sm pointer-events-none select-none ${
+                        className={`flex items-center gap-1 whitespace-nowrap ${chapterStatusSize(t('listening'))} font-bold px-2 py-0.5 max-md:p-0 max-md:w-6 max-md:h-6 max-md:justify-center max-md:!bg-transparent max-md:!shadow-none rounded-full shadow-sm pointer-events-none select-none ${
                           isCurrentChapter
-                            ? 'text-winblue bg-winblue/15 border border-winblue/35'
-                            : 'text-[var(--text-main)] bg-[var(--text-main)]/10 border border-[var(--text-main)]/25'
+                            ? 'text-winblue bg-winblue/15 '
+                            : 'text-[var(--text-main)] bg-[var(--text-main)]/10 '
                         }`}
                       >
                         <Headphones size={11} />
@@ -1140,7 +1131,6 @@ export default function BookDetailView({
                   }`}>
                     <motion.button
                       key="btn"
-                      whileHover={{ scale: 1.15 }}
                       data-press="true"
                       animate={activeChapterMenuId === `${activeBook.id}-${cap.id}` 
                         ? morphTriggerAnimate(true) 
@@ -1156,8 +1146,8 @@ export default function BookDetailView({
                       }}
                       className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${
                         isCurrentChapter
-                          ? 'bg-winblue/20 border border-winblue/45 text-winblue shadow-[0_0_12px_rgba(var(--winblue-rgb),0.2)] hover:bg-winblue/30 hover:border-winblue/70 hover:shadow-[0_0_16px_rgba(var(--winblue-rgb),0.4)]'
-                          : 'bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] hover:bg-white/15 hover:border-white/25 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]'
+                          ? 'bg-winblue/20 text-winblue hover:bg-winblue/30 '
+                          : 'bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
                       }`}
                       title={t('more_options_chapter')}
                     >
@@ -1202,7 +1192,7 @@ export default function BookDetailView({
                                 >
                                   <span className="flex-1">{t('bookmarks') || t('comments')}</span>
                                   {((cap.bookmarks && cap.bookmarks.length > 0) || (cap.comments && cap.comments.length > 0)) && (
-                                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--text-main)]/10 border border-[var(--text-main)]/20 text-[var(--text-main)] group-hover:bg-white/20 group-hover:border-white/35 group-hover:text-white font-bold transition-colors">
+                                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--text-main)]/10 text-[var(--text-main)] group-hover:bg-[var(--ios-fill)] group-hover:text-white font-bold transition-colors">
                                       {cap.bookmarks?.length || cap.comments?.length}
                                     </span>
                                   )}

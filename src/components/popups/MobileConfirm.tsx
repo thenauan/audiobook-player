@@ -46,7 +46,7 @@ export function MobileConfirmCard({
         exit={place ? place.motion.exit : { y: '110%' }}
         transition={place ? place.motion.transition : SPRING.snappy}
         onClick={(e) => e.stopPropagation()}
-        className="fixed z-[9501] bg-card/95 backdrop-blur-3xl border border-[var(--button-secondary-bg)] shadow-2xl text-[var(--text-main)] overflow-hidden"
+        className="fixed z-[9501] bg-card/95 backdrop-blur-3xl shadow-2xl text-[var(--text-main)] overflow-hidden"
         // Na base do app, alinhado às bordas da barra de abas e do miniplayer; cantos concêntricos com a tela
         style={place ? { ...place.style, borderRadius: 28 } : {
           left: 'var(--mobile-bar-inset)',

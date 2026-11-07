@@ -229,7 +229,7 @@ export function LyricSearchResults({ transcript, chapters, query, emptyText, mor
                 type="button"
                 aria-label={moreLabel}
                 onClick={(e) => { e.stopPropagation(); onOptions(line); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-main)] opacity-0 group-hover/lyricres:opacity-100 focus:opacity-100 transition-opacity"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] opacity-0 group-hover/lyricres:opacity-100 focus:opacity-100 transition-opacity"
               >
                 <MoreHorizontal size={15} />
               </button>
