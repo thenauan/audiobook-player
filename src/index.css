@@ -1879,6 +1879,22 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
   }
 }
 
+/* Celular: nas telas de cada ajuste, listas, opção selecionada, botões e chaves só com preenchimento, sem borda nem
+   brilho */
+@media (max-width: 1023px) {
+  .settings-action-panel,
+  .settings-action-panel *,
+  .settings-option-list,
+  .settings-option-list *,
+  .settings-list-row [role="switch"] {
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+  .settings-option-list {
+    background-color: var(--ios-row) !important;
+  }
+}
+
 /* Computador: o desfoque do cabeçalho começa depois do menu lateral (com um pop-up aberto, a área das telas vem para
    a frente, e ele ficava por cima do menu) */
 @media (min-width: 1024px) {

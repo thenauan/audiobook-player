@@ -985,6 +985,9 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Notificações
     settings_notif_enabled: 'Notificações do sistema',
     settings_notif_enabled_sub: 'Permitir avisos e notificações do aplicativo',
+    notif_enabled_body: 'Você vai receber os avisos do app aqui.',
+    toast_notif_blocked: 'As notificações estão bloqueadas. Libere nos ajustes do navegador ou do sistema.',
+    toast_notif_unsupported: 'Este navegador não envia notificações. No iPhone, abra o app pelo ícone na tela de início.',
     settings_notif_chapter: 'Capítulo concluído',
     settings_notif_chapter_sub: 'Avisar quando você terminar um capítulo',
     settings_notif_book: 'Audiobook concluído',
@@ -1696,6 +1699,9 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Notificações
     settings_notif_enabled: 'System notifications',
     settings_notif_enabled_sub: 'Enable or disable application alerts',
+    notif_enabled_body: "You'll get the app's alerts here.",
+    toast_notif_blocked: 'Notifications are blocked. Allow them in your browser or system settings.',
+    toast_notif_unsupported: 'This browser cannot send notifications. On iPhone, open the app from its Home Screen icon.',
     settings_notif_chapter: 'Chapter completed',
     settings_notif_chapter_sub: 'Notify when you complete a chapter',
     settings_notif_book: 'Audiobook completed',
@@ -2407,6 +2413,9 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Notificações
     settings_notif_enabled: 'Notificaciones del sistema',
     settings_notif_enabled_sub: 'Permitir avisos y alertas de la aplicación',
+    notif_enabled_body: 'Recibirás aquí los avisos de la app.',
+    toast_notif_blocked: 'Las notificaciones están bloqueadas. Actívalas en los ajustes del navegador o del sistema.',
+    toast_notif_unsupported: 'Este navegador no envía notificaciones. En iPhone, abre la app desde su icono en la pantalla de inicio.',
     settings_notif_chapter: 'Capítulo completado',
     settings_notif_chapter_sub: 'Avisar al terminar un capítulo',
     settings_notif_book: 'Audiolibro completado',
@@ -3118,6 +3127,9 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Notificações
     settings_notif_enabled: 'Уведомления системы',
     settings_notif_enabled_sub: 'Разрешить оповещения приложения',
+    notif_enabled_body: 'Здесь будут появляться оповещения приложения.',
+    toast_notif_blocked: 'Уведомления заблокированы. Разрешите их в настройках браузера или системы.',
+    toast_notif_unsupported: 'Этот браузер не отправляет уведомления. На iPhone откройте приложение со значка на экране «Домой».',
     settings_notif_chapter: 'Глава завершена',
     settings_notif_chapter_sub: 'Оповещать по окончании каждой главы',
     settings_notif_book: 'Книга завершена',
@@ -3829,6 +3841,9 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     // Settings: Notificações
     settings_notif_enabled: 'إشعارات النظام',
     settings_notif_enabled_sub: 'السماح بتنبيهات وإشعارات التطبيق',
+    notif_enabled_body: 'ستصلك تنبيهات التطبيق هنا.',
+    toast_notif_blocked: 'الإشعارات محظورة. اسمح بها من إعدادات المتصفح أو النظام.',
+    toast_notif_unsupported: 'هذا المتصفح لا يرسل إشعارات. على iPhone، افتح التطبيق من أيقونته في الشاشة الرئيسية.',
     settings_notif_chapter: 'اكتمل الفصل',
     settings_notif_chapter_sub: 'تنبيهك عند الانتهاء من استماع فصل',
     settings_notif_book: 'اكتمل الكتاب الصوتي',

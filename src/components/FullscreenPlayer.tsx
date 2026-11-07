@@ -241,8 +241,13 @@ function useLyricClock(audioRef: React.RefObject<HTMLAudioElement | null>, fallb
   return running ? time : fallback;
 }
 
-function LyricBlocks({ transcript, time: appTime, playing, audioRef, mode, onSeek }: { transcript: TranscriptLine[]; time: number; playing: boolean; audioRef: React.RefObject<HTMLAudioElement | null>; mode: LyricsHighlight; onSeek: (time: number) => void }) {
+// Fade da letra, do player e dos desfoques ao abrir e fechar a letra
+const LYRICS_FADE = { duration: 0.24, ease: 'easeOut' } as const;
+
+function LyricBlocks({ transcript, time: appTime, playing, audioRef, mode, onSeek, onMounted }: { transcript: TranscriptLine[]; time: number; playing: boolean; audioRef: React.RefObject<HTMLAudioElement | null>; mode: LyricsHighlight; onSeek: (time: number) => void; onMounted?: () => void }) {
   const time = useLyricClock(audioRef, appTime, playing);
+  // Antes de aparecer na tela (a letra volta depois da busca já no ponto atual, sem pular)
+  React.useLayoutEffect(() => { onMounted?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const blocks = React.useMemo(() => {
     const list: { first: number; lines: TranscriptLine[]; start: number; end: number }[] = [];
     for (let i = 0; i < transcript.length; i += LYRIC_BLOCK) {
@@ -501,6 +506,27 @@ export default function FullscreenPlayer({
   const lyricSearchOpenRef = React.useRef(false);
   lyricSearchOpenRef.current = lyricSearchOpen;
   const foldedQuery = foldText(lyricQuery.trim());
+  // Resultados mostrados: acompanham a digitação depois de uma pequena pausa, para a lista trocar com fade e não a
+  // cada letra
+  const [shownQuery, setShownQuery] = useState('');
+  const shownQueryRef = React.useRef('');
+  shownQueryRef.current = shownQuery;
+  const returningToLyricsRef = React.useRef(false);
+  if (shownQuery) returningToLyricsRef.current = true;
+  React.useEffect(() => {
+    const timer = setTimeout(() => setShownQuery(foldedQuery), 170);
+    return () => clearTimeout(timer);
+  }, [foldedQuery]);
+  // A letra abre já no ponto atual, antes de aparecer na tela
+  React.useLayoutEffect(() => {
+    if (showTranscript && hasTranscript) window.dispatchEvent(new CustomEvent('lyrics-recenter', { detail: { instant: true } }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showTranscript, hasTranscript]);
+  const onLyricsMounted = () => {
+    if (!returningToLyricsRef.current) return;
+    returningToLyricsRef.current = false;
+    window.dispatchEvent(new CustomEvent('lyrics-recenter', { detail: { instant: true } }));
+  };
   // Celular: com a busca aberta, os botões do cabeçalho saem com fade; ao fechar, entram depois de a barra sair
   const headerFadeClass = !mobileLyrics ? '' : lyricSearchOpen
     ? '[&>*]:!opacity-0 [&>*]:pointer-events-none [&>*]:![transition:opacity_0.15s_ease-out]'
@@ -515,8 +541,9 @@ export default function FullscreenPlayer({
     setLyricSearchOpen(false);
     setLyricSearchShown(false);
     setLyricQuery('');
-    // Depois que a letra voltar à tela, ela vai para o ponto atual
-    setTimeout(() => window.dispatchEvent(new Event('lyrics-recenter')), 190);
+    setShownQuery('');
+    // Sem resultados na tela a letra não troca: ela só volta ao ponto atual
+    if (!shownQueryRef.current) window.dispatchEvent(new Event('lyrics-recenter'));
   };
   React.useEffect(() => {
     const el = fsTranscriptScrollRef.current;
@@ -553,10 +580,6 @@ export default function FullscreenPlayer({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mobileLyrics, desktopLyrics]);
-  React.useEffect(() => {
-    if (fsTranscriptScrollRef.current && foldedQuery) fsTranscriptScrollRef.current.scrollTop = 0;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [foldedQuery]);
   // Mesma função sempre, para as frases que não mudaram não serem redesenhadas
   const seekRef = React.useRef(handleSeek);
   seekRef.current = handleSeek;
@@ -810,11 +833,17 @@ export default function FullscreenPlayer({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.16, ease: 'easeOut' }}
+              style={{
+                // Destaque da barra na cor do audiobook
+                '--winblue': currentBookHighlight.hex,
+                '--winblue-rgb': currentBookHighlight.rgb,
+                '--color-winblue': currentBookHighlight.hex,
+              } as React.CSSProperties}
               className="flex-1 min-w-0 mx-2.5 flex items-center"
             >
               <div
                 onClick={() => setLyricSearchOpen(true)}
-                className="flex-1 min-w-0 h-9 flex items-center gap-2 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-muted)]"
+                className="flex-1 min-w-0 h-9 flex items-center gap-2 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl border border-[var(--text-main)]/10 text-[var(--text-muted)] focus-within:bg-white/15 focus-within:border-winblue/40 focus-within:shadow-[0_0_20px_rgba(var(--winblue-rgb),0.3)] focus-within:text-winblue transition-all"
               >
                 <TextSearch size={15} className="shrink-0" />
                 {lyricSearchOpen ? (
@@ -867,10 +896,15 @@ export default function FullscreenPlayer({
       <div className={`fs-main flex-1 flex flex-col md:flex-row items-center justify-center overflow-visible z-10 max-md:z-30 relative min-h-0 mt-6 [@media(max-height:520px)]:mt-3 ${foldLyrics ? 'fs-fold-lyrics' : ''}`}>
         
         {/* Coluna / Área do Player: Capa, Título, Livro/Autor, Barra de Progresso, Controles (mesmo tamanho com ou sem texto) */}
+<AnimatePresence initial={false}>
 {!mobileLyrics && (
         <motion.div
+          key="fs-player-column"
           layout="position"
-          transition={{ type: "spring", stiffness: 440, damping: 38, mass: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "spring", stiffness: 440, damping: 38, mass: 0.5, opacity: LYRICS_FADE }}
           className="fs-column w-full max-w-sm sm:max-w-md [@media(max-height:520px)]:max-w-3xl flex flex-col items-center text-center justify-between h-full min-h-0 shrink-0 transform-gpu pb-3"
         >
           <div className="fs-body flex flex-col items-center justify-between h-full min-h-0 w-full">
@@ -1131,16 +1165,17 @@ export default function FullscreenPlayer({
           </div>
         </motion.div>
         )}
+</AnimatePresence>
 
         {/* Coluna da Direita: Transcrição / Texto (quando ativada e com texto) */}
         <AnimatePresence initial={false}>
           {showTranscript && hasTranscript && (
             <motion.div 
               key="fullscreen-transcript-col"
-              initial={isMobileFs ? { opacity: 0, y: 24 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
+              initial={isMobileFs ? { opacity: 0, y: 12 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
               animate={isMobileFs ? { opacity: 1, y: 0 } : { opacity: 1, width: 'auto', x: 0, scale: 1 }}
-              exit={isMobileFs ? { opacity: 0, y: 24 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 440, damping: 38, mass: 0.5 }}
+              exit={isMobileFs ? { opacity: 0, y: 12 } : { opacity: 0, width: 0, x: 28, scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 440, damping: 38, mass: 0.5, opacity: LYRICS_FADE }}
               style={{
                 willChange: 'transform, opacity, width',
                 // Cor de destaque da página deste audiobook (a palavra sendo lida)
@@ -1156,7 +1191,7 @@ export default function FullscreenPlayer({
               <div 
                 ref={fsTranscriptScrollRef}
                 data-lyrics-full={mobileLyrics ? 'true' : undefined}
-                data-searching={foldedQuery ? 'true' : undefined}
+                data-searching={foldedQuery || shownQuery ? 'true' : undefined}
                 style={mobileLyrics ? {
                   paddingTop: 'calc(var(--app-header-top) + 44px + 20px)',
                   paddingBottom: 'calc(62px + var(--mobile-bar-bottom) + 28px)',
@@ -1172,7 +1207,7 @@ export default function FullscreenPlayer({
                 className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pl-8 md:pl-12 pr-6 md:pr-10 py-8 max-md:px-2 max-md:py-4 flex flex-col fullscreen-transcript w-full md:w-[min(48vw,680px)] md:shrink-0"
               >
                 <div
-                  className={`select-none ${foldedQuery ? '' : 'my-auto'}`}
+                  className={`select-none ${shownQuery ? '' : 'my-auto'}`}
                   style={{ WebkitTouchCallout: 'none' }}
                   onPointerDown={onLinesPointerDown}
                   onPointerMove={cancelLinePress}
@@ -1181,27 +1216,32 @@ export default function FullscreenPlayer({
                   onClickCapture={onLinesClickCapture}
                   onContextMenu={onLinesContextMenu}
                 >
-                  <AnimatePresence mode="wait" initial={false}>
+                  <AnimatePresence
+                    mode="wait"
+                    initial={false}
+                    // Lista nova começa do topo (depois que a anterior saiu, sem pulo à vista)
+                    onExitComplete={() => { if (shownQueryRef.current && fsTranscriptScrollRef.current) fsTranscriptScrollRef.current.scrollTop = 0; }}
+                  >
                   <motion.div
-                    key={foldedQuery ? 'lyric-results' : 'lyric-lines'}
+                    key={shownQuery ? `lyric-results-${shownQuery}` : 'lyric-lines'}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.14, ease: 'easeOut' }}
-                    className={foldedQuery ? 'space-y-5 md:space-y-1' : 'space-y-6'}
+                    className={shownQuery ? 'space-y-5 md:space-y-1' : 'space-y-6'}
                   >
-                  {foldedQuery ? (
+                  {shownQuery ? (
                     <LyricSearchResults
                       transcript={currentBook.transcript}
                       chapters={currentBook.chapters || []}
-                      query={foldedQuery}
+                      query={shownQuery}
                       emptyText={t('search_in_text_empty')}
                       moreLabel={t('more_options')}
                       onPick={(line) => { if (isMobileFs) { seekLyric(line.start); closeLyricSearch(); } else playLine(line); }}
                       onOptions={isMobileFs ? undefined : setDesktopLineMenu}
                     />
                   ) : (
-                    <LyricBlocks transcript={currentBook.transcript} time={currentTime} playing={isPlaying} audioRef={audioRef} mode={lyricsHighlight} onSeek={seekLyric} />
+                    <LyricBlocks transcript={currentBook.transcript} time={currentTime} playing={isPlaying} audioRef={audioRef} mode={lyricsHighlight} onSeek={seekLyric} onMounted={onLyricsMounted} />
                   )}
                   </motion.div>
                   </AnimatePresence>
@@ -1243,15 +1283,20 @@ export default function FullscreenPlayer({
         {/* Celular com letra aberta: desfoque do cabeçalho e do rodapé por cima da letra (atrás dos botões do
             cabeçalho e da barra do audiobook), igual ao rodapé dos ajustes iniciais. Ficam fora da área que rola:
             no iPhone, a área com rolagem pode ser desenhada por cima de camadas dentro dela */}
+        <AnimatePresence initial={false}>
         {mobileLyrics && (
           <>
             {/* Cabeçalho: o mesmo desfoque progressivo do cabeçalho da interface ao rolar (6 camadas + véu) */}
-            <div
+            <motion.div
+              key="fs-lyrics-head-blur"
               aria-hidden="true"
               className="apple-header-blur pointer-events-none"
+              initial={{ '--header-blur': 0 } as any}
+              animate={{ '--header-blur': 1 } as any}
+              exit={{ '--header-blur': 0 } as any}
+              transition={LYRICS_FADE}
               style={{
                 zIndex: 4,
-                ['--header-blur' as any]: 1,
                 ['--header-tint' as any]: fullscreenAmbientColors.isDark ? '#04070f' : '#ffffff',
               }}
             >
@@ -1262,14 +1307,18 @@ export default function FullscreenPlayer({
               <div className="apple-blur-layer" />
               <div className="apple-blur-layer" />
               <div className="apple-blur-tint" />
-            </div>
+            </motion.div>
             {/* Rodapé: o mesmo desfoque do cabeçalho, espelhado — cobre a barra do audiobook e esmaece logo acima */}
-            <div
+            <motion.div
+              key="fs-lyrics-foot-blur"
               aria-hidden="true"
               className="apple-header-blur apple-footer-blur pointer-events-none"
+              initial={{ '--header-blur': 0 } as any}
+              animate={{ '--header-blur': 1 } as any}
+              exit={{ '--header-blur': 0 } as any}
+              transition={LYRICS_FADE}
               style={{
                 zIndex: 4,
-                ['--header-blur' as any]: 1,
                 ['--header-tint' as any]: fullscreenAmbientColors.isDark ? '#04070f' : '#ffffff',
               }}
             >
@@ -1280,18 +1329,20 @@ export default function FullscreenPlayer({
               <div className="apple-blur-layer" />
               <div className="apple-blur-layer" />
               <div className="apple-blur-tint" />
-            </div>
+            </motion.div>
           </>
         )}
+        </AnimatePresence>
 
         {/* Mobile com letra aberta: audiobook como no miniplayer (capa, dados e play/pause); tocar fecha a letra */}
+        <AnimatePresence initial={false}>
         {mobileLyrics && (
           <motion.div
             key="fs-lyrics-mini"
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 16 }}
-            transition={{ type: "spring", stiffness: 460, damping: 40, mass: 0.6 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ type: "spring", stiffness: 460, damping: 40, mass: 0.6, opacity: LYRICS_FADE }}
             role="button"
             tabIndex={0}
             onClick={() => onCloseTranscript?.()}
@@ -1376,6 +1427,7 @@ export default function FullscreenPlayer({
             )}
           </motion.div>
         )}
+        </AnimatePresence>
       </div>
       <AnimatePresence>
         {desktopLineMenu && (

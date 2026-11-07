@@ -241,6 +241,14 @@ export default function BookDetailView({
 }: BookDetailViewProps) {
   // Capítulos em exibição (extras podem estar ocultos em Ajustes)
   const shownChapters = visibleChapters(activeBook.chapters, useShowExtraChapters());
+  // Colunas da lista de capítulos: cada item tem largura fixa, para tudo ficar alinhado de cima a baixo. As opcionais
+  // só existem se algum capítulo as usa, deixando mais espaço para o nome
+  const chapterHasFavorites = shownChapters.some(cap => favoriteChapters.includes(`${activeBook.id}-${cap.id}`));
+  const chapterHasMarks = Boolean(activeChapterCommentsPopupId) || shownChapters.some(cap => cap.bookmarks?.length || cap.comments?.length);
+  const chapterHasStatus = shownChapters.some(cap => isChapterCompleted(activeBook.id, cap.id) || isChapterStarted(activeBook.id, cap.id));
+  const longestChapterTime = Math.max(0, ...shownChapters.map(cap => formatTime(cap.duration).length));
+  const chapterTimeSize = longestChapterTime >= 8 ? 'text-[10px]' : longestChapterTime >= 7 ? 'text-[11px]' : 'text-xs';
+  const chapterStatusSize = (label: string) => (label.length > 10 ? 'text-[9px]' : 'text-[10px]');
   const { t } = useI18n();
 
   const isThisBookCurrent = currentBook.id === activeBook.id;
@@ -988,7 +996,7 @@ export default function BookDetailView({
                   setActiveChapterMenuId(chapIdKey);
                   setActiveChapterMenuMode('options');
                 }}
-                className={`group relative flex items-center justify-between py-2.5 pl-4 sm:pl-5 pr-2.5 rtl:pl-2.5 rtl:pr-4 rtl:sm:pr-5 rounded-full cursor-pointer transition-all ${
+                className={`group relative flex items-center gap-2 sm:gap-3 py-2.5 pl-4 sm:pl-5 pr-2.5 rtl:pl-2.5 rtl:pr-4 rtl:sm:pr-5 rounded-[26px] cursor-pointer transition-all ${
                   isThisChapterMenuOpen || isThisChapterCommentsOpen ? 'z-50' : 'z-10'
                 } ${
                   isCurrentChapter 
@@ -996,8 +1004,8 @@ export default function BookDetailView({
                     : 'hover:bg-[var(--button-secondary-bg)]/50 border border-transparent'
                 }`}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-6 text-center text-xs flex items-center justify-center">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <div className={`w-6 shrink-0 text-center flex items-center justify-center ${i + 1 >= 1000 ? 'text-[9px]' : i + 1 >= 100 ? 'text-[10px]' : 'text-xs'}`}>
                     {isCurrentChapter ? (
                       <div className="flex items-end justify-center h-4 gap-[2.5px] w-6" title={isCurrentPlaying ? t('now_playing') : t('current_chapter')}>
                         <span className={`w-[2.5px] bg-winblue rounded-full ${isCurrentPlaying ? 'audio-bar-1' : 'h-3'}`} />
@@ -1015,12 +1023,14 @@ export default function BookDetailView({
                       </>
                     )}
                   </div>
-                  <span className={`text-sm ${isCurrentChapter ? 'text-winblue font-bold tracking-wide' : 'text-[var(--text-main)] font-medium'}`}>
+                  <span className={`flex-1 min-w-0 [overflow-wrap:anywhere] text-sm ${isCurrentChapter ? 'text-winblue font-bold tracking-wide' : 'text-[var(--text-main)] font-medium'}`}>
                     {cap.title}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 relative">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0 relative">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    {chapterHasFavorites && (
+                    <div className="w-5 shrink-0 flex items-center justify-center">
                     {favoriteChapters.includes(chapIdKey) && (
                       <span 
                         title={t('favorite')} 
@@ -1029,6 +1039,10 @@ export default function BookDetailView({
                         <Star size={10} className="fill-yellow-400 text-yellow-400" />
                       </span>
                     )}
+                    </div>
+                    )}
+                    {chapterHasMarks && (
+                    <div className="w-8 md:w-11 shrink-0 flex items-center justify-center">
                     {(((cap.bookmarks && cap.bookmarks.length > 0) || (cap.comments && cap.comments.length > 0)) || isThisChapterCommentsOpen) && (
                       <div className={`relative flex items-center shrink-0 ${isThisChapterCommentsOpen ? 'z-50' : 'z-10'}`}>
                         <motion.button
@@ -1085,10 +1099,14 @@ export default function BookDetailView({
                         </AnimatePresence>
                       </div>
                     )}
+                    </div>
+                    )}
+                    {chapterHasStatus && (
+                    <div className="w-6 md:w-24 shrink-0 flex items-center justify-center">
                     {isChapterCompleted(activeBook.id, cap.id) ? (
                       <span
                         title={t('completed')}
-                        className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 max-md:p-0 max-md:w-6 max-md:h-6 max-md:justify-center max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none rounded-full shadow-sm pointer-events-none select-none ${
+                        className={`flex items-center gap-1 whitespace-nowrap ${chapterStatusSize(t('completed'))} font-bold px-2 py-0.5 max-md:p-0 max-md:w-6 max-md:h-6 max-md:justify-center max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none rounded-full shadow-sm pointer-events-none select-none ${
                           isCurrentChapter
                             ? 'text-winblue bg-winblue/15 border border-winblue/35'
                             : 'text-[var(--text-main)] bg-[var(--text-main)]/10 border border-[var(--text-main)]/25'
@@ -1100,7 +1118,7 @@ export default function BookDetailView({
                     ) : isChapterStarted(activeBook.id, cap.id) ? (
                       <span
                         title={t('listening')}
-                        className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 max-md:p-0 max-md:w-6 max-md:h-6 max-md:justify-center max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none rounded-full shadow-sm pointer-events-none select-none ${
+                        className={`flex items-center gap-1 whitespace-nowrap ${chapterStatusSize(t('listening'))} font-bold px-2 py-0.5 max-md:p-0 max-md:w-6 max-md:h-6 max-md:justify-center max-md:!bg-transparent max-md:!border-transparent max-md:!shadow-none rounded-full shadow-sm pointer-events-none select-none ${
                           isCurrentChapter
                             ? 'text-winblue bg-winblue/15 border border-winblue/35'
                             : 'text-[var(--text-main)] bg-[var(--text-main)]/10 border border-[var(--text-main)]/25'
@@ -1110,7 +1128,9 @@ export default function BookDetailView({
                         <span className="max-md:hidden">{t('listening')}</span>
                       </span>
                     ) : null}
-                    <span className={`text-xs transition-colors ${
+                    </div>
+                    )}
+                    <span className={`w-[3.25rem] shrink-0 text-right rtl:text-left whitespace-nowrap tabular-nums ${chapterTimeSize} transition-colors ${
                       isCurrentChapter 
                         ? 'text-winblue font-semibold' 
                         : 'text-[var(--text-muted)] group-hover:text-[var(--text-main)]'

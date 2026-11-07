@@ -299,7 +299,7 @@ export function PopupSelectableRow({
 }
 
 // Telas cheias do celular (submenus): opções num único destaque, como nas opções dos ajustes
-export const SCREEN_GROUP_CLASS = "p-1.5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 space-y-0.5";
+export const SCREEN_GROUP_CLASS = "settings-option-list p-1.5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 space-y-0.5";
 
 export function ScreenSelectableRow({
   selected,

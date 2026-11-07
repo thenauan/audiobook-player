@@ -32,6 +32,7 @@ import { desktop, IS_INSTALLED_APP, IS_APPLE_TOUCH } from './desktopBridge';
 import { PlayerPopup } from './components/PlayerPopup';
 import { ScreenErrorBoundary } from './components/ScreenErrorBoundary';
 import { APP_VERSION } from './version';
+import { getNotificationPermission, notifySystem, requestNotificationPermission, showSystemNotification } from './systemNotifications';
 import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } from './shareStory';
 import { MobileConfirmCard } from './components/MobileConfirm';
 import { installTapBounce } from './components/tapBounce';
@@ -154,19 +155,22 @@ function syncTextStem(name: string) {
 // Leva a frase ao centro da letra. A posição é medida pela tela (dentro dos blocos da letra, offsetTop é relativo ao
 // bloco). Saltos longos vão direto e são conferidos logo depois: os blocos fora da tela têm altura estimada, que
 // muda quando eles são desenhados.
-function centerLyricLine(container: HTMLElement, el: HTMLElement) {
+let lyricCenterRun = 0;
+function centerLyricLine(container: HTMLElement, el: HTMLElement, instant = false) {
+  const run = ++lyricCenterRun;
   const target = () => {
     const box = container.getBoundingClientRect();
     const r = el.getBoundingClientRect();
     return Math.max(0, container.scrollTop + (r.top - box.top) - container.clientHeight / 2 + r.height / 2);
   };
   const top = target();
-  if (Math.abs(top - container.scrollTop) < 1500) {
+  if (!instant && Math.abs(top - container.scrollTop) < 1500) {
     container.scrollTo({ top, behavior: 'smooth' });
     return;
   }
   container.scrollTop = top;
-  [50, 200, 450].forEach(ms => setTimeout(() => { container.scrollTop = target(); }, ms));
+  // Só confere se nada mais moveu a letra (outra frase ou a pessoa rolando)
+  [50, 200, 450].forEach(ms => setTimeout(() => { if (run === lyricCenterRun) container.scrollTop = target(); }, ms));
 }
 
 // iPhone/iPad em chave própria: versões anteriores gravaram 85% lá, o que ligaria o processamento de áudio sem pedir
@@ -1857,6 +1861,7 @@ export default function App() {
       } else {
         showToast(t('toast_books_added_success', { count: importedBooks.length }));
       }
+      notifySystem('app_notify_added', t('settings_notif_added'), t('toast_books_added_success', { count: importedBooks.length }));
     } else if (skippedDuplicates > 0 && !silentDuplicateToast) {
       showToast(
         skippedDuplicates === 1
@@ -2038,6 +2043,19 @@ export default function App() {
 
   // Ajustes: Notificações
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(() => localStorage.getItem('app_notifications_enabled') !== 'false');
+  const [notificationPermission, setNotificationPermission] = useState(getNotificationPermission);
+  // Ligada só com a permissão do sistema (sem suporte, a chave continua valendo para os avisos dentro do app)
+  const notificationsOn = notificationsEnabled && !['default', 'denied'].includes(notificationPermission);
+  const toggleNotifications = async (enabled: boolean) => {
+    if (!enabled) { setNotificationsEnabled(false); return; }
+    const permission = await requestNotificationPermission();
+    setNotificationPermission(permission);
+    if (permission === 'denied') { showToast(t('toast_notif_blocked')); return; }
+    if (permission === 'default') return;
+    setNotificationsEnabled(true);
+    if (permission === 'unsupported') showToast(t('toast_notif_unsupported'));
+    else showSystemNotification(t('settings_notif_enabled'), t('notif_enabled_body'));
+  };
   const [notifyChapterCompleted, setNotifyChapterCompleted] = useState<boolean>(() => localStorage.getItem('app_notify_chapter') !== 'false');
   const [notifyBookCompleted, setNotifyBookCompleted] = useState<boolean>(() => localStorage.getItem('app_notify_book') !== 'false');
   const [notifyBookAdded, setNotifyBookAdded] = useState<boolean>(() => localStorage.getItem('app_notify_added') !== 'false');
@@ -3063,6 +3081,8 @@ export default function App() {
     setCompletedChapters(prev => prev.includes(id) ? prev : [...prev, id]);
     setStartedChapters(prev => prev.includes(id) ? prev : [...prev, id]);
   }, []);
+  const completedChaptersRef = useRef(completedChapters);
+  completedChaptersRef.current = completedChapters;
   // Último ponto ouvido (para saber se o fim do capítulo foi alcançado ouvindo, e não pulando)
   const lastHeardRef = useRef<{ bookId: string; time: number } | null>(null);
   const checkChapterFinished = (bookId: string, time: number) => {
@@ -3075,7 +3095,16 @@ export default function App() {
       const end = (chap.startTime || 0) + (chap.duration || 0);
       if (!chap.duration) continue;
       // Cruzou o fim do capítulo (ou chegou a menos de 1 s dele) ouvindo
-      if (prev.time < end - 1 && time >= end - 1) markChapterCompleted(bookId, chap.id);
+      if (prev.time < end - 1 && time >= end - 1) {
+        const finished = [...completedChaptersRef.current, `${bookId}-${chap.id}`];
+        if (!completedChaptersRef.current.includes(`${bookId}-${chap.id}`)) {
+          notifySystem('app_notify_chapter', t('settings_notif_chapter'), chap.title);
+          if (visibleChapters(book.chapters, showExtraChapters).every(c => finished.includes(`${bookId}-${c.id}`))) {
+            notifySystem('app_notify_book', t('settings_notif_book'), book.title);
+          }
+        }
+        markChapterCompleted(bookId, chap.id);
+      }
     }
   };
 
@@ -3648,17 +3677,18 @@ export default function App() {
   lyricsActiveIdxRef.current = activeTranscriptIndex;
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
-    const recenter = () => {
+    const recenter = (instant = false) => {
       lyricsHoldRef.current = false;
       const container = fsTranscriptScrollRef.current;
       if (!container || container.dataset.searching) return;
       const activeEl = container.querySelector(`[data-transcript-idx="${lyricsActiveIdxRef.current}"]`) as HTMLElement | null;
-      if (activeEl) centerLyricLine(container, activeEl);
+      if (activeEl) centerLyricLine(container, activeEl, instant);
     };
     const hold = () => {
+      lyricCenterRun++;
       lyricsHoldRef.current = true;
       if (timer) clearTimeout(timer);
-      timer = setTimeout(recenter, 4000);
+      timer = setTimeout(() => recenter(), 4000);
     };
     const onGesture = (e: Event) => {
       if ((e.target as HTMLElement | null)?.closest?.('.fullscreen-transcript')) hold();
@@ -3667,9 +3697,9 @@ export default function App() {
     const onScroll = (e: Event) => {
       if (lyricsHoldRef.current && (e.target as HTMLElement | null)?.classList?.contains('fullscreen-transcript')) hold();
     };
-    const onRecenter = () => {
+    const onRecenter = (e: Event) => {
       if (timer) clearTimeout(timer);
-      recenter();
+      recenter(Boolean((e as CustomEvent).detail?.instant));
     };
     const options = { capture: true, passive: true };
     ['wheel', 'touchstart', 'touchmove', 'pointerdown'].forEach(name => document.addEventListener(name, onGesture, options));
@@ -3956,7 +3986,7 @@ export default function App() {
       },
       {
         id: 'notifications', title: t('settings_notifications'), icon: <Bell size={18} />,
-        settings: [yesNo(notificationsEnabled, setNotificationsEnabled, 'notifications', t('settings_notif_enabled'), t('settings_notif_enabled_sub'))],
+        settings: [yesNo(notificationsOn, toggleNotifications, 'notifications', t('settings_notif_enabled'), t('settings_notif_enabled_sub'))],
       },
     ];
     const pageIdx = Math.min(onboardingPage, pages.length - 1);
@@ -4023,7 +4053,7 @@ export default function App() {
                   <section key={setting.id}>
                     <h2 className="text-[15px] md:text-base font-bold text-white">{setting.title}</h2>
                     <p className="text-[13px] md:text-sm text-white/65 mt-0.5 mb-3">{setting.subtitle}</p>
-                    <div className="p-1.5 rounded-[32px] bg-white/[0.07] backdrop-blur-xl border border-white/15 space-y-0.5">
+                    <div className="settings-option-list p-1.5 rounded-[32px] bg-white/[0.07] backdrop-blur-xl border border-white/15 space-y-0.5">
                       {setting.options.map((option, idx) => {
                         const selected = setting.value === option.value;
                         return (
@@ -15380,7 +15410,7 @@ export default function App() {
                 ) : null;
               })()}
               <div className="h-7 max-md:h-5" />
-              <div className="p-1.5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 space-y-0.5">
+              <div className="settings-option-list p-1.5 rounded-[32px] bg-card/60 backdrop-blur-xl border border-[var(--text-main)]/10 space-y-0.5">
                 {(activeScreen.data.options || []).map((option: any, idx: number) => {
                   const isSelected = activeScreen.data.currentValue === option.value;
                   return (
@@ -15461,8 +15491,8 @@ export default function App() {
                 setVoiceBoostEnabled={setVoiceBoostEnabled}
                 dynamicCompressionEnabled={dynamicCompressionEnabled}
                 setDynamicCompressionEnabled={setDynamicCompressionEnabled}
-                notificationsEnabled={notificationsEnabled}
-                setNotificationsEnabled={setNotificationsEnabled}
+                notificationsEnabled={notificationsOn}
+                setNotificationsEnabled={toggleNotifications}
                 notifyChapterCompleted={notifyChapterCompleted}
                 setNotifyChapterCompleted={setNotifyChapterCompleted}
                 notifyBookCompleted={notifyBookCompleted}
