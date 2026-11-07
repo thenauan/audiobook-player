@@ -3547,7 +3547,7 @@ export default function App() {
         borderColor: `${darkBorder}38`,
         backdropFilter: 'blur(28px) saturate(170%)',
         WebkitBackdropFilter: 'blur(28px) saturate(170%)',
-        boxShadow: `0 20px 40px -12px rgba(0, 0, 0, 0.7), 0 0 28px -4px ${darkBorder}33`,
+        boxShadow: `0 0 40px 0 rgba(0, 0, 0, 0.7), 0 0 28px -4px ${darkBorder}33`,
         transition: 'background 0.45s ease, 0.45s ease, box-shadow 0.45s ease',
       } as React.CSSProperties;
     } else {
@@ -3562,7 +3562,7 @@ export default function App() {
         borderColor: 'rgba(255, 255, 255, 0.42)',
         backdropFilter: 'blur(28px) saturate(170%)',
         WebkitBackdropFilter: 'blur(28px) saturate(170%)',
-        boxShadow: `0 20px 35px -10px rgba(0, 0, 0, 0.12), 0 0 28px -4px ${lightBorder}55`,
+        boxShadow: `0 0 35px 0 rgba(0, 0, 0, 0.12), 0 0 28px -4px ${lightBorder}55`,
         transition: 'background 0.45s ease, 0.45s ease, box-shadow 0.45s ease',
       } as React.CSSProperties;
     }
@@ -3807,7 +3807,7 @@ export default function App() {
                                                           e.stopPropagation();
                                                           handleOpenBookInFolder(activeBk);
                                                         }}
-                                                        className="shrink-0 h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer"
+                                                        className="shrink-0 h-8 px-3.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer"
                                                         title={t('view_in_folder')}
                                                       >
                                                         <FolderOpen size={13} />
@@ -3968,7 +3968,7 @@ export default function App() {
                             key={idx}
                             transition={SPRING.snappy}
                             onClick={() => setting.onSelect(option.value)}
-                            className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] transition-[background-color,border-color,box-shadow] duration-150 ${selected ? 'bg-winblue/20 ' : ' hover:bg-[var(--ios-fill)] '}`}
+                            className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2 text-left rtl:text-right rounded-[26px] transition-[background-color,border-color,box-shadow] duration-150 ${selected ? 'bg-winblue/20 ' : ' hover:bg-[var(--hover-fill)] '}`}
                           >
                             <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${selected ? 'bg-winblue/25 text-winblue' : 'bg-white/10 text-white/85'}`}>
                               {option.colorPreview
@@ -4020,7 +4020,7 @@ export default function App() {
             <motion.button
               data-press="true"
               onClick={goPrev}
-              className={`${navBtn} pl-2.5 pr-4 md:pl-3 md:pr-5 bg-white/10 text-white transition-[background-color,border-color,box-shadow] hover:bg-[var(--ios-fill)] `}
+              className={`${navBtn} pl-2.5 pr-4 md:pl-3 md:pr-5 bg-white/10 text-white transition-[background-color,border-color,box-shadow] hover:bg-[var(--hover-fill)] `}
             >
               <ChevronLeft size={22} className="shrink-0 rtl:rotate-180" />
               <span className="truncate">{prevLabel}</span>
@@ -4198,7 +4198,7 @@ export default function App() {
                       selected={isIn}
                       onClick={() => handleToggleItemInCollection(col.id, itemType, itemId)}
                       leading={
-                        <span className={`w-10 h-10 rounded-full bg-gradient-to-br ${col.gradient} flex items-center justify-center text-base shrink-0 shadow-sm select-none`}>
+                        <span className={`w-10 h-10 rounded-full bg-gradient-to-br ${col.gradient} flex items-center justify-center text-2xl shrink-0 shadow-sm select-none`}>
                           <EmojiIcon emoji={col.emoji} />
                         </span>
                       }
@@ -4289,7 +4289,7 @@ export default function App() {
                       key={mark.id}
                       type="button"
                       onClick={() => openMobileSheet({ kind: 'bookmarks', bookId: bk.id, chapterId: chapter.id })}
-                      className="w-full flex items-start gap-3 px-3 py-2.5 text-left rtl:text-right rounded-[24px] transition-colors hover:bg-[var(--ios-fill)]"
+                      className="w-full flex items-start gap-3 px-3 py-2.5 text-left rtl:text-right rounded-[24px] transition-colors hover:bg-[var(--hover-fill)]"
                     >
                       <span className="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-winblue/15 text-winblue">
                         <Bookmark size={13} />
@@ -4340,7 +4340,7 @@ export default function App() {
                     key={idx}
                     type="button"
                     onClick={() => toggle(idx)}
-                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] transition-colors select-none ${selected ? 'bg-winblue/15 ' : ' hover:bg-[var(--ios-fill)]'}`}
+                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] transition-colors select-none ${selected ? 'bg-winblue/15 ' : ' hover:bg-[var(--hover-fill)]'}`}
                   >
                     <span className="flex-1 min-w-0 flex flex-col">
                       <span className={`text-[15px] leading-snug ${selected ? 'text-winblue font-semibold' : 'text-[var(--text-main)]'}`}>{transcriptLineText(line)}</span>
@@ -4399,7 +4399,7 @@ export default function App() {
                     className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group ${
                       isSelected
                         ? 'hover:bg-winblue/25 '
-                        : 'hover:bg-[var(--ios-fill)] '
+                        : 'hover:bg-[var(--hover-fill)] '
                     }`}
                   >
                     {isSelected && (
@@ -5253,7 +5253,7 @@ export default function App() {
           className="absolute top-1/2 z-20 flex items-center cursor-pointer pointer-events-auto select-none"
           title={returnTooltip}
         >
-          <div className="bg-white text-slate-900 h-4 px-1.5 rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.35),0_0_6px_rgba(255,255,255,0.7)] flex items-center gap-0.5 font-bold font-mono text-[8px] leading-none whitespace-nowrap hover:bg-slate-50 transition-colors max-w-[112px] sm:max-w-[160px]">
+          <div className="bg-white text-slate-900 h-4 px-1.5 rounded-full shadow-[0_0_6px_rgba(0,0,0,0.35),0_0_6px_rgba(255,255,255,0.7)] flex items-center gap-0.5 font-bold font-mono text-[8px] leading-none whitespace-nowrap hover:bg-slate-50 transition-colors max-w-[112px] sm:max-w-[160px]">
             {isReturnAnterior ? (
               <>
                 <ChevronLeft size={10} className="stroke-[2.5] text-slate-900 shrink-0 rtl:rotate-180 -ml-0.5" />
@@ -7930,7 +7930,7 @@ export default function App() {
                 e.stopPropagation();
                 setActiveChapterMenuMode('options');
               }}
-              className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
+              className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
               title={t('more_options')}
             >
               <ChevronLeft size={14} className="rtl:rotate-180" />
@@ -7956,7 +7956,7 @@ export default function App() {
               <div className="flex flex-col py-1.5 px-1">
                 <motion.button 
                   onClick={(e) => { e.stopPropagation(); setIsAddingComment(true); setAddingCommentText(''); }}
-                  className="w-full h-11 border border-dashed border-[var(--text-main)]/20 rounded-2xl flex items-center justify-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-white hover:border-white/35 hover:bg-[var(--ios-fill)] transition-[background-color,border-color,color,box-shadow]"
+                  className="w-full h-11 border border-dashed border-[var(--text-main)]/20 rounded-2xl flex items-center justify-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-white hover:border-white/35 hover:bg-[var(--hover-fill)] transition-[background-color,border-color,color,box-shadow]"
                 >
                   <Bookmark size={15} />
                   <span>{t('add_bookmark') || t('add_comment')}</span>
@@ -7986,7 +7986,7 @@ export default function App() {
                     <motion.button 
                       data-press="true" 
                       onClick={() => { setIsAddingComment(false); setAddingCommentText(''); }} 
-                      className="h-7 px-3 rounded-full bg-card/75 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--ios-fill)] hover:text-white flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
+                      className="h-7 px-3 rounded-full bg-card/75 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--hover-fill)] hover:text-white flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                     >
                       <X size={12} />
                       <span>{t('cancel')}</span>
@@ -8055,7 +8055,7 @@ export default function App() {
                                 <motion.button 
                                   data-press="true" 
                                   onClick={() => { setEditingCommentId(null); setEditingCommentText(''); }} 
-                                  className="h-7 px-3 rounded-full bg-card/75 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--ios-fill)] hover:text-white flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
+                                  className="h-7 px-3 rounded-full bg-card/75 shadow-sm text-xs font-semibold text-[var(--text-main)] hover:bg-[var(--hover-fill)] hover:text-white flex items-center gap-1 transition-[background-color,border-color,color,box-shadow]"
                                 >
                                   <X size={12} />
                                   <span>{t('cancel')}</span>
@@ -8086,7 +8086,7 @@ export default function App() {
                               <motion.button 
                                 data-press="true" 
                                 onClick={() => setDeletingCommentId(null)} 
-                                className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] hover:text-white text-[var(--text-main)] transition-[background-color,border-color,color,box-shadow] font-semibold text-xs flex items-center gap-1.5"
+                                className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] hover:text-white text-[var(--text-main)] transition-[background-color,border-color,color,box-shadow] font-semibold text-xs flex items-center gap-1.5"
                               >
                                 <X size={13} />
                                 <span>{t('cancel')}</span>
@@ -8119,7 +8119,7 @@ export default function App() {
                                 <motion.button 
                                   data-press="true"
                                   onClick={() => { setDeletingCommentId(null); setEditingCommentId(com.id); setEditingCommentText(com.text); }} 
-                                  className="w-7 h-7 rounded-full bg-card/75 shadow-sm flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--ios-fill)] hover:text-white transition-[background-color,border-color,color,box-shadow]"
+                                  className="w-7 h-7 rounded-full bg-card/75 shadow-sm flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--hover-fill)] hover:text-white transition-[background-color,border-color,color,box-shadow]"
                                   title={t('edit_bookmark') || t('edit_comment')}
                                 >
                                   <Edit3 size={12} />
@@ -8217,7 +8217,7 @@ export default function App() {
             closeAllPopups(); 
             setShowCommentsPopover(!p); 
           }}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all relative"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all relative"
           title={t('chapter_bookmarks') || t('chapter_comments') || t('comments')}
         >
           <Bookmark size={14} />
@@ -8265,7 +8265,7 @@ export default function App() {
             closeAllPopups(); 
             setShowSpeedMenu(!p); 
           }}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all"
           title={`${t('speed')} (${playbackSpeed}x)`}
         >
           <Gauge size={14} />
@@ -8300,7 +8300,7 @@ export default function App() {
                         className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group ${
                           isSelected
                             ? 'hover:bg-winblue/25 '
-                            : 'hover:bg-[var(--ios-fill)] '
+                            : 'hover:bg-[var(--hover-fill)] '
                         }`}
                       >
                         {isSelected && (
@@ -8349,7 +8349,7 @@ export default function App() {
             closeAllPopups(); 
             setShowSleepTimerMenu(!p); 
           }}
-          className="w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] relative"
+          className="w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)] relative"
           title={sleepTimerMode ? t('sleep_timer_active', { time: formatCountdown(sleepTimerMode === 'end-of-chapter' ? Math.max(0, currentChapter.duration - chapterElapsed) : (sleepTimerRemaining || 0)) }) : t('sleep_timer')}
         >
           <Moon size={14} />
@@ -8411,7 +8411,7 @@ export default function App() {
                               setIsSleepTimerPaused(!isSleepTimerPaused);
                               showToast(!isSleepTimerPaused ? t('sleep_timer_paused') : t('sleep_timer_resume'));
                             }}
-                            className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
+                            className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
                           >
                             {isSleepTimerPaused ? <Play size={14} /> : <Pause size={14} />}
                             <span>{isSleepTimerPaused ? t('sleep_timer_resume') : t('sleep_timer_pause')}</span>
@@ -8426,7 +8426,7 @@ export default function App() {
                               setShowSleepTimerMenu(false);
                               showToast(t('sleep_timer_canceled'));
                             }}
-                            className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
+                            className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
                           >
                             <X size={14} />
                             <span>{t('cancel')}</span>
@@ -8443,7 +8443,7 @@ export default function App() {
                             setShowSleepTimerMenu(false);
                             showToast(t('sleep_timer_until_end'));
                           }}
-                          className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] "
+                          className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--hover-fill)] "
                         >
                           <div className="relative z-10 flex items-center gap-2.5 min-w-0">
                             <span className="text-[var(--text-main)] dark:group-hover:text-white transition-colors shrink-0">
@@ -8468,7 +8468,7 @@ export default function App() {
                               setShowSleepTimerMenu(false);
                               showToast(t('sleep_timer_mins', { mins }));
                             }}
-                            className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] "
+                            className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--hover-fill)] "
                           >
                             <div className="relative z-10 flex items-center gap-2.5">
                               <span className="text-[var(--text-main)] dark:group-hover:text-white transition-colors shrink-0">
@@ -8508,7 +8508,7 @@ export default function App() {
             closeAllPopups(); 
             setShowQueuePopup(!p); 
           }}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all overflow-hidden relative"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all overflow-hidden relative"
           title={t('queue')}
         >
           <AnimatePresence mode="wait" initial={false}>
@@ -8702,7 +8702,7 @@ export default function App() {
           className={`w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl ${
             isMuted || volume === 0
               ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 '
-              : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
+              : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)] '
           }`}
           title={isMuted || volume === 0 ? t('mute_click_to_open') : t('volume')}
         >
@@ -8750,7 +8750,7 @@ export default function App() {
                           setIsMuted(false);
                         }}
                         style={{
-                          background: `linear-gradient(to right, var(--slider-current-fill, var(--slider-fill)) ${(isMuted ? 0 : volume) * 100}%, var(--slider-track) ${(isMuted ? 0 : volume) * 100}%)`
+                          ['--slider-bg' as any]: `linear-gradient(to right, var(--slider-current-fill, var(--slider-fill)) ${(isMuted ? 0 : volume) * 100}%, var(--slider-track) ${(isMuted ? 0 : volume) * 100}%)`
                         }}
                         className="w-full apple-slider"
                       />
@@ -8801,7 +8801,7 @@ export default function App() {
               className={`w-9 h-9 flex items-center justify-center rounded-full transition-all shadow-xl backdrop-blur-3xl ${
                 showTranscript 
                   ? 'bg-winblue/20 text-winblue hover:bg-winblue/30 ' 
-                  : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
+                  : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)] '
               }`}
               title={showTranscript ? t('hide_text') : t('show_text')}
             >
@@ -8818,7 +8818,7 @@ export default function App() {
                 closeAllPopups();
                 setShowAddTextPopup(!p);
               }}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-xl cursor-pointer"
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-xl cursor-pointer"
               title={t('add_text')}
             >
               <FilePlus2 size={14} />
@@ -8855,7 +8855,7 @@ export default function App() {
                           addTextInputRef.current.click();
                         }
                       }}
-                      className="relative w-full flex items-center justify-between gap-3 px-3 py-2.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] text-left cursor-pointer"
+                      className="relative w-full flex items-center justify-between gap-3 px-3 py-2.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--hover-fill)] text-left cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span className="text-[var(--text-main)] group-hover:text-white shrink-0">
@@ -8905,7 +8905,7 @@ export default function App() {
               setShowCommentsPopover(true);
             }
           }} 
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0`}
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm relative shrink-0`}
           title={t('chapter_bookmarks') || t('chapter_comments')}
         >
           <Bookmark size={isFullScreenMode ? 16 : 13} />
@@ -8967,7 +8967,7 @@ export default function App() {
               setShowSpeedMenu(true);
             }
           }} 
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0`}
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0`}
           title={t('playback_speed_title', { speed: playbackSpeed })}
         >
           <Gauge size={isFullScreenMode ? 16 : 13} />
@@ -9005,7 +9005,7 @@ export default function App() {
                           className={`relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group ${
                             isSelected
                               ? 'hover:bg-winblue/25 '
-                              : 'hover:bg-[var(--ios-fill)] '
+                              : 'hover:bg-[var(--hover-fill)] '
                           }`}
                         >
                           {isSelected && (
@@ -9060,7 +9060,7 @@ export default function App() {
               setShowSleepTimerMenu(true);
             }
           }} 
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full transition-all shadow-sm shrink-0 relative bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] `}
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full transition-all shadow-sm shrink-0 relative bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] `}
           title={sleepTimerMode ? t('sleep_timer_active', { time: formatCountdown(sleepTimerMode === 'end-of-chapter' ? Math.max(0, currentChapter.duration - chapterElapsed) : (sleepTimerRemaining || 0)) }) : t('sleep_timer')}
         >
           <Moon size={isFullScreenMode ? 16 : 13} />
@@ -9127,7 +9127,7 @@ export default function App() {
                                 setIsSleepTimerPaused(!isSleepTimerPaused);
                                 showToast(!isSleepTimerPaused ? t('sleep_timer_paused') : t('sleep_timer_resume'));
                               }}
-                              className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
+                              className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
                               title={isSleepTimerPaused ? t('sleep_timer_resume') : t('sleep_timer_pause')}
                             >
                               {isSleepTimerPaused ? <Play size={14} /> : <Pause size={14} />}
@@ -9144,7 +9144,7 @@ export default function App() {
                                 setShowSleepTimerMenu(false);
                                 showToast(t('sleep_timer_canceled'));
                               }}
-                              className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
+                              className="flex-1 py-2.5 px-3 rounded-full text-xs font-semibold bg-card/75 backdrop-blur-3xl shadow-md hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all flex items-center justify-center gap-1.5"
                               title={t('cancel_timer')}
                             >
                               <X size={14} />
@@ -9162,7 +9162,7 @@ export default function App() {
                               setShowSleepTimerMenu(false);
                               showToast(t('sleep_timer_until_end'));
                             }}
-                            className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] "
+                            className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--hover-fill)] "
                           >
                             <div className="relative z-10 flex items-center gap-2.5 min-w-0">
                               <span className="text-[var(--text-main)] dark:group-hover:text-white transition-colors shrink-0">
@@ -9187,7 +9187,7 @@ export default function App() {
                                 setShowSleepTimerMenu(false);
                                 showToast(t('sleep_timer_mins', { mins }));
                               }}
-                              className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--ios-fill)] "
+                              className="relative w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group hover:bg-[var(--hover-fill)] "
                             >
                               <div className="relative z-10 flex items-center gap-2.5">
                                 <span className="text-[var(--text-main)] dark:group-hover:text-white transition-colors shrink-0">
@@ -9233,7 +9233,7 @@ export default function App() {
               setShowQueuePopup(true);
             }
           }} 
-          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0 overflow-hidden`}
+          className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm relative shrink-0 overflow-hidden`}
           title={t('queue')}
         >
           <AnimatePresence mode="wait" initial={false}>
@@ -9440,7 +9440,7 @@ export default function App() {
           className={`${isFullScreenMode ? 'w-9 h-9' : 'w-7 h-7'} flex items-center justify-center rounded-full transition-all shadow-sm shrink-0 ${
             isMuted || volume === 0
               ? 'bg-red-500/15 text-red-400 hover:bg-red-500/25 '
-              : 'bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
+              : 'bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] '
           }`}
           title={isMuted || volume === 0 ? t('mute_click_to_open') : t('volume')}
         >
@@ -9491,7 +9491,7 @@ export default function App() {
                             setIsMuted(false);
                           }}
                           style={{
-                            background: `linear-gradient(to right, var(--slider-current-fill, var(--slider-fill)) ${(isMuted ? 0 : volume) * 100}%, var(--slider-track) ${(isMuted ? 0 : volume) * 100}%)`
+                            ['--slider-bg' as any]: `linear-gradient(to right, var(--slider-current-fill, var(--slider-fill)) ${(isMuted ? 0 : volume) * 100}%, var(--slider-track) ${(isMuted ? 0 : volume) * 100}%)`
                           }}
                           className="w-full apple-slider"
                         />
@@ -9517,7 +9517,7 @@ export default function App() {
             closeAllPopups();
             setIsFullScreen(true);
           }}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0"
           title={t('expand_player')}
         >
           <Maximize2 size={13} />
@@ -10013,7 +10013,7 @@ export default function App() {
                 className={`w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl transition-colors shrink-0 bg-card/75 text-[var(--text-main)] ${
                   isMenuOpen
                     ? ''
-                    : 'hover:bg-[var(--ios-fill)] '
+                    : 'hover:bg-[var(--hover-fill)] '
                 }`}
                 title={t('more_options')}
               >
@@ -10242,7 +10242,7 @@ export default function App() {
                                   setConfirmDeleteSearchId(null);
     setSearchCollectionTarget(null);
                                 }}
-                                className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                               >
                                 <X size={13} />
                                 <span>{t('cancel')}</span>
@@ -10281,7 +10281,7 @@ export default function App() {
           >
             <div className={`relative w-12 h-12 shrink-0 rounded-[14px] overflow-hidden shadow-sm flex items-center justify-center ${item.type === 'collection' ? `bg-gradient-to-br ${item.collection?.gradient || 'from-slate-600 to-zinc-800'}` : 'bg-winblue/15 text-winblue'}`}>
               {item.type === 'collection' ? (
-                <span className="text-2xl leading-none drop-shadow-sm">{item.collection?.emoji ? <EmojiIcon emoji={item.collection.emoji} /> : <FolderOpen size={20} className="text-white" />}</span>
+                <span className="text-3xl leading-none drop-shadow-sm">{item.collection?.emoji ? <EmojiIcon emoji={item.collection.emoji} /> : <FolderOpen size={20} className="text-white" />}</span>
               ) : (
                 <>
                   <img src={cover} alt="" draggable={false} className="w-full h-full object-cover" />
@@ -10380,7 +10380,7 @@ export default function App() {
                 className={`w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl transition-colors shrink-0 bg-card/75 text-[var(--text-main)] ${
                   isMenuOpen
                     ? ''
-                    : 'hover:bg-[var(--ios-fill)] '
+                    : 'hover:bg-[var(--hover-fill)] '
                 }`}
                 title={t('more_options_author')}
               >
@@ -10875,7 +10875,7 @@ export default function App() {
                       paddingRight: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
                       transition: 'padding 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, 0.2s, box-shadow 0.2s',
                     }}
-                    className="h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] backdrop-blur-3xl"
+                    className="h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] backdrop-blur-3xl"
                     aria-label={t('back') || undefined}
                   >
                     <ChevronLeft size={14} className="text-[var(--text-main)] rtl:rotate-180 shrink-0" />
@@ -10999,7 +10999,7 @@ export default function App() {
                       className="absolute -inset-x-6 -inset-y-2 bg-black/15 dark:bg-black/50 rounded-full blur-xl -z-10 pointer-events-none" 
                       aria-hidden="true"
                     />
-                    <h2 className="text-lg md:text-[19px] font-bold text-[var(--text-main)] truncate tracking-tight text-center drop-shadow-[0_2px_10px_rgba(0,0,0,0.22)] dark:drop-shadow-[0_2px_14px_rgba(0,0,0,0.7)] select-none">
+                    <h2 className="text-lg md:text-[19px] font-bold text-[var(--text-main)] truncate tracking-tight text-center drop-shadow-[0_0_10px_rgba(0,0,0,0.22)] dark:drop-shadow-[0_0_14px_rgba(0,0,0,0.7)] select-none">
                       {currentScreenTitle}
                     </h2>
                   </div>
@@ -11019,7 +11019,7 @@ export default function App() {
                   <div className="relative group/searchbar max-md:w-full">
                     <div
                       style={isMobile ? { width: searchQuery.length > 0 ? 'calc(100% - 52px)' : '100%', transition: 'width 0.32s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s, 0.15s' } : undefined}
-                      className="h-9 max-md:h-11 w-64 sm:w-80 md:w-[380px] flex items-center gap-2 px-3.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] focus-within:bg-winblue/15 text-[var(--text-main)] transition-all backdrop-blur-3xl">
+                      className="h-9 max-md:h-11 w-64 sm:w-80 md:w-[380px] flex items-center gap-2 px-3.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] focus-within:bg-winblue/15 text-[var(--text-main)] transition-all backdrop-blur-3xl">
                       <Search size={14} className="text-[var(--text-muted)] group-focus-within/searchbar:text-winblue transition-colors shrink-0" />
                       <input
                         ref={searchInputRef}
@@ -11183,7 +11183,7 @@ export default function App() {
                           setSearchSelectedIndex(-1);
                           searchInputRef.current?.focus();
                         }}
-                        className="absolute left-full rtl:left-auto rtl:right-full ml-3 rtl:ml-0 rtl:mr-3 max-md:left-auto max-md:right-0 max-md:ml-0 rtl:max-md:right-auto rtl:max-md:left-0 rtl:max-md:mr-0 top-0 z-[110] w-9 h-9 max-md:w-11 max-md:h-11 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl shrink-0 cursor-pointer"
+                        className="absolute left-full rtl:left-auto rtl:right-full ml-3 rtl:ml-0 rtl:mr-3 max-md:left-auto max-md:right-0 max-md:ml-0 rtl:max-md:right-auto rtl:max-md:left-0 rtl:max-md:mr-0 top-0 z-[110] w-9 h-9 max-md:w-11 max-md:h-11 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl shrink-0 cursor-pointer"
                         title={t('clear_search')}
                       >
                         <X size={13} />
@@ -11330,7 +11330,7 @@ export default function App() {
                                             .filter(c => selectedCollectionIds.includes(c.id))
                                             .map(c => (
                                               <div key={c.id} className="flex items-center gap-3 p-2 rounded-xl bg-white/5">
-                                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center text-xl shrink-0 shadow-sm`}>
+                                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center text-[26px] shrink-0 shadow-sm`}>
                                                   <EmojiIcon emoji={c.emoji} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -11362,7 +11362,7 @@ export default function App() {
                                             .filter(Boolean)
                                             .map(genre => (
                                               <div key={genre!.id} className="flex items-center gap-3 p-2">
-                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-[26px] shrink-0 shadow-sm">
                                                   <EmojiIcon emoji={getGenreEmoji(genre!.id)} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -11377,8 +11377,8 @@ export default function App() {
                                             .filter(Boolean)
                                             .map(langData => (
                                               <div key={langData.name} className="flex items-center gap-3 p-2">
-                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
-                                                  <Languages size="1em" strokeWidth={1.75} aria-hidden="true" className="inline-block align-[-0.125em]" />
+                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-[26px] shrink-0 shadow-sm">
+                                                  <Languages size="1em" strokeWidth={2} aria-hidden="true" className="inline-block align-[-0.125em]" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-bold text-[var(--text-main)] truncate">{langData.name}</p>
@@ -11486,7 +11486,7 @@ export default function App() {
                                             setSelectedLanguages([]);
                                             setSelectedCollectionIds([]);
                                           }}
-                                          className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                          className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                         >
                                           <X size={13} />
                                           <span>{t('cancel')}</span>
@@ -11535,7 +11535,7 @@ export default function App() {
                                             .filter(c => selectedCollectionIds.includes(c.id))
                                             .map(c => (
                                               <div key={c.id} className="flex items-center gap-3 p-2 rounded-xl bg-white/5">
-                                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center text-xl shrink-0 shadow-sm`}>
+                                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${c.gradient} flex items-center justify-center text-[26px] shrink-0 shadow-sm`}>
                                                   <EmojiIcon emoji={c.emoji} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -11567,7 +11567,7 @@ export default function App() {
                                             .filter(Boolean)
                                             .map(genre => (
                                               <div key={genre!.id} className="flex items-center gap-3 p-2">
-                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-[26px] shrink-0 shadow-sm">
                                                   <EmojiIcon emoji={getGenreEmoji(genre!.id)} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -11582,8 +11582,8 @@ export default function App() {
                                             .filter(Boolean)
                                             .map(langData => (
                                               <div key={langData.name} className="flex items-center gap-3 p-2">
-                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-xl shrink-0 shadow-sm">
-                                                  <Languages size="1em" strokeWidth={1.75} aria-hidden="true" className="inline-block align-[-0.125em]" />
+                                                <div className="w-11 h-11 rounded-xl bg-card/80 flex items-center justify-center text-[26px] shrink-0 shadow-sm">
+                                                  <Languages size="1em" strokeWidth={2} aria-hidden="true" className="inline-block align-[-0.125em]" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-bold text-[var(--text-main)] truncate">{langData.name}</p>
@@ -11691,7 +11691,7 @@ export default function App() {
                                             setSelectedLanguages([]);
                                             setSelectedCollectionIds([]);
                                           }}
-                                          className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                          className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                         >
                                           <X size={13} />
                                           <span>{t('cancel')}</span>
@@ -11721,7 +11721,7 @@ export default function App() {
                         }}
                         aria-label={t('cancel')}
                         title={t('cancel')}
-                        className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
+                        className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
                       >
                         <X size={13} className="max-md:w-5 max-md:h-5" />
                         <span className="max-md:hidden">{t('cancel')}</span>
@@ -11752,7 +11752,7 @@ export default function App() {
                             data-press="true" 
                             title={t('cancel')} 
                             onClick={goBack}
-                            className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs cursor-pointer"
+                            className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs cursor-pointer"
                           >
                             <X size={13} className="max-md:w-5 max-md:h-5" />
                             <span className="max-md:hidden">{t('cancel')}</span>
@@ -11777,7 +11777,7 @@ export default function App() {
                                     closeAllPopups();
                                     setShowCollectionHeaderAddPopup(next);
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
                                 >
                                   <Plus size={14} />
                                 </motion.button>
@@ -11816,7 +11816,7 @@ export default function App() {
                                 data-press="true"
                                 title={t('edit_collection')}
                                 onClick={() => handleStartEditCurrentCollection()}
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
                               >
                                 <Edit3 size={13} />
                               </motion.button>
@@ -11841,7 +11841,7 @@ export default function App() {
                                       setSortBtnAnchor(null);
                                     }
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                                 >
                                   <ArrowUpDown size={13} />
                                 </motion.button>
@@ -11886,7 +11886,7 @@ export default function App() {
                                         </p>
 
                                         <div className="flex items-center gap-3 p-2 mb-4">
-                                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${headerCol.gradient} flex items-center justify-center text-lg shrink-0 shadow-sm select-none`}>
+                                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${headerCol.gradient} flex items-center justify-center text-2xl shrink-0 shadow-sm select-none`}>
                                             <EmojiIcon emoji={headerCol.emoji} />
                                           </div>
                                           <div className="flex-1 min-w-0">
@@ -11910,7 +11910,7 @@ export default function App() {
                                           <motion.button
                                             data-press="true"
                                             onClick={() => setShowDeleteCurrentCollectionConfirm(false)}
-                                            className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                                            className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                                           >
                                             <X size={13} />
                                             <span>{t('cancel')}</span>
@@ -11930,7 +11930,7 @@ export default function App() {
                             data-press="true" 
                             title={t('add_collection')} 
                             onClick={() => handleStartCreateCollection()}
-                            className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
+                            className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl cursor-pointer"
                           >
                             <Plus size={14} />
                           </motion.button>
@@ -11954,7 +11954,7 @@ export default function App() {
                                   setSortBtnAnchor(null);
                                 }
                               }}
-                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                             >
                               <ArrowUpDown size={13} />
                             </motion.button>
@@ -11982,7 +11982,7 @@ export default function App() {
                                 data-press="true"
                                 title={t('upload_audiobooks')}
                                 onClick={() => fileInputRef.current?.click()} 
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                               >
                                 <Upload size={13} />
                               </motion.button>
@@ -11994,7 +11994,7 @@ export default function App() {
                                   className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl cursor-pointer ${
                                     isSyncingLibrary
                                       ? 'bg-winblue/20 text-winblue '
-                                      : 'bg-card/75 hover:bg-[var(--ios-fill)] text-[var(--text-main)]'
+                                      : 'bg-card/75 hover:bg-[var(--hover-fill)] text-[var(--text-main)]'
                                   }`}
                                 >
                                   <RefreshCw size={13} className={isSyncingLibrary ? "animate-spin text-winblue" : ""} />
@@ -12019,7 +12019,7 @@ export default function App() {
                                       setSortBtnAnchor(null);
                                     }
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                                 >
                                   <ArrowUpDown size={13} />
                                 </motion.button>
@@ -12068,7 +12068,7 @@ export default function App() {
                                   className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl ${
                                     showAuthorCollectionPopup
                                       ? 'bg-winblue/20 text-winblue '
-                                      : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
+                                      : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)] '
                                   }`}
                                 >
                                   <FolderPlus size={14} />
@@ -12084,7 +12084,7 @@ export default function App() {
                                 className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl ${
                                   favoriteAuthorIds.includes(activeScreen.data?.id)
                                     ? 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30'
-                                    : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
+                                    : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)] '
                                 }`}
                               >
                                 <Star size={14} className={favoriteAuthorIds.includes(activeScreen.data?.id) ? "fill-yellow-400 text-yellow-400" : ""} />
@@ -12093,7 +12093,7 @@ export default function App() {
                                 data-press="true" 
                                 title={t('edit_author')} 
                                 onClick={handleStartEditAuthor}
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                               >
                                 <Edit3 size={13} />
                               </motion.button>
@@ -12121,7 +12121,7 @@ export default function App() {
                                 data-press="true" 
                                 title={t('cancel_edit')} 
                                 onClick={handleCancelAuthorEdits}
-                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
+                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
                               >
                                 <X size={13} className="max-md:w-5 max-md:h-5" />
                                 <span className="max-md:hidden">{t('cancel')}</span>
@@ -12163,7 +12163,7 @@ export default function App() {
                                   className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl ${
                                     showBookCollectionPopup
                                       ? 'bg-winblue/20 text-winblue '
-                                      : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
+                                      : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)] '
                                   }`}
                                 >
                                   <FolderPlus size={14} />
@@ -12180,7 +12180,7 @@ export default function App() {
                                 className={`w-9 h-9 flex items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-3xl ${
                                   favoriteBookIds.includes((activeScreen.data || selectedBook)?.id)
                                     ? 'bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30'
-                                    : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
+                                    : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)] '
                                 }`}
                               >
                                 <Star size={14} className={favoriteBookIds.includes((activeScreen.data || selectedBook)?.id) ? "fill-yellow-400 text-yellow-400" : "text-[var(--text-main)]"} />
@@ -12189,7 +12189,7 @@ export default function App() {
                                 data-press="true" 
                                 title={t('edit_audiobook')} 
                                 onClick={handleStartEditBook}
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                               >
                                 <Edit3 size={13} />
                               </motion.button>
@@ -12208,7 +12208,7 @@ export default function App() {
                                     if (!target.transcript?.length) { openShareImage('book', target); return; }
                                     setShowShareBookMenu(true);
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                                 >
                                   {isGeneratingShare ? <div className="w-3.5 h-3.5 rounded-full border-2 border-[var(--text-main)] border-t-transparent animate-spin" /> : <Share size={13} />}
                                 </motion.button>
@@ -12255,7 +12255,7 @@ export default function App() {
                                     closeAllPopups();
                                     setShowBookDetailsPopup(true);
                                   }}
-                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                                  className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                                 >
                                   <Info size={13} />
                                 </motion.button>
@@ -12354,7 +12354,7 @@ export default function App() {
                                           <motion.button
                                             data-press="true"
                                             onClick={() => setShowDeleteBookDetailConfirm(false)}
-                                            className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                            className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                           >
                                             <X size={13} />
                                             <span>{t('cancel')}</span>
@@ -12381,7 +12381,7 @@ export default function App() {
                                 data-press="true" 
                                 title={t('cancel_edit')} 
                                 onClick={handleCancelBookEdits}
-                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
+                                className="px-3.5 max-md:px-0 max-md:w-11 h-9 flex items-center justify-center gap-1.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs"
                               >
                                 <X size={13} className="max-md:w-5 max-md:h-5" />
                                 <span className="max-md:hidden">{t('cancel')}</span>
@@ -12405,7 +12405,7 @@ export default function App() {
                                 closeAllPopups();
                                 setShowResetSettingsConfirm(true); 
                               }}
-                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+                              className="w-9 h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
                             >
                               <RotateCcw size={13} />
                             </motion.button>
@@ -12445,7 +12445,7 @@ export default function App() {
                                       <motion.button
                                         data-press="true"
                                         onClick={() => setShowResetSettingsConfirm(false)}
-                                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                       >
                                         <X size={13} />
                                         <span>{t('cancel')}</span>
@@ -12612,7 +12612,7 @@ export default function App() {
                                 <motion.button
                                   data-press="true"
                                   onClick={() => setShowDeleteSearchHistoryConfirm(false)}
-                                  className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                  className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                 >
                                   <X size={13} />
                                   <span>{t('cancel')}</span>
@@ -12657,7 +12657,7 @@ export default function App() {
                                 <motion.button
                                   data-press="true"
                                   onClick={() => setShowDeleteSearchHistoryConfirm(false)}
-                                  className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
+                                  className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5"
                                 >
                                   <X size={13} />
                                   <span>{t('cancel')}</span>
@@ -12734,7 +12734,7 @@ export default function App() {
                   <motion.button
                     data-press="true"
                     onClick={() => fileInputRef.current?.click()}
-                    className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
+                    className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
                   >
                     <Upload size={16} />
                     <span>{t('add_audiobooks_button')}</span>
@@ -12763,7 +12763,7 @@ export default function App() {
                           <motion.button 
                             data-press="true"
                             onClick={section.onButtonClick}
-                            className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all shrink-0 ml-3"
+                            className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all shrink-0 ml-3"
                           >
                             <span>{section.buttonLabel}</span>
                             <ChevronRight size={15} className="-mr-0.5" />
@@ -12851,7 +12851,7 @@ export default function App() {
                       className={`h-11 px-6 rounded-full backdrop-blur-3xl font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer ${
                         isSyncingLibrary
                           ? 'bg-winblue/20 text-winblue '
-                          : 'bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)]'
+                          : 'bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)]'
                       }`}
                     >
                       <RefreshCw size={16} className={isSyncingLibrary ? "animate-spin text-winblue" : ""} />
@@ -12860,7 +12860,7 @@ export default function App() {
                     <motion.button
                       data-press="true"
                       onClick={() => fileInputRef.current?.click()}
-                      className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
+                      className="h-11 px-6 rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] font-semibold text-sm transition-all flex items-center gap-2.5 cursor-pointer"
                     >
                       <Upload size={16} />
                       <span>{t('add_audiobooks_button')}</span>
@@ -12911,7 +12911,7 @@ export default function App() {
                         <motion.button 
                           data-press="true"
                           onClick={() => navigateTo('library-audiobooks-favoritos')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -12980,7 +12980,7 @@ export default function App() {
                         <motion.button 
                           data-press="true"
                           onClick={() => navigateTo('library-autores-favoritos')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13022,7 +13022,7 @@ export default function App() {
                         <motion.button 
                           data-press="true"
                           onClick={() => navigateTo('library-colecoes')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13062,7 +13062,7 @@ export default function App() {
                         <motion.button 
                           data-press="true"
                           onClick={() => navigateTo('library-gêneros')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13088,7 +13088,7 @@ export default function App() {
                                 <div className={`absolute inset-0 bg-gradient-to-br ${genreData.gradient}`} />
                                 <div className="absolute inset-0 bg-black/15" />
 
-                                <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
+                                <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
                                   <EmojiIcon emoji={getGenreEmoji(genreData.id)} />
                                 </span>
                               </div>
@@ -13122,7 +13122,7 @@ export default function App() {
                         <motion.button 
                           data-press="true"
                           onClick={() => navigateTo('library-autores')} 
-                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
+                          className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                         >
                           <span>{t('see_all')}</span>
                           <ChevronRight size={15} className="-mr-0.5" />
@@ -13164,7 +13164,7 @@ export default function App() {
                       <motion.button 
                         data-press="true"
                         onClick={() => navigateTo('library-idiomas')} 
-                        className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
+                        className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                       >
                         <span>{t('see_all')}</span>
                         <ChevronRight size={15} className="-mr-0.5" />
@@ -13194,8 +13194,8 @@ export default function App() {
                                 <div className={`absolute inset-0 bg-gradient-to-br ${langData.gradient}`} />
                                 <div className="absolute inset-0 bg-black/15" />
 
-                                <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
-                                  <Languages size="1em" strokeWidth={1.75} aria-hidden="true" className="inline-block align-[-0.125em]" />
+                                <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
+                                  <Languages size="1em" strokeWidth={2} aria-hidden="true" className="inline-block align-[-0.125em]" />
                                 </span>
                               </div>
 
@@ -13221,7 +13221,7 @@ export default function App() {
                     <motion.button 
                       data-press="true"
                       onClick={() => navigateTo('library-títulos')} 
-                      className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
+                      className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                     >
                       <span>{t('see_all')}</span>
                       <ChevronRight size={15} className="-mr-0.5" />
@@ -13412,7 +13412,7 @@ export default function App() {
                                         } ${
                                           isSelected
                                             ? 'bg-winblue/20 text-winblue hover:bg-winblue/25 '
-                                            : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--ios-fill)] '
+                                            : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--hover-fill)] '
                                         }`
                                   }`}
                                   title={group.title}
@@ -13449,7 +13449,7 @@ export default function App() {
                               <div className="absolute inset-0 bg-black/20" />
                               <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/35 to-transparent" />
                             </div>
-                            <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 md:right-10 md:bottom-4 text-[150px] md:text-[220px] leading-none opacity-40 select-none pointer-events-none"><EmojiIcon emoji={c.emoji} /></span>
+                            <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 md:right-10 md:bottom-4 text-[150px] md:text-[220px] leading-none opacity-60 select-none pointer-events-none"><EmojiIcon emoji={c.emoji} /></span>
                             <div className="absolute inset-x-0 bottom-0 px-5 pb-6 md:px-8 md:pb-10 flex flex-col items-start text-left rtl:items-end rtl:text-right text-white">
                               <h2 data-screen-title="true" className="text-[30px] md:text-5xl font-bold leading-tight tracking-tight line-clamp-2 drop-shadow-md">{c.name}</h2>
                               {desc && <p className="text-[14px] md:text-base font-medium text-white/85 mt-1 md:mt-2 line-clamp-2 max-w-2xl [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{desc}</p>}
@@ -13677,8 +13677,8 @@ export default function App() {
                               <div className={`absolute inset-0 bg-gradient-to-br ${langData.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
                               <div className="absolute inset-0 bg-black/15" />
 
-                              <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
-                                <Languages size="1em" strokeWidth={1.75} aria-hidden="true" className="inline-block align-[-0.125em]" />
+                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
+                                <Languages size="1em" strokeWidth={2} aria-hidden="true" className="inline-block align-[-0.125em]" />
                               </span>
                             </div>
 
@@ -13891,7 +13891,7 @@ export default function App() {
                               <motion.button
                                 data-press="true"
                                 onClick={() => navigateTo('library-col-autores-' + currentCollection.id, currentCollection)}
-                                className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
+                                className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                               >
                                 <span>{t('see_all')}</span>
                                 <ChevronRight size={15} className="-mr-0.5 rtl:rotate-180" />
@@ -13915,7 +13915,7 @@ export default function App() {
                               <motion.button
                                 data-press="true"
                                 onClick={() => navigateTo('library-col-audiobooks-' + currentCollection.id, currentCollection)}
-                                className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
+                                className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all"
                               >
                                 <span>{t('see_all')}</span>
                                 <ChevronRight size={15} className="-mr-0.5 rtl:rotate-180" />
@@ -14024,7 +14024,7 @@ export default function App() {
                               <div className={`absolute inset-0 bg-gradient-to-br ${genreData.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
                               <div className="absolute inset-0 bg-black/15" />
 
-                              <span className="absolute -bottom-4 -right-3 text-7xl sm:text-8xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
+                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-8xl sm:text-9xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
                                 <EmojiIcon emoji={getGenreEmoji(genreData.id)} />
                               </span>
                             </div>
@@ -14234,7 +14234,7 @@ export default function App() {
                                               <div className={`absolute inset-0 bg-gradient-to-br ${gradient} ${isSelectionMode && isAllSelected ? 'opacity-70' : ''}`} />
                                               <div className="absolute inset-0 bg-black/15" />
 
-                                              <span className="absolute -bottom-3 -right-2 text-5xl sm:text-6xl select-none pointer-events-none opacity-30 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-1 translate-y-1">
+                                              <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
                                                 <EmojiIcon emoji={getSubgenreEmoji(subgenre)} />
                                               </span>
                                             </div>
@@ -14330,10 +14330,10 @@ export default function App() {
           {/* SCREEN: CRIAR OU EDITAR COLEÇÃO (MESMO PADRÃO DE EDITAR AUDIOBOOK/AUTOR) */}
           {(activeScreen.id === 'create-collection' || activeScreen.id === 'edit-collection') && (() => {
             const editInputClass = "w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all";
-            const addButtonClass = "h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer";
+            const addButtonClass = "h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer";
             const pickerPopupClass = "absolute right-0 top-0 w-80 max-w-[calc(100vw-32px)] rounded-[24px] bg-card/95 backdrop-blur-3xl shadow-2xl z-50 flex flex-col overflow-hidden";
             const listRowClass = "group flex items-center justify-between py-2 pl-4 sm:pl-5 pr-2.5 rtl:pl-2.5 rtl:pr-4 rtl:sm:pr-5 rounded-full bg-card/40 hover:bg-[var(--button-secondary-bg)]/50 mb-1.5 transition-all";
-            const removeButtonClass = "w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all cursor-pointer";
+            const removeButtonClass = "w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all cursor-pointer";
 
             return (
             <motion.div
@@ -14386,7 +14386,7 @@ export default function App() {
                             }`}
                           >
                             {isSelected && (
-                              <Check size={9} strokeWidth={3.5} className="text-winblue drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] shrink-0 pointer-events-none" />
+                              <Check size={9} strokeWidth={3.5} className="text-winblue drop-shadow-[0_0_2px_rgba(0,0,0,0.85)] shrink-0 pointer-events-none" />
                             )}
                           </button>
                         );
@@ -14444,7 +14444,7 @@ export default function App() {
                             className={`h-9 rounded-xl flex items-center justify-center text-lg transition-all duration-150 cursor-pointer ${
                               isSelected
                                 ? 'bg-winblue/15 '
-                                : ' hover:bg-[var(--ios-fill)] '
+                                : ' hover:bg-[var(--hover-fill)] '
                             }`}
                           >
                             <EmojiIcon emoji={emoji} />
@@ -14943,7 +14943,7 @@ export default function App() {
                             )}
                             <motion.label 
                               data-press="true"
-                              className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
+                              className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-[var(--hover-fill)] transition-all cursor-pointer"
                               title={t('choose_photo_computer')}
                             >
                               <Upload size={14} />
@@ -14997,7 +14997,7 @@ export default function App() {
                                   }`}
                                 >
                                   {isSelected && (
-                                    <Check size={9} strokeWidth={3.5} className="text-winblue drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] shrink-0 pointer-events-none" />
+                                    <Check size={9} strokeWidth={3.5} className="text-winblue drop-shadow-[0_0_2px_rgba(0,0,0,0.85)] shrink-0 pointer-events-none" />
                                   )}
                                 </button>
                               );
@@ -15211,7 +15211,7 @@ export default function App() {
                       className={`w-full flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] transition-colors ${
                         isSelected
                           ? 'bg-winblue/15 '
-                          : ' hover:bg-[var(--ios-fill)]'
+                          : ' hover:bg-[var(--hover-fill)]'
                       }`}
                     >
                       <span className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isSelected ? 'bg-winblue/20 text-winblue' : 'bg-winblue/10 text-winblue'}`}>
@@ -15323,7 +15323,7 @@ export default function App() {
                     <button
                       key={item.id}
                       onClick={() => navigateTo(item.id)}
-                      className="settings-list-row w-full flex items-center gap-3.5 px-4 py-3 text-left rtl:text-right rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--ios-fill)]"
+                      className="settings-list-row w-full flex items-center gap-3.5 px-4 py-3 text-left rtl:text-right rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)]"
                     >
                       <span className={`w-10 h-10 rounded-full bg-gradient-to-br ${item.tint} text-white flex items-center justify-center shrink-0 shadow-sm`}>
                         {item.icon}
@@ -15631,7 +15631,7 @@ export default function App() {
                             onSelect: (val) => setAppLanguage(val),
                           });
                         }}
-                        className="h-9 pl-4 pr-3 rounded-full bg-white/12 hover:bg-[var(--ios-fill)] backdrop-blur-3xl text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 shadow-sm cursor-pointer"
+                        className="h-9 pl-4 pr-3 rounded-full bg-white/12 hover:bg-[var(--hover-fill)] backdrop-blur-3xl text-white flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 shadow-sm cursor-pointer"
                       >
                         <span>
                           {appLanguage === 'system'
@@ -15659,7 +15659,7 @@ export default function App() {
                           setActiveSettingSelector(null);
                           setOnboardingStep('settings');
                         }}
-                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-white/10 hover:bg-[var(--ios-fill)] backdrop-blur-3xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
+                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-white/10 hover:bg-[var(--hover-fill)] backdrop-blur-3xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
                       >
                         <SettingsIcon size={16} />
                         <span>{t('configure_now')}</span>
@@ -15723,7 +15723,7 @@ export default function App() {
                     className={`relative w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 group ${
                       isSelected
                         ? 'hover:bg-winblue/25 '
-                        : 'hover:bg-[var(--ios-fill)] '
+                        : 'hover:bg-[var(--hover-fill)] '
                     }`}
                   >
                     {isSelected && (

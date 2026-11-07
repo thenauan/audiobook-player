@@ -12,6 +12,20 @@
   --font-mono: -apple-system, BlinkMacSystemFont, "SF Pro", "Inter", "Segoe UI", Roboto, sans-serif;
 
   --color-winblue: var(--winblue, #FF9500);
+  --shadow-2xs: 0 0 3px var(--shadow-soft);
+  --shadow-xs: 0 0 4px var(--shadow-soft);
+  --shadow-sm: 0 0 8px var(--shadow-soft);
+  --shadow: 0 0 10px var(--shadow-soft);
+  --shadow-md: 0 0 16px var(--shadow-mid);
+  --shadow-lg: 0 0 24px var(--shadow-mid);
+  --shadow-xl: 0 0 36px var(--shadow-strong);
+  --shadow-2xl: 0 0 56px var(--shadow-strong);
+  --drop-shadow-xs: 0 0 2px var(--shadow-soft);
+  --drop-shadow-sm: 0 0 3px var(--shadow-soft);
+  --drop-shadow-md: 0 0 6px var(--shadow-mid);
+  --drop-shadow-lg: 0 0 10px var(--shadow-mid);
+  --drop-shadow-xl: 0 0 16px var(--shadow-strong);
+  --drop-shadow-2xl: 0 0 24px var(--shadow-strong);
   --color-success: #438E44;
   --color-error: #B83232;
   --color-warning: #FFB900;
@@ -155,15 +169,19 @@ html[data-density="comfortable"] [class*="gap-6"] {
     --winblue: #FF9500;
     --winblue-rgb: 255, 149, 0;
     --bg-mica: #FFFFFF;
+    --shadow-soft: rgb(0 0 0 / 0.08);
+    --shadow-mid: rgb(0 0 0 / 0.1);
+    --shadow-strong: rgb(0 0 0 / 0.12);
+    --hover-fill: rgb(120 120 128 / 0.26);
     --bg-card: #F2F2F7;
     --bg-sheet: #F2F2F7;
-    --bg-card-50: rgba(255, 255, 255, 0.28);
-    --bg-card-60: rgba(255, 255, 255, 0.35);
-    --bg-card-75: rgba(255, 255, 255, 0.45);
-    --bg-card-80: rgba(255, 255, 255, 0.52);
-    --bg-card-85: rgba(255, 255, 255, 0.58);
-    --bg-card-90: rgba(255, 255, 255, 0.62);
-    --bg-card-95: rgba(255, 255, 255, 0.68);
+    --bg-card-50: rgba(255, 255, 255, 0.2);
+    --bg-card-60: rgba(255, 255, 255, 0.26);
+    --bg-card-75: rgba(255, 255, 255, 0.34);
+    --bg-card-80: rgba(255, 255, 255, 0.4);
+    --bg-card-85: rgba(255, 255, 255, 0.46);
+    --bg-card-90: rgba(255, 255, 255, 0.52);
+    --bg-card-95: rgba(255, 255, 255, 0.58);
     --card-hover: #E9E9EE;
     --text-main: #000000;
     --text-muted: rgb(60 60 67 / 60%);
@@ -189,19 +207,23 @@ html[data-density="comfortable"] [class*="gap-6"] {
   }
 
   .dark {
-    --bg-mica: #000000;
-    --bg-card: #1C1C1E;
-    --bg-sheet: #1C1C1E;
-    --bg-card-50: rgba(30, 30, 34, 0.25);
-    --bg-card-60: rgba(30, 30, 34, 0.32);
-    --bg-card-75: rgba(30, 30, 34, 0.42);
-    --bg-card-80: rgba(30, 30, 34, 0.50);
-    --bg-card-85: rgba(30, 30, 34, 0.56);
-    --bg-card-90: rgba(30, 30, 34, 0.62);
-    --bg-card-95: rgba(30, 30, 34, 0.68);
-    --card-hover: #2C2C2E;
+    --bg-mica: #111113;
+    --shadow-soft: rgb(0 0 0 / 0.26);
+    --shadow-mid: rgb(0 0 0 / 0.3);
+    --shadow-strong: rgb(0 0 0 / 0.36);
+    --hover-fill: rgb(255 255 255 / 0.18);
+    --bg-card: #2C2C2E;
+    --bg-sheet: #2C2C2E;
+    --bg-card-50: rgba(62, 62, 68, 0.4);
+    --bg-card-60: rgba(62, 62, 68, 0.46);
+    --bg-card-75: rgba(62, 62, 68, 0.54);
+    --bg-card-80: rgba(62, 62, 68, 0.6);
+    --bg-card-85: rgba(62, 62, 68, 0.66);
+    --bg-card-90: rgba(62, 62, 68, 0.72);
+    --bg-card-95: rgba(62, 62, 68, 0.78);
+    --card-hover: #3A3A3C;
     --text-main: #FFFFFF;
-    --text-muted: rgb(235 235 245 / 60%);
+    --text-muted: rgb(235 235 245 / 72%);
     --button-secondary-bg: rgb(120 120 128 / 0.36);
     --button-secondary-hover: rgb(120 120 128 / 0.44);
     --dropzone-border: rgba(255, 255, 255, 0.12);
@@ -224,20 +246,20 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
 @layer utilities {
   .backdrop-blur-3xl {
-    -webkit-backdrop-filter: blur(22px) saturate(165%);
-    backdrop-filter: blur(22px) saturate(165%);
+    -webkit-backdrop-filter: blur(16px) saturate(190%);
+    backdrop-filter: blur(16px) saturate(190%);
   }
   .backdrop-blur-2xl {
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
-    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(185%);
+    backdrop-filter: blur(14px) saturate(185%);
   }
   .backdrop-blur-xl {
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
-    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    backdrop-filter: blur(10px) saturate(180%);
   }
   .backdrop-blur-md {
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
-    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(7px) saturate(170%);
+    backdrop-filter: blur(7px) saturate(170%);
   }
 
   /* Impede que .transition-all do CSS entre em conflito a cada frame com transform, width, height e filter do Framer Motion */
@@ -375,7 +397,7 @@ input[type="range"].apple-slider::-webkit-slider-thumb {
   margin-top: -3px;
   opacity: 0 !important;
   transition: opacity var(--dur-fade-in) var(--ease-fade), transform var(--dur-fade-in) var(--ease-fade), box-shadow var(--dur-fade-in) var(--ease-fade), background-color var(--dur-fade-in) var(--ease-fade);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
 }
 
 .group:hover input[type="range"].apple-slider::-webkit-slider-thumb,
@@ -406,7 +428,7 @@ input[type="range"].apple-slider::-moz-range-thumb {
   border: none;
   opacity: 0 !important;
   transition: opacity var(--dur-fade-in) var(--ease-fade), transform var(--dur-fade-in) var(--ease-fade), box-shadow var(--dur-fade-in) var(--ease-fade), background-color var(--dur-fade-in) var(--ease-fade);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
 }
 
 .group:hover input[type="range"].apple-slider::-moz-range-thumb,
@@ -495,11 +517,6 @@ html:not(.dark) .group:hover [class*="group-hover:drop-shadow"] {
   filter: drop-shadow(0 0 8px var(--hover-highlight-glow)) !important;
 }
 
-/* Transcrição na tela cheia (sempre sobre fundo escuro): preservar branco */
-html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
 /* Ocultar barra de rolagem em carrosséis e barras de navegação */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -583,11 +600,11 @@ html:not(.dark) .fullscreen-transcript [class*="hover:text-white"]:hover {
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 74%, transparent) 0%,
-    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 58%, transparent) 22%,
-    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 34%, transparent) 46%,
-    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 14%, transparent) 70%,
-    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 4%, transparent) 86%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 44.4%, transparent) 0%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 34.8%, transparent) 22%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 20.4%, transparent) 46%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 8.4%, transparent) 70%,
+    color-mix(in srgb, var(--header-tint, var(--bg-mica)) 2.4%, transparent) 86%,
     transparent 100%
   );
 }
@@ -1273,13 +1290,7 @@ body {
 @media (pointer: coarse) {
   input[type="range"].apple-slider {
     height: 28px;
-    background-size: 100% 4px !important;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
     touch-action: none;
-  }
-  input[type="range"].apple-slider::-webkit-slider-runnable-track {
-    height: 28px;
   }
   input[type="range"].apple-slider::-webkit-slider-thumb {
     opacity: 1;
@@ -1641,18 +1652,18 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
   .apple-header-blur > .apple-blur-tint {
     background: linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 74%, transparent) 0,
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 58%, transparent) var(--app-header-top),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 57.5%, transparent) calc(var(--app-header-top) + 8.66667px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 54.7%, transparent) calc(var(--app-header-top) + 17.3333px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 48.7%, transparent) calc(var(--app-header-top) + 26px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 39.8%, transparent) calc(var(--app-header-top) + 34.6667px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 29.4%, transparent) calc(var(--app-header-top) + 43.3333px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 19.1%, transparent) calc(var(--app-header-top) + 52px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 10.6%, transparent) calc(var(--app-header-top) + 60.6667px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 4.8%, transparent) calc(var(--app-header-top) + 69.3333px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 1.5%, transparent) calc(var(--app-header-top) + 78px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.3%, transparent) calc(var(--app-header-top) + 86.6667px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 44.4%, transparent) 0,
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 34.8%, transparent) var(--app-header-top),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 34.5%, transparent) calc(var(--app-header-top) + 8.66667px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 32.8%, transparent) calc(var(--app-header-top) + 17.3333px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 29.2%, transparent) calc(var(--app-header-top) + 26px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 23.9%, transparent) calc(var(--app-header-top) + 34.6667px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 17.6%, transparent) calc(var(--app-header-top) + 43.3333px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 11.5%, transparent) calc(var(--app-header-top) + 52px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 6.4%, transparent) calc(var(--app-header-top) + 60.6667px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 2.9%, transparent) calc(var(--app-header-top) + 69.3333px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.9%, transparent) calc(var(--app-header-top) + 78px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.2%, transparent) calc(var(--app-header-top) + 86.6667px),
       color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.0%, transparent) calc(var(--app-header-top) + 95.3333px),
       color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.0%, transparent) calc(var(--app-header-top) + 104px)
     );
@@ -1725,18 +1736,18 @@ main .flex.items-center.justify-between:has(> button, > div) > :is(h2.text-xl, h
   .apple-header-blur.apple-footer-blur > .apple-blur-tint {
     background: linear-gradient(
       to top,
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 74%, transparent) 0,
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 58%, transparent) var(--footer-blur-top),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 57.5%, transparent) calc(var(--footer-blur-top) + 4px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 54.7%, transparent) calc(var(--footer-blur-top) + 8px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 48.7%, transparent) calc(var(--footer-blur-top) + 12px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 39.8%, transparent) calc(var(--footer-blur-top) + 16px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 29.4%, transparent) calc(var(--footer-blur-top) + 20px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 19.1%, transparent) calc(var(--footer-blur-top) + 24px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 10.6%, transparent) calc(var(--footer-blur-top) + 28px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 4.8%, transparent) calc(var(--footer-blur-top) + 32px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 1.5%, transparent) calc(var(--footer-blur-top) + 36px),
-      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.3%, transparent) calc(var(--footer-blur-top) + 40px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 44.4%, transparent) 0,
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 34.8%, transparent) var(--footer-blur-top),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 34.5%, transparent) calc(var(--footer-blur-top) + 4px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 32.8%, transparent) calc(var(--footer-blur-top) + 8px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 29.2%, transparent) calc(var(--footer-blur-top) + 12px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 23.9%, transparent) calc(var(--footer-blur-top) + 16px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 17.6%, transparent) calc(var(--footer-blur-top) + 20px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 11.5%, transparent) calc(var(--footer-blur-top) + 24px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 6.4%, transparent) calc(var(--footer-blur-top) + 28px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 2.9%, transparent) calc(var(--footer-blur-top) + 32px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.9%, transparent) calc(var(--footer-blur-top) + 36px),
+      color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.2%, transparent) calc(var(--footer-blur-top) + 40px),
       color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.0%, transparent) calc(var(--footer-blur-top) + 44px),
       color-mix(in srgb, var(--header-tint, var(--bg-mica)) 0.0%, transparent) calc(var(--footer-blur-top) + 48px)
     );
@@ -1826,8 +1837,8 @@ html.lite [style*="blur("] {
   --ios-fill: rgb(118 118 128 / 0.24);
   --ios-fill-strong: rgb(120 120 128 / 0.36);
   /* Listas sobre o fundo preto: tom bem próximo do fundo */
-  --ios-row: rgb(255 255 255 / 0.07);
-  --ios-row-strong: rgb(255 255 255 / 0.13);
+  --ios-row: rgb(255 255 255 / 0.11);
+  --ios-row-strong: rgb(255 255 255 / 0.19);
 }
 /* Computador: o destaque das opções ao passar o mouse é o mesmo do toque no celular, sem brilho nem sombra */
 @media (hover: hover) {
@@ -1859,10 +1870,10 @@ html.lite [style*="blur("] {
 
 /* Letra no player em tela cheia: sombra suave, sem destaque nem brilho */
 .fullscreen-transcript [data-transcript-idx] {
-  text-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+  text-shadow: 0 0 6px rgb(0 0 0 / 0.4);
 }
 html:not(.dark) .fullscreen-transcript [data-transcript-idx] {
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.14);
+  text-shadow: 0 0 5px rgb(0 0 0 / 0.14);
 }
 html.lite .fullscreen-transcript [data-transcript-idx] {
   text-shadow: none;
@@ -1892,18 +1903,6 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
   }
   .settings-option-list {
     background-color: var(--ios-row) !important;
-  }
-}
-
-/* Computador: o desfoque do cabeçalho começa depois do menu lateral (com um pop-up aberto, a área das telas vem para
-   a frente, e ele ficava por cima do menu) */
-@media (min-width: 1024px) {
-  main .apple-header-blur {
-    left: 272px;
-  }
-  html[dir="rtl"] main .apple-header-blur {
-    left: 0;
-    right: 272px;
   }
 }
 
@@ -1988,11 +1987,18 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
 
 /* Mouse: o destaque entra rápido e sai mais devagar, para não piscar ao passar por uma lista */
 @media (hover: hover) and (pointer: fine) {
-  :is(button, [role="button"], .settings-list-row) {
+  :is(button, [role="button"]).transition-colors {
     transition-duration: 200ms;
   }
-  :is(button, [role="button"], .settings-list-row):hover {
+  :is(button, [role="button"]).transition-colors:hover {
     transition-duration: 120ms;
+  }
+  /* Botões que abrem pop-ups crescem um pouco */
+  :is([data-app-header] button:not([data-instant]), button[style*="pointer-events: auto"]) {
+    transition: scale var(--dur-snappy) var(--spring-snappy), background-color 200ms var(--ease-fade), color 200ms var(--ease-fade), opacity 200ms var(--ease-fade);
+  }
+  :is([data-app-header] button:not([data-instant]), button[style*="pointer-events: auto"]):hover {
+    scale: 1.07;
   }
 }
 
@@ -2018,24 +2024,42 @@ h2.text-xl {
   }
 }
 
-/* Barra de progresso: fina em repouso, engorda ao tocar. No celular o toque cai na camada por cima dela */
+/* Barras: trilho e preenchimento são desenhados no track, que tem cantos redondos em qualquer altura. O input só
+   guarda o degradê e a área de toque. Finas em repouso, engordam ao tocar */
 input[type="range"].apple-slider {
-  transition: height var(--dur-snappy) var(--spring-snappy), filter var(--dur-fade-in) var(--ease-fade);
+  height: 8px;
 }
-@media (pointer: fine) {
-  .group[data-scrubbing] input[type="range"].apple-slider {
-    height: 8px;
-  }
+input[type="range"].apple-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background-image: var(--slider-bg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  transition: height var(--dur-snappy) var(--spring-snappy);
+}
+input[type="range"].apple-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background-image: var(--slider-bg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  transition: height var(--dur-snappy) var(--spring-snappy);
+}
+input[type="range"].apple-slider:active::-webkit-slider-runnable-track,
+[data-scrubbing] > input[type="range"].apple-slider::-webkit-slider-runnable-track {
+  height: 8px;
+}
+input[type="range"].apple-slider:active::-moz-range-track,
+[data-scrubbing] > input[type="range"].apple-slider::-moz-range-track {
+  height: 8px;
 }
 @media (pointer: coarse) {
   input[type="range"].apple-slider {
-    transition: background-size var(--dur-snappy) var(--spring-snappy);
-  }
-  .group[data-scrubbing] input[type="range"].apple-slider {
-    background-size: 100% 8px !important;
+    height: 28px;
   }
 }
-.group > span {
+.group:has(input.apple-slider) > span {
   transition: scale var(--dur-snappy) var(--spring-snappy), color var(--dur-fade-in) var(--ease-fade);
 }
 .group[data-scrubbing] > span {
@@ -2084,4 +2108,100 @@ input[type="range"].apple-slider {
   .apple-header-blur > .apple-blur-layer {
     display: none !important;
   }
+}
+
+/* Computador: com um pop-up aberto, só ele fica na frente do miniplayer. A tela continua atrás, senão as capas passam
+   por cima do miniplayer */
+@media (min-width: 1024px) {
+  main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot])),
+  .app-scroll:has([data-popup-content]:not([data-search-dropdown], [data-search-slot])),
+  main :has([data-popup-content]:not([data-search-dropdown], [data-search-slot])) {
+    z-index: auto !important;
+  }
+  main [data-popup-content]:not([data-search-dropdown], [data-search-slot]) {
+    z-index: 160 !important;
+  }
+  /* Sem a camada da tela, o desfoque do cabeçalho continua atrás do menu lateral */
+  main:has(.app-scroll [data-popup-content]:not([data-search-dropdown], [data-search-slot])) .apple-header-blur {
+    z-index: 25 !important;
+  }
+}
+
+/* Letra: as cores vêm do fundo do player (definidas no FullscreenPlayer) */
+.lyric-on { color: rgb(var(--lyric-rgb)); }
+.lyric-soft { color: rgb(var(--lyric-rgb) / 0.78); }
+.lyric-past { color: rgb(var(--lyric-rgb) / var(--lyric-past)); }
+.lyric-next { color: rgb(var(--lyric-rgb) / var(--lyric-next)); }
+@media (hover: hover) and (pointer: fine) {
+  .lyric-past:hover, .lyric-next:hover { color: rgb(var(--lyric-rgb)); }
+}
+
+/* Menu lateral: sempre um plano próprio, mesmo sobre as telas com a cor do livro, autor ou coleção */
+aside.sidebar-safe {
+  background-color: color-mix(in srgb, var(--bg-mica) 68%, transparent) !important;
+  box-shadow: 0 0 24px var(--shadow-soft);
+}
+html.dark aside.sidebar-safe {
+  background-color: color-mix(in srgb, #2C2C2E 72%, transparent) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Dentro de pop-ups nada cresce: botões e opções só ganham o destaque */
+  [data-popup-content] :is(button, [role="button"]):hover {
+    scale: none !important;
+  }
+  [data-popup-content] :is(button, [role="button"]) {
+    transition-property: background-color, color, opacity;
+  }
+
+  /* Itens na cor de destaque: o hover é um tom da mesma cor, nunca cinza */
+  :is(button, [role="button"], a, div)[class~="bg-winblue"]:hover {
+    background-color: oklch(from var(--winblue) calc(l - 0.06) c h) !important;
+  }
+  html.dark :is(button, [role="button"], a, div)[class~="bg-winblue"]:hover {
+    background-color: oklch(from var(--winblue) calc(l + 0.06) c h) !important;
+  }
+  :is(button, [role="button"], a, div, label)[class*="bg-winblue/"]:hover,
+  :is(button, [role="button"]).text-winblue:hover,
+  [class*="focus-within:bg-winblue"]:focus-within:hover,
+  input[class*="focus:bg-winblue"]:focus:hover,
+  textarea[class*="focus:bg-winblue"]:focus:hover {
+    background-color: color-mix(in srgb, var(--winblue) 26%, transparent) !important;
+  }
+}
+
+/* Botões: sombra leve e discreta, em volta (pop-ups e cartões continuam com a sombra normal) */
+:is(button, [role="button"]) {
+  --shadow-soft: rgb(0 0 0 / 0.07);
+  --shadow-mid: rgb(0 0 0 / 0.08);
+  --shadow-strong: rgb(0 0 0 / 0.09);
+}
+html.dark :is(button, [role="button"]) {
+  --shadow-soft: rgb(0 0 0 / 0.24);
+  --shadow-mid: rgb(0 0 0 / 0.26);
+  --shadow-strong: rgb(0 0 0 / 0.28);
+}
+
+/* Botões com fundo: contorno bem discreto, a partir da cor do texto (acompanha o destaque do botão). O foco por
+   teclado tem prioridade */
+:is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *) {
+  outline: 0.5px solid color-mix(in srgb, currentColor 14%, transparent);
+  outline-offset: -0.5px;
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *):hover {
+    outline-color: color-mix(in srgb, currentColor 22%, transparent);
+  }
+}
+:is(button, [role="button"]):focus-visible {
+  outline: 2px solid var(--winblue);
+  outline-offset: 2px;
+}
+
+/* Pop-ups e folhas flutuam sobre tudo: sombra um pouco mais presente que o resto */
+[data-popup-content], [data-mobile-sheet] {
+  --shadow-strong: rgb(0 0 0 / 0.2);
+}
+html.dark :is([data-popup-content], [data-mobile-sheet]) {
+  --shadow-strong: rgb(0 0 0 / 0.5);
 }

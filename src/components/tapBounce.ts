@@ -19,7 +19,9 @@ const MIN_PRESS = 80;
 function pressScale(el: HTMLElement): number {
   const r = el.getBoundingClientRect();
   if (r.width === 0 || r.height === 0) return 1;
-  if (el.matches(CARD) || el.querySelector(':scope > img, [data-zoom-key]')) return 0.97;
+  // Linhas de Ajustes, Ajuda e Mais: aperto bem leve, porque são largas e o movimento parece maior
+  if (el.matches(CARD)) return 0.99;
+  if (el.querySelector(':scope > img, [data-zoom-key]')) return 0.97;
   // Linhas muito largas não encolhem: escalar uma linha larga parece quebrado
   if (r.width > 520 || r.height > 220) return 1;
   if (r.width <= 60 && r.height <= 60) return 0.88;
@@ -106,11 +108,13 @@ export function installTapBounce(): () => void {
   let scrubbing: HTMLElement | null = null;
   const onScrubDown = (e: PointerEvent) => {
     const bar = (e.target as HTMLElement | null)?.closest?.('input.apple-slider, [data-seek-overlay]');
-    scrubbing = (bar?.closest('.group') as HTMLElement | null) || null;
+    scrubbing = (bar?.parentElement as HTMLElement | null) || null;
     scrubbing?.setAttribute('data-scrubbing', 'true');
+    bar?.closest('.group')?.setAttribute('data-scrubbing', 'true');
   };
   const onScrubEnd = () => {
     scrubbing?.removeAttribute('data-scrubbing');
+    scrubbing?.closest('.group')?.removeAttribute('data-scrubbing');
     scrubbing = null;
   };
   document.addEventListener('pointerdown', onScrubDown, { capture: true, passive: true });

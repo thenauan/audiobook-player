@@ -32,13 +32,7 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
       data-transcript-idx={idx}
       // Sem nada que crie camada de vídeo por frase (transform-gpu, opacidade): com a letra inteira na tela seriam
       // milhares de camadas, e o iPhone encerra a página por falta de memória (tela preta)
-      className={`text-[length:calc(1.5625rem*var(--font-scale,1))] sm:text-3xl leading-[1.3] font-bold cursor-pointer px-4 py-2 ${
-        lineOn
-          ? 'text-black dark:text-white'
-          : isPast
-          ? 'text-slate-700/75 dark:text-[var(--text-muted)]/40 hover:text-black dark:hover:text-white'
-          : 'text-slate-800/85 dark:text-[var(--text-muted)]/60 hover:text-black dark:hover:text-white'
-      }`}
+      className={`text-[length:calc(1.5625rem*var(--font-scale,1))] sm:text-3xl leading-[1.3] font-bold cursor-pointer px-4 py-2 ${lineOn ? 'lyric-on' : isPast ? 'lyric-past' : 'lyric-next'}`}
       onClick={() => onSeek(line.start)}
     >
       {isActive ? (
@@ -55,7 +49,7 @@ const LyricLine = React.memo(function LyricLine({ line, idx, isActive, isPast, a
                 className={`transition-colors duration-100 ${
                   isWordActive
                     ? 'text-[var(--book-accent)]'
-                    : isWordPast ? 'text-black dark:text-white/95' : lineOn ? 'text-slate-700 dark:text-white/75' : ''
+                    : isWordPast ? 'lyric-on' : lineOn ? 'lyric-soft' : ''
                 }`}
               >
                 {w.text}
@@ -223,7 +217,7 @@ export function LyricSearchResults({ transcript, chapters, query, emptyText, mor
       {found.map(({ line, idx, text }) => {
         const chapter = chapters.find(ch => line.start >= ch.startTime && line.start < ch.startTime + ch.duration);
         return (
-          <p key={idx} data-transcript-idx={idx} onClick={() => onPick(line)} className="group/lyricres relative px-4 py-1 md:py-2.5 md:pr-12 md:rounded-3xl md:transition-colors md:hover:bg-[var(--ios-fill)] cursor-pointer text-lg font-bold leading-snug text-[var(--text-main)]">
+          <p key={idx} data-transcript-idx={idx} onClick={() => onPick(line)} className="group/lyricres relative px-4 py-1 md:py-2.5 md:pr-12 md:rounded-3xl md:transition-colors md:hover:bg-[var(--hover-fill)] cursor-pointer text-lg font-bold leading-snug text-[var(--text-main)]">
             {onOptions && (
               <button
                 type="button"

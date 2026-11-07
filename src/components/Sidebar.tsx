@@ -29,7 +29,7 @@ export function SidebarItem({ icon, label, active, onClick }: SidebarItemProps) 
         "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-150 select-none ",
         active 
           ? "bg-[var(--ios-fill)] text-winblue "
-          : " text-[var(--text-main)] hover:bg-[var(--ios-fill)]"
+          : " text-[var(--text-main)] hover:bg-[var(--hover-fill)]"
       )}
     >
       <span className="shrink-0 flex items-center justify-center text-inherit">{icon}</span>
@@ -144,7 +144,7 @@ export const MOBILE_BAR = {
   compact: 56,    // botões redondos e miniplayer
   gap: 8,         // espaço entre barra, botões e miniplayer
 };
-export const MOBILE_GLASS_SHADOW = '0 8px 24px -12px rgba(0, 0, 0, 0.35)';
+export const MOBILE_GLASS_SHADOW = '0 0 24px -12px rgba(0, 0, 0, 0.35)';
 // Escala da barra/miniplayer "encolhidos" (sem miniplayer ou lado a lado)
 export const MOBILE_SHRINK_SCALE = 0.86;
 

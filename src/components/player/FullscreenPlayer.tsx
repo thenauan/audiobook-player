@@ -398,7 +398,7 @@ export default function FullscreenPlayer({
       onPointerDownCapture={onPlayerPointerDownCapture}
       initial={{ clipPath: miniClip, opacity: 1 }}
       animate={{ clipPath: FULLSCREEN_CLIP, opacity: 1 }}
-      exit={{ clipPath: miniClip, opacity: 0, transition: { clipPath: SPRING.snappy, opacity: { duration: 0.1, delay: 0.08 } } }}
+      exit={{ clipPath: miniClip, opacity: 0, transition: { clipPath: SPRING.zoom, opacity: { duration: 0.1, delay: 0.08 } } }}
       transition={{ clipPath: SPRING.zoom, opacity: FADE_OUT }}
       style={{ willChange: 'clip-path, opacity' }}
       onAnimationComplete={() => setIsIntroDone(true)}
@@ -578,7 +578,7 @@ export default function FullscreenPlayer({
             closeAllPopups();
             setIsFullScreen(false);
           }}
-          className="h-9 flex items-center justify-center gap-1.5 px-4 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
+          className="h-9 flex items-center justify-center gap-1.5 px-4 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl"
           title={t('minimize_fullscreen')}
           data-instant="true"
         >
@@ -677,7 +677,10 @@ export default function FullscreenPlayer({
             <div className="fs-cover-box md:contents">
               <motion.img 
               layoutId="player-cover"
-              transition={SPRING.zoom}
+              // Pausado, a capa diminui
+              initial={false}
+              animate={{ scale: isPlaying ? 1 : 0.85 }}
+              transition={{ ...SPRING.zoom, scale: SPRING.bouncy }}
               style={{ borderRadius: 24 }}
               src={currentBook.cover || getGenericBookCover(currentBook.title, currentBook.author)} 
               onError={(e) => handleBookCoverError(currentBook, e)}
@@ -782,7 +785,7 @@ export default function FullscreenPlayer({
                       }}
                       onChange={(e) => handleSeek(currentChapter.startTime + Number(e.target.value))}
                       style={{
-                        background: `linear-gradient(to right, var(--slider-current-fill, var(--slider-fill)) ${(chapterElapsed / (currentChapter.duration || 1)) * 100}%, var(--slider-track) ${(chapterElapsed / (currentChapter.duration || 1)) * 100}%)`
+                        ['--slider-bg' as any]: `linear-gradient(to right, var(--slider-current-fill, var(--slider-fill)) ${(chapterElapsed / (currentChapter.duration || 1)) * 100}%, var(--slider-track) ${(chapterElapsed / (currentChapter.duration || 1)) * 100}%)`
                       }}
                       className="w-full apple-slider"
                     />
@@ -840,7 +843,7 @@ export default function FullscreenPlayer({
                         handleSeek(currentChapter.startTime);
                       }
                     }}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0"
                     title={t('previous_chapter')}
                   >
                     <SkipBack size={17} />
@@ -852,7 +855,7 @@ export default function FullscreenPlayer({
                     transition={{ layout: SPRING.zoom }} 
                     data-press="true" 
                     onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm relative shrink-0"
                     title={t('seek_backward', { sec: seekBackwardTime })}
                   >
                     <BsArrowCounterclockwise data-spin="-1" size={22} />
@@ -866,7 +869,7 @@ export default function FullscreenPlayer({
                     data-press="true" 
                     onClick={() => setIsPlaying(!isPlaying)}
                     data-fs-main-play="true"
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-[var(--ios-fill)] transition-all shadow-lg shrink-0"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-[var(--hover-fill)] transition-all shadow-lg shrink-0"
                     title={isPlaying ? t('pause') : t('listen')}
                   >
                     {isPlaying ? (
@@ -882,7 +885,7 @@ export default function FullscreenPlayer({
                     transition={{ layout: SPRING.zoom }} 
                     data-press="true" 
                     onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm relative shrink-0"
                     title={t('seek_forward', { sec: seekForwardTime })}
                   >
                     <BsArrowClockwise data-spin="1" size={22} />
@@ -908,7 +911,7 @@ export default function FullscreenPlayer({
                         handleSeek(currentBook.chapters[currentChapterIndex + 1].startTime);
                       }
                     }}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0"
                     title={t('next_chapter')}
                   >
                     <SkipForward size={17} />
@@ -940,6 +943,10 @@ export default function FullscreenPlayer({
                 // Cor de destaque da página deste audiobook (a palavra sendo lida)
                 '--book-accent': currentBookHighlight.hex,
                 '--book-accent-rgb': currentBookHighlight.rgb,
+                // A cor da letra vem do mesmo tema do fundo do player
+                '--lyric-rgb': fullscreenAmbientColors.isDark ? '255 255 255' : '0 0 0',
+                '--lyric-past': fullscreenAmbientColors.isDark ? 0.32 : 0.42,
+                '--lyric-next': fullscreenAmbientColors.isDark ? 0.5 : 0.62,
               } as React.CSSProperties}
               // Celular: a letra ocupa a tela inteira (passa por baixo do cabeçalho e da barra da base, com
               // desfoque nos dois), e só rola na vertical

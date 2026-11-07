@@ -532,7 +532,7 @@ export default function BookDetailView({
                     <motion.button 
  data-press="true"
                       onClick={() => handleAddToQueue(activeBook, 'next')}
-                      className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
+                      className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--hover-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
                     >
                       <ListMusic size={14} />
                       <span>{t('next_in_queue')}</span>
@@ -540,7 +540,7 @@ export default function BookDetailView({
                     <motion.button 
  data-press="true"
                       onClick={() => handleAddToQueue(activeBook, 'last')}
-                      className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
+                      className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--hover-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
                     >
                       <ListPlus size={14} />
                       <span>{t('end_of_queue')}</span>
@@ -563,7 +563,7 @@ export default function BookDetailView({
                       showToast(t('toast_book_marked_completed', { title: activeBook.title }));
                     }
                   }}
-                  className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--ios-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
+                  className="h-10 px-4 max-md:h-8 max-md:px-3 max-md:text-[11px] rounded-full bg-card/75 backdrop-blur-3xl shadow-xl hover:bg-[var(--hover-fill)] text-xs font-semibold text-[var(--text-main)] transition-all flex items-center gap-2"
                 >
                   {isBookCompleted(activeBook) ? (
                     <Headphones size={14} />
@@ -623,7 +623,7 @@ export default function BookDetailView({
                     )}
                     <motion.label 
                       data-press="true"
-                      className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
+                      className="px-4 py-2 max-md:p-0 max-md:w-11 max-md:h-11 max-md:justify-center rounded-full bg-card/85 backdrop-blur-3xl shadow-xl flex items-center gap-2 text-xs font-semibold text-white hover:bg-[var(--hover-fill)] transition-all cursor-pointer"
                       title={t('choose_cover_computer')}
                     >
                       <Upload size={14} />
@@ -676,7 +676,7 @@ export default function BookDetailView({
                           }`}
                         >
                           {isSelected && (
-                            <Check size={9} strokeWidth={3.5} className="text-winblue drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)] shrink-0 pointer-events-none" />
+                            <Check size={9} strokeWidth={3.5} className="text-winblue drop-shadow-[0_0_2px_rgba(0,0,0,0.85)] shrink-0 pointer-events-none" />
                           )}
                         </button>
                       );
@@ -836,7 +836,7 @@ export default function BookDetailView({
                         onClick={() => editBookTextInputRef.current?.click()}
                         title={t('change_text')}
                         aria-label={t('change_text')}
-                        className="h-8 px-4 max-md:w-11 max-md:h-11 max-md:px-0 max-md:justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                        className="h-8 px-4 max-md:w-11 max-md:h-11 max-md:px-0 max-md:justify-center rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                       >
                         <Upload size={14} />
                         <span className="max-md:hidden">{t('change_text')}</span>
@@ -847,7 +847,7 @@ export default function BookDetailView({
                       type="button"
                       data-press="true"
                       onClick={() => editBookTextInputRef.current?.click()}
-                      className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                      className="h-8 px-4 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                     >
                       <Upload size={14} />
                       <span>{t('upload_text')}</span>
@@ -891,7 +891,7 @@ export default function BookDetailView({
                 <motion.button 
                   data-press="true"
                   onClick={() => navigateTo('book-synopsis', activeBook)} 
-                  className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--ios-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer shrink-0 ml-3"
+                  className="h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer shrink-0 ml-3"
                 >
                   <span>{t('read_full_synopsis')}</span>
                   <ChevronRight size={15} className="-mr-0.5" />
@@ -1052,7 +1052,7 @@ export default function BookDetailView({
                           className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 max-md:px-1 max-md:!bg-transparent max-md:!shadow-none rounded-full shadow-sm select-none cursor-pointer transition-all ${
                             isCurrentChapter
                               ? 'text-winblue bg-winblue/15 hover:bg-winblue/25 '
-                              : 'text-[var(--text-main)] bg-[var(--text-main)]/10 hover:bg-[var(--ios-fill)] hover:text-white '
+                              : 'text-[var(--text-main)] bg-[var(--text-main)]/10 hover:bg-[var(--hover-fill)] hover:text-white '
                           }`}
                         >
                           <Bookmark size={10} className="fill-current" />
@@ -1147,7 +1147,7 @@ export default function BookDetailView({
                       className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${
                         isCurrentChapter
                           ? 'bg-winblue/20 text-winblue hover:bg-winblue/30 '
-                          : 'bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] '
+                          : 'bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] '
                       }`}
                       title={t('more_options_chapter')}
                     >
@@ -1192,7 +1192,7 @@ export default function BookDetailView({
                                 >
                                   <span className="flex-1">{t('bookmarks') || t('comments')}</span>
                                   {((cap.bookmarks && cap.bookmarks.length > 0) || (cap.comments && cap.comments.length > 0)) && (
-                                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--text-main)]/10 text-[var(--text-main)] group-hover:bg-[var(--ios-fill)] group-hover:text-white font-bold transition-colors">
+                                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--text-main)]/10 text-[var(--text-main)] group-hover:bg-[var(--hover-fill)] group-hover:text-white font-bold transition-colors">
                                       {cap.bookmarks?.length || cap.comments?.length}
                                     </span>
                                   )}

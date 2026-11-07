@@ -144,7 +144,7 @@ export default function MiniPlayer({
               handleSeek(currentChapter.startTime);
             }
           }}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm hidden md:flex shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm hidden md:flex shrink-0"
           title={t('previous_chapter')}
         >
           <SkipBack size={13} />
@@ -156,7 +156,7 @@ export default function MiniPlayer({
           whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => handleSeek(Math.max(0, currentTime - seekBackwardTime))}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm relative shrink-0"
           title={t('seek_backward', { sec: seekBackwardTime })}
         >
           <BsArrowCounterclockwise data-spin="-1" size={17} />
@@ -169,7 +169,7 @@ export default function MiniPlayer({
           whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => setIsPlaying(!isPlaying)}
-          className="w-[38px] h-[38px] rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-[var(--ios-fill)] transition-all shadow-sm shrink-0"
+          className="w-[38px] h-[38px] rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:text-[var(--text-main)] dark:hover:text-white hover:bg-[var(--hover-fill)] transition-all shadow-sm shrink-0"
           title={isPlaying ? t('pause') : t('listen')}
         >
           {isPlaying ? <BsPauseFill size={22} /> : <BsPlayFill size={22} className="translate-x-[1px]" />}
@@ -181,7 +181,7 @@ export default function MiniPlayer({
           whileHover={{ scale: 1.05 }} 
           data-press="true" 
           onClick={() => handleSeek(Math.min(totalDuration, currentTime + seekForwardTime))}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm relative shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm relative shrink-0"
           title={t('seek_forward', { sec: seekForwardTime })}
         >
           <BsArrowClockwise data-spin="1" size={17} />
@@ -207,7 +207,7 @@ export default function MiniPlayer({
               handleSeek(currentBook.chapters[currentChapterIndex + 1].startTime);
             }
           }}
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shadow-sm hidden md:flex shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shadow-sm hidden md:flex shrink-0"
           title={t('next_chapter')}
         >
           <SkipForward size={13} />
@@ -317,7 +317,7 @@ export default function MiniPlayer({
                 }}
                 onChange={(e) => handleSeek(currentChapter.startTime + Number(e.target.value))}
                 style={{
-                  background: `linear-gradient(to right, var(--slider-current-fill, var(--slider-fill)) ${(chapterElapsed / (currentChapter.duration || 1)) * 100}%, var(--slider-track) ${(chapterElapsed / (currentChapter.duration || 1)) * 100}%)`
+                  ['--slider-bg' as any]: `linear-gradient(to right, var(--slider-current-fill, var(--slider-fill)) ${(chapterElapsed / (currentChapter.duration || 1)) * 100}%, var(--slider-track) ${(chapterElapsed / (currentChapter.duration || 1)) * 100}%)`
                 }}
                 className="w-full apple-slider"
               />

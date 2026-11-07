@@ -22,5 +22,5 @@ const ICONS: Record<string, LucideIcon> = {
 
 export function EmojiIcon({ emoji, className = '' }: { emoji?: string; className?: string }) {
   const Icon = ICONS[(emoji || '').replace(/\uFE0F/g, '')] || BookOpen;
-  return <Icon size="1em" strokeWidth={1.75} aria-hidden="true" className={`inline-block align-[-0.125em] ${className}`} />;
+  return <Icon size="1em" strokeWidth={2} aria-hidden="true" className={`inline-block align-[-0.125em] ${className}`} />;
 }

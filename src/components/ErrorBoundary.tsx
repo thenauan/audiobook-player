@@ -456,7 +456,7 @@ ${error.stack || 'No stack trace available'}`;
                       WebkitBackdropFilter: 'blur(28px) saturate(180%)',
                       border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '26px',
-                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.85)',
+                      boxShadow: '0 0 50px 0 rgba(0, 0, 0, 0.85)',
                       padding: '16px',
                       zIndex: 100,
                       display: 'flex',

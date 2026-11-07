@@ -93,7 +93,7 @@ export function _FavoriteChapterCard({
             whileHover={{ scale: 1.05 }}
             data-press="true"
             onClick={(e) => { e.stopPropagation(); onPlay(); }} 
-            className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--ios-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto "
+            className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--hover-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto "
             title={t('listen_chapter')}
           >
             <BsPlayFill size={28} className="translate-x-[2px] transition-colors" />
@@ -151,7 +151,7 @@ export function _FavoriteChapterCard({
                 setShowOptions(false);
               }
             }}
-            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--hover-fill)] transition-all cursor-pointer"
             title={t('more_options_chapter')}
           >
             <MoreHorizontal size={16} />
@@ -279,7 +279,7 @@ export function PopupSelectableRow({
       className={`relative w-full flex items-center justify-between gap-2.5 px-2.5 py-1.5 text-xs font-semibold rounded-2xl select-none transition-all duration-150 text-left rtl:text-right group ${
         selected
           ? 'bg-winblue/15 hover:bg-winblue/25 '
-          : ' hover:bg-[var(--ios-fill)] '
+          : ' hover:bg-[var(--hover-fill)] '
       }`}
     >
       <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -358,7 +358,7 @@ export function PopupSearchField({
   const isMobileField = useIsMobile();
   return (
     <div className="flex items-center gap-2 px-1 pb-1">
-      <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--ios-fill)] focus-within:bg-winblue/15 text-[var(--text-main)] transition-all backdrop-blur-3xl">
+      <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] focus-within:bg-winblue/15 text-[var(--text-main)] transition-all backdrop-blur-3xl">
         <Icon size={13} className="text-[var(--text-muted)] group-focus-within/popsearch:text-winblue transition-colors shrink-0" />
         <input
           ref={inputRef}
@@ -393,7 +393,7 @@ export function PopupSearchField({
               onChange('');
               inputRef.current?.focus();
             }}
-            className="h-9 max-md:h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-colors cursor-pointer overflow-hidden"
+            className="h-9 max-md:h-11 shrink-0 flex items-center justify-center rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-colors cursor-pointer overflow-hidden"
             title={t('clear_search')}
           >
             <X size={13} className="shrink-0" />
@@ -623,7 +623,7 @@ export function CollectionPickerPopupContent({
           onClick={() => onToggleItem(col.id, itemType, itemId)}
           rowTitle={isInCol ? t('remove_from_collection') : t('add_to_collection')}
           leading={
-            <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${col.gradient} flex items-center justify-center text-sm shrink-0 shadow-sm select-none`}>
+            <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${col.gradient} flex items-center justify-center text-lg shrink-0 shadow-sm select-none`}>
               <EmojiIcon emoji={col.emoji} />
             </div>
           }
@@ -663,7 +663,7 @@ export function CollectionPickerPopupContent({
               e.stopPropagation();
               onBack();
             }}
-            className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
+            className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
             title={t('more_options')}
           >
             <ChevronLeft size={14} className="rtl:rotate-180" />
@@ -693,7 +693,7 @@ export function CollectionPickerPopupContent({
                 onClick={() => onToggleItem(col.id, itemType, itemId)}
                 rowTitle={isInCol ? t('remove_from_collection') : t('add_to_collection')}
                 leading={
-                  <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${col.gradient} flex items-center justify-center text-sm shrink-0 shadow-sm select-none`}>
+                  <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${col.gradient} flex items-center justify-center text-lg shrink-0 shadow-sm select-none`}>
                     <EmojiIcon emoji={col.emoji} />
                   </div>
                 }
@@ -1003,7 +1003,7 @@ export function AuthorCard({
                   handleClose();
                 }
               }}
-              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--hover-fill)] transition-all cursor-pointer"
               title={t('more_options_author')}
             >
               <MoreHorizontal size={16} />
@@ -1160,7 +1160,7 @@ export function OtherAppCard({
                           e.stopPropagation();
                           setShowDetails(false);
                         }}
-                        className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--ios-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
+                        className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
                         title={t('more_options')}
                       >
                         <ChevronLeft size={14} className="rtl:rotate-180" />
@@ -1243,7 +1243,7 @@ export function OtherAppCard({
               e.stopPropagation();
               onOpenUrl(app.url);
             }}
-            className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--ios-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto cursor-pointer"
+            className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--hover-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto cursor-pointer"
             title={t('go_to_app')}
           >
             <ExternalLink size={24} className="transition-colors" />
@@ -1305,7 +1305,7 @@ export function OtherAppCard({
                 handleClose();
               }
             }}
-            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--hover-fill)] transition-all cursor-pointer"
             title={t('more_options')}
           >
             <MoreHorizontal size={16} />
@@ -1632,7 +1632,7 @@ export function BookCard({
                           e.stopPropagation();
                           setMenuMode('options');
                         }}
-                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <X size={13} />
                         <span>{t('cancel')}</span>
@@ -1719,7 +1719,7 @@ export function BookCard({
               whileHover={{ scale: 1.05 }}
               data-press="true"
               onClick={(e) => { e.stopPropagation(); onPlay(); }} 
-              className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--ios-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto "
+              className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--hover-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto "
               title={isBookPlaying ? t('pause') : t('listen')}
             >
               {isBookPlaying ? (
@@ -1798,7 +1798,7 @@ export function BookCard({
                 handleClose();
               }
             }}
-            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--hover-fill)] transition-all cursor-pointer"
             title={t('more_options')}
           >
             <MoreHorizontal size={16} />
@@ -1885,7 +1885,7 @@ export function BookCard({
                           e.stopPropagation();
                           setMobileDeleteOpen(false);
                         }}
-                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--ios-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="h-8 px-4 rounded-full bg-card/75 shadow-sm hover:bg-[var(--hover-fill)] text-[var(--text-main)] transition-all backdrop-blur-3xl font-semibold text-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <X size={13} />
                         <span>{t('cancel')}</span>
@@ -1956,7 +1956,7 @@ export function CollectionCard({
       <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
         <div ref={gradientRef} className={`absolute inset-0 bg-gradient-to-br ${col.gradient} ${selectionMode && selected ? 'opacity-70' : ''}`} />
         <div className="absolute inset-0 bg-black/20" />
-        <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 group-hover:scale-[1.02] transition-transform duration-500 transform translate-x-2 translate-y-2">
+        <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75 group-hover:scale-[1.02] transition-transform duration-500">
           <EmojiIcon emoji={col.emoji} />
         </span>
       </div>
@@ -2014,7 +2014,7 @@ export function CollectionCard({
                 window.dispatchEvent(new Event('close-all-popups'));
                 setDesktopMenu(next);
               }}
-              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-white bg-black/25 hover:bg-[var(--ios-fill)] transition-all cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-white bg-black/25 hover:bg-[var(--hover-fill)] transition-all cursor-pointer"
               aria-label="..."
             >
               <MoreHorizontal size={16} />

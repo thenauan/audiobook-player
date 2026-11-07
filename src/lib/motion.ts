@@ -7,7 +7,8 @@ export const SPRING = {
   snappy: spring(322, 30.5), // menus, pop-ups pequenos, avançar e voltar
   sheet: spring(224, 26.3), // folhas
   smooth: spring(158, 25.1), // mudanças grandes sem quique
-  zoom: spring(158, 22.6), // tela que abre de um ícone, miniplayer e player
+  // Tela que abre de um ícone, miniplayer e player. Mais rápida que a do guia: com ela, abrir o player levava até 0,9 s
+  zoom: spring(1360, 104),
   bouncy: spring(195, 19.5), // ícones que trocam, confirmações
 };
 

@@ -336,7 +336,7 @@ export function MenuOptionItem({
         : "text-red-500 hover:bg-red-500/15 hover:text-red-400 ")
     : (clicked
         ? "bg-slate-400/25 text-slate-900 ring-1 ring-slate-400/40 dark:bg-white/20 dark:text-white dark:ring-white/30 "
-        : "text-[var(--text-main)] hover:bg-[var(--ios-fill)] hover:text-white ");
+        : "text-[var(--text-main)] hover:bg-[var(--hover-fill)] hover:text-white ");
 
   return (
     <motion.button
