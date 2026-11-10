@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import { IS_APPLE_TOUCH } from '../../lib/desktopBridge';
 import { motion, AnimatePresence, Reorder, useDragControls, useMotionValue, useTransform, animate as animateValue, type HTMLMotionProps } from 'motion/react';
 import { Play, GripVertical, X, MoreHorizontal } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -581,14 +582,18 @@ export function getButtonMorphMotion(opts: {
 }
 
 // Conteúdo do pop-up: surge do desfoque com um leve zoom (e some desfocando antes da forma encolher)
+// iPhone/iPad: o conteúdo dos pop-ups troca sem desfoque animado. Animar um desfoque dentro de um pop-up que já desfoca o
+// fundo fazia o sistema desligar esse desfoque, e o pop-up ficava transparente (ex.: ao tocar em "Mais opções")
+const contentBlur = (px: number) => (IS_APPLE_TOUCH ? 'none' : `blur(${px}px)`);
+
 export const MORPH_CONTENT_MOTION = {
-  initial: { opacity: 0, scale: 0.9, filter: 'blur(10px)' },
+  initial: { opacity: 0, scale: 0.9, filter: contentBlur(10) },
   // Ao terminar, sem filtro nenhum (um "blur(0px)" que sobra deixa o texto borrado no Chrome/Electron)
-  animate: { opacity: 1, scale: 1, filter: 'blur(0px)', transitionEnd: { filter: 'none' } },
+  animate: { opacity: 1, scale: 1, filter: contentBlur(0), transitionEnd: { filter: 'none' } },
   exit: {
     opacity: 0,
     scale: 0.92,
-    filter: 'blur(8px)',
+    filter: contentBlur(8),
     transition: FADE_OUT,
   },
   transition: {
@@ -691,14 +696,14 @@ export const popupMorphContentVariants = {
     opacity: 0,
     scale: 0.96,
     x: 0,
-    filter: 'blur(6px)',
+    filter: contentBlur(6),
     position: 'relative' as const,
   }),
   center: {
     opacity: 1,
     scale: 1,
     x: 0,
-    filter: 'blur(0px)',
+    filter: contentBlur(0),
     position: 'relative' as const,
   },
   exit: (custom: any) => {
@@ -708,7 +713,7 @@ export const popupMorphContentVariants = {
       opacity: 0,
       scale: 1.03,
       x: 0,
-      filter: 'blur(6px)',
+      filter: contentBlur(6),
       position: 'absolute' as const,
       ...(openUp ? { bottom: 0 } : { top: 0 }),
       ...(alignRight ? { right: 0 } : { left: 0 }),
