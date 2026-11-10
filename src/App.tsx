@@ -41,10 +41,12 @@ import { diag } from './audio/playbackDiag';
 import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './lib/authorUtils';
 import { installTouchMenus } from './components/popups/touchMenu';
 import { installScrollFades } from './components/scrollFade';
+import { withChunkReload } from './lib/chunkReload';
 import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo, getZoomReturnRect } from './components/ZoomTransitionLayer';
-const loadImageCropperSquare = () => import('./components/ImageCropperSquare');
-const loadHelpCenterView = () => import('./views/HelpCenterView');
-const loadSettingsView = () => import('./views/SettingsView');
+// Sem o arquivo (versão antiga aberta depois de uma publicação nova): recarrega para a versão atual
+const loadImageCropperSquare = withChunkReload(() => import('./components/ImageCropperSquare'));
+const loadHelpCenterView = withChunkReload(() => import('./views/HelpCenterView'));
+const loadSettingsView = withChunkReload(() => import('./views/SettingsView'));
 // Tela sob demanda que, depois de pré-carregada, aparece na hora (sem passar pela tela de carregamento,
 // que no celular fazia a tela nova surgir só no meio da animação de abrir)
 function lazyPreloaded<T extends React.ComponentType<any>>(loader: () => Promise<{ default: T }>) {
@@ -59,7 +61,7 @@ const helpCenterLazy = lazyPreloaded(loadHelpCenterView);
 const settingsLazy = lazyPreloaded(loadSettingsView);
 export const ImageCropperSquare = imageCropperLazy.Component;
 export const HelpCenterView = helpCenterLazy.Component;
-const DevToolsModal = React.lazy(() => import('./views/DevToolsModal'));
+const DevToolsModal = React.lazy(withChunkReload(() => import('./views/DevToolsModal')));
 export const SettingsView = settingsLazy.Component;
 
 // Ajustes, Ajuda e o recorte de imagem só são baixados ao abrir: o app abre o mais rápido possível
@@ -724,8 +726,10 @@ export default function App() {
   const handleDeleteCollection = (collectionId: string) => {
     setCollections(prev => prev.filter(c => c.id !== collectionId));
     showToast(t('collection_deleted_toast'));
+    // A última coleção: vai para o início da Biblioteca (a lista de coleções vazia não existe)
     if (activeScreen.id === `library-colecao-${collectionId}`) {
-      navigateTo('library-colecoes');
+      if (collections.some(c => c.id !== collectionId)) navigateTo('library-colecoes');
+      else navigateTo('library');
     }
   };
 
@@ -1419,7 +1423,7 @@ export default function App() {
   useEffect(() => {
     if (!needsHelpThemes) return;
     let alive = true;
-    import('./i18n/helpTranslations').then(m => { if (alive) setHelpThemes(m.getHelpThemes(resolvedLanguage)); });
+    withChunkReload(() => import('./i18n/helpTranslations'))().then(m => { if (alive) setHelpThemes(m.getHelpThemes(resolvedLanguage)); }).catch(() => {});
     return () => { alive = false; };
   }, [needsHelpThemes, resolvedLanguage]);
 
@@ -1465,6 +1469,15 @@ export default function App() {
   }, []);
 
   // Processamento e importação de arquivos de áudio locais (apenas áudios permitidos)
+  // Avisos sobre audiobooks específicos levam o nome deles: "A", "A e B" ou "A, B e mais 3"
+  const namesForToast = (titles: string[]): string => {
+    const q = titles.map(x => `"${x}"`);
+    if (q.length <= 1) return q[0] || '';
+    if (q.length === 2) return t('list_and', { a: q[0], b: q[1] });
+    return t('list_and_more', { list: `${q[0]}, ${q[1]}`, count: q.length - 2 });
+  };
+  const importToast = (key: string, titles: string[]) => t(`${key}_${titles.length === 1 ? 'one' : 'many'}`, { titles: namesForToast(titles) });
+
   const processAudioFiles = async (fileList: FileList | File[], silentDuplicateToast = false) => {
     const rawFiles = Array.from(fileList);
     const isAudio = (f: File) => {
@@ -1570,9 +1583,11 @@ export default function App() {
     // Avisos: escolhido agora, carregando (se demorar) e adicionado no fim. No celular, a lista com o progresso
     // de cada um fica no botão da biblioteca
     const importIds = importStore.begin(files);
-    showToast(t('toast_import_selected', { count: files.length }));
+    const fileTitles = files.map(f => f.name.replace(/\.[^/.]+$/, '') || f.name);
+    showToast(importToast('toast_import_selected', fileTitles));
     const loadingToast = setTimeout(() => {
-      if (importIds.some(id => !importStore.isCanceled(id))) showToast(t('toast_import_loading', { count: files.length }));
+      const pending = fileTitles.filter((_, k) => !importStore.isCanceled(importIds[k]));
+      if (pending.length) showToast(importToast('toast_import_loading', pending));
     }, 1300);
 
     const importedBooks: Audiobook[] = [];
@@ -1705,10 +1720,11 @@ export default function App() {
       }
     }
     clearTimeout(loadingToast);
-    const canceledCount = importIds.filter(id => importStore.isCanceled(id)).length;
+    const canceledTitles = fileTitles.filter((_, k) => importStore.isCanceled(importIds[k]));
+    const canceledCount = canceledTitles.length;
     importStore.finish(importIds);
     if (importedBooks.length === 0 && canceledCount > 0) {
-      showToast(t('toast_import_canceled', { count: canceledCount }));
+      showToast(importToast('toast_import_canceled', canceledTitles));
       return;
     }
 
@@ -1732,9 +1748,9 @@ export default function App() {
       if (skippedDuplicates > 0 && !silentDuplicateToast) {
         showToast(t('toast_books_imported_with_dups', { count: importedBooks.length, dups: skippedDuplicates }));
       } else {
-        showToast(t('toast_books_added_success', { count: importedBooks.length }));
+        showToast(importToast('toast_import_added', importedBooks.map(b => b.title)));
       }
-      notifySystem('app_notify_added', t('settings_notif_added'), t('toast_books_added_success', { count: importedBooks.length }));
+      notifySystem('app_notify_added', t('settings_notif_added'), importToast('toast_import_added', importedBooks.map(b => b.title)));
     } else if (skippedDuplicates > 0 && !silentDuplicateToast) {
       showToast(
         skippedDuplicates === 1
@@ -2475,6 +2491,12 @@ export default function App() {
     }
   };
 
+  // Sem coleções (a última foi apagada): a lista de coleções vazia não existe, vai para o início da Biblioteca
+  useEffect(() => {
+    if (activeScreen.id === 'library-colecoes' && collections.length === 0) navigateTo('library');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeScreen.id, collections.length]);
+
   // Restaura a rolagem da tela anterior antes de ela aparecer (celular: as duas telas estão juntas na
   // troca; computador: espera a tela que sai terminar). Se o conteúdo ainda está carregando, tenta de novo.
   const pendingScrollRestoreRef = useRef<number | null>(null);
@@ -2975,7 +2997,7 @@ export default function App() {
       if (prev.time < end - 1 && time >= end - 1) {
         const finished = [...completedChaptersRef.current, `${bookId}-${chap.id}`];
         if (!completedChaptersRef.current.includes(`${bookId}-${chap.id}`)) {
-          notifySystem('app_notify_chapter', t('settings_notif_chapter'), chap.title);
+          notifySystem('app_notify_chapter', t('settings_notif_chapter'), t('notif_chapter_body', { chapter: chap.title, title: book.title }));
           if (visibleChapters(book.chapters, showExtraChapters).every(c => finished.includes(`${bookId}-${c.id}`))) {
             notifySystem('app_notify_book', t('settings_notif_book'), book.title);
           }

@@ -13,7 +13,7 @@ import { getLanguageData, transicaoConteudo } from '../../App';
 import { useScreenScope } from '../../app/AppScope';
 
 export function LibraryScreen() {
-  const { activeScreen, books, collectionMenu, collections, currentBook, favoriteAuthorIds, favoriteBookIds, fileInputRef, filteredBooks, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleSelectAuthor, handleSelectBookDetail, handleSyncLibraryNow, isBookCompleted, isBookStarted, isMobile, isPlaying, isSelectionMode, isSyncingLibrary, navigateTo, resolvedLanguage, selectedBooks, setActiveScreen, setCompletedChapters, setEditingBook, setHistoryStack, setSelectedBooks, setStartedChapters, setStatusFilter, showToast, sortBooks, sortedAuthors, sortedCollections, sortedGenres, sortedLanguages, statusFilter, t, toggleFavoriteAuthor, toggleFavoriteBook } = useScreenScope();
+  const { activeScreen, books, collectionMenu, collections, currentBook, favoriteAuthorIds, favoriteBookIds, fileInputRef, filteredBooks, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleSelectAuthor, handleSelectBookDetail, handleSyncLibraryNow, isBookCompleted, isBookStarted, isMobile, isPlaying, isSelectionMode, isSyncingLibrary, navigateTo, resolvedLanguage, selectedBooks, setCompletedChapters, setEditingBook, setSelectedBooks, setStartedChapters, setStatusFilter, showToast, sortBooks, sortedAuthors, sortedCollections, sortedGenres, sortedLanguages, statusFilter, t, toggleFavoriteAuthor, toggleFavoriteBook } = useScreenScope();
   return (
     books.length === 0 ? (
       <motion.div 
@@ -375,10 +375,8 @@ export function LibraryScreen() {
                       animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                       exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
                       transition={FADE_IN}
-                      onClick={() => {
-                        setHistoryStack([{ id: 'library' }, { id: 'library-idiomas' }]);
-                        setActiveScreen({ id: 'library-idioma-' + lang.toLowerCase(), data: lang });
-                      }}
+                      // Como os outros cards: empilha a partir da tela atual (voltar retorna para cá, não para "Idiomas")
+                      onClick={() => navigateTo('library-idioma-' + lang.toLowerCase(), lang)}
                       className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
                     >
                       {/* Camada interna recortada com fundo e bandeira com zoom */}

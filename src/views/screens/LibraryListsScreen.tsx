@@ -1,7 +1,7 @@
 // Tela extraída do App.tsx. Recebe do App, pelo contexto, só o que usa; enquanto sai com animação, mantém os
 // dados que tinha (como quando o conteúdo ficava dentro do App)
 import { AnimatePresence, motion } from 'motion/react';
-import { CheckCircle2, ChevronRight, Edit3, FolderPlus, Languages, Plus, X } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Edit3, Languages, Plus, X } from 'lucide-react';
 import React from 'react';
 import { Audiobook, Collection, GENRE_HIERARCHY, getGenreEmoji, getSubgenreEmoji, getSubgenreGradient, isBookInGenre, isBookInSubgenre, resolveNarratorAndLanguage } from '../../data/catalog';
 import { EmojiIcon } from '../../components/EmojiIcon';
@@ -13,7 +13,7 @@ import { getLanguageData, transicaoConteudo } from '../../App';
 import { useScreenScope } from '../../app/AppScope';
 
 export function LibraryListsScreen() {
-  const { activeAllBooksNavId, activeScreen, allBooksNavGroups, alphaNavPressRef, books, collectionMenu, collections, currentBook, favoriteAuthorIds, favoriteBookIds, filteredBooks, getCollectionItems, getCollectionSubScreen, getCollectionSubScreenTitle, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleScrollToGroup, handleSelectAuthor, handleSelectBookDetail, handleStartCreateCollection, handleStartEditCurrentCollection, isBookCompleted, isBookStarted, isMobile, isMobileAlphaNavOpen, isPlayerVisible, isPlaying, isSelectionMode, matchesBookSearch, navigateTo, recentlyAddedBooks, recentlyListenedBookIds, recentlyListenedBooks, renderCollectionAuthorCard, renderCollectionBookCard, resolvedLanguage, searchQuery, selectedAuthors, selectedBooks, selectedCollectionIds, selectedGenres, selectedLanguages, setCompletedChapters, setEditingBook, setIsMobileAlphaNavOpen, setSelectedAuthors, setSelectedBooks, setSelectedCollectionIds, setSelectedGenres, setSelectedLanguages, setStartedChapters, setStatusFilter, showToast, sortBooks, sortBy, sortedAuthors, sortedCollections, sortedGenres, sortedLanguages, statusFilter, t, toggleFavoriteAuthor, toggleFavoriteBook } = useScreenScope();
+  const { activeAllBooksNavId, activeScreen, allBooksNavGroups, alphaNavPressRef, books, collectionMenu, collections, currentBook, favoriteAuthorIds, favoriteBookIds, filteredBooks, getCollectionItems, getCollectionSubScreen, getCollectionSubScreenTitle, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleScrollToGroup, handleSelectAuthor, handleSelectBookDetail, handleStartEditCurrentCollection, isBookCompleted, isBookStarted, isMobile, isMobileAlphaNavOpen, isPlayerVisible, isPlaying, isSelectionMode, matchesBookSearch, navigateTo, recentlyAddedBooks, recentlyListenedBookIds, recentlyListenedBooks, renderCollectionAuthorCard, renderCollectionBookCard, resolvedLanguage, searchQuery, selectedAuthors, selectedBooks, selectedCollectionIds, selectedGenres, selectedLanguages, setCompletedChapters, setEditingBook, setIsMobileAlphaNavOpen, setSelectedAuthors, setSelectedBooks, setSelectedCollectionIds, setSelectedGenres, setSelectedLanguages, setStartedChapters, setStatusFilter, showToast, sortBooks, sortBy, sortedAuthors, sortedCollections, sortedGenres, sortedLanguages, statusFilter, t, toggleFavoriteAuthor, toggleFavoriteBook } = useScreenScope();
   return (
     <motion.div key={activeScreen.id} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="space-y-8">
       {/* Título e Barra de Navegação (Sticky em Todos os Audiobooks) */}
@@ -537,23 +537,8 @@ export function LibraryListsScreen() {
           </AnimatePresence>
         </div>
       ) : activeScreen.id === 'library-colecoes' ? (
-        collections.length === 0 ? (
-          <div className="col-span-full py-16 text-center w-full flex flex-col items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-winblue/10 text-winblue flex items-center justify-center mb-4">
-              <FolderPlus size={32} />
-            </div>
-            <h3 className="text-xl font-bold text-[var(--text-main)] mb-1">{t('no_collections_yet')}</h3>
-            <p className="text-sm text-[var(--text-muted)] max-w-sm mb-6">{t('no_collections_sub')}</p>
-            <motion.button
-              data-press="true"
-              onClick={() => handleStartCreateCollection()}
-              className="h-10 px-5 rounded-full bg-winblue text-white font-semibold text-xs shadow-lg transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <Plus size={16} />
-              <span>{t('create_collection')}</span>
-            </motion.button>
-          </div>
-        ) : (
+        // Sem coleções não há esta tela (o app volta sozinho)
+        collections.length === 0 ? null : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mobile-grid-2">
             <AnimatePresence>
               {sortedCollections.map((col) => {
