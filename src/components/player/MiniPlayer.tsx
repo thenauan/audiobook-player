@@ -8,6 +8,7 @@ import { AUTHORS_DATABASE } from '../../data/catalog';
 import { getGenericBookCover, getAuthorAvatar } from '../../lib/coverArt';
 import type { QueueItem } from '../../audio/queueUtils';
 import { useI18n } from '../../i18n/translations';
+import { useAudioBusy } from '../../audio/audioBusy';
 import { useTabBarCollapsed, useMobileBarSplit, tabBarStore, miniPresenceStore, MOBILE_BAR, MOBILE_GLASS_SHADOW, MOBILE_SHRINK_SCALE } from '../Sidebar';
 import { FADE_OUT, PLAYER_MOTION } from '../../lib/motion';
 
@@ -100,6 +101,7 @@ export default function MiniPlayer({
   authors,
 }: MiniPlayerProps) {
   const { t } = useI18n();
+  const busy = useAudioBusy();
 
   return (
     <motion.div 
@@ -297,6 +299,12 @@ export default function MiniPlayer({
           {/* Linha 3: Faixa de progressão com minutos corridos alinhados com o título */}
           <motion.div layoutId="player-progress" transition={{ layout: PLAYER_MOTION }} className="w-full flex items-center gap-2 group mt-1">
             <span className="text-[8px] text-[var(--text-muted)] shrink-0 whitespace-nowrap text-left">{formatTime(chapterElapsed)}</span>
+{busy ? (
+              <div role="status" className="relative flex-1 flex items-center justify-center gap-1 h-3.5 text-[9px] font-semibold text-[var(--text-muted)]">
+                <span className="w-2.5 h-2.5 rounded-full border-[1.5px] border-current border-t-transparent animate-spin" aria-hidden="true" />
+                <span>{t('loading')}</span>
+              </div>
+            ) : (
             <div className="relative flex-1 flex items-center h-3.5">
               <input 
                 type="range"
@@ -324,6 +332,7 @@ export default function MiniPlayer({
               />
               {renderPlaybackReturnButton(false)}
             </div>
+            )}
             <span className="text-[8px] text-[var(--text-muted)] shrink-0 whitespace-nowrap text-right">-{formatTime(chapterRemaining)}</span>
           </motion.div>
         </div>

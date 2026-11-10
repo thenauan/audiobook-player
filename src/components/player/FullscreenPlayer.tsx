@@ -11,6 +11,7 @@ import { AUTHORS_DATABASE } from '../../data/catalog';
 import { getGenericBookCover, getAuthorAvatar } from '../../lib/coverArt';
 import type { QueueItem } from '../../audio/queueUtils';
 import { useI18n } from '../../i18n/translations';
+import { useAudioBusy } from '../../audio/audioBusy';
 import { useIsMobile, useIsLandscapePhone, MobileContextMenu } from '../popups/MobileContextMenu';
 import { MenuOptionItem, PagedMenu } from '../popups/Popovers';
 import { LYRICS_FADE, LyricBlocks, LyricSearchResults, foldText } from './LyricView';
@@ -155,6 +156,7 @@ export default function FullscreenPlayer({
   showToast,
 }: FullscreenPlayerProps) {
   const { t } = useI18n();
+  const busy = useAudioBusy();
   // Capturado na montagem, enquanto o miniplayer ainda está no DOM (saindo)
   const [miniClip] = useState(getMiniPlayerClip);
   // Os botões do cabeçalho só aparecem quando a expansão do miniplayer termina
@@ -684,6 +686,13 @@ export default function FullscreenPlayer({
                 {/* Barra de Progresso com grupo para hover da bolinha */}
                 <motion.div layoutId="player-progress" transition={{ layout: PLAYER_MOTION }} className="w-full flex items-center gap-2.5 group mb-3.5">
                   <span className="text-[11px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 text-right shrink-0">{formatTime(chapterElapsed)}</span>
+{busy ? (
+                    // Carregando o áudio: o aviso no lugar da barra
+                    <div role="status" className="relative flex-1 flex items-center justify-center gap-1.5 h-5 [@media(pointer:coarse)]:h-7 text-[11px] font-semibold text-[var(--text-muted)]">
+                      <span className="w-3 h-3 rounded-full border-2 border-current border-t-transparent animate-spin" aria-hidden="true" />
+                      <span>{t('loading')}</span>
+                    </div>
+                  ) : (
                   <div className="relative flex-1 flex items-center h-5 [@media(pointer:coarse)]:h-7">
                     <input 
                       type="range"
@@ -744,6 +753,7 @@ export default function FullscreenPlayer({
                     />
                     {renderPlaybackReturnButton(true)}
                   </div>
+                  )}
                   <span className="text-[11px] font-bold text-slate-800 dark:text-[var(--text-muted)] w-9 shrink-0">-{formatTime(chapterRemaining)}</span>
                 </motion.div>
 

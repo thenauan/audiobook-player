@@ -60,7 +60,8 @@ async function removeEntry(db: IDBDatabase, bookId: string, extraParts = 0) {
   await runTx(db, 'readwrite', store => { store.delete(bookId); partKeys(bookId, n).forEach(k => store.delete(k)); });
 }
 
-export async function storeAudioBlob(bookId: string, blob: Blob | File): Promise<void> {
+// Devolve se o áudio ficou guardado (antes a falha era silenciosa: o livro aparecia na biblioteca sem áudio no aparelho)
+export async function storeAudioBlob(bookId: string, blob: Blob | File): Promise<boolean> {
   try {
     const db = await openAudioDB();
     const current = await readKey(db, bookId).catch(() => null);
@@ -68,26 +69,39 @@ export async function storeAudioBlob(bookId: string, blob: Blob | File): Promise
       if (isChunkIndex(current)) partKeys(bookId, current.__chunks).forEach(k => store.delete(k));
       store.put(blob, bookId);
     });
+    return true;
   } catch (err) {
     console.warn('Could not save audio blob to IndexedDB:', err);
+    return false;
   }
 }
 
-// Grava medindo: onProgress recebe de 0 a 1 a cada pedaço; isCanceled interrompe entre pedaços (e apaga o que já foi)
+// Grava medindo: onProgress recebe de 0 a 1 a cada pedaço; isCanceled interrompe entre pedaços (e apaga o que já foi).
+// iPhone/iPad: o arquivo inteiro de uma vez (gravar pedaços do arquivo escolhido falhava no Safari e o áudio não ficava
+// guardado); o sistema não informa o andamento, então o progresso é estimado pelo tamanho.
+// Em outros aparelhos, se os pedaços falharem, tenta o arquivo inteiro. Devolve se o áudio ficou guardado.
 export async function storeAudioBlobChunked(
   bookId: string,
   file: Blob,
   onProgress?: (fraction: number) => void,
   isCanceled?: () => boolean,
-): Promise<void> {
-  if (file.size <= CHUNK) {
-    if (isCanceled?.()) throw new ImportCanceledError();
-    await storeAudioBlob(bookId, file);
-    onProgress?.(1);
-    return;
+): Promise<boolean> {
+  if (isCanceled?.()) throw new ImportCanceledError();
+  if (file.size <= CHUNK || IS_APPLE_TOUCH) {
+    // Estimativa: cerca de 30 MB/s, chegando perto do fim sem passar dele até a gravação terminar
+    const estimate = Math.max(0.6, file.size / (30 * 1024 * 1024));
+    const t0 = Date.now();
+    const timer = onProgress && file.size > CHUNK
+      ? setInterval(() => onProgress(0.95 * (1 - Math.exp(-2 * ((Date.now() - t0) / 1000) / estimate))), 250)
+      : null;
+    const ok = await storeAudioBlob(bookId, file);
+    if (timer) clearInterval(timer);
+    if (ok && isCanceled?.()) { await deleteAudioBlob(bookId); throw new ImportCanceledError(); }
+    if (ok) onProgress?.(1);
+    return ok;
   }
   let db: IDBDatabase;
-  try { db = await openAudioDB(); } catch (err) { console.warn('Could not save audio blob to IndexedDB:', err); return; }
+  try { db = await openAudioDB(); } catch (err) { console.warn('Could not save audio blob to IndexedDB:', err); return false; }
   const n = Math.ceil(file.size / CHUNK);
   try {
     await removeEntry(db, bookId);
@@ -100,10 +114,12 @@ export async function storeAudioBlobChunked(
     if (isCanceled?.()) throw new ImportCanceledError();
     const index: ChunkIndex = { __chunks: n, type: file.type, size: file.size };
     await runTx(db, 'readwrite', store => { store.put(index, bookId); });
+    return true;
   } catch (err) {
     await removeEntry(db, bookId, n).catch(() => {});
     if (err instanceof ImportCanceledError) throw err;
-    console.warn('Could not save audio blob to IndexedDB:', err);
+    console.warn('Could not save audio blob in parts, trying the whole file:', err);
+    return storeAudioBlob(bookId, file);
   }
 }
 

@@ -17,7 +17,7 @@ import { parseAudioMetadata } from './audio/audioMetadata';
 import { parseSynchronizedTextFile } from './audio/transcripts';
 import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex } from './lib/coverArt';
 import { findActiveTranscriptIndex } from './audio/playbackTiming';
-import { storeAudioBlobChunked, consolidateAudioBlob, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
+import { storeAudioBlobChunked, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
 import { importStore, visibleImports } from './lib/importProgress';
 import { ImportCancelAllButton, ImportCancelAllConfirm, ImportList } from './components/library/ImportProgress';
 import { sessionHistory } from './lib/sessionHistory';
@@ -44,6 +44,7 @@ import { installTouchMenus } from './components/popups/touchMenu';
 import { installScrollFades } from './components/scrollFade';
 import { MatchedText, foldText } from './components/player/LyricView';
 import { withChunkReload } from './lib/chunkReload';
+import { audioBusy } from './audio/audioBusy';
 import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo, getZoomReturnRect } from './components/ZoomTransitionLayer';
 // Sem o arquivo (versão antiga aberta depois de uma publicação nova): recarrega para a versão atual
 const loadImageCropperSquare = withChunkReload(() => import('./components/ImageCropperSquare'));
@@ -1082,6 +1083,22 @@ export default function App() {
   const lastSrcSetAtRef = useRef(0);
   const noFragmentRef = useRef(false);
   const [isAudioLoading, setIsAudioLoading] = useState<boolean>(false);
+  // "Carregando..." na barra de reprodução: lendo o áudio do aparelho ou, tocando, esperando dados
+  useEffect(() => { audioBusy.setLoading(isAudioLoading); }, [isAudioLoading]);
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const on = () => audioBusy.setWaiting(true);
+    const off = () => audioBusy.setWaiting(false);
+    const onEvents = ['waiting', 'stalled', 'loadstart'];
+    const offEvents = ['playing', 'canplay', 'canplaythrough', 'timeupdate', 'pause', 'error', 'emptied', 'ended'];
+    onEvents.forEach(e => audio.addEventListener(e, on));
+    offEvents.forEach(e => audio.addEventListener(e, off));
+    return () => {
+      onEvents.forEach(e => audio.removeEventListener(e, on));
+      offEvents.forEach(e => audio.removeEventListener(e, off));
+    };
+  }, []);
   const loadingAudioBookIdsRef = useRef<Set<string>>(new Set());
   const pendingSeekRef = useRef<number | null>((() => {
     try {
@@ -1614,6 +1631,7 @@ export default function App() {
     }, 1300);
 
     const importedBooks: Audiobook[] = [];
+    const failedTitles: string[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const importId = importIds[i];
@@ -1681,11 +1699,20 @@ export default function App() {
           audioUrlsRef.current.delete(bookId);
           storedAudioBlobKeysRef.current.delete(bookId);
         };
+        let stored = false;
         try {
-          await storeAudioBlobChunked(bookId, file, (f) => importStore.update(importId, { progress: 0.06 + f * 0.92 }), () => importStore.isCanceled(importId));
+          stored = await storeAudioBlobChunked(bookId, file, (f) => importStore.update(importId, { progress: 0.06 + f * 0.92 }), () => importStore.isCanceled(importId));
         } catch (err) {
           if (err instanceof ImportCanceledError) { dropCanceled(); continue; }
           throw err;
+        }
+        // Sem o áudio guardado no aparelho, o livro não tocaria depois de fechar o app: avisa e não adiciona
+        if (!stored && !desktop?.saveAudiobook) {
+          diag('audio-nao-guardado', { arquivo: file.name, tamanho: file.size });
+          dropCanceled();
+          importStore.remove(importId);
+          failedTitles.push(meta.title || file.name);
+          continue;
         }
         if (importStore.isCanceled(importId)) { dropCanceled(); deleteAudioBlob(bookId); continue; }
 
@@ -1735,8 +1762,6 @@ export default function App() {
           addedDate: now + (rawFiles.length - i)
         };
         if (importStore.isCanceled(importId)) { dropCanceled(); deleteAudioBlob(bookId); continue; }
-        // iPhone/iPad: o áudio guardado vira um arquivo único (em segundo plano; agora ele toca direto do arquivo escolhido)
-        if (IS_APPLE_TOUCH) void consolidateAudioBlob(bookId);
         importedBooks.push(newBook);
         importStore.update(importId, { status: 'done', progress: 1 });
       } catch (err) {
@@ -1745,6 +1770,10 @@ export default function App() {
       }
     }
     clearTimeout(loadingToast);
+    if (failedTitles.length) {
+      showToast(importToast('toast_import_failed', failedTitles));
+      if (importedBooks.length === 0) { importStore.finish(importIds); return; }
+    }
     const canceledTitles = fileTitles.filter((_, k) => importStore.isCanceled(importIds[k]));
     const canceledCount = canceledTitles.length;
     importStore.finish(importIds);
@@ -1887,6 +1916,7 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => { audioBusy.setPlaying(isPlaying); }, [isPlaying]);
   // Sempre que a reprodução iniciar, garante que o ID do último livro tocado seja registrado
   useEffect(() => {
     if (isPlaying && currentBook?.id && currentBook.id !== EMPTY_BOOK.id) {
