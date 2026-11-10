@@ -257,6 +257,17 @@ export function QueueList({ nowPlayingRef }: { nowPlayingRef?: React.Ref<HTMLDiv
     ro?.observe(scroller); ro?.observe(tail);
     return () => ro?.disconnect();
   }, [history.length, playbackQueue.length]);
+  // O aviso de "role para cima" some enquanto os anteriores estão à vista e volta quando a lista retorna ao lugar
+  const [hintHidden, setHintHidden] = React.useState(false);
+  React.useEffect(() => {
+    const tail = tailRef.current;
+    const scroller = tail?.closest('.overflow-y-auto') as HTMLElement | null;
+    if (!tail || !scroller || !history.length) return;
+    const onScroll = () => setHintHidden(tail.getBoundingClientRect().top - scroller.getBoundingClientRect().top > 12);
+    onScroll();
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    return () => scroller.removeEventListener('scroll', onScroll);
+  }, [history.length]);
   const playPrevious = (bookId: string, chapterId: number) => {
     const book = booksRef.current.find(b => b.id === bookId);
     if (!book) return;
@@ -299,7 +310,11 @@ export function QueueList({ nowPlayingRef }: { nowPlayingRef?: React.Ref<HTMLDiv
         <div ref={nowPlayingRef} className="shrink-0">
           {/* Há capítulos tocados antes nesta sessão: ficam acima (a fila abre já no que está tocando) */}
           {history.length > 0 && (
-            <p className="flex items-center justify-center gap-1 pb-2 text-[11px] text-[var(--text-muted)] select-none">
+            <p
+              aria-hidden={hintHidden}
+              className="flex items-center justify-center gap-1 pb-2 text-[11px] text-[var(--text-muted)] select-none transition-opacity duration-200"
+              style={{ opacity: hintHidden ? 0 : 1 }}
+            >
               <ChevronUp size={12} />
               <span>{t('queue_history_hint')}</span>
             </p>
