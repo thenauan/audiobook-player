@@ -292,9 +292,12 @@ export async function renderAudiobookStory(book: StoryBook, isDark: boolean): Pr
   const mainText = book.chapter || book.title;
   const titleLines = clampLines(ctx, wrapLines(ctx, mainText, cardW - pad * 2), 2, cardW - pad * 2);
   const titleH = titleLines.length * 72;
-  const subText = book.chapter ? `${book.title} · ${book.author}` : book.author;
-  ctx.font = `500 ${book.chapter ? 38 : 42}px ${FONT}`;
-  const subLines = clampLines(ctx, wrapLines(ctx, subText, cardW - pad * 2), book.chapter ? 2 : 1, cardW - pad * 2);
+  // Capítulo: o audiobook numa linha e o autor em outra (sem negrito)
+  const subLines: { text: string; weight: number }[] = book.chapter
+    ? [{ text: book.title, weight: 600 }, { text: book.author, weight: 400 }]
+    : [{ text: book.author, weight: 500 }];
+  const subSize = book.chapter ? 38 : 42;
+  subLines.forEach(l => { ctx.font = `${l.weight} ${subSize}px ${FONT}`; l.text = clampLines(ctx, [l.text], 1, cardW - pad * 2)[0]; });
   const subLineH = book.chapter ? 48 : 50;
   const cardH = pad + coverH + 52 + titleH + 14 + subLines.length * subLineH + pad;
   const brandH = 170;
@@ -311,9 +314,8 @@ export async function renderAudiobookStory(book: StoryBook, isDark: boolean): Pr
   let ty = cardY + pad + coverH + 52;
   titleLines.forEach(line => { ctx.fillText(line, W / 2, ty); ty += 72; });
   ctx.fillStyle = isDark ? 'rgba(255,255,255,0.62)' : 'rgba(17,17,17,0.58)';
-  ctx.font = `500 ${book.chapter ? 38 : 42}px ${FONT}`;
   ty += 14;
-  subLines.forEach(line => { ctx.fillText(line, W / 2, ty); ty += subLineH; });
+  subLines.forEach(line => { ctx.font = `${line.weight} ${subSize}px ${FONT}`; ctx.fillText(line.text, W / 2, ty); ty += subLineH; });
 
   await drawAppBrand(ctx, W / 2, cardY + cardH + 84, isDark);
   return toBlob(canvas);
@@ -366,10 +368,21 @@ export async function renderQuoteStory(book: StoryBook, lines: string[], isDark:
   ctx.textBaseline = 'middle';
   ctx.fillStyle = isDark ? 'rgba(255,255,255,0.88)' : 'rgba(17,17,17,0.85)';
   ctx.font = `700 34px ${FONT}`;
-  ctx.fillText(clampLines(ctx, [book.chapter || book.title], 1, infoW)[0], cardX + pad, footY + footerH / 2 - 22);
-  ctx.fillStyle = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(17,17,17,0.55)';
-  ctx.font = `500 30px ${FONT}`;
-  ctx.fillText(clampLines(ctx, [book.chapter ? `${book.title} · ${book.author}` : book.author], 1, infoW)[0], cardX + pad, footY + footerH / 2 + 22);
+  if (book.chapter) {
+    // Trecho de um capítulo: o capítulo em destaque; abaixo, o audiobook e depois o autor (sem negrito)
+    ctx.fillText(clampLines(ctx, [book.chapter], 1, infoW)[0], cardX + pad, footY + footerH / 2 - 40);
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(17,17,17,0.7)';
+    ctx.font = `600 29px ${FONT}`;
+    ctx.fillText(clampLines(ctx, [book.title], 1, infoW)[0], cardX + pad, footY + footerH / 2 + 2);
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(17,17,17,0.55)';
+    ctx.font = `400 29px ${FONT}`;
+    ctx.fillText(clampLines(ctx, [book.author], 1, infoW)[0], cardX + pad, footY + footerH / 2 + 40);
+  } else {
+    ctx.fillText(clampLines(ctx, [book.title], 1, infoW)[0], cardX + pad, footY + footerH / 2 - 22);
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(17,17,17,0.55)';
+    ctx.font = `500 30px ${FONT}`;
+    ctx.fillText(clampLines(ctx, [book.author], 1, infoW)[0], cardX + pad, footY + footerH / 2 + 22);
+  }
 
   await drawAppBrand(ctx, W / 2, cardY + cardH + 84, isDark);
   return toBlob(canvas);

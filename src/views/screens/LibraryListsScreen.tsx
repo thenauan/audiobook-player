@@ -8,12 +8,14 @@ import { EmojiIcon } from '../../components/EmojiIcon';
 import { getGenreName, getSubgenreName } from '../../i18n/genreTranslations';
 import { getLanguageCardName, getLanguageDisplayName, normalizeAudiobookLanguage } from '../../i18n/translations';
 import { AuthorCard, BookCard, CollectionCard } from '../../components/library/LibraryCards';
-import { FADE_IN } from '../../lib/motion';
+import { FADE_IN, SPRING } from '../../lib/motion';
 import { getLanguageData, transicaoConteudo } from '../../App';
 import { useScreenScope } from '../../app/AppScope';
 
 export function LibraryListsScreen() {
   const { activeAllBooksNavId, activeScreen, allBooksNavGroups, alphaNavPressRef, books, collectionMenu, collections, currentBook, favoriteAuthorIds, favoriteBookIds, filteredBooks, getCollectionItems, getCollectionSubScreen, getCollectionSubScreenTitle, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleScrollToGroup, handleSelectAuthor, handleSelectBookDetail, handleStartEditCurrentCollection, isBookCompleted, isBookStarted, isMobile, isMobileAlphaNavOpen, isPlayerVisible, isPlaying, isSelectionMode, matchesBookSearch, navigateTo, recentlyAddedBooks, recentlyListenedBookIds, recentlyListenedBooks, renderCollectionAuthorCard, renderCollectionBookCard, resolvedLanguage, searchQuery, selectedAuthors, selectedBooks, selectedCollectionIds, selectedGenres, selectedLanguages, setCompletedChapters, setEditingBook, setIsMobileAlphaNavOpen, setSelectedAuthors, setSelectedBooks, setSelectedCollectionIds, setSelectedGenres, setSelectedLanguages, setStartedChapters, setStatusFilter, showToast, sortBooks, sortBy, sortedAuthors, sortedCollections, sortedGenres, sortedLanguages, statusFilter, t, toggleFavoriteAuthor, toggleFavoriteBook } = useScreenScope();
+  // Índice de letras: arrastando o dedo, o destaque segue o dedo (e não a rolagem da tela)
+  const [navDragId, setNavDragId] = React.useState<string | null>(null);
   return (
     <motion.div key={activeScreen.id} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="space-y-8">
       {/* Título e Barra de Navegação (Sticky em Todos os Audiobooks) */}
@@ -58,7 +60,7 @@ export function LibraryListsScreen() {
 
             // Mobile: sempre visível no canto direito com todos os itens, bem pequena (só a letra atual
             // na cor de destaque); ao tocar, cresce para o tamanho normal. Arrastar o dedo navega pelos itens.
-            const currentNavId = activeAllBooksNavId || allBooksNavGroups[0]?.id;
+            const currentNavId = navDragId || activeAllBooksNavId || allBooksNavGroups[0]?.id;
             const isCompactNav = isMobile && !isMobileAlphaNavOpen;
             const navCount = allBooksNavGroups.length;
             const itemH = isCompactNav ? 17 : (isAlphabetMode ? 36 : 34);
@@ -70,8 +72,10 @@ export function LibraryListsScreen() {
             };
             const mobileNavHandlers = isMobile ? {
               onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
-                alphaNavPressRef.current = { y: e.clientY, moved: false, lastId: null };
+                alphaNavPressRef.current = { y: e.clientY, moved: false, lastId: null, opened: isCompactNav } as any;
                 e.currentTarget.setPointerCapture?.(e.pointerId);
+                // Compacto: já abre no tamanho normal ao encostar o dedo (dá para arrastar em seguida)
+                if (isCompactNav) setIsMobileAlphaNavOpen(true);
               },
               onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
                 const press = alphaNavPressRef.current;
@@ -81,21 +85,24 @@ export function LibraryListsScreen() {
                 const id = navItemAt(e.clientY, e.currentTarget);
                 if (id && id !== press.lastId) {
                   press.lastId = id;
-                  handleScrollToGroup(id);
+                  setNavDragId(id);
+                  handleScrollToGroup(id, true);
                   try { navigator.vibrate?.(5); } catch {}
                 }
               },
               onPointerUp: (e: React.PointerEvent<HTMLElement>) => {
                 const press = alphaNavPressRef.current;
                 alphaNavPressRef.current = null;
+                setNavDragId(null);
                 if (!press) return;
                 if (press.moved) { setIsMobileAlphaNavOpen(false); return; }
-                if (isCompactNav) { setIsMobileAlphaNavOpen(true); return; }
+                // Só encostou no índice compacto: ele fica aberto para escolher
+                if ((press as any).opened) return;
                 const id = navItemAt(e.clientY, e.currentTarget);
                 if (id) handleScrollToGroup(id);
                 setIsMobileAlphaNavOpen(false);
               },
-              onPointerCancel: () => { alphaNavPressRef.current = null; },
+              onPointerCancel: () => { alphaNavPressRef.current = null; setNavDragId(null); },
             } : {};
             return (
               <>
@@ -137,7 +144,7 @@ export function LibraryListsScreen() {
                           data-nav-id={group.id}
                           // No mobile o toque/arraste é tratado pela barra; aqui só teclado e desktop
                           onClick={(e) => { if (!isMobile || e.detail === 0) handleScrollToGroup(group.id); }}
-                          className={`relative flex items-center justify-center font-bold transition-all duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+                          className={`relative flex items-center justify-center font-bold transition-[font-size,height,max-height,width,color] duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
                             isMobile ? 'flex-1 min-h-0 w-full' : 'shrink-0'
                           } ${
                             isCompactNav
@@ -147,12 +154,22 @@ export function LibraryListsScreen() {
                                   : `${isMobile ? 'max-h-7' : 'w-full h-7'} px-1 rounded-[12px] text-[10px] tracking-tight`
                                 } ${
                                   isSelected
-                                    ? 'bg-winblue/20 text-winblue hover:bg-winblue/25 '
+                                    ? 'text-winblue '
                                     : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--hover-fill)] '
                                 }`
                           }`}
                           title={group.title}
                         >
+                          {/* Destaque como o da barra de abas: a mesma cor e uma pílula só, que desliza até a letra
+                              (mais forte enquanto o dedo está apoiado) */}
+                          {isSelected && !isCompactNav && (
+                            <motion.span
+                              layoutId="alpha-nav-pill"
+                              transition={SPRING.snappy}
+                              aria-hidden="true"
+                              className={`absolute inset-0 ${isAlphabetMode ? 'rounded-full' : 'rounded-[12px]'} ${navDragId ? 'bg-[var(--ios-fill-strong)]' : 'bg-[var(--ios-fill)]'} transition-colors duration-200`}
+                            />
+                          )}
                           <span className="relative z-10 whitespace-nowrap select-none">
                             {group.navLabel}
                           </span>

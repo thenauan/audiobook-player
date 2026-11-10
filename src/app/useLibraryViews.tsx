@@ -1195,7 +1195,8 @@ export function useLibraryViews({ activeAllBooksNavId, activeScreen, authors, bo
   }, [activeScreen.id, allBooksNavGroups]);
 
   // Scroll suave ao clicar em um item da barra de navegação
-  const handleScrollToGroup = (groupId: string) => {
+  // instant: arrastando o dedo no índice, vai direto (a rolagem suave passava pelas letras do meio e o destaque piscava)
+  const handleScrollToGroup = (groupId: string, instant = false) => {
     setActiveAllBooksNavId(groupId);
     const container = mainScrollRef.current;
     const target = document.getElementById(`group-section-${groupId}`);
@@ -1209,7 +1210,7 @@ export function useLibraryViews({ activeAllBooksNavId, activeScreen, authors, bo
     isManualScrollingRef.current = true;
     container.scrollTo({
       top: Math.max(0, targetScrollTop),
-      behavior: 'smooth',
+      behavior: instant ? 'auto' : 'smooth',
     });
 
     setTimeout(() => {

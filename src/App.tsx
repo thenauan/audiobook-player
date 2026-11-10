@@ -4107,7 +4107,12 @@ export default function App() {
             <motion.button
               data-press="true"
               disabled={lyricsSelection.length === 0 || isGeneratingShare}
-              onClick={() => openShareImage('quote', bk, lyricsSelection.map(i => transcriptLineText(transcript[i])), shareChapter?.title)}
+              // O capítulo do trecho (o escolhido, ou o da primeira frase marcada) aparece em destaque na imagem
+              onClick={() => {
+                const first = transcript[lyricsSelection[0]];
+                const ch = shareChapter || (first ? (bk.chapters || []).find(c => first.start >= c.startTime && first.start < c.startTime + (c.duration || 0)) : undefined);
+                openShareImage('quote', bk, lyricsSelection.map(i => transcriptLineText(transcript[i])), ch?.title);
+              }}
               className="h-12 px-7 rounded-full bg-winblue/20 text-winblue shadow-sm text-[15px] font-bold flex items-center justify-center gap-2 disabled:opacity-40"
             >
               {isGeneratingShare ? <div className="w-4 h-4 rounded-full border-2 border-winblue border-t-transparent animate-spin" /> : <Share size={17} />}
@@ -7750,7 +7755,8 @@ export default function App() {
                 // desfocam) só "viam" o fundo preto e sumiam nele no iPhone
                 className="fixed inset-0 z-[9600] flex flex-col items-center isolate"
                 style={{
-                  paddingTop: 'max(16px, var(--safe-top))',
+                  // "Cancelar" na mesma altura do botão de voltar das outras telas (longe do topo da tela)
+                  paddingTop: 'var(--app-header-top, max(16px, var(--safe-top)))',
                   paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
                   paddingLeft: 'max(16px, var(--safe-left))',
                   paddingRight: 'max(16px, var(--safe-right))',
