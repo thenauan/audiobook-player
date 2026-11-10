@@ -407,7 +407,9 @@ export function MobileMiniPlayer({
     placement.top = `calc(var(--screen-h) - ${placement.bottom} - ${height}px)`;
     delete placement.bottom;
   }
-  const posTransition = 'left 0.32s cubic-bezier(0.22, 1, 0.36, 1), right 0.32s cubic-bezier(0.22, 1, 0.36, 1), top 0.32s cubic-bezier(0.22, 1, 0.36, 1), height 0.32s cubic-bezier(0.22, 1, 0.36, 1)';
+  // Mesma mola da barra de abas: o miniplayer desce, estica até os botões redondos passando um pouco e assenta
+  const morph = 'var(--dur-morph) var(--spring-morph)';
+  const posTransition = `left ${morph}, right ${morph}, top ${morph}, height ${morph}`;
 
   const openFullscreen = () => {
     // Encolhido: o toque funciona normalmente e o miniplayer volta ao tamanho padrão em seguida
@@ -451,7 +453,7 @@ export function MobileMiniPlayer({
         onClick={openFullscreen}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFullscreen(); } }}
         aria-label={t('expand_player')}
-        style={docked ? undefined : { height, borderRadius: height / 2, transition: 'height 0.32s cubic-bezier(0.22, 1, 0.36, 1)' }}
+        style={docked ? undefined : { height, borderRadius: height / 2, transition: `height ${morph}` }}
         className={`mobile-press flex items-center gap-3 pl-4 pr-2 cursor-pointer select-none ${docked ? 'h-14 rounded-[28px]' : ''}`}
       >
         <motion.img

@@ -199,8 +199,9 @@ export function useMiniPresent(): boolean {
   return React.useSyncExternalStore(miniPresenceStore.subscribe, miniPresenceStore.get, miniPresenceStore.get);
 }
 
-const BAR_SPRING = SPRING.zoom;
-const ICON_SPRING = SPRING.zoom;
+// Recolher e reabrir com o miniplayer: a barra e os ícones passam um pouco do ponto e assentam (Apple Music)
+const BAR_SPRING = SPRING.morph;
+const ICON_SPRING = SPRING.morph;
 // iOS 26: ao tocar, a barra cresce um pouco e o destaque "levanta" (fica maior que a barra, como uma lente);
 // ao soltar, ele assenta com uma mola elástica e o ícone escolhido dá um pulinho
 const PRESS_SPRING = SPRING.bouncy;

@@ -1909,6 +1909,8 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
   --dur-snappy: 530ms;
   --spring-sheet:  linear(0, 0.095, 0.28, 0.475, 0.642, 0.767, 0.858, 0.919, 0.957, 0.98, 0.992, 0.999, 1.002, 1.003, 1.003, 1.002, 1.002, 1.001, 1);
   --dur-sheet: 600ms;
+  --spring-morph: linear(0, 0.042, 0.143, 0.275, 0.415, 0.551, 0.672, 0.775, 0.858, 0.922, 0.969, 1.002, 1.022, 1.034, 1.038, 1.038, 1.035, 1.031, 1.025, 1.02, 1.015, 1.011, 1.007, 1.004, 1.002, 1, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 1);
+  --dur-morph: 620ms;
   --ease-fade: cubic-bezier(0.2, 0, 0, 1);
   --dur-fade-in: 200ms;
   --dur-fade-out: 150ms;
@@ -1935,6 +1937,7 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
   :root {
     --dur-press: 1ms; --dur-snappy: 200ms; --dur-sheet: 200ms;
     --spring-press: ease; --spring-snappy: ease; --spring-sheet: ease;
+    --dur-morph: 200ms; --spring-morph: ease;
   }
   *, *::before, *::after {
     animation-duration: 1ms !important;

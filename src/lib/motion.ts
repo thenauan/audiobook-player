@@ -10,6 +10,9 @@ export const SPRING = {
   // Tela que abre de um ícone, miniplayer e player. Mais rápida que a do guia: com ela, abrir o player levava até 0,9 s
   zoom: spring(1360, 104),
   bouncy: spring(195, 19.5), // ícones que trocam, confirmações
+  // Barra de abas e miniplayer trocando de lugar (como no Apple Music): rápida, passa ~4% do ponto e assenta.
+  // A mesma curva está em CSS (--spring-morph) para o miniplayer chegar junto com a barra
+  morph: spring(260, 23.2),
 };
 
 const FADE_EASE = [0.2, 0, 0, 1] as [number, number, number, number];
