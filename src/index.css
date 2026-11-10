@@ -2352,3 +2352,11 @@ html:not(.dark) .ambient-screen [class*="bg-white/"] {
     background-color: rgb(28 28 32 / 0.94) !important;
   }
 }
+
+/* Fila de reprodução expandida (o pop-up do player que cresce até a tela cheia): quase opaca */
+[data-player-sheet][data-queue-expanded] {
+  background-color: rgb(255 255 255 / 0.94) !important;
+}
+html.dark [data-player-sheet][data-queue-expanded] {
+  background-color: rgb(28 28 32 / 0.94) !important;
+}

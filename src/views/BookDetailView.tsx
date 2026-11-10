@@ -925,7 +925,9 @@ export default function BookDetailView({
         <h2 className="text-xl font-bold text-[var(--text-main)] mb-4">
           {isEditingBook ? t('edit_chapters') : t('chapters')}
         </h2>
-        <div className="flex flex-col space-y-1">
+        {/* Celular: a lista vai de borda a borda (como no Apple Music): número e opções perto das bordas e o
+            destaque do capítulo tocando ocupando a largura toda */}
+        <div className={`flex flex-col space-y-1 ${isEditingBook ? '' : 'max-md:-mx-[var(--page-margin)]'}`}>
           {activeBook.chapters.map((cap, i) => {
             if (!isEditingBook && !shownChapters.includes(cap)) return null;
             if (isEditingBook) {
@@ -988,7 +990,7 @@ export default function BookDetailView({
                   setActiveChapterMenuId(chapIdKey);
                   setActiveChapterMenuMode('options');
                 }}
-                className={`group relative flex items-center gap-2 sm:gap-3 py-2.5 pl-4 sm:pl-5 pr-2.5 rtl:pl-2.5 rtl:pr-4 rtl:sm:pr-5 rounded-[26px] cursor-pointer transition-all ${
+                className={`group relative flex items-center gap-2 sm:gap-3 py-2.5 pl-4 sm:pl-5 pr-2.5 rtl:pl-2.5 rtl:pr-4 rtl:sm:pr-5 rounded-[26px] max-md:rounded-none max-md:pl-[18px] max-md:pr-4 max-md:rtl:pl-4 max-md:rtl:pr-[18px] cursor-pointer transition-all ${
                   isThisChapterMenuOpen || isThisChapterCommentsOpen ? 'z-50' : 'z-10'
                 } ${
                   isCurrentChapter 

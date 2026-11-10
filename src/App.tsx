@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { X, Search, Settings as SettingsIcon, ChevronLeft, Trash2, CheckCircle2, Power, Languages, Minimize2, ListX } from 'lucide-react';
+import { X, Search, Settings as SettingsIcon, ChevronLeft, Trash2, CheckCircle2, Power, Languages} from 'lucide-react';
 import { ArrowRight } from 'lucide-react';
 import { BsCheck2 } from 'react-icons/bs';
 import { AppLogo } from './components/AppLogo';
@@ -20,7 +20,6 @@ import { findActiveTranscriptIndex } from './audio/playbackTiming';
 import { storeAudioBlobChunked, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
 import { importStore, visibleImports } from './lib/importProgress';
 import { ImportCancelAllButton, ImportCancelAllConfirm, ImportList } from './components/library/ImportProgress';
-import { QueueList } from './components/player/PlayerPopupContents';
 import { sessionHistory } from './lib/sessionHistory';
 import { autoCropImageToSquare, autoCropImageToEbookCover } from './lib/imageProcessing';
 import Sidebar, { MobileBottomBar, tabBarStore } from './components/Sidebar';
@@ -303,8 +302,7 @@ export type MobileSheetState =
   | { kind: 'book-bookmarks'; bookId: string }
   | { kind: 'share-lyrics'; bookId: string }
   | { kind: 'collection-form-items'; mode: 'authors' | 'books' }
-  | { kind: 'import-progress' }
-  | { kind: 'queue' };
+  | { kind: 'import-progress' };
 
 export interface HomeSection {
   id: string;
@@ -3843,18 +3841,6 @@ export default function App() {
       cover: currentBook.cover,
     });
   }, [isPlaying, currentBook?.id, currentChapter?.id]);
-  const queueSheetNowRef = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    if (mobileSheet?.kind !== 'queue') return;
-    const align = () => {
-      const el = queueSheetNowRef.current;
-      const scroller = el?.closest('.overflow-y-auto') as HTMLElement | null;
-      if (el && scroller) scroller.scrollTop += el.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
-    };
-    align();
-    const r = requestAnimationFrame(align);
-    return () => cancelAnimationFrame(r);
-  }, [mobileSheet?.kind]);
 
   // Folha de audiobooks sendo adicionados: o App só redesenha quando muda o singular/plural ou a lista esvazia
   // (o progresso de cada um é lido pela própria lista)
@@ -3968,32 +3954,6 @@ export default function App() {
     }
     // Todas as marcações do audiobook, por capítulo; tocar numa abre as marcações daquele capítulo (onde se
     // edita e apaga)
-    if (mobileSheet.kind === 'queue') {
-      return {
-        title: t('queue'),
-        closeIcon: <Minimize2 size={18} />,
-        closeLabel: t('queue_collapse'),
-        headerAction: (
-          <button
-            type="button"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => setMobileConfirm({
-              title: t('queue_clear_confirm'),
-              description: t('queue_clear_desc'),
-              confirmLabel: t('clear_queue'),
-              onConfirm: () => { setPlaybackQueue([]); showToast(t('queue_cleared')); },
-            })}
-            disabled={playbackQueue.length === 0}
-            aria-label={t('clear_queue')}
-            title={t('clear_queue')}
-            className="mobile-press w-11 h-11 rounded-full flex items-center justify-center bg-card/75 shadow-xl backdrop-blur-3xl text-red-500 disabled:opacity-40"
-          >
-            <ListX size={18} />
-          </button>
-        ),
-        body: <div className="flex flex-col pt-1"><QueueList nowPlayingRef={queueSheetNowRef} /></div>,
-      };
-    }
     if (mobileSheet.kind === 'import-progress') {
       if (!importCount) return null;
       return {
@@ -7833,8 +7793,6 @@ export default function App() {
               open={Boolean(mobileSheet && content)}
               title={content?.title || ''}
               onClose={() => {
-                // Fila em tela cheia: diminuir volta para o pop-up da fila
-                if (mobileSheet?.kind === 'queue') setShowQueuePopup(true);
                 setMobileSheet(null);
               }}
               closeLabel={content?.closeLabel || t('back')}
