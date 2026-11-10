@@ -1,3 +1,4 @@
+import { LOGO_PATH, LOGO_W, LOGO_H } from '../components/AppLogo';
 // ===== Imagens para compartilhar (formato de story, 1080×1920) =====
 // Inspiradas no compartilhamento do Apple Music: fundo como o do player em tela cheia (cores da capa,
 // desfocadas), um destaque branco ou preto (conforme o tema do app) com a capa, o título e o autor, e
@@ -13,6 +14,8 @@ export interface StoryBook {
   author: string;
   cover: string;
   fallbackCover: string;
+  // Compartilhando um capítulo (ou um trecho dele): o nome do capítulo em destaque
+  chapter?: string;
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -154,9 +157,9 @@ function drawCard(ctx: CanvasRenderingContext2D, x: number, y: number, w: number
   ctx.restore();
 
   ctx.save();
-  roundRect(ctx, x + 1, y + 1, w - 2, h - 2, CARD_RADIUS - 1);
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)';
+  roundRect(ctx, x + 0.5, y + 0.5, w - 1, h - 1, CARD_RADIUS - 0.5);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.03)';
   ctx.stroke();
   ctx.restore();
 }
@@ -208,47 +211,34 @@ function clampLines(ctx: CanvasRenderingContext2D, lines: string[], max: number,
   return out;
 }
 
-// Ícone e nome do app, como no topo do menu lateral (ícone + "Audiobook" em negrito + "Player")
-// Ícone do app (o mesmo do menu lateral) e o símbolo do GitHub, desenhados com caminhos vetoriais
-const BOOK_HEADPHONES_PATHS = [
-  'M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20',
-  'M8 12v-2a4 4 0 0 1 8 0v2',
-];
+// Ícone do app e o símbolo do GitHub, desenhados com caminhos vetoriais
 const GITHUB_PATH = 'M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z';
 const GITHUB_USER = 'thenauan';
 
-function drawBookHeadphones(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(size / 24, size / 24);
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
-  ctx.lineWidth = 2;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  BOOK_HEADPHONES_PATHS.forEach(d => ctx.stroke(new Path2D(d)));
-  [[15, 12], [9, 12]].forEach(([cx, cy]) => { ctx.beginPath(); ctx.arc(cx, cy, 1, 0, Math.PI * 2); ctx.stroke(); });
-  ctx.restore();
-}
 
 async function drawAppBrand(ctx: CanvasRenderingContext2D, centerX: number, y: number, isDark: boolean) {
   const color = isDark ? '#ffffff' : '#141414';
-  const size = 56;
-  ctx.font = `700 46px ${FONT}`;
-  const wBold = ctx.measureText('Audiobook').width;
-  ctx.font = `400 46px ${FONT}`;
-  const wReg = ctx.measureText('Player').width;
-  const gap = 14;
-  let x = centerX - (size + gap + wBold + wReg) / 2;
-  drawBookHeadphones(ctx, x, y - size / 2, size, color);
-  x += size + gap;
+  // Como no app: ícone com 0,72 da altura da letra, colado no texto e com a base na linha das letras
+  const fontSize = 64;
+  const logoH = fontSize * 0.72;
+  const logoW = logoH * LOGO_W / LOGO_H;
+  const gap = fontSize * 0.05;
+  ctx.font = `400 ${fontSize}px ${FONT}`;
+  const wText = ctx.measureText('Player').width;
+  const baseline = y + logoH / 2;
+  let x = centerX - (logoW + gap + wText) / 2;
+  ctx.save();
+  ctx.translate(x, baseline - logoH);
+  ctx.scale(logoW / LOGO_W, logoH / LOGO_H);
   ctx.fillStyle = color;
-  ctx.textBaseline = 'middle';
+  ctx.fill(new Path2D(LOGO_PATH), 'evenodd');
+  ctx.restore();
+  x += logoW + gap;
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
-  ctx.font = `700 46px ${FONT}`;
-  ctx.fillText('Audiobook', x, y + 2);
-  ctx.font = `400 46px ${FONT}`;
-  ctx.fillText('Player', x + wBold, y + 2);
+  ctx.fillText('Player', x, baseline);
+  ctx.textBaseline = 'middle';
 
   // Bem pequeno, abaixo: "by [GitHub] thenauan"
   const small = 26;
@@ -298,9 +288,15 @@ export async function renderAudiobookStory(book: StoryBook, isDark: boolean): Pr
   const coverW = cardW - pad * 2;
   const coverH = Math.round(coverW * 1.6);
   ctx.font = `700 60px ${FONT}`;
-  const titleLines = clampLines(ctx, wrapLines(ctx, book.title, cardW - pad * 2), 2, cardW - pad * 2);
+  // Capítulo: o nome dele grande; abaixo, menor, o audiobook e o autor
+  const mainText = book.chapter || book.title;
+  const titleLines = clampLines(ctx, wrapLines(ctx, mainText, cardW - pad * 2), 2, cardW - pad * 2);
   const titleH = titleLines.length * 72;
-  const cardH = pad + coverH + 52 + titleH + 14 + 50 + pad;
+  const subText = book.chapter ? `${book.title} · ${book.author}` : book.author;
+  ctx.font = `500 ${book.chapter ? 38 : 42}px ${FONT}`;
+  const subLines = clampLines(ctx, wrapLines(ctx, subText, cardW - pad * 2), book.chapter ? 2 : 1, cardW - pad * 2);
+  const subLineH = book.chapter ? 48 : 50;
+  const cardH = pad + coverH + 52 + titleH + 14 + subLines.length * subLineH + pad;
   const brandH = 170;
   const cardX = (W - cardW) / 2;
   const cardY = Math.round((H - cardH - brandH) / 2);
@@ -315,8 +311,9 @@ export async function renderAudiobookStory(book: StoryBook, isDark: boolean): Pr
   let ty = cardY + pad + coverH + 52;
   titleLines.forEach(line => { ctx.fillText(line, W / 2, ty); ty += 72; });
   ctx.fillStyle = isDark ? 'rgba(255,255,255,0.62)' : 'rgba(17,17,17,0.58)';
-  ctx.font = `500 42px ${FONT}`;
-  ctx.fillText(clampLines(ctx, [book.author], 1, cardW - pad * 2)[0], W / 2, ty + 14);
+  ctx.font = `500 ${book.chapter ? 38 : 42}px ${FONT}`;
+  ty += 14;
+  subLines.forEach(line => { ctx.fillText(line, W / 2, ty); ty += subLineH; });
 
   await drawAppBrand(ctx, W / 2, cardY + cardH + 84, isDark);
   return toBlob(canvas);
@@ -369,10 +366,10 @@ export async function renderQuoteStory(book: StoryBook, lines: string[], isDark:
   ctx.textBaseline = 'middle';
   ctx.fillStyle = isDark ? 'rgba(255,255,255,0.88)' : 'rgba(17,17,17,0.85)';
   ctx.font = `700 34px ${FONT}`;
-  ctx.fillText(clampLines(ctx, [book.title], 1, infoW)[0], cardX + pad, footY + footerH / 2 - 22);
+  ctx.fillText(clampLines(ctx, [book.chapter || book.title], 1, infoW)[0], cardX + pad, footY + footerH / 2 - 22);
   ctx.fillStyle = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(17,17,17,0.55)';
   ctx.font = `500 30px ${FONT}`;
-  ctx.fillText(clampLines(ctx, [book.author], 1, infoW)[0], cardX + pad, footY + footerH / 2 + 22);
+  ctx.fillText(clampLines(ctx, [book.chapter ? `${book.title} · ${book.author}` : book.author], 1, infoW)[0], cardX + pad, footY + footerH / 2 + 22);
 
   await drawAppBrand(ctx, W / 2, cardY + cardH + 84, isDark);
   return toBlob(canvas);

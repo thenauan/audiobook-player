@@ -189,6 +189,8 @@ export function SleepTimerContent({ variant }: { variant: PopupVariant }) {
 // Expandir a fila (celular): o próprio cartão cresce até a tela cheia e, ao diminuir, encolhe de volta ao
 // tamanho que tinha (é o mesmo pop-up se transformando, não um fechando e outro abrindo)
 const QUEUE_MORPH = 'var(--dur-sheet) var(--spring-sheet)';
+// A fila está mudando de tamanho (as linhas não animam de posição enquanto isso)
+const QueueMorphContext = React.createContext(false);
 const QUEUE_MORPH_MS = 600;
 const MORPH_PROPS = ['transition', 'height', 'maxHeight', 'left', 'right', 'bottom', 'borderRadius', 'clipPath', 'webkitClipPath'];
 export function QueueContent({ variant }: { variant: PopupVariant }) {
@@ -247,7 +249,7 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
       MORPH_PROPS.forEach(k => { (c.style as any)[k] = o[k] || ''; });
       wrappers(c).forEach(w => { if (w) { w.style.flex = ''; w.style.minHeight = ''; } });
       setExpanded(false);
-      timer.current = setTimeout(() => setMorphing(false), 120);
+      timer.current = setTimeout(() => setMorphing(false), 400);
     }, QUEUE_MORPH_MS);
   };
   const clearQueue = () => setMobileConfirm({
@@ -322,7 +324,9 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
         ref={variant === 'fs' ? fsQueueScrollRef : miniQueueScrollRef}
         className="flex-1 min-h-0 relative overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col px-1.5 mt-1"
       >
-        <QueueList nowPlayingRef={variant === 'fs' ? fsNowPlayingRef : miniNowPlayingRef} onHintChange={setHint} />
+        <QueueMorphContext.Provider value={morphing}>
+          <QueueList nowPlayingRef={variant === 'fs' ? fsNowPlayingRef : miniNowPlayingRef} onHintChange={setHint} />
+        </QueueMorphContext.Provider>
       </div>
     </div>
     </>
@@ -353,6 +357,7 @@ function ChapterBadges({ bookId, chapterId }: { bookId?: string; chapterId?: num
 // o que está tocando e os próximos
 export function QueueList({ nowPlayingRef, onHintChange }: { nowPlayingRef?: React.Ref<HTMLDivElement>; onHintChange?: (visible: boolean) => void }) {
   const { beginBookSwitch, booksRef, chapterElapsed, currentBook, currentBookHighlight, currentChapter, formatTime, getChapterResumeElapsed, handleBookCoverError, handlePlayBookFromStart, isChapterCompleted, isChapterStarted, handleSeek, isMobile, isPlaying, isTouchDevice, navigateTo, pendingChapterScrollRef, playbackQueue, setCurrentBook, setIsFullScreen, setIsPlaying, setPlaybackQueue, setSelectedBook, setShouldScrollToCurrentChapter, setShowQueuePopup, t, targetScrollChapterIdRef } = useAppScope();
+  const morphing = React.useContext(QueueMorphContext);
   const currentKey = `${currentBook?.id}-${currentChapter?.id}`;
   const history = useSessionHistory().filter(h => h.key !== currentKey);
   // Espaço no fim para o que está tocando sempre poder ficar no topo (os anteriores só aparecem rolando para cima)
@@ -376,10 +381,32 @@ export function QueueList({ nowPlayingRef, onHintChange }: { nowPlayingRef?: Rea
     const tail = tailRef.current;
     const scroller = tail?.closest('.overflow-y-auto') as HTMLElement | null;
     if (!tail || !scroller || !history.length) { hintCb.current?.(false); return; }
-    const onScroll = () => hintCb.current?.(tail.getBoundingClientRect().top - scroller.getBoundingClientRect().top <= 12);
+    // Rolando para qualquer lado: depois de 4 s sem mexer (rolar ou tocar), a lista volta sozinha e alinha o que
+    // está tocando no topo
+    let back: ReturnType<typeof setTimeout> | null = null;
+    const offset = () => tail.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+    const schedule = () => {
+      if (back) clearTimeout(back);
+      back = null;
+      if (Math.abs(offset()) <= 4) return;
+      back = setTimeout(() => {
+        back = null;
+        const d = offset();
+        if (Math.abs(d) > 4) scroller.scrollTo({ top: scroller.scrollTop + d, behavior: 'smooth' });
+      }, 4000);
+    };
+    const onScroll = () => {
+      hintCb.current?.(offset() <= 12);
+      schedule();
+    };
     onScroll();
     scroller.addEventListener('scroll', onScroll, { passive: true });
-    return () => scroller.removeEventListener('scroll', onScroll);
+    scroller.addEventListener('pointerdown', schedule, { passive: true });
+    return () => {
+      if (back) clearTimeout(back);
+      scroller.removeEventListener('scroll', onScroll);
+      scroller.removeEventListener('pointerdown', schedule);
+    };
   }, [history.length]);
   const playPrevious = (bookId: string, chapterId: number) => {
     const book = booksRef.current.find(b => b.id === bookId);
@@ -514,6 +541,7 @@ export function QueueList({ nowPlayingRef, onHintChange }: { nowPlayingRef?: Rea
                 }}
                 t={t}
                 badges={<ChapterBadges bookId={item.bookId || item.book?.id} chapterId={item.chapterId} />}
+                layoutFrozen={morphing}
               />
             ))}
           </AnimatePresence>

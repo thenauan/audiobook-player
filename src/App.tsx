@@ -300,7 +300,7 @@ export type MobileSheetState =
   | { kind: 'collection-add-items'; collectionId: string }
   | { kind: 'bookmarks'; bookId: string; chapterId: any }
   | { kind: 'book-bookmarks'; bookId: string }
-  | { kind: 'share-lyrics'; bookId: string }
+  | { kind: 'share-lyrics'; bookId: string; chapterId?: number }
   | { kind: 'collection-form-items'; mode: 'authors' | 'books' }
   | { kind: 'import-progress' };
 
@@ -3770,7 +3770,7 @@ export default function App() {
   }, [showShareBookMenu]);
   const MAX_SHARE_LINES = 5;
   const transcriptLineText = (line: TranscriptLine) => (line.words && line.words.length > 0 ? line.words.map(w => w.text).join(' ') : line.text);
-  const openShareImage = async (kind: 'book' | 'quote', book: Audiobook, lines: string[] = []) => {
+  const openShareImage = async (kind: 'book' | 'quote' | 'chapter', book: Audiobook, lines: string[] = [], chapterTitle?: string) => {
     if (isGeneratingShare) return;
     closeAllPopups();
     setIsGeneratingShare(true);
@@ -3781,9 +3781,10 @@ export default function App() {
         author: book.author,
         cover: book.cover || getGenericBookCover(book.title, book.author),
         fallbackCover: getGenericBookCover(book.title, book.author),
+        chapter: chapterTitle,
       };
       const isDark = resolvedTheme === 'dark';
-      const blob = kind === 'book'
+      const blob = kind === 'book' || kind === 'chapter'
         ? await renderAudiobookStory(storyBook, isDark)
         : await renderQuoteStory(storyBook, lines, isDark);
       shareBlobRef.current = blob;
@@ -3794,8 +3795,8 @@ export default function App() {
         if (prev) URL.revokeObjectURL(prev.url);
         return {
           url: URL.createObjectURL(blob),
-          fileName: `${safeName}${kind === 'quote' ? '-trecho' : ''}.png`,
-          title: kind === 'book' ? `${book.title} — ${book.author}` : book.title,
+          fileName: `${safeName}${kind === 'quote' ? '-trecho' : kind === 'chapter' ? '-capitulo' : ''}.png`,
+          title: kind === 'book' ? `${book.title} — ${book.author}` : kind === 'chapter' && chapterTitle ? `${chapterTitle} — ${book.title}` : book.title,
         };
       });
     } catch (err) {
@@ -3831,10 +3832,10 @@ export default function App() {
     showToast(t('toast_bookmark_saved') || t('toast_comment_saved'));
   };
 
-  const openShareLyrics = (book: Audiobook, preselect: number[] = []) => {
+  const openShareLyrics = (book: Audiobook, preselect: number[] = [], chapterId?: number) => {
     setLyricsSelection(preselect.slice(0, MAX_SHARE_LINES));
     setLyricsSearch('');
-    openMobileSheet({ kind: 'share-lyrics', bookId: book.id });
+    openMobileSheet({ kind: 'share-lyrics', bookId: book.id, chapterId });
   };
 
   const openMobileSheet = (sheet: MobileSheetState) => {
@@ -4029,6 +4030,9 @@ export default function App() {
       const bk = books.find(b => b.id === mobileSheet.bookId);
       if (!bk) return null;
       const transcript = bk.transcript || [];
+      // Trecho de um capítulo: só as frases que estão nele
+      const shareChapter = mobileSheet.chapterId !== undefined ? (bk.chapters || []).find(c => c.id === mobileSheet.chapterId) : undefined;
+      const inShareChapter = (line: TranscriptLine) => !shareChapter || (line.start >= shareChapter.startTime && line.start < shareChapter.startTime + (shareChapter.duration || 0));
       const toggle = (idx: number) => {
         setLyricsSelection(prev => {
           if (prev.includes(idx)) return prev.filter(i => i !== idx);
@@ -4050,6 +4054,7 @@ export default function App() {
             <div className={SCREEN_GROUP_CLASS}>
               {transcript.map((line, idx) => {
                 const query = normalizeSearchStr(lyricsSearch.trim());
+                if (!inShareChapter(line)) return null;
                 if (query && !normalizeSearchStr(transcriptLineText(line)).includes(query)) return null;
                 const selected = lyricsSelection.includes(idx);
                 return (
@@ -4078,7 +4083,7 @@ export default function App() {
             <motion.button
               data-press="true"
               disabled={lyricsSelection.length === 0 || isGeneratingShare}
-              onClick={() => openShareImage('quote', bk, lyricsSelection.map(i => transcriptLineText(transcript[i])))}
+              onClick={() => openShareImage('quote', bk, lyricsSelection.map(i => transcriptLineText(transcript[i])), shareChapter?.title)}
               className="h-12 px-7 rounded-full bg-winblue/20 text-winblue shadow-sm text-[15px] font-bold flex items-center justify-center gap-2 disabled:opacity-40"
             >
               {isGeneratingShare ? <div className="w-4 h-4 rounded-full border-2 border-winblue border-t-transparent animate-spin" /> : <Share size={17} />}
@@ -7717,7 +7722,9 @@ export default function App() {
                 dragSnapToOrigin
                 onDragEnd={(_, info) => { if (info.offset.y > 110 || info.velocity.y > 600) closeSharePreview(); }}
                 transition={FADE_IN}
-                className="fixed inset-0 z-[9600] bg-black/85 backdrop-blur-2xl flex flex-col items-center"
+                // O fundo desfocado fica numa camada própria: com o desfoque no próprio contêiner, os botões (que também
+                // desfocam) só "viam" o fundo preto e sumiam nele no iPhone
+                className="fixed inset-0 z-[9600] flex flex-col items-center isolate"
                 style={{
                   paddingTop: 'max(16px, var(--safe-top))',
                   paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
@@ -7725,14 +7732,18 @@ export default function App() {
                   paddingRight: 'max(16px, var(--safe-right))',
                 }}
               >
+                <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/70 backdrop-blur-2xl pointer-events-none" />
                 <div className="w-full flex items-center shrink-0 h-11">
+                  {/* Mesmo desenho do botão de voltar do cabeçalho (pílula com ícone e texto), com X e "Cancelar" */}
                   <motion.button
                     data-press="true"
                     onClick={closeSharePreview}
-                    aria-label={t('back')}
-                    className="w-11 h-11 rounded-full flex items-center justify-center bg-white/10 text-white backdrop-blur-3xl"
+                    aria-label={t('cancel')}
+                    data-ui-outline="true"
+                    className="h-11 pl-3.5 pr-4 rounded-full flex items-center justify-center gap-1.5 bg-card/75 shadow-xl backdrop-blur-3xl text-[var(--text-main)] text-[15px] font-medium"
                   >
-                    <ChevronLeft size={20} className="rtl:rotate-180" />
+                    <X size={18} className="shrink-0" />
+                    <span>{t('cancel')}</span>
                   </motion.button>
                 </div>
                 <div className="flex-1 min-h-0 w-full flex items-center justify-center py-4">
@@ -7749,7 +7760,8 @@ export default function App() {
                   <motion.button
                     data-press="true"
                     onClick={() => { if (shareBlobRef.current) downloadShareBlob(shareBlobRef.current, sharePreview.fileName); }}
-                    className="h-10 px-4 rounded-full bg-white/10 text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap backdrop-blur-3xl"
+                    data-ui-outline="true"
+                    className="h-11 px-5 rounded-full bg-card/75 shadow-xl backdrop-blur-3xl text-[var(--text-main)] text-[15px] font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap"
                   >
                     <Download size={15} />
                     <span>{t('save_image')}</span>
@@ -7761,7 +7773,8 @@ export default function App() {
                       const result = await shareStoryBlob(shareBlobRef.current, sharePreview.fileName, sharePreview.title);
                       if (result === 'downloaded') showToast(t('image_saved'));
                     }}
-                    className="h-10 px-5 rounded-full bg-winblue/25 text-winblue text-[13px] font-bold flex items-center justify-center gap-1.5 whitespace-nowrap"
+                    data-ui-outline="true"
+                    className="h-11 px-5 rounded-full bg-winblue/20 shadow-xl backdrop-blur-3xl text-winblue text-[15px] font-bold flex items-center justify-center gap-1.5 whitespace-nowrap"
                   >
                     <Share size={15} />
                     <span>{t('share')}</span>

@@ -22,6 +22,8 @@ export interface QueueItemRowProps {
   t: (key: string) => string;
   // Ícones do capítulo (favorito, marcação), antes da duração
   badges?: React.ReactNode;
+  // O pop-up está mudando de tamanho: a linha vai direto para o novo lugar (sem animar por cima das outras)
+  layoutFrozen?: boolean;
 }
 
 export function QueueItemRow({
@@ -32,6 +34,7 @@ export function QueueItemRow({
   onViewBook,
   t,
   badges,
+  layoutFrozen = false,
 }: QueueItemRowProps) {
   const dragControls = useDragControls();
   const [isDragging, setIsDragging] = useState(false);
@@ -143,7 +146,7 @@ export function QueueItemRow({
         height: SPRING.snappy,
         opacity: FADE_OUT,
         scale: SPRING.snappy,
-        layout: SPRING.snappy,
+        layout: layoutFrozen ? { duration: 0 } : SPRING.snappy,
       }}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => {
