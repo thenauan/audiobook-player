@@ -806,6 +806,28 @@ export default function App() {
     }
   }, [voiceBoostEnabled, dynamicCompressionEnabled]);
 
+  // iPhone/iPad: o processamento de som só sai do "suspenso" quando é ligado ou retomado DENTRO de um toque.
+  // Antes isso era feito depois do toque (no efeito que dá play): o arquivo tocava, o tempo e a letra andavam,
+  // mas não saía som. Agora todo toque cria (se o volume do app pede) ou retoma o processamento na hora.
+  useEffect(() => {
+    if (!IS_APPLE_TOUCH) return;
+    const unlock = () => {
+      if (!audioContextRef.current && volumeRef.current < 1 && audioRef.current) setupWebAudioGraph(true);
+      const ctx = audioContextRef.current;
+      if (ctx && ctx.state !== 'running') {
+        diag('som-retomado-no-toque', { estado: ctx.state });
+        ctx.resume().catch(() => {});
+      }
+    };
+    const opts = { capture: true, passive: true } as AddEventListenerOptions;
+    document.addEventListener('touchend', unlock, opts);
+    document.addEventListener('click', unlock, opts);
+    return () => {
+      document.removeEventListener('touchend', unlock, opts);
+      document.removeEventListener('click', unlock, opts);
+    };
+  }, [setupWebAudioGraph]);
+
   useEffect(() => {
     try {
       localStorage.setItem('app_voice_boost', String(voiceBoostEnabled));

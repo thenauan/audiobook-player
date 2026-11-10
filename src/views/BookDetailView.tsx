@@ -1139,8 +1139,10 @@ export default function BookDetailView({
                     <motion.button
                       key="btn"
                       data-press="true"
+                      // Ao abrir, some na hora: o pop-up nasce dele e o cobre (sumindo aos poucos, ele aparecia
+                      // piscando através do pop-up translúcido, principalmente no capítulo tocando, que é colorido)
                       animate={activeChapterMenuId === `${activeBook.id}-${cap.id}` 
-                        ? morphTriggerAnimate(true) 
+                        ? { ...morphTriggerAnimate(true), transition: { opacity: { duration: 0 }, scale: { duration: 0 } } }
                         : morphTriggerAnimate(false)
                       }
                       onClick={(e) => {
@@ -1151,7 +1153,7 @@ export default function BookDetailView({
                         setActiveChapterMenuId(`${activeBook.id}-${cap.id}`);
                         setActiveChapterMenuMode('options');
                       }}
-                      className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${
+                      className={`w-8 h-8 flex items-center justify-center rounded-full transition-[background-color,color] ${
                         isCurrentChapter
                           ? 'bg-winblue/20 text-winblue hover:bg-winblue/30 '
                           : 'bg-card/75 backdrop-blur-3xl text-[var(--text-main)] hover:bg-[var(--hover-fill)] '

@@ -6,7 +6,7 @@ import { Audiobook, TranscriptLine } from '../data/catalog';
 import { visibleChapters } from '../audio/chapterPrefs';
 import { diag } from '../audio/playbackDiag';
 import { parseSynchronizedTextFile } from '../audio/transcripts';
-import { IS_APPLE_TOUCH } from '../lib/desktopBridge';
+import { IS_APPLE_TOUCH, desktop } from '../lib/desktopBridge';
 import { isTestBookId } from '../data/libraryData';
 import { QueueItem, VOLUME_KEY } from '../App';
 import type { PlaybackReturnPoint, ScreenState } from '../App';
@@ -773,11 +773,21 @@ export function usePlaybackEngine({ accrueListeningSeconds, activeScreen, applyB
     }
   };
 
+  // Livros cujo áudio já foi procurado de novo sem sucesso (não fica procurando sem parar)
+  const missingAudioRetryRef = useRef<Set<string>>(new Set());
   // Fallback demo timer: roda apenas quando o audiobook NÃO possui áudio real carregado nem no IndexedDB
   useEffect(() => {
     if (!isPlaying || currentAudioSrc || isAudioLoading || (currentBook && storedAudioBlobKeysRef.current.has(currentBook.id))) return;
-    // Audiobook de verdade sem o arquivo (apagado pelo sistema ou que não coube): avisa em vez de fingir que toca
-    if (currentBook && !isTestBookId(currentBook.id) && !currentBook.filePath) {
+    // Audiobook de verdade sem o arquivo carregado: nunca finge que toca (o tempo e a letra andavam sem som).
+    // No site e no app do celular o "caminho do arquivo" é só um nome; o áudio fica guardado no aparelho:
+    // procura de novo uma vez e, se não houver, avisa e pausa
+    if (currentBook && !isTestBookId(currentBook.id) && (!currentBook.filePath || !desktop)) {
+      if (!missingAudioRetryRef.current.has(currentBook.id)) {
+        missingAudioRetryRef.current.add(currentBook.id);
+        diag('procura-audio', { livro: currentBook.id });
+        loadAudioForBook(currentBook.id, true);
+        return;
+      }
       const timer = setTimeout(() => {
         diag('sem-audio', { livro: currentBook.id });
         setIsPlaying(false);

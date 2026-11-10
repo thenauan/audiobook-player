@@ -190,7 +190,7 @@ export function SleepTimerContent({ variant }: { variant: PopupVariant }) {
 // tamanho que tinha (é o mesmo pop-up se transformando, não um fechando e outro abrindo)
 const QUEUE_MORPH = 'var(--dur-sheet) var(--spring-sheet)';
 const QUEUE_MORPH_MS = 600;
-const MORPH_PROPS = ['transition', 'height', 'maxHeight', 'left', 'right', 'bottom', 'borderRadius'];
+const MORPH_PROPS = ['transition', 'height', 'maxHeight', 'left', 'right', 'bottom', 'borderRadius', 'clipPath', 'webkitClipPath'];
 export function QueueContent({ variant }: { variant: PopupVariant }) {
   const { fsNowPlayingRef, fsQueueScrollRef, isMobile, miniNowPlayingRef, miniQueueScrollRef, playbackQueue, setMobileConfirm, setPlaybackQueue, showToast, t } = useAppScope();
   const rootRef = React.useRef<HTMLDivElement>(null);
@@ -224,6 +224,9 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
     c.style.bottom = '0px';
     c.style.height = 'calc(var(--screen-h, 100dvh) - var(--safe-top) - 12px)';
     c.style.borderRadius = '38px 38px 0 0';
+    // O recorte da animação de abrir arredonda os quatro cantos: em tela cheia a base fica reta, junto à borda da tela
+    c.style.clipPath = 'none';
+    (c.style as any).webkitClipPath = 'none';
     wrappers(c).forEach(w => { if (w) { w.style.flex = '1 1 auto'; w.style.minHeight = '0'; } });
   };
   const collapse = () => {
@@ -236,6 +239,8 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
     c.style.bottom = o.bottom || 'var(--mobile-bar-bottom)';
     c.style.height = `${savedHeight.current}px`;
     c.style.borderRadius = o.borderRadius || 'var(--bottom-card-radius)';
+    c.style.clipPath = o.clipPath || '';
+    (c.style as any).webkitClipPath = o.webkitClipPath || '';
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       // Volta ao conteúdo do pop-up com a mesma altura que ele já tem na tela
