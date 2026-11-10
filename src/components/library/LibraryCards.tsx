@@ -531,8 +531,8 @@ export function CollectionItemsPickerContent({
           if (item.kind === 'author') {
             const isAdded = selectedAuthorIds.includes(item.id);
             return (
+              <motion.div key={`author-${item.id}`} layout="position" transition={{ layout: SPRING.snappy }}>
               <PopupSelectableRow
-                key={`author-${item.id}`}
                 selected={isAdded}
                 onClick={() => onToggleAuthor(item.id)}
                 rowTitle={isAdded ? t('remove') : t('add')}
@@ -547,13 +547,14 @@ export function CollectionItemsPickerContent({
                 subtitle={mode === 'all' ? t('author_label') : undefined}
                 unselectedTrailing={<Plus size={13} />}
               />
+              </motion.div>
             );
           }
           const book = item.book;
           const isAdded = selectedBookIds.includes(book.id);
           return (
+            <motion.div key={`book-${book.id}`} layout="position" transition={{ layout: SPRING.snappy }}>
             <PopupSelectableRow
-              key={`book-${book.id}`}
               selected={isAdded}
               onClick={() => onToggleBook(book.id)}
               rowTitle={isAdded ? t('remove') : t('add')}
@@ -572,6 +573,7 @@ export function CollectionItemsPickerContent({
               subtitle={book.author}
               unselectedTrailing={<Plus size={13} />}
             />
+            </motion.div>
           );
         })}
 
@@ -616,10 +618,15 @@ export function CollectionPickerPopupContent({
     </MenuOptionItem>
   ) : null;
 
+  // Coleções em que o item está primeiro e depois as demais (cada parte na ordem das coleções): ao marcar, a coleção
+  // sobe para junto das marcadas; ao desmarcar, volta para baixo delas
+  const inCol = (col: Collection) => (itemType === 'book' ? col.bookIds.includes(itemId) : (col.authorIds || []).includes(itemId));
+  const ordered = [...collections.filter(inCol), ...collections.filter(col => !inCol(col))];
+
   // Celular: sem botão de voltar; a lista mostra até 4 coleções por vez e "Mais opções" no fim
   // (passa para as seguintes e, na última página, volta para as opções do item)
   if (compact) {
-    const rows = collections.map((col) => {
+    const rows = ordered.map((col) => {
       const isInCol = itemType === 'book'
         ? col.bookIds.includes(itemId)
         : (col.authorIds || []).includes(itemId);
@@ -689,13 +696,13 @@ export function CollectionPickerPopupContent({
             {t('no_collections_yet')}
           </div>
         ) : (
-          collections.map((col) => {
+          ordered.map((col) => {
             const isInCol = itemType === 'book'
               ? col.bookIds.includes(itemId)
               : (col.authorIds || []).includes(itemId);
             return (
+              <motion.div key={col.id} layout="position" transition={{ layout: SPRING.snappy }}>
               <PopupSelectableRow
-                key={col.id}
                 selected={isInCol}
                 onClick={() => onToggleItem(col.id, itemType, itemId)}
                 rowTitle={isInCol ? t('remove_from_collection') : t('add_to_collection')}
@@ -708,6 +715,7 @@ export function CollectionPickerPopupContent({
                 subtitle={col.description || undefined}
                 unselectedTrailing={<Plus size={13} />}
               />
+              </motion.div>
             );
           })
         )}

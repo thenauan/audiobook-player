@@ -3918,18 +3918,15 @@ export default function App() {
               <div className={SCREEN_GROUP_CLASS}>
                 {(() => {
                   const isInCol = (col: Collection) => itemType === 'book' ? col.bookIds.includes(itemId) : (col.authorIds || []).includes(itemId);
-                  // Coleções em que o item já está aparecem primeiro (ordem fixa enquanto a folha está aberta)
-                  const order = sheetOrderRef.current;
-                  return [...collections].sort((a, b) => {
-                    const ka = order.has(a.id) ? order.get(a.id)! : (isInCol(a) ? 0 : 1);
-                    const kb = order.has(b.id) ? order.get(b.id)! : (isInCol(b) ? 0 : 1);
-                    return ka - kb;
-                  });
+                  // Marcadas primeiro e depois as demais, cada parte na ordem das coleções: ao marcar, a coleção sobe
+                  // para junto das marcadas; ao desmarcar, volta para baixo delas (deslizando)
+                  const list = sortedCollections.length === collections.length ? sortedCollections : collections;
+                  return [...list.filter(isInCol), ...list.filter(col => !isInCol(col))];
                 })().map(col => {
                   const isIn = itemType === 'book' ? col.bookIds.includes(itemId) : (col.authorIds || []).includes(itemId);
                   return (
+                    <motion.div key={col.id} layout="position" transition={{ layout: SPRING.snappy }}>
                     <ScreenSelectableRow
-                      key={col.id}
                       selected={isIn}
                       onClick={() => handleToggleItemInCollection(col.id, itemType, itemId)}
                       leading={
@@ -3940,6 +3937,7 @@ export default function App() {
                       title={col.name}
                       subtitle={col.description || undefined}
                     />
+                    </motion.div>
                   );
                 })}
               </div>

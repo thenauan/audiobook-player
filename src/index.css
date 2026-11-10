@@ -2374,6 +2374,11 @@ html.dark [data-player-sheet][data-queue-expanded] {
   user-select: text;
 }
 
+/* Pesquisa dentro de pop-ups e folhas de tela cheia, parada: o cinza do destaque da barra de abas (o fundo de antes
+   ficava quase da cor da folha e a barra sumia) */
+:is([data-mobile-sheet], [data-popup-content], [data-player-sheet]) [data-popup-search] {
+  background-color: var(--ios-fill) !important;
+}
 /* Pesquisa dentro de pop-ups e folhas de tela cheia: ao digitar, o destaque aparece como na pesquisa do app (sobre a
    folha quase opaca, o fundo de 15% sumia e a sombra é tirada dentro dos pop-ups) */
 :is([data-mobile-sheet], [data-popup-content], [data-player-sheet]) [data-popup-search]:focus-within {
