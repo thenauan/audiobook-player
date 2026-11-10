@@ -11,7 +11,7 @@ import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar } from '
 import { MenuOptionItem, PagedMenu, useCompactPopups, PopupMorphContainer, checkChapterMenuShouldOpenUp, checkIsLeftEdgeCard, MorphPopup, morphTriggerAnimate, emitZoomOrigin } from '../popups/Popovers';
 import { getNationalityDisplayName } from '../../i18n/nationalityTranslations';
 import { useI18n } from '../../i18n/translations';
-import { Play, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star, StarOff, FolderPlus, FolderMinus, Plus, Bookmark } from 'lucide-react';
+import { Play, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star, StarOff, FolderPlus, FolderMinus, Plus, Bookmark, Share, Quote } from 'lucide-react';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from '../popups/popupUtils';
 import { MobileConfirmCard } from '../popups/MobileConfirm';
 import { MobileContextMenu, useLongPress, isMobileViewport, useIsMobile } from '../popups/MobileContextMenu';
@@ -208,15 +208,6 @@ export function _FavoriteChapterCard({
                     </>
                   )}
                   <MenuOptionItem 
-                    icon={<BookOpen size={14} />} 
-                    onClick={() => { 
-                      onSelectBook(); 
-                      handleClose(); 
-                    }} 
-                  >
-                    <span>{t('view_audiobook')}</span>
-                  </MenuOptionItem>
-                  <MenuOptionItem 
                     icon={<StarOff size={14} />} 
                     onClick={() => { 
                       onToggleFavorite(); 
@@ -224,6 +215,15 @@ export function _FavoriteChapterCard({
                     }} 
                   >
                     <span>{t('remove_from_favorites')}</span>
+                  </MenuOptionItem>
+                  <MenuOptionItem 
+                    icon={<BookOpen size={14} />} 
+                    onClick={() => { 
+                      onSelectBook(); 
+                      handleClose(); 
+                    }} 
+                  >
+                    <span>{t('view_audiobook')}</span>
                   </MenuOptionItem>
                 </motion.div>
               </MorphPopup>
@@ -803,15 +803,6 @@ export function AuthorCard({
 
                   {menuMode === 'options' ? (
                     <PagedMenu className="flex flex-col p-1.5 text-left rtl:text-right">
-                      <MenuOptionItem 
-                        icon={<User size={14} />} 
-                        onClick={() => { 
-                          onSelect(); 
-                          handleClose(); 
-                        }} 
-                      >
-                        <span>{t('view_author')}</span>
-                      </MenuOptionItem>
 
                       {/* Dentro de uma coleção: remover da coleção atual; fora dela: adicionar à coleção */}
                       {currentCollectionId ? (
@@ -846,6 +837,15 @@ export function AuthorCard({
                           <span>{isFavorite ? t('remove_favorite_author') : t('favorite_author')}</span>
                         </MenuOptionItem>
                       )}
+                      <MenuOptionItem 
+                        icon={<User size={14} />} 
+                        onClick={() => { 
+                          onSelect(); 
+                          handleClose(); 
+                        }} 
+                      >
+                        <span>{t('view_author')}</span>
+                      </MenuOptionItem>
                     </PagedMenu>
                   ) : (
                     <CollectionPickerPopupContent
@@ -1489,6 +1489,8 @@ export function BookCard({
 
                 {menuMode === 'options' && (
                   <PagedMenu className="flex flex-col p-2 text-left rtl:text-right">
+                    {/* Ordem das opções (igual em todo o app): tocar, a seguir e final da fila; concluído; marcações;
+                        coleção; favoritar; compartilhar; trecho; ir para o audiobook e o autor; detalhes; editar; excluir */}
                     <MenuOptionItem variant="play" icon={<Play size={14} />} onClick={() => { onPlay(); handleClose(); }}>
                       <span>{t('listen')}</span>
                     </MenuOptionItem>
@@ -1498,6 +1500,24 @@ export function BookCard({
                     <MenuOptionItem icon={<ListPlus size={14} />} onClick={() => { onAddToQueue('last'); handleClose(); }}>
                       <span>{t('add_to_queue_end')}</span>
                     </MenuOptionItem>
+
+                    {/* Marcar como concluido / nao ouvido */}
+                    <MenuOptionItem 
+                      icon={isCompleted ? <Headphones size={14} /> : <CheckCircle2 size={14} />} 
+                      onClick={() => { 
+                        onToggleCompleted?.(); 
+                        handleClose(); 
+                      }}
+                    >
+                      <span>{isCompleted ? t('mark_as_unstarted') : t('mark_as_completed')}</span>
+                    </MenuOptionItem>
+
+                    {/* Marcações de todo o audiobook (quando houver) */}
+                    {(book.chapters || []).some((c: any) => (c.bookmarks || c.comments || []).length > 0) && (
+                      <MenuOptionItem icon={<Bookmark size={14} />} onClick={() => { handleClose(); window.dispatchEvent(new CustomEvent('open-book-bookmarks', { detail: book.id })); }}>
+                        <span>{t('all_bookmarks')}</span>
+                      </MenuOptionItem>
+                    )}
 
                     {/* Dentro de uma coleção: remover da coleção atual; fora dela: adicionar à coleção */}
                     {currentCollectionId ? (
@@ -1528,16 +1548,15 @@ export function BookCard({
                       <span>{isFavorite ? t('remove_from_favorites') : t('favorite')}</span>
                     </MenuOptionItem>
 
-                    {/* Marcar como concluido / nao ouvido */}
-                    <MenuOptionItem 
-                      icon={isCompleted ? <Headphones size={14} /> : <CheckCircle2 size={14} />} 
-                      onClick={() => { 
-                        onToggleCompleted?.(); 
-                        handleClose(); 
-                      }}
-                    >
-                      <span>{isCompleted ? t('mark_as_unstarted') : t('mark_as_completed')}</span>
+                    {/* Compartilhar (imagem) e trecho do texto (só com texto sincronizado) */}
+                    <MenuOptionItem icon={<Share size={14} />} onClick={() => { handleClose(); window.dispatchEvent(new CustomEvent('share-book-image', { detail: { bookId: book.id } })); }}>
+                      <span>{t('share_audiobook')}</span>
                     </MenuOptionItem>
+                    {(book.transcript || []).length > 0 && (
+                      <MenuOptionItem icon={<Quote size={14} />} onClick={() => { handleClose(); window.dispatchEvent(new CustomEvent('share-book-lyrics', { detail: { bookId: book.id } })); }}>
+                        <span>{t('share_excerpt')}</span>
+                      </MenuOptionItem>
+                    )}
 
                     {/* Ir para audiobook */}
                     <MenuOptionItem icon={<BookOpen size={14} />} onClick={() => { onSelect(); handleClose(); }}>
@@ -1548,13 +1567,6 @@ export function BookCard({
                     <MenuOptionItem icon={<User size={14} />} onClick={() => { if (onSelectAuthor) onSelectAuthor(book.authorId, book.author); else onSelect(); handleClose(); }}>
                       <span>{t('go_to_author')}</span>
                     </MenuOptionItem>
-
-                    {/* Marcações de todo o audiobook (quando houver) */}
-                    {(book.chapters || []).some((c: any) => (c.bookmarks || c.comments || []).length > 0) && (
-                      <MenuOptionItem icon={<Bookmark size={14} />} onClick={() => { handleClose(); window.dispatchEvent(new CustomEvent('open-book-bookmarks', { detail: book.id })); }}>
-                        <span>{t('all_bookmarks')}</span>
-                      </MenuOptionItem>
-                    )}
 
                     {/* Excluir */}
                     <MenuOptionItem 

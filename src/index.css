@@ -2360,3 +2360,16 @@ html:not(.dark) .ambient-screen [class*="bg-white/"] {
 html.dark [data-player-sheet][data-queue-expanded] {
   background-color: rgb(28 28 32 / 0.94) !important;
 }
+
+/* Segurar o dedo numa opção dos pop-ups: sem seleção de texto nem o menu de copiar do iPhone (ao começar a seleção, o
+   sistema desligava o desfoque e o pop-up ficava transparente). Campos de texto continuam selecionáveis. */
+:is([data-popup-content], [data-player-sheet], [data-mobile-sheet], [data-mobile-confirm]) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+:is([data-popup-content], [data-player-sheet], [data-mobile-sheet], [data-mobile-confirm]) :is(input, textarea, [contenteditable="true"]) {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}

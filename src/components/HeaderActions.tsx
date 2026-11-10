@@ -30,12 +30,15 @@ export function HeaderActions() {
     return (
       <MobileHeaderActions
         quick={{ id: 'fav', icon: <Star size={15} className={isFav ? 'fill-yellow-400 text-yellow-400' : ''} />, label: isFav ? t('remove_from_favorites') : t('favorite'), onClick: () => toggleFavoriteBook(target.id) }}
+        // Ordem do app (a 1ª opção da lista é a favoritar, o botão da esquerda da pílula): tocar a seguir e final da fila;
+        // marcações; coleção; compartilhar; trecho; detalhes; editar; excluir
         menu={[
+          { id: 'queue-next', icon: <ListPlus size={14} />, label: t('play_next'), onClick: () => handleAddToQueue(target, 'next') },
           { id: 'queue-last', icon: <ListPlus size={14} />, label: t('end_of_queue'), onClick: () => handleAddToQueue(target, 'last') },
+          { id: 'all-bookmarks', icon: <Bookmark size={14} />, label: t('all_bookmarks'), onClick: () => openMobileSheet({ kind: 'book-bookmarks', bookId: target.id }) },
+          { id: 'collection', icon: <FolderPlus size={14} />, label: t('add_to_collection'), onClick: () => openMobileSheet({ kind: 'collection-picker', itemType: 'book', itemId: target.id }) },
           { id: 'share', icon: <Share size={14} />, label: t('share_audiobook'), onClick: () => { openShareImage('book', books.find(b => b.id === target.id) || target); } },
           ...((books.find(b => b.id === target.id) || target).transcript?.length ? [{ id: 'share-lyrics', icon: <Quote size={14} />, label: t('share_excerpt'), onClick: () => openShareLyrics(books.find(b => b.id === target.id) || target) }] : []),
-          { id: 'collection', icon: <FolderPlus size={14} />, label: t('add_to_collection'), onClick: () => openMobileSheet({ kind: 'collection-picker', itemType: 'book', itemId: target.id }) },
-          { id: 'all-bookmarks', icon: <Bookmark size={14} />, label: t('all_bookmarks'), onClick: () => openMobileSheet({ kind: 'book-bookmarks', bookId: target.id }) },
           { id: 'details', icon: <Info size={14} />, label: t('more_details'), onClick: () => { closeAllPopups(); navigateTo('book-info', target); } },
           { id: 'edit', icon: <Edit3 size={14} />, label: t('edit_audiobook'), onClick: () => handleStartEditBook() },
           {

@@ -538,19 +538,6 @@ export function SearchResultsList() {
                         />
                       ) : (
                         <PagedMenu className="flex flex-col p-2 text-left rtl:text-right">
-                          <MenuOptionItem 
-                            icon={<User size={14} />} 
-                            onClick={() => { 
-                              addToSearchHistory(searchQuery);
-                              navigateTo('author-detail', author); 
-                              setActiveSearchMenuId(null); 
-                              clearButtonCoverAnchorCache(searchMenuAnchor);
-                              setSearchMenuAnchor(null);
-                              setSearchQuery(''); 
-                            }}
-                          >
-                            <span>{t('go_to_author')}</span>
-                          </MenuOptionItem>
 
                           {/* Adicionar à coleção acima de favoritar */}
                           <MenuOptionItem 
@@ -572,6 +559,20 @@ export function SearchResultsList() {
                             }}
                           >
                             <span>{isFav ? t('remove_favorite_author') : t('favorite_author')}</span>
+                          </MenuOptionItem>
+
+                          <MenuOptionItem 
+                            icon={<User size={14} />} 
+                            onClick={() => { 
+                              addToSearchHistory(searchQuery);
+                              navigateTo('author-detail', author); 
+                              setActiveSearchMenuId(null); 
+                              clearButtonCoverAnchorCache(searchMenuAnchor);
+                              setSearchMenuAnchor(null);
+                              setSearchQuery(''); 
+                            }}
+                          >
+                            <span>{t('go_to_author')}</span>
                           </MenuOptionItem>
                         </PagedMenu>
                       )}

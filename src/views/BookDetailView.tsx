@@ -15,6 +15,8 @@ import {
   ListPlus,
   ChevronRight,
   Check,
+  Share,
+  Quote,
 } from 'lucide-react';
 import { BsPlayFill, BsPauseFill } from 'react-icons/bs';
 import {
@@ -985,6 +987,10 @@ export default function BookDetailView({
                 onContextMenu={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  // Segurar o dedo numa opção do próprio pop-up (que fica dentro da linha) não reabre o menu: antes ele
+                  // fechava e abria de novo no meio da animação e ficava transparente
+                  if ((e.target as HTMLElement).closest?.('[data-popup-content], [data-morph-popup], [role="menu"]')) return;
+                  if (activeChapterMenuId === chapIdKey) return;
                   closeAllPopups();
                   setChapterMenuOpenUp(checkChapterMenuShouldOpenUp(e.clientY));
                   setActiveChapterMenuId(chapIdKey);
@@ -1185,61 +1191,12 @@ export default function BookDetailView({
                               renderCommentsContent(activeBook, cap, false)
                             ) : (
                               <PagedMenu className="flex flex-col p-2">
+                                {/* Mesma ordem das opções em todo o app: tocar, a seguir, final; concluído; marcações; favoritar; compartilhar */}
                                 <MenuOptionItem 
                                   icon={isCurrentPlaying ? <Pause size={14} /> : <Play size={14} />} 
                                   onClick={() => { handlePlayBookFromStart(activeBook, i); setActiveChapterMenuId(null); }}
                                 >
                                   <span>{isCurrentPlaying ? t('pause') : t('listen_chapter')}</span>
-                                </MenuOptionItem>
-                                <MenuOptionItem 
-                                  immediate
-                                  icon={<Bookmark size={14} />} 
-                                  onClick={() => {
-                                    if (onOpenBookmarks) { setActiveChapterMenuId(null); onOpenBookmarks(activeBook, cap); return; }
-                                    setActiveChapterMenuMode('comments');
-                                  }}
-                                >
-                                  <span className="flex-1">{t('bookmarks') || t('comments')}</span>
-                                  {((cap.bookmarks && cap.bookmarks.length > 0) || (cap.comments && cap.comments.length > 0)) && (
-                                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--text-main)]/10 text-[var(--text-main)] group-hover:bg-[var(--hover-fill)] group-hover:text-white font-bold transition-colors">
-                                      {cap.bookmarks?.length || cap.comments?.length}
-                                    </span>
-                                  )}
-                                </MenuOptionItem>
-                                <MenuOptionItem 
-                                   icon={isChapterCompleted(activeBook.id, cap.id) ? <Headphones size={14} /> : <CheckCircle2 size={14} />}
-                                   onClick={() => {
-                                     const chapId = `${activeBook.id}-${cap.id}`;
-                                     if (isChapterCompleted(activeBook.id, cap.id)) {
-                                       setCompletedChapters(prev => prev.filter(id => id !== chapId));
-                                       setStartedChapters(prev => prev.filter(id => id !== chapId));
-                                       showToast(t('toast_chapter_marked_unstarted', { title: cap.title }));
-                                     } else {
-                                       setCompletedChapters(prev => [...prev, chapId]);
-                                       setStartedChapters(prev => Array.from(new Set([...prev, chapId])));
-                                       showToast(t('toast_chapter_marked_completed', { title: cap.title }));
-                                     }
-                                     setActiveChapterMenuId(null);
-                                   }}
-                                 >
-                                   <span>{isChapterCompleted(activeBook.id, cap.id) ? t('mark_as_unstarted') : t('mark_as_completed')}</span>
-                                </MenuOptionItem>
-                                <MenuOptionItem 
-                                  icon={<Star size={14} className={favoriteChapters.includes(chapIdKey) ? 'fill-yellow-400 text-yellow-400' : ''} />} 
-                                  onClick={() => {
-                                    if (toggleFavoriteChapter) {
-                                      toggleFavoriteChapter(activeBook.id, cap.id);
-                                    } else if (favoriteChapters.includes(chapIdKey)) {
-                                      setFavoriteChapters(prev => prev.filter(id => id !== chapIdKey));
-                                      showToast(t('toast_chapter_removed_fav', { title: cap.title }));
-                                    } else {
-                                      setFavoriteChapters(prev => [...prev, chapIdKey]);
-                                      showToast(t('toast_chapter_added_fav', { title: cap.title }));
-                                    }
-                                    setActiveChapterMenuId(null);
-                                  }}
-                                >
-                                  <span>{favoriteChapters.includes(chapIdKey) ? t('remove_from_favorites') : t('favorite')}</span>
                                 </MenuOptionItem>
                                 <MenuOptionItem 
                                   icon={<ListPlus size={14} />} 
@@ -1269,6 +1226,65 @@ export default function BookDetailView({
                                 >
                                   <span>{t('add_to_queue_end')}</span>
                                 </MenuOptionItem>
+                                <MenuOptionItem 
+                                   icon={isChapterCompleted(activeBook.id, cap.id) ? <Headphones size={14} /> : <CheckCircle2 size={14} />}
+                                   onClick={() => {
+                                     const chapId = `${activeBook.id}-${cap.id}`;
+                                     if (isChapterCompleted(activeBook.id, cap.id)) {
+                                       setCompletedChapters(prev => prev.filter(id => id !== chapId));
+                                       setStartedChapters(prev => prev.filter(id => id !== chapId));
+                                       showToast(t('toast_chapter_marked_unstarted', { title: cap.title }));
+                                     } else {
+                                       setCompletedChapters(prev => [...prev, chapId]);
+                                       setStartedChapters(prev => Array.from(new Set([...prev, chapId])));
+                                       showToast(t('toast_chapter_marked_completed', { title: cap.title }));
+                                     }
+                                     setActiveChapterMenuId(null);
+                                   }}
+                                 >
+                                   <span>{isChapterCompleted(activeBook.id, cap.id) ? t('mark_as_unstarted') : t('mark_as_completed')}</span>
+                                </MenuOptionItem>
+                                <MenuOptionItem 
+                                  immediate
+                                  icon={<Bookmark size={14} />} 
+                                  onClick={() => {
+                                    if (onOpenBookmarks) { setActiveChapterMenuId(null); onOpenBookmarks(activeBook, cap); return; }
+                                    setActiveChapterMenuMode('comments');
+                                  }}
+                                >
+                                  <span className="flex-1">{t('bookmarks') || t('comments')}</span>
+                                  {((cap.bookmarks && cap.bookmarks.length > 0) || (cap.comments && cap.comments.length > 0)) && (
+                                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--text-main)]/10 text-[var(--text-main)] group-hover:bg-[var(--hover-fill)] group-hover:text-white font-bold transition-colors">
+                                      {cap.bookmarks?.length || cap.comments?.length}
+                                    </span>
+                                  )}
+                                </MenuOptionItem>
+                                <MenuOptionItem 
+                                  icon={<Star size={14} className={favoriteChapters.includes(chapIdKey) ? 'fill-yellow-400 text-yellow-400' : ''} />} 
+                                  onClick={() => {
+                                    if (toggleFavoriteChapter) {
+                                      toggleFavoriteChapter(activeBook.id, cap.id);
+                                    } else if (favoriteChapters.includes(chapIdKey)) {
+                                      setFavoriteChapters(prev => prev.filter(id => id !== chapIdKey));
+                                      showToast(t('toast_chapter_removed_fav', { title: cap.title }));
+                                    } else {
+                                      setFavoriteChapters(prev => [...prev, chapIdKey]);
+                                      showToast(t('toast_chapter_added_fav', { title: cap.title }));
+                                    }
+                                    setActiveChapterMenuId(null);
+                                  }}
+                                >
+                                  <span>{favoriteChapters.includes(chapIdKey) ? t('remove_from_favorites') : t('favorite')}</span>
+                                </MenuOptionItem>
+                                {/* Compartilhar o capítulo (imagem) e um trecho dele (só com texto sincronizado no capítulo) */}
+                                <MenuOptionItem icon={<Share size={14} />} onClick={() => { setActiveChapterMenuId(null); window.dispatchEvent(new CustomEvent('share-book-image', { detail: { bookId: activeBook.id, chapterId: cap.id } })); }}>
+                                  <span>{t('share_chapter')}</span>
+                                </MenuOptionItem>
+                                {(activeBook.transcript || []).some(l => l.start >= cap.startTime && l.start < cap.startTime + (cap.duration || 0)) && (
+                                  <MenuOptionItem icon={<Quote size={14} />} onClick={() => { setActiveChapterMenuId(null); window.dispatchEvent(new CustomEvent('share-book-lyrics', { detail: { bookId: activeBook.id, chapterId: cap.id } })); }}>
+                                    <span>{t('share_excerpt')}</span>
+                                  </MenuOptionItem>
+                                )}
                               </PagedMenu>
                             )}
                           </PopupMorphContainer>

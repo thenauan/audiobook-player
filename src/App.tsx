@@ -2447,6 +2447,18 @@ export default function App() {
     window.addEventListener('open-book-bookmarks', onOpenBookBookmarks);
     return () => window.removeEventListener('open-book-bookmarks', onOpenBookBookmarks);
   }, []);
+  // Compartilhar a partir dos cards e dos capítulos (imagem do audiobook ou do capítulo; trecho do texto)
+  const shareHandlersRef = useRef<{ image: (bookId: string, chapterId?: number) => void; lyrics: (bookId: string, chapterId?: number) => void }>({ image: () => {}, lyrics: () => {} });
+  useEffect(() => {
+    const onImage = (e: Event) => { const d = (e as CustomEvent).detail || {}; shareHandlersRef.current.image(d.bookId, d.chapterId); };
+    const onLyrics = (e: Event) => { const d = (e as CustomEvent).detail || {}; shareHandlersRef.current.lyrics(d.bookId, d.chapterId); };
+    window.addEventListener('share-book-image', onImage);
+    window.addEventListener('share-book-lyrics', onLyrics);
+    return () => {
+      window.removeEventListener('share-book-image', onImage);
+      window.removeEventListener('share-book-lyrics', onLyrics);
+    };
+  }, []);
   useEffect(() => {
     const onOpenAppInfo = (e: Event) => navigateToRef.current('app-info', (e as CustomEvent).detail);
     window.addEventListener('open-app-info', onOpenAppInfo);
@@ -3836,6 +3848,18 @@ export default function App() {
     setLyricsSelection(preselect.slice(0, MAX_SHARE_LINES));
     setLyricsSearch('');
     openMobileSheet({ kind: 'share-lyrics', bookId: book.id, chapterId });
+  };
+  shareHandlersRef.current = {
+    image: (bookId, chapterId) => {
+      const bk = books.find(b => b.id === bookId);
+      if (!bk) return;
+      const ch = chapterId !== undefined ? (bk.chapters || []).find(c => c.id === chapterId) : undefined;
+      openShareImage(ch ? 'chapter' : 'book', bk, [], ch?.title);
+    },
+    lyrics: (bookId, chapterId) => {
+      const bk = books.find(b => b.id === bookId);
+      if (bk && (bk.transcript || []).length > 0) openShareLyrics(bk, [], chapterId);
+    },
   };
 
   const openMobileSheet = (sheet: MobileSheetState) => {
