@@ -1,3 +1,4 @@
+import type React from 'react';
 // Conteúdo dos pop-ups do player, comum ao player em tela cheia ("fs") e ao miniplayer ("mini").
 // Cada controle decide onde o pop-up abre; aqui fica só o que aparece dentro dele.
 import { AnimatePresence, Reorder, motion } from 'motion/react';
@@ -185,7 +186,7 @@ export function SleepTimerContent({ variant }: { variant: PopupVariant }) {
 }
 
 export function QueueContent({ variant }: { variant: PopupVariant }) {
-  const { beginBookSwitch, booksRef, chapterElapsed, currentBook, currentChapter, formatTime, fsNowPlayingRef, fsQueueScrollRef, getChapterResumeElapsed, handleBookCoverError, handleSeek, isMobile, isPlaying, isTouchDevice, miniNowPlayingRef, miniQueueScrollRef, navigateTo, pendingChapterScrollRef, playbackQueue, setCurrentBook, setIsFullScreen, setIsPlaying, setPlaybackQueue, setSelectedBook, setShouldScrollToCurrentChapter, setShowQueuePopup, t, targetScrollChapterIdRef } = useAppScope();
+  const { beginBookSwitch, booksRef, chapterElapsed, currentBook, currentBookHighlight, currentChapter, formatTime, fsNowPlayingRef, fsQueueScrollRef, getChapterResumeElapsed, handleBookCoverError, handleSeek, isMobile, isPlaying, isTouchDevice, miniNowPlayingRef, miniQueueScrollRef, navigateTo, pendingChapterScrollRef, playbackQueue, setCurrentBook, setIsFullScreen, setIsPlaying, setPlaybackQueue, setSelectedBook, setShouldScrollToCurrentChapter, setShowQueuePopup, t, targetScrollChapterIdRef } = useAppScope();
   return (
     <>
     <div className={`relative z-10 flex flex-col min-h-0 ${variant === 'fs' ? 'max-h-[392px]' : 'max-h-[310px]'} overflow-hidden`}>
@@ -204,6 +205,12 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
               setIsPlaying(true);
             }}
             className="group relative flex items-center gap-3 p-2 rounded-2xl bg-winblue/10 cursor-pointer hover:bg-winblue/15 transition-all shadow-sm"
+            // Celular: o destaque do capítulo tocando tem a cor da capa do audiobook (o pop-up usa a cor do app)
+            style={isMobile && currentBookHighlight ? ({
+              '--winblue': currentBookHighlight.hex,
+              '--winblue-rgb': currentBookHighlight.rgb,
+              '--color-winblue': currentBookHighlight.hex,
+            } as React.CSSProperties) : undefined}
             title={t('play') || 'Reproduzir'}
           >
             <div className="relative shrink-0">
