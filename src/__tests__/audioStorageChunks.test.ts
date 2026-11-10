@@ -70,4 +70,17 @@ describe('áudio gravado em pedaços', () => {
     await storeAudioBlob('old', new Blob(['abc'], { type: 'audio/mpeg' }));
     expect(await (await getAudioBlob('old'))!.text()).toBe('abc');
   });
+
+  it('juntar os pedaços deixa um arquivo único igual ao original e apaga os pedaços', async () => {
+    const { storeAudioBlobChunked, consolidateAudioBlob, getAudioBlob } = await import('../audio/audioStorage');
+    const bytes = new Uint8Array(9 * 1024 * 1024); for (let i = 0; i < bytes.length; i += 4096) bytes[i] = (i / 4096) % 251;
+    await storeAudioBlobChunked('b4', new File([bytes], 'x.m4b', { type: 'audio/mp4' }));
+    expect(data.size).toBe(4);
+    expect(await consolidateAudioBlob('b4')).toBe(true);
+    expect([...data.keys()]).toEqual(['b4']);
+    expect(data.get('b4')).toBeInstanceOf(Blob);
+    const back = await getAudioBlob('b4');
+    expect(back?.type).toBe('audio/mp4');
+    expect(Buffer.from(await back!.arrayBuffer()).equals(Buffer.from(bytes))).toBe(true);
+  });
 });

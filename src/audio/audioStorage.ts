@@ -1,3 +1,4 @@
+import { IS_APPLE_TOUCH } from '../lib/desktopBridge';
 // IndexedDB storage for local audiobook audio files
 // Allows persisting user-loaded audio files across browser sessions without hitting localStorage size limits.
 
@@ -106,10 +107,31 @@ export async function storeAudioBlobChunked(
   }
 }
 
-export async function getAudioBlob(bookId: string): Promise<Blob | null> {
+// Junta os pedaços num arquivo único guardado na chave do livro (e só depois apaga os pedaços). No iPhone/iPad o
+// Safari pode não tocar um áudio montado de várias partes guardadas no aparelho: lá, o áudio sempre fica inteiro.
+export async function consolidateAudioBlob(bookId: string): Promise<boolean> {
   try {
     const db = await openAudioDB();
     const value = await readKey(db, bookId);
+    if (!isChunkIndex(value)) return false;
+    const parts = await Promise.all(partKeys(bookId, value.__chunks).map(k => readKey(db, k)));
+    if (parts.some(p => !(p instanceof Blob))) return false;
+    const whole = new Blob(parts as Blob[], { type: value.type });
+    await runTx(db, 'readwrite', store => { store.put(whole, bookId); });
+    await runTx(db, 'readwrite', store => { partKeys(bookId, value.__chunks).forEach(k => store.delete(k)); });
+    return true;
+  } catch (err) {
+    console.warn('Could not consolidate audio blob:', err);
+    return false;
+  }
+}
+
+export async function getAudioBlob(bookId: string): Promise<Blob | null> {
+  try {
+    const db = await openAudioDB();
+    let value = await readKey(db, bookId);
+    // iPhone/iPad: áudio gravado em pedaços vira um arquivo único antes de tocar
+    if (isChunkIndex(value) && IS_APPLE_TOUCH && await consolidateAudioBlob(bookId)) value = await readKey(db, bookId);
     if (!isChunkIndex(value)) return (value as Blob) || null;
     // Gravado em pedaços: junta de novo (sem copiar os bytes, o Blob só aponta para eles)
     const parts = await new Promise<unknown[]>((resolve, reject) => {

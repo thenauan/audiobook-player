@@ -17,7 +17,7 @@ import { parseAudioMetadata } from './audio/audioMetadata';
 import { parseSynchronizedTextFile } from './audio/transcripts';
 import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex } from './lib/coverArt';
 import { findActiveTranscriptIndex } from './audio/playbackTiming';
-import { storeAudioBlobChunked, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
+import { storeAudioBlobChunked, consolidateAudioBlob, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
 import { importStore, visibleImports } from './lib/importProgress';
 import { ImportCancelAllButton, ImportCancelAllConfirm, ImportList } from './components/library/ImportProgress';
 import { sessionHistory } from './lib/sessionHistory';
@@ -1735,6 +1735,8 @@ export default function App() {
           addedDate: now + (rawFiles.length - i)
         };
         if (importStore.isCanceled(importId)) { dropCanceled(); deleteAudioBlob(bookId); continue; }
+        // iPhone/iPad: o áudio guardado vira um arquivo único (em segundo plano; agora ele toca direto do arquivo escolhido)
+        if (IS_APPLE_TOUCH) void consolidateAudioBlob(bookId);
         importedBooks.push(newBook);
         importStore.update(importId, { status: 'done', progress: 1 });
       } catch (err) {
