@@ -414,8 +414,11 @@ export function CollectionItemsPickerContent({
   onToggleAuthor,
   onToggleBook,
   asScreen = false,
+  orderBooks,
 }: {
   asScreen?: boolean;
+  // Ordem dos audiobooks escolhida em "Ordenar por"
+  orderBooks?: (list: Audiobook[]) => Audiobook[];
   mode: 'authors' | 'books' | 'all';
   authors: Author[];
   books: Audiobook[];
@@ -427,11 +430,6 @@ export function CollectionItemsPickerContent({
   const { t } = useI18n();
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
-  // Itens que já estavam na coleção ao abrir (ficam no topo; a ordem não muda enquanto se toca)
-  const initialSelectedRef = useRef<Set<string>>(new Set([
-    ...selectedAuthorIds.map(id => `author-${id}`),
-    ...selectedBookIds.map(id => `book-${id}`),
-  ]));
 
   const showAuthors = mode === 'authors' || mode === 'all';
   const showBooks = mode === 'books' || mode === 'all';
@@ -439,7 +437,7 @@ export function CollectionItemsPickerContent({
     ? authors.filter(a => !q || a.name.toLowerCase().includes(q))
     : [];
   const filteredBooks = showBooks
-    ? books.filter(b => !q || b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q))
+    ? (orderBooks ? orderBooks(books) : books).filter(b => !q || b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q))
     : [];
   const placeholder = mode === 'authors'
     ? t('search_authors_placeholder')
@@ -447,11 +445,19 @@ export function CollectionItemsPickerContent({
       ? t('search_books_placeholder')
       : t('search_placeholder');
 
-  // Lista única: autores e audiobooks misturados em ordem alfabética
-  const mixedItems = [
-    ...filteredAuthors.map(author => ({ kind: 'author' as const, id: author.id, name: author.name, author })),
-    ...filteredBooks.map(book => ({ kind: 'book' as const, id: book.id, name: book.title, book })),
-  ].sort((x, y) => x.name.localeCompare(y.name, undefined, { sensitivity: 'base' }));
+  // Lista única. Com a ordem de "Ordenar por": autores (por nome) e depois os audiobooks nessa ordem; sem ela,
+  // tudo em ordem alfabética
+  const authorItems = filteredAuthors.map(author => ({ kind: 'author' as const, id: author.id, name: author.name, author }));
+  const bookItems = filteredBooks.map(book => ({ kind: 'book' as const, id: book.id, name: book.title, book }));
+  const byName = (x: { name: string }, y: { name: string }) => x.name.localeCompare(y.name, undefined, { sensitivity: 'base' });
+  const allItems = orderBooks
+    ? [...authorItems.sort(byName), ...bookItems]
+    : [...authorItems, ...bookItems].sort(byName);
+  // Selecionados primeiro e depois os demais, numa lista só (cada parte na mesma ordem): ao marcar, o item sobe para
+  // junto dos selecionados; ao desmarcar, volta para baixo deles
+  const isItemSelected = (item: { kind: 'author' | 'book'; id: string }) =>
+    item.kind === 'author' ? selectedAuthorIds.includes(item.id) : selectedBookIds.includes(item.id);
+  const mixedItems = [...allItems.filter(isItemSelected), ...allItems.filter(item => !isItemSelected(item))];
 
   // Celular (folha): pesquisa no topo; sem pesquisa, os itens já adicionados primeiro e, abaixo, o restante;
   // com pesquisa, os resultados
@@ -493,19 +499,20 @@ export function CollectionItemsPickerContent({
         />
       );
     };
-    const initial = initialSelectedRef.current;
-    const added = q ? [] : mixedItems.filter(item => initial.has(`${item.kind}-${item.id}`));
-    const rest = q ? mixedItems : mixedItems.filter(item => !initial.has(`${item.kind}-${item.id}`));
     return (
       <div className="flex flex-col gap-4 w-full text-left rtl:text-right">
         <PopupSearchField value={query} onChange={setQuery} placeholder={placeholder} autoFocus={false} />
         {mixedItems.length === 0 ? (
           <div className="py-8 text-center text-sm text-[var(--text-muted)]">{t('no_results_found')}</div>
         ) : (
-          <>
-            {added.length > 0 && <div className={SCREEN_GROUP_CLASS}>{added.map(renderRow)}</div>}
-            {rest.length > 0 && <div className={SCREEN_GROUP_CLASS}>{rest.map(renderRow)}</div>}
-          </>
+          // Mesmo destaque para adicionados e a adicionar; o item desliza até o novo lugar ao ser marcado
+          <div className={SCREEN_GROUP_CLASS}>
+            {mixedItems.map(item => (
+              <motion.div key={`${item.kind}-${item.id}`} layout="position" transition={{ layout: SPRING.snappy }}>
+                {renderRow(item)}
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
     );

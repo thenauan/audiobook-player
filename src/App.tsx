@@ -3959,6 +3959,7 @@ export default function App() {
         body: (
           <div className="pt-1">
             <CollectionItemsPickerContent
+              orderBooks={sortBooks}
               asScreen
               mode="all"
               authors={authors}
@@ -3979,6 +3980,7 @@ export default function App() {
         body: (
           <div className="pt-1">
             <CollectionItemsPickerContent
+              orderBooks={sortBooks}
               asScreen
               mode={mode}
               authors={authors}
@@ -6376,6 +6378,7 @@ export default function App() {
                                         className="absolute top-0 right-0 w-80 max-w-[calc(100vw-32px)] bg-card/95 backdrop-blur-3xl rounded-[24px] shadow-2xl z-50 flex flex-col overflow-hidden"
                                       >
                                         <CollectionItemsPickerContent
+              orderBooks={sortBooks}
                                           mode="all"
                                           authors={authors}
                                           books={books}

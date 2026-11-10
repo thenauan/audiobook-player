@@ -12,7 +12,7 @@ import { transicaoConteudo } from '../../App';
 import { useScreenScope } from '../../app/AppScope';
 
 export function CollectionEditorScreen() {
-  const { activeScreen, authors, books, colFormDesc, colFormEmoji, colFormName, colFormPalette, colPickerAnchor, colSelectedAuthorIds, colSelectedBookIds, findAuthorIdForBook, handleBookCoverError, openMobileSheet, setColFormDesc, setColFormEmoji, setColFormName, setColFormPalette, setColPickerAnchor, setColSelectedAuthorIds, setColSelectedBookIds, setShowAddAuthorPopup, setShowAddBookPopup, showAddAuthorPopup, showAddBookPopup, t, useFullScreenSheets } = useScreenScope();
+  const { activeScreen, authors, books, colFormDesc, colFormEmoji, colFormName, colFormPalette, colPickerAnchor, colSelectedAuthorIds, colSelectedBookIds, findAuthorIdForBook, handleBookCoverError, openMobileSheet, setColFormDesc, setColFormEmoji, setColFormName, setColFormPalette, setColPickerAnchor, setColSelectedAuthorIds, setColSelectedBookIds, setShowAddAuthorPopup, setShowAddBookPopup, showAddAuthorPopup, showAddBookPopup, t, useFullScreenSheets , sortBooks } = useScreenScope();
   const editInputClass = "w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all";
   const addButtonClass = "h-8 pl-3.5 pr-2.5 rounded-full bg-card/75 backdrop-blur-3xl shadow-sm text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1 text-xs font-semibold transition-all cursor-pointer";
   const pickerPopupClass = "absolute right-0 top-0 w-80 max-w-[calc(100vw-32px)] rounded-[24px] bg-card/95 backdrop-blur-3xl shadow-2xl z-50 flex flex-col overflow-hidden";
@@ -178,6 +178,7 @@ export function CollectionEditorScreen() {
                   className={pickerPopupClass}
                 >
                   <CollectionItemsPickerContent
+              orderBooks={sortBooks}
                     mode="authors"
                     authors={authors}
                     books={books}
@@ -277,6 +278,7 @@ export function CollectionEditorScreen() {
                   className={pickerPopupClass}
                 >
                   <CollectionItemsPickerContent
+              orderBooks={sortBooks}
                     mode="books"
                     authors={authors}
                     books={books}
