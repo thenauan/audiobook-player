@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { X, Search, Settings as SettingsIcon, ChevronLeft, Trash2, CheckCircle2, Power, Languages } from 'lucide-react';
+import { X, Search, Settings as SettingsIcon, ChevronLeft, Trash2, CheckCircle2, Power, Languages, Minimize2, ListX } from 'lucide-react';
 import { ArrowRight } from 'lucide-react';
 import { BsCheck2 } from 'react-icons/bs';
 import { AppLogo } from './components/AppLogo';
@@ -20,6 +20,8 @@ import { findActiveTranscriptIndex } from './audio/playbackTiming';
 import { storeAudioBlobChunked, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
 import { importStore, visibleImports } from './lib/importProgress';
 import { ImportCancelAllButton, ImportCancelAllConfirm, ImportList } from './components/library/ImportProgress';
+import { QueueList } from './components/player/PlayerPopupContents';
+import { sessionHistory } from './lib/sessionHistory';
 import { autoCropImageToSquare, autoCropImageToEbookCover } from './lib/imageProcessing';
 import Sidebar, { MobileBottomBar, tabBarStore } from './components/Sidebar';
 import { MenuOptionItem, clearButtonCoverAnchorCache, getButtonCoverPopupStyle, MorphPopup, morphTriggerAnimate, EMPTY_BOOK } from './components/popups/Popovers';
@@ -301,7 +303,8 @@ export type MobileSheetState =
   | { kind: 'book-bookmarks'; bookId: string }
   | { kind: 'share-lyrics'; bookId: string }
   | { kind: 'collection-form-items'; mode: 'authors' | 'books' }
-  | { kind: 'import-progress' };
+  | { kind: 'import-progress' }
+  | { kind: 'queue' };
 
 export interface HomeSection {
   id: string;
@@ -2924,12 +2927,12 @@ export default function App() {
 
       const alignQueueScroll = () => {
         if (queueUserScrolledRef.current) return;
-        if (miniQueueScrollRef.current && miniNowPlayingRef.current) {
-          miniQueueScrollRef.current.scrollTop = miniNowPlayingRef.current.offsetTop;
-        }
-        if (fsQueueScrollRef.current && fsNowPlayingRef.current) {
-          fsQueueScrollRef.current.scrollTop = fsNowPlayingRef.current.offsetTop;
-        }
+        // Pela posição na tela (o pai posicionado pode não ser a lista): o que está tocando, com o aviso acima dele, no topo
+        const alignTo = (sc: HTMLElement | null, el: HTMLElement | null) => {
+          if (sc && el) sc.scrollTop += el.getBoundingClientRect().top - sc.getBoundingClientRect().top;
+        };
+        alignTo(miniQueueScrollRef.current, miniNowPlayingRef.current);
+        alignTo(fsQueueScrollRef.current, fsNowPlayingRef.current);
       };
 
       alignQueueScroll();
@@ -3827,13 +3830,39 @@ export default function App() {
     setMobileSheet(sheet);
   };
   openMobileSheetRef.current = openMobileSheet;
+  // Capítulos tocados nesta sessão (a fila mostra os anteriores acima do que está tocando)
+  useEffect(() => {
+    if (!isPlaying || !currentBook?.id || currentBook.id === EMPTY_BOOK.id || !currentChapter) return;
+    sessionHistory.record({
+      key: `${currentBook.id}-${currentChapter.id}`,
+      bookId: currentBook.id,
+      chapterId: currentChapter.id,
+      chapterTitle: currentChapter.title,
+      bookTitle: currentBook.title,
+      author: currentBook.author,
+      cover: currentBook.cover,
+    });
+  }, [isPlaying, currentBook?.id, currentChapter?.id]);
+  const queueSheetNowRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (mobileSheet?.kind !== 'queue') return;
+    const align = () => {
+      const el = queueSheetNowRef.current;
+      const scroller = el?.closest('.overflow-y-auto') as HTMLElement | null;
+      if (el && scroller) scroller.scrollTop += el.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+    };
+    align();
+    const r = requestAnimationFrame(align);
+    return () => cancelAnimationFrame(r);
+  }, [mobileSheet?.kind]);
+
   // Folha de audiobooks sendo adicionados: o App só redesenha quando muda o singular/plural ou a lista esvazia
   // (o progresso de cada um é lido pela própria lista)
   const importCount = useSyncExternalStore(importStore.subscribe, () => Math.min(2, visibleImports(importStore.get().items).length));
   useEffect(() => {
     if (importCount === 0 && mobileSheet?.kind === 'import-progress') setMobileSheet(null);
   }, [importCount, mobileSheet]);
-  const renderMobileSheetContent = (): { title: string; subtitle?: string; body: React.ReactNode; footer?: React.ReactNode; headerAction?: React.ReactNode } | null => {
+  const renderMobileSheetContent = (): { title: string; subtitle?: string; body: React.ReactNode; footer?: React.ReactNode; headerAction?: React.ReactNode; closeIcon?: React.ReactNode; closeLabel?: string } | null => {
     if (!mobileSheet) return null;
     if (mobileSheet.kind === 'collection-picker') {
       const { itemType, itemId } = mobileSheet;
@@ -3939,6 +3968,32 @@ export default function App() {
     }
     // Todas as marcações do audiobook, por capítulo; tocar numa abre as marcações daquele capítulo (onde se
     // edita e apaga)
+    if (mobileSheet.kind === 'queue') {
+      return {
+        title: t('queue'),
+        closeIcon: <Minimize2 size={18} />,
+        closeLabel: t('queue_collapse'),
+        headerAction: (
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => setMobileConfirm({
+              title: t('queue_clear_confirm'),
+              description: t('queue_clear_desc'),
+              confirmLabel: t('clear_queue'),
+              onConfirm: () => { setPlaybackQueue([]); showToast(t('queue_cleared')); },
+            })}
+            disabled={playbackQueue.length === 0}
+            aria-label={t('clear_queue')}
+            title={t('clear_queue')}
+            className="mobile-press w-11 h-11 rounded-full flex items-center justify-center bg-card/75 shadow-xl backdrop-blur-3xl text-red-500 disabled:opacity-40"
+          >
+            <ListX size={18} />
+          </button>
+        ),
+        body: <div className="flex flex-col pt-1"><QueueList nowPlayingRef={queueSheetNowRef} /></div>,
+      };
+    }
     if (mobileSheet.kind === 'import-progress') {
       if (!importCount) return null;
       return {
@@ -7778,9 +7833,12 @@ export default function App() {
               open={Boolean(mobileSheet && content)}
               title={content?.title || ''}
               onClose={() => {
+                // Fila em tela cheia: diminuir volta para o pop-up da fila
+                if (mobileSheet?.kind === 'queue') setShowQueuePopup(true);
                 setMobileSheet(null);
               }}
-              closeLabel={t('back')}
+              closeLabel={content?.closeLabel || t('back')}
+              closeIcon={content?.closeIcon}
               footer={content?.footer}
               headerAction={content?.headerAction}
             >

@@ -1,9 +1,10 @@
-import type React from 'react';
+import React from 'react';
 // Conteúdo dos pop-ups do player, comum ao player em tela cheia ("fs") e ao miniplayer ("mini").
 // Cada controle decide onde o pop-up abre; aqui fica só o que aparece dentro dele.
 import { AnimatePresence, Reorder, motion } from 'motion/react';
 import { PagedMenu, QueueItemRow, SmoothSubMorph } from '../popups/Popovers';
-import { Bookmark, Pause, Play, Volume2, VolumeX, X } from 'lucide-react';
+import { Bookmark, CheckCircle2, ChevronUp, Headphones, Maximize2, Star, Pause, Play, Volume2, VolumeX, X } from 'lucide-react';
+import { useSessionHistory } from '../../lib/sessionHistory';
 import { SPRING } from '../../lib/motion';
 import { BsCheck2 } from 'react-icons/bs';
 import { getGenericBookCover } from '../../lib/coverArt';
@@ -186,20 +187,123 @@ export function SleepTimerContent({ variant }: { variant: PopupVariant }) {
 }
 
 export function QueueContent({ variant }: { variant: PopupVariant }) {
-  const { beginBookSwitch, booksRef, chapterElapsed, currentBook, currentBookHighlight, currentChapter, formatTime, fsNowPlayingRef, fsQueueScrollRef, getChapterResumeElapsed, handleBookCoverError, handleSeek, isMobile, isPlaying, isTouchDevice, miniNowPlayingRef, miniQueueScrollRef, navigateTo, pendingChapterScrollRef, playbackQueue, setCurrentBook, setIsFullScreen, setIsPlaying, setPlaybackQueue, setSelectedBook, setShouldScrollToCurrentChapter, setShowQueuePopup, t, targetScrollChapterIdRef } = useAppScope();
+  const { openMobileSheet, fsNowPlayingRef, fsQueueScrollRef, isMobile, miniNowPlayingRef, miniQueueScrollRef, setShowQueuePopup, t } = useAppScope();
   return (
     <>
     <div className={`relative z-10 flex flex-col min-h-0 ${variant === 'fs' ? 'max-h-[392px]' : 'max-h-[310px]'} overflow-hidden`}>
       <div className="px-3 py-2 mb-1 flex items-center justify-between pb-2 shrink-0">
         <span className="text-sm font-bold text-[var(--text-main)]">{t('queue')}</span>
+        {/* Celular: abre a fila inteira numa folha de tela cheia (como a de marcações) */}
+        {isMobile && (
+          <motion.button
+            data-press="true"
+            onClick={(e) => { e.stopPropagation(); setShowQueuePopup(false); openMobileSheet({ kind: 'queue' }); }}
+            aria-label={t('queue_expand')}
+            title={t('queue_expand')}
+            className="w-8 h-8 -my-1 rounded-full bg-card/75 flex items-center justify-center text-[var(--text-main)] shrink-0"
+          >
+            <Maximize2 size={14} />
+          </motion.button>
+        )}
       </div>
 
-      <div 
+      <div
         ref={variant === 'fs' ? fsQueueScrollRef : miniQueueScrollRef}
         className="flex-1 min-h-0 relative overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col px-1.5 mt-1"
       >
+        <QueueList nowPlayingRef={variant === 'fs' ? fsNowPlayingRef : miniNowPlayingRef} />
+      </div>
+    </div>
+    </>
+  );
+}
+
+// Favorito e marcação do capítulo: só os ícones, como na página do audiobook
+function ChapterBadges({ bookId, chapterId }: { bookId?: string; chapterId?: number | string }) {
+  const { booksRef, favoriteChapters, t } = useAppScope();
+  if (!bookId || chapterId === undefined) return null;
+  const chapter = booksRef.current.find(b => b.id === bookId)?.chapters?.find((c: Chapter) => String(c.id) === String(chapterId)) as (Chapter & { bookmarks?: unknown[]; comments?: unknown[] }) | undefined;
+  const fav = favoriteChapters.includes(`${bookId}-${chapterId}`);
+  const marked = Boolean(chapter && ((chapter.bookmarks?.length || 0) > 0 || (chapter.comments?.length || 0) > 0));
+  if (!fav && !marked) return null;
+  return (
+    <span className="flex items-center gap-1.5 shrink-0 mr-1.5 pointer-events-none">
+      {fav && (
+        <span title={t('favorite')} className="w-5 h-5 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-yellow-400 select-none">
+          <Star size={10} className="fill-yellow-400 text-yellow-400" />
+        </span>
+      )}
+      {marked && <Bookmark size={11} className="fill-current text-[var(--text-muted)]" aria-label={t('bookmarks')} />}
+    </span>
+  );
+}
+
+// Lista da fila (pop-up e folha de tela cheia): capítulos já tocados nesta sessão (acima, tocam ao tocar),
+// o que está tocando e os próximos
+export function QueueList({ nowPlayingRef }: { nowPlayingRef?: React.Ref<HTMLDivElement> }) {
+  const { beginBookSwitch, booksRef, chapterElapsed, currentBook, currentBookHighlight, currentChapter, formatTime, getChapterResumeElapsed, handleBookCoverError, handlePlayBookFromStart, isChapterCompleted, isChapterStarted, handleSeek, isMobile, isPlaying, isTouchDevice, navigateTo, pendingChapterScrollRef, playbackQueue, setCurrentBook, setIsFullScreen, setIsPlaying, setPlaybackQueue, setSelectedBook, setShouldScrollToCurrentChapter, setShowQueuePopup, t, targetScrollChapterIdRef } = useAppScope();
+  const currentKey = `${currentBook?.id}-${currentChapter?.id}`;
+  const history = useSessionHistory().filter(h => h.key !== currentKey);
+  // Espaço no fim para o que está tocando sempre poder ficar no topo (os anteriores só aparecem rolando para cima)
+  const tailRef = React.useRef<HTMLDivElement>(null);
+  const [spacer, setSpacer] = React.useState(0);
+  React.useLayoutEffect(() => {
+    const tail = tailRef.current;
+    const scroller = tail?.closest('.overflow-y-auto') as HTMLElement | null;
+    if (!tail || !scroller || !history.length) { setSpacer(0); return; }
+    const measure = () => setSpacer(Math.max(0, scroller.clientHeight - tail.offsetHeight - 8));
+    measure();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    ro?.observe(scroller); ro?.observe(tail);
+    return () => ro?.disconnect();
+  }, [history.length, playbackQueue.length]);
+  const playPrevious = (bookId: string, chapterId: number) => {
+    const book = booksRef.current.find(b => b.id === bookId);
+    if (!book) return;
+    const idx = (book.chapters || []).findIndex((c: Chapter) => String(c.id) === String(chapterId));
+    if (idx < 0) return;
+    handlePlayBookFromStart(book, idx);
+  };
+  return (
+    <>
+        {history.length > 0 && (
+          <div className="flex flex-col shrink-0 pb-1">
+            {history.map(h => (
+              <button
+                key={h.key}
+                type="button"
+                onClick={(e) => { e.stopPropagation(); playPrevious(h.bookId, h.chapterId); }}
+                className="w-full flex items-center gap-3 p-2 rounded-2xl text-left rtl:text-right opacity-70 hover:opacity-100 hover:bg-[var(--hover-fill)] transition-[opacity,background-color]"
+                title={t('play')}
+              >
+                {/* Capa com o estado do capítulo no meio: concluído ou ouvindo (começado) */}
+                <span className="relative shrink-0">
+                  <img src={h.cover || getGenericBookCover(h.bookTitle, h.author)} alt="" className="w-7 h-11 aspect-[1/1.6] rounded-lg object-cover" />
+                  {(isChapterCompleted(h.bookId, h.chapterId) || isChapterStarted(h.bookId, h.chapterId)) && (
+                    <span className="absolute inset-0 rounded-lg bg-black/40 flex items-center justify-center text-white">
+                      {isChapterCompleted(h.bookId, h.chapterId) ? <CheckCircle2 size={14} /> : <Headphones size={14} />}
+                    </span>
+                  )}
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-xs font-semibold text-[var(--text-main)] truncate">{h.chapterTitle}</span>
+                  <span className="block text-xs text-[var(--text-muted)] truncate">{h.bookTitle}{h.author ? ` • ${h.author}` : ''}</span>
+                </span>
+                <ChapterBadges bookId={h.bookId} chapterId={h.chapterId} />
+              </button>
+            ))}
+          </div>
+        )}
+        <div ref={tailRef} className="flex flex-col shrink-0">
         {/* TOCANDO AGORA */}
-        <div ref={variant === 'fs' ? fsNowPlayingRef : miniNowPlayingRef} className="shrink-0">
+        <div ref={nowPlayingRef} className="shrink-0">
+          {/* Há capítulos tocados antes nesta sessão: ficam acima (a fila abre já no que está tocando) */}
+          {history.length > 0 && (
+            <p className="flex items-center justify-center gap-1 pb-2 text-[11px] text-[var(--text-muted)] select-none">
+              <ChevronUp size={12} />
+              <span>{t('queue_history_hint')}</span>
+            </p>
+          )}
           <div 
             onClick={() => {
               setIsPlaying(true);
@@ -251,6 +355,7 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
               </p>
               <p className="text-xs text-[var(--text-muted)] truncate">{currentBook.title} • {currentBook.author}</p>
             </div>
+            <ChapterBadges bookId={currentBook?.id} chapterId={currentChapter?.id} />
             <span className="text-[10px] text-winblue font-semibold mr-1 shrink-0 pointer-events-none">
               {formatTime(chapterElapsed)}
             </span>
@@ -291,12 +396,13 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
                   setIsFullScreen(false);
                 }}
                 t={t}
+                badges={<ChapterBadges bookId={item.bookId || item.book?.id} chapterId={item.chapterId} />}
               />
             ))}
           </AnimatePresence>
         </Reorder.Group>
-      </div>
-    </div>
+        </div>
+        {spacer > 0 && <div aria-hidden="true" className="shrink-0" style={{ height: spacer }} />}
     </>
   );
 }

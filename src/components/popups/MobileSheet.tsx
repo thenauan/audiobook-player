@@ -45,6 +45,7 @@ export function MobileSheet({
   children,
   footer,
   headerAction,
+  closeIcon,
 }: {
   open: boolean;
   title: string;
@@ -56,6 +57,8 @@ export function MobileSheet({
   footer?: React.ReactNode;
   // Botão no topo, do lado oposto ao de voltar (ex.: cancelar todos)
   headerAction?: React.ReactNode;
+  // Ícone do botão da esquerda (padrão: voltar)
+  closeIcon?: React.ReactNode;
 }) {
   const dragControls = useDragControls();
   const keyboard = useKeyboardInset(open);
@@ -217,7 +220,7 @@ export function MobileSheet({
                   aria-label={closeLabel}
                   className="mobile-press absolute left-0 rtl:left-auto rtl:right-0 w-11 h-11 rounded-full flex items-center justify-center bg-card/75 shadow-xl backdrop-blur-3xl text-[var(--text-main)]"
                 >
-                  <ChevronLeft size={20} className="rtl:rotate-180" />
+                  {closeIcon || <ChevronLeft size={20} className="rtl:rotate-180" />}
                 </button>
                 <div className="px-14 text-center min-w-0">
                   <h2 className="text-[17px] font-semibold leading-tight truncate">{title}</h2>

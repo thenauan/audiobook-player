@@ -20,6 +20,8 @@ export interface QueueItemRowProps {
   onRemove: () => void;
   onViewBook: () => void;
   t: (key: string) => string;
+  // Ícones do capítulo (favorito, marcação), antes da duração
+  badges?: React.ReactNode;
 }
 
 export function QueueItemRow({
@@ -29,6 +31,7 @@ export function QueueItemRow({
   onRemove,
   onViewBook,
   t,
+  badges,
 }: QueueItemRowProps) {
   const dragControls = useDragControls();
   const [isDragging, setIsDragging] = useState(false);
@@ -237,6 +240,7 @@ export function QueueItemRow({
             </p>
           </div>
 
+          {badges}
           <span className={`text-[10px] text-[var(--text-muted)] shrink-0 mr-1 pointer-events-none transition-opacity ${
             isTouch ? '' : isActiveDrag ? 'opacity-0' : 'group-hover:opacity-0'
           }`}>
