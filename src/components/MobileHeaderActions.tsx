@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MoreHorizontal, Trash2, X } from 'lucide-react';
-import { MenuOptionItem, MorphPopup, PagedMenu, PopupMorphContainer, morphTriggerAnimate } from './popups/Popovers';
+import { MORPH_HANDOFF, MenuOptionItem, MorphPopup, PagedMenu, PopupMorphContainer, morphTriggerAnimate } from './popups/Popovers';
+import { SPRING } from '../lib/motion';
+
+// Botão da esquerda da pílula saindo ou voltando
+const QUICK_SHRINK = { duration: 0.13, ease: [0.2, 0, 0, 1] as [number, number, number, number] };
 import { getBackdropProps } from './popups/popupUtils';
 import { MobileConfirmCard } from './popups/MobileConfirm';
 import { useI18n } from '../i18n/translations';
@@ -14,6 +18,8 @@ import { useI18n } from '../i18n/translations';
 export interface MobileHeaderAction {
   id: string;
   icon: React.ReactNode;
+  // Ícone na lista dos três pontinhos, quando o do botão não cabe nela
+  menuIcon?: React.ReactNode;
   label: string;
   danger?: boolean;
   active?: boolean;
@@ -144,14 +150,24 @@ export function MobileHeaderActions({
   const [viewFromMenu, setViewFromMenu] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
-  const close = () => { setOpen(false); setView('menu'); setViewFromMenu(false); };
+  // Pílula: pelos três pontinhos, ela primeiro se encolhe numa bola só com eles e o pop-up nasce da bola.
+  // Ao fechar, o pop-up volta para a bola e só depois a pílula se abre de novo com o outro botão.
+  const [pillBall, setPillBall] = useState(false);
+  const ballTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearBallTimer = () => { if (ballTimer.current) { clearTimeout(ballTimer.current); ballTimer.current = null; } };
+  useEffect(() => () => clearBallTimer(), []);
+  const close = () => {
+    setOpen(false); setView('menu'); setViewFromMenu(false);
+    clearBallTimer();
+    if (pillBall) ballTimer.current = setTimeout(() => { ballTimer.current = null; setPillBall(false); }, (MORPH_HANDOFF.at + MORPH_HANDOFF.fade) * 1000 + 60);
+  };
   useCloseOnGlobalEvent(open, close);
 
   const menuItems = (menu || []).filter(Boolean);
   const asPill = Boolean(quick) && menuItems.length > 0;
   // Na pílula, o pop-up cobre os dois botões e também lista a ação da esquerda
   const items = asPill && quick ? [quick, ...menuItems] : menuItems;
-  const triggerWidth = asPill ? 88 : 44;
+  const triggerWidth = asPill && !pillBall ? 88 : 44;
   const viewAction = items.find(a => a.id === view);
   const [confirmAction, setConfirmAction] = useState<MobileHeaderAction | null>(null);
   useCloseOnGlobalEvent(Boolean(confirmAction), () => setConfirmAction(null));
@@ -188,9 +204,15 @@ export function MobileHeaderActions({
         window.dispatchEvent(new Event('close-all-popups'));
         setView('menu');
         setViewFromMenu(false);
-        setOpen(true);
+        if (asPill) {
+          clearBallTimer();
+          setPillBall(true);
+          ballTimer.current = setTimeout(() => { ballTimer.current = null; setOpen(true); }, 170);
+        } else {
+          setOpen(true);
+        }
       }}
-      className={asPill ? pillBtn : circleBtn}
+      className={`${asPill ? pillBtn : circleBtn} shrink-0`}
     >
       <MoreHorizontal size={19} />
     </motion.button>
@@ -200,15 +222,25 @@ export function MobileHeaderActions({
     <div className="flex items-center gap-2.5">
       {quick && !asPill && <QuickActionButton action={quick} />}
       {items.length > 0 && (
-        <div className={`relative h-11 shrink-0 ${asPill ? 'w-[88px]' : 'w-11'} ${open ? 'z-50' : 'z-10'}`}>
+        <div className={`relative h-11 shrink-0 ${asPill ? 'w-[88px] flex justify-end' : 'w-11'} ${open ? 'z-50' : 'z-10'}`}>
           {asPill && quick ? (
-            <motion.div ref={pillRef} animate={morphTriggerAnimate(open)} className={pillShell}>
+            <motion.div
+              ref={pillRef}
+              animate={{ ...morphTriggerAnimate(open), width: pillBall ? 44 : 88, transition: { ...morphTriggerAnimate(open).transition, width: SPRING.snappy } }}
+              initial={false}
+              className={`${pillShell} overflow-hidden`}
+            >
               <motion.button
                 data-press="true"
                 aria-label={quick.label}
                 title={quick.label}
+                tabIndex={pillBall ? -1 : undefined}
+                initial={false}
+                // Some encolhendo num fade rápido; ao voltar, o inverso (cresce aparecendo, no mesmo ritmo)
+                animate={{ width: pillBall ? 0 : 44, opacity: pillBall ? 0 : 1, scale: pillBall ? 0.5 : 1 }}
+                transition={{ width: SPRING.snappy, scale: QUICK_SHRINK, opacity: QUICK_SHRINK }}
                 onClick={(e) => { e.stopPropagation(); runAction(quick, false); }}
-                className={`${pillBtn} ${quick.active ? 'text-winblue' : ''} ${quick.danger ? 'text-red-500' : ''}`}
+                className={`${pillBtn} shrink-0 overflow-hidden ${quick.active ? 'text-winblue' : ''} ${quick.danger ? 'text-red-500' : ''}`}
               >
                 {quick.icon}
               </motion.button>
@@ -235,7 +267,7 @@ export function MobileHeaderActions({
                       {items.map(action => (
                         <MenuOptionItem
                           key={action.id}
-                          icon={action.icon}
+                          icon={action.menuIcon ?? action.icon}
                           danger={action.danger}
                           immediate={Boolean(action.confirm || action.panel)}
                           onClick={() => runAction(action, true)}

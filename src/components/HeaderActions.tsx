@@ -3,10 +3,13 @@ import { MobileHeaderActions, type MobileHeaderAction } from './MobileHeaderActi
 import { ArrowUpDown, Bookmark, Code2, Edit3, FolderPlus, Info, ListPlus, Plus, Quote, RotateCcw, Share, Star, Trash2, Upload } from 'lucide-react';
 import { Collection } from '../data/catalog';
 import { useAppScope } from '../app/AppScope';
+import { ImportCancelAllConfirm, ImportPanel, ImportRingIcon, useImportTitle } from './library/ImportProgress';
 
 export function HeaderActions() {
   const { activeScreen, books, cleanupDeletedBooks, closeAllPopups, collections, favoriteAuthorIds, favoriteBookIds, fileInputRef, goBack, handleAddToQueue, handleDeleteCollection, handleExitDevMode, handleResetSettings, handleStartCreateCollection, handleStartEditAuthor, handleStartEditBook, handleStartEditCurrentCollection, isDevModeActive, navigateTo, openMobileSheet, openShareImage, openShareLyrics, renderSortOptions, selectedBook, setBooks, setIsSelectionMode, setSelectedCollectionIds, showToast, t, toggleFavoriteAuthor, toggleFavoriteBook } = useAppScope();
   const id = activeScreen.id;
+  // Audiobooks sendo adicionados: o botão de enviar vira o progresso (abre a lista)
+  const importTitle = useImportTitle();
   const sortAction: MobileHeaderAction = {
     id: 'sort', icon: <ArrowUpDown size={14} />, label: t('sort_by'),
     panelWidth: 228,
@@ -128,7 +131,19 @@ export function HeaderActions() {
       />
     );
   }
-  if ((id.startsWith('library') || id.startsWith('home-') || id === 'history') && books.length > 0) {
+  if ((id.startsWith('library') || id.startsWith('home-') || id === 'history') && (books.length > 0 || importTitle)) {
+    const upload: MobileHeaderAction = { id: 'upload', icon: <Upload size={15} />, label: t('upload_audiobooks'), onClick: () => fileInputRef.current?.click() };
+    if (importTitle) {
+      return (
+        <>
+          <MobileHeaderActions
+            quick={{ id: 'importing', icon: <ImportRingIcon />, menuIcon: <ImportRingIcon small />, label: importTitle, panel: <ImportPanel />, panelWidth: 300 }}
+            menu={[{ ...upload, icon: <Upload size={14} /> }, sortAction]}
+          />
+          <ImportCancelAllConfirm />
+        </>
+      );
+    }
     return (
       <MobileHeaderActions
         // Botão da esquerda da pílula: enviar audiobooks (também é a primeira opção do pop-up)

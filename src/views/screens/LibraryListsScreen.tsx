@@ -185,7 +185,7 @@ export function LibraryListsScreen() {
                       <div className="absolute inset-0 bg-black/20" />
                       <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/35 to-transparent" />
                     </div>
-                    <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 md:right-10 md:bottom-4 text-[150px] md:text-[220px] leading-none opacity-60 select-none pointer-events-none"><EmojiIcon emoji={c.emoji} /></span>
+                    <span aria-hidden="true" className="absolute right-2 rtl:right-auto rtl:left-2 bottom-2 md:right-10 md:bottom-4 text-[150px] md:text-[220px] leading-none card-tone-icon select-none pointer-events-none"><EmojiIcon emoji={c.emoji} /></span>
                     <div className="absolute inset-x-0 bottom-0 px-5 pb-6 md:px-8 md:pb-10 flex flex-col items-start text-left rtl:items-end rtl:text-right text-white">
                       <h2 data-screen-title="true" className="text-[30px] md:text-5xl font-bold leading-tight tracking-tight line-clamp-2 drop-shadow-md">{c.name}</h2>
                       {desc && <p className="text-[14px] md:text-base font-medium text-white/85 mt-1 md:mt-2 line-clamp-2 max-w-2xl [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{desc}</p>}
@@ -413,7 +413,7 @@ export function LibraryListsScreen() {
                       <div className={`absolute inset-0 bg-gradient-to-br ${langData.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
                       <div className="absolute inset-0 bg-black/15" />
 
-                      <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75">
+                      <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none card-tone-icon">
                         <Languages size="1em" strokeWidth={2} aria-hidden="true" className="inline-block align-[-0.125em]" />
                       </span>
                     </div>
@@ -760,7 +760,7 @@ export function LibraryListsScreen() {
                       <div className={`absolute inset-0 bg-gradient-to-br ${genreData.gradient} ${isSelectionMode && isSelected ? 'opacity-70' : ''}`} />
                       <div className="absolute inset-0 bg-black/15" />
 
-                      <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-8xl sm:text-9xl select-none pointer-events-none opacity-75">
+                      <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-8xl sm:text-9xl select-none pointer-events-none card-tone-icon">
                         <EmojiIcon emoji={getGenreEmoji(genreData.id)} />
                       </span>
                     </div>
@@ -970,7 +970,7 @@ export function LibraryListsScreen() {
                                       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} ${isSelectionMode && isAllSelected ? 'opacity-70' : ''}`} />
                                       <div className="absolute inset-0 bg-black/15" />
 
-                                      <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-75">
+                                      <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-6xl sm:text-7xl select-none pointer-events-none card-tone-icon">
                                         <EmojiIcon emoji={getSubgenreEmoji(subgenre)} />
                                       </span>
                                     </div>

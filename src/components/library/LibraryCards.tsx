@@ -1956,7 +1956,7 @@ export function CollectionCard({
       <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
         <div ref={gradientRef} className={`absolute inset-0 bg-gradient-to-br ${col.gradient} ${selectionMode && selected ? 'opacity-70' : ''}`} />
         <div className="absolute inset-0 bg-black/20" />
-        <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75">
+        <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none card-tone-icon">
           <EmojiIcon emoji={col.emoji} />
         </span>
       </div>

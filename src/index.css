@@ -2334,3 +2334,9 @@ html:not(.dark) .ambient-screen [class*="bg-white/"] {
     --surface-outline: rgb(255 255 255 / 0.02);
   }
 }
+
+/* Ícone grande dos cards de gênero, subgênero e coleção: o mesmo matiz do fundo do card, num tom mais escuro
+   (uma camada escura translúcida mantém a cor do degradê e só muda o tom) */
+.card-tone-icon {
+  color: rgb(0 0 0 / 0.26);
+}

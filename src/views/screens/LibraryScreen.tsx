@@ -280,7 +280,7 @@ export function LibraryScreen() {
                         <div className={`absolute inset-0 bg-gradient-to-br ${genreData.gradient}`} />
                         <div className="absolute inset-0 bg-black/15" />
 
-                        <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75">
+                        <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none card-tone-icon">
                           <EmojiIcon emoji={getGenreEmoji(genreData.id)} />
                         </span>
                       </div>
@@ -386,7 +386,7 @@ export function LibraryScreen() {
                         <div className={`absolute inset-0 bg-gradient-to-br ${langData.gradient}`} />
                         <div className="absolute inset-0 bg-black/15" />
 
-                        <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none opacity-75">
+                        <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none card-tone-icon">
                           <Languages size="1em" strokeWidth={2} aria-hidden="true" className="inline-block align-[-0.125em]" />
                         </span>
                       </div>

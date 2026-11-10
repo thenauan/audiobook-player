@@ -17,7 +17,8 @@ import { parseAudioMetadata } from './audio/audioMetadata';
 import { parseSynchronizedTextFile } from './audio/transcripts';
 import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex } from './lib/coverArt';
 import { findActiveTranscriptIndex } from './audio/playbackTiming';
-import { storeAudioBlob, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
+import { storeAudioBlobChunked, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
+import { importStore } from './lib/importProgress';
 import { autoCropImageToSquare, autoCropImageToEbookCover } from './lib/imageProcessing';
 import Sidebar, { MobileBottomBar, tabBarStore } from './components/Sidebar';
 import { MenuOptionItem, clearButtonCoverAnchorCache, getButtonCoverPopupStyle, MorphPopup, morphTriggerAnimate, EMPTY_BOOK } from './components/popups/Popovers';
@@ -1564,13 +1565,24 @@ export default function App() {
       return;
     }
 
-    showToast(t('toast_processing_audio_files', { count: files.length }));
+    // Avisos: escolhido agora, carregando (se demorar) e adicionado no fim. No celular, a lista com o progresso
+    // de cada um fica no botão da biblioteca
+    const importIds = importStore.begin(files);
+    showToast(t('toast_import_selected', { count: files.length }));
+    const loadingToast = setTimeout(() => {
+      if (importIds.some(id => !importStore.isCanceled(id))) showToast(t('toast_import_loading', { count: files.length }));
+    }, 1300);
 
     const importedBooks: Audiobook[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+      const importId = importIds[i];
+      if (importStore.isCanceled(importId)) continue;
+      importStore.update(importId, { status: 'loading', progress: 0.02 });
       try {
         const meta = await parseAudioMetadata(file);
+        if (importStore.isCanceled(importId)) continue;
+        importStore.update(importId, { progress: 0.06 });
 
         // 2. Verificação pós-leitura de metadados (garante que mesmo arquivos renomeados do mesmo audiobook não dupliquem)
         const candidateBook: Partial<Audiobook> = {
@@ -1586,6 +1598,7 @@ export default function App() {
 
         if (isDuplicateAfterParse) {
           skippedDuplicates++;
+          importStore.remove(importId);
           continue;
         }
 
@@ -1616,7 +1629,19 @@ export default function App() {
         const objectUrl = URL.createObjectURL(file);
         audioUrlsRef.current.set(bookId, objectUrl);
         storedAudioBlobKeysRef.current.add(bookId);
-        await storeAudioBlob(bookId, file);
+        // Cancelado no meio: nada fica guardado nem na biblioteca
+        const dropCanceled = () => {
+          try { URL.revokeObjectURL(objectUrl); } catch {}
+          audioUrlsRef.current.delete(bookId);
+          storedAudioBlobKeysRef.current.delete(bookId);
+        };
+        try {
+          await storeAudioBlobChunked(bookId, file, (f) => importStore.update(importId, { progress: 0.06 + f * 0.92 }), () => importStore.isCanceled(importId));
+        } catch (err) {
+          if (err instanceof ImportCanceledError) { dropCanceled(); continue; }
+          throw err;
+        }
+        if (importStore.isCanceled(importId)) { dropCanceled(); deleteAudioBlob(bookId); continue; }
 
         // App instalado: salva uma cópia do audiobook na pasta da biblioteca no disco.
         // No site, o áudio fica só guardado no navegador (acima), sem servidor.
@@ -1663,10 +1688,20 @@ export default function App() {
           fileName: file.name,
           addedDate: now + (rawFiles.length - i)
         };
+        if (importStore.isCanceled(importId)) { dropCanceled(); deleteAudioBlob(bookId); continue; }
         importedBooks.push(newBook);
+        importStore.update(importId, { status: 'done', progress: 1 });
       } catch (err) {
         console.error('Erro ao ler metadados do audiobook:', err);
+        importStore.remove(importId);
       }
+    }
+    clearTimeout(loadingToast);
+    const canceledCount = importIds.filter(id => importStore.isCanceled(id)).length;
+    importStore.finish(importIds);
+    if (importedBooks.length === 0 && canceledCount > 0) {
+      showToast(t('toast_import_canceled', { count: canceledCount }));
+      return;
     }
 
     if (importedBooks.length > 0) {
@@ -2969,9 +3004,12 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
+  // Um aviso novo substitui o anterior e ganha o tempo inteiro (antes, o relógio do anterior o apagava cedo)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = (message: string) => {
     setNotification(message);
-    setTimeout(() => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => {
       setNotification(null);
     }, 2800);
   };
