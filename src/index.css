@@ -2373,3 +2373,10 @@ html.dark [data-player-sheet][data-queue-expanded] {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* Pesquisa dentro de pop-ups e folhas de tela cheia: ao digitar, o destaque aparece como na pesquisa do app (sobre a
+   folha quase opaca, o fundo de 15% sumia e a sombra é tirada dentro dos pop-ups) */
+:is([data-mobile-sheet], [data-popup-content], [data-player-sheet]) [data-popup-search]:focus-within {
+  background-color: color-mix(in srgb, var(--winblue) 22%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--winblue) 50%, transparent) !important;
+}

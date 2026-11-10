@@ -358,7 +358,7 @@ export function PopupSearchField({
   const isMobileField = useIsMobile();
   return (
     <div className="flex items-center gap-2 px-1 pb-1">
-      <div className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] focus-within:bg-winblue/15 text-[var(--text-main)] transition-all backdrop-blur-3xl">
+      <div data-popup-search="true" className="relative group/popsearch flex-1 min-w-0 h-9 max-md:h-11 flex items-center gap-2 px-3.5 rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] focus-within:bg-winblue/15 text-[var(--text-main)] transition-all backdrop-blur-3xl">
         <Icon size={13} className="text-[var(--text-muted)] group-focus-within/popsearch:text-winblue transition-colors shrink-0" />
         <input
           ref={inputRef}

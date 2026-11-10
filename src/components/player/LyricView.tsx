@@ -177,7 +177,7 @@ export function LyricBlocks({ transcript, time: appTime, playing, audioRef, mode
 // Busca na letra (celular). O trecho buscado fica só na cor do audiobook, sem nada ao redor
 export const foldText = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-function MatchedText({ text, query }: { text: string; query: string }) {
+export function MatchedText({ text, query, matchClass = 'text-[var(--book-accent)]' }: { text: string; query: string; matchClass?: string }) {
   // Posição de cada letra do texto original no texto sem acentos
   const map: number[] = [];
   let folded = '';
@@ -194,7 +194,7 @@ function MatchedText({ text, query }: { text: string; query: string }) {
     const after = at + query.length;
     const end = after < map.length ? map[after] : text.length;
     if (start > from) parts.push(text.slice(from, start));
-    parts.push(<span key={start} className="text-[var(--book-accent)]">{text.slice(start, end)}</span>);
+    parts.push(<span key={start} data-match="true" className={matchClass}>{text.slice(start, end)}</span>);
     from = end;
     at = folded.indexOf(query, after);
   }

@@ -42,6 +42,7 @@ import { diag } from './audio/playbackDiag';
 import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './lib/authorUtils';
 import { installTouchMenus } from './components/popups/touchMenu';
 import { installScrollFades } from './components/scrollFade';
+import { MatchedText, foldText } from './components/player/LyricView';
 import { withChunkReload } from './lib/chunkReload';
 import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo, getZoomReturnRect } from './components/ZoomTransitionLayer';
 // Sem o arquivo (versão antiga aberta depois de uma publicação nova): recarrega para a versão atual
@@ -82,7 +83,6 @@ import {
   I18nContext,
 } from './i18n/translations';
 import { Share, Download, Quote, Info, Edit3, Upload, ChevronRight, ChevronDown, Check, Star, RotateCcw, RefreshCw, Bookmark, ArrowUpDown, Code2, Globe, Turtle, Rabbit, Clock3, Clock6, Clock9, Clock12, Dog, Bird, FolderPlus, Plus, Monitor } from 'lucide-react';
-import { normalizeSearchStr } from './lib/searchScoring';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from './components/popups/popupUtils';
 import { _FavoriteChapterCard, CollectionsContext, CollectionItemsPickerContent, CollectionPickerPopupContent, _FavoriteAuthorCard, ScreenSelectableRow, SCREEN_GROUP_CLASS, PopupSearchField } from './components/library/LibraryCards';
 import { MOCK_DEV_AUTHORS, MOCK_DEV_AUDIOBOOKS, normalizeBookCompareStr, extractNormalizedFileName, isSameAudiobook, deduplicateAudiobooks, isTestBookId, isTestAuthorId, TEST_COLLECTION_IDS } from './data/libraryData';
@@ -4075,23 +4075,33 @@ export default function App() {
             {/* Buscar um trecho no texto, no mesmo padrão da pesquisa do app (brilho ao digitar e X fora da
                 barra); as linhas marcadas continuam marcadas ao filtrar */}
             <PopupSearchField value={lyricsSearch} onChange={setLyricsSearch} placeholder={t('share_search_placeholder')} autoFocus={false} />
-            <div className={SCREEN_GROUP_CLASS}>
+            {/* Como a pesquisa na letra do player: as frases sem fundo, o trecho pesquisado destacado; dá para
+                pesquisar também por tempo ("1:2", "12:"). A frase escolhida ganha um destaque em volta */}
+            <div className="flex flex-col gap-1">
               {transcript.map((line, idx) => {
-                const query = normalizeSearchStr(lyricsSearch.trim());
                 if (!inShareChapter(line)) return null;
-                if (query && !normalizeSearchStr(transcriptLineText(line)).includes(query)) return null;
+                const rawQuery = lyricsSearch.trim();
+                const query = foldText(rawQuery);
+                const isTimeQuery = /^\d{1,2}(:\d{0,2}){1,2}$/.test(rawQuery);
+                const timeLabel = formatTime(shareChapter ? line.start - shareChapter.startTime : line.start);
+                if (query) {
+                  const textHit = foldText(transcriptLineText(line)).includes(query);
+                  const timeHit = isTimeQuery && (timeLabel.startsWith(rawQuery) || formatTime(line.start).startsWith(rawQuery));
+                  if (!textHit && !timeHit) return null;
+                }
                 const selected = lyricsSelection.includes(idx);
                 return (
-                  // Mesmo padrão de seleção dos Ajustes: linha destacada e ✓ à direita
                   <button
                     key={idx}
                     type="button"
                     onClick={() => toggle(idx)}
-                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[26px] transition-colors select-none ${selected ? 'bg-winblue/15 ' : ' hover:bg-[var(--hover-fill)]'}`}
+                    className={`w-full min-h-[52px] flex items-center gap-3.5 px-3 py-2.5 text-left rtl:text-right rounded-[22px] transition-colors select-none ${selected ? 'bg-winblue/15 ring-1 ring-inset ring-winblue/40' : ''}`}
                   >
                     <span className="flex-1 min-w-0 flex flex-col">
-                      <span className={`text-[15px] leading-snug ${selected ? 'text-winblue font-semibold' : 'text-[var(--text-main)]'}`}>{transcriptLineText(line)}</span>
-                      <span className="text-xs text-[var(--text-muted)] mt-0.5">{formatTime(line.start)}</span>
+                      <span className={`text-[15px] leading-snug ${selected ? 'text-winblue font-semibold' : 'text-[var(--text-main)]'}`}>
+                        {query && !isTimeQuery ? <MatchedText text={transcriptLineText(line)} query={query} matchClass="text-winblue font-semibold" /> : transcriptLineText(line)}
+                      </span>
+                      <span className={`text-xs mt-0.5 ${isTimeQuery ? 'text-winblue font-semibold' : 'text-[var(--text-muted)]'}`}>{timeLabel}</span>
                     </span>
                     <span className="shrink-0 w-6 flex items-center justify-center text-winblue">
                       {selected && <BsCheck2 size={18} />}
