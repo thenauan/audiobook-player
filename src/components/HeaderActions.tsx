@@ -137,7 +137,11 @@ export function HeaderActions() {
       return (
         <MobileHeaderActions
           quick={{ id: 'importing', icon: <ImportRingIcon />, menuIcon: <ImportRingIcon small />, label: importTitle, onClick: () => openMobileSheet({ kind: 'import-progress' }) }}
-          menu={[{ ...upload, icon: <Upload size={14} /> }, sortAction]}
+          menu={[
+            { ...upload, icon: <Upload size={14} /> },
+            sortAction,
+            { id: 'delete-multiple', icon: <Trash2 size={14} />, label: t('delete_multiple'), danger: true, onClick: () => setIsSelectionMode(true) },
+          ]}
         />
       );
     }

@@ -19,7 +19,8 @@ export function ImportRingIcon({ small = false }: { small?: boolean }) {
     <span className="import-ring relative grid place-items-center shrink-0" style={{ width: box, height: box }}>
       {/* Anel e ícone na mesma célula da grade: os dois ficam com o mesmo centro. O anel começa no topo
           (girado dentro do próprio desenho, sem depender de transformação no elemento) */}
-      <svg className="block col-start-1 row-start-1" width={box} height={box} viewBox={`0 0 ${box} ${box}`} aria-hidden="true">
+      {/* Tamanhos no próprio elemento: as regras gerais de ícones (cabeçalho, opções dos pop-ups) não os mudam */}
+      <svg className="block col-start-1 row-start-1" width={box} height={box} style={{ width: box, height: box }} viewBox={`0 0 ${box} ${box}`} aria-hidden="true">
         <circle cx={box / 2} cy={box / 2} r={r} fill="none" stroke="currentColor" strokeOpacity={0.14} strokeWidth={stroke} />
         <circle
           transform={`rotate(-90 ${box / 2} ${box / 2})`}
@@ -35,7 +36,7 @@ export function ImportRingIcon({ small = false }: { small?: boolean }) {
           style={{ transition: 'stroke-dashoffset 0.35s ease-out' }}
         />
       </svg>
-      <BookAudio size={small ? 9 : 13} className="block col-start-1 row-start-1" />
+      <BookAudio size={small ? 10 : 13} style={{ width: small ? 10 : 13, height: small ? 10 : 13 }} className="block col-start-1 row-start-1" />
     </span>
   );
 }
