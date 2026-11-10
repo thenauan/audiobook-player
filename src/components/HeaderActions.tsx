@@ -3,7 +3,7 @@ import { MobileHeaderActions, type MobileHeaderAction } from './MobileHeaderActi
 import { ArrowUpDown, Bookmark, Code2, Edit3, FolderPlus, Info, ListPlus, Plus, Quote, RotateCcw, Share, Star, Trash2, Upload } from 'lucide-react';
 import { Collection } from '../data/catalog';
 import { useAppScope } from '../app/AppScope';
-import { ImportCancelAllConfirm, ImportPanel, ImportRingIcon, useImportTitle } from './library/ImportProgress';
+import { ImportRingIcon, useImportTitle } from './library/ImportProgress';
 
 export function HeaderActions() {
   const { activeScreen, books, cleanupDeletedBooks, closeAllPopups, collections, favoriteAuthorIds, favoriteBookIds, fileInputRef, goBack, handleAddToQueue, handleDeleteCollection, handleExitDevMode, handleResetSettings, handleStartCreateCollection, handleStartEditAuthor, handleStartEditBook, handleStartEditCurrentCollection, isDevModeActive, navigateTo, openMobileSheet, openShareImage, openShareLyrics, renderSortOptions, selectedBook, setBooks, setIsSelectionMode, setSelectedCollectionIds, showToast, t, toggleFavoriteAuthor, toggleFavoriteBook } = useAppScope();
@@ -135,13 +135,10 @@ export function HeaderActions() {
     const upload: MobileHeaderAction = { id: 'upload', icon: <Upload size={15} />, label: t('upload_audiobooks'), onClick: () => fileInputRef.current?.click() };
     if (importTitle) {
       return (
-        <>
-          <MobileHeaderActions
-            quick={{ id: 'importing', icon: <ImportRingIcon />, menuIcon: <ImportRingIcon small />, label: importTitle, panel: <ImportPanel />, panelWidth: 300 }}
-            menu={[{ ...upload, icon: <Upload size={14} /> }, sortAction]}
-          />
-          <ImportCancelAllConfirm />
-        </>
+        <MobileHeaderActions
+          quick={{ id: 'importing', icon: <ImportRingIcon />, menuIcon: <ImportRingIcon small />, label: importTitle, onClick: () => openMobileSheet({ kind: 'import-progress' }) }}
+          menu={[{ ...upload, icon: <Upload size={14} /> }, sortAction]}
+        />
       );
     }
     return (

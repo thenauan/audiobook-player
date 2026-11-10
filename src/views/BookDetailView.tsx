@@ -30,6 +30,7 @@ import type {
   TranscriptLine,
 } from '../data/catalog';
 import { resolveNarratorAndLanguage } from '../data/catalog';
+import { useEditSwap, useProgressiveCount } from '../app/useEditSwap';
 import { splitAuthorNames } from '../lib/authorUtils';
 import { getGenericBookCover, getGenericCoverColor, getBookHighlightTheme, GENERIC_COVER_COLORS } from '../lib/coverArt';
 import { getGenreName, getSubgenreName } from '../i18n/genreTranslations';
@@ -236,6 +237,8 @@ export default function BookDetailView({
 }: BookDetailViewProps) {
   // Capítulos em exibição (extras podem estar ocultos em Ajustes)
   const shownChapters = visibleChapters(activeBook.chapters, useShowExtraChapters());
+  const editSwapRef = useEditSwap<HTMLDivElement>(isEditingBook);
+  const editRowsShown = useProgressiveCount(isEditingBook, activeBook.chapters.length);
   // Colunas da lista de capítulos: cada item tem largura fixa, para tudo ficar alinhado de cima a baixo. As opcionais
   // só existem se algum capítulo as usa, deixando mais espaço para o nome
   const chapterHasFavorites = shownChapters.some(cap => favoriteChapters.includes(`${activeBook.id}-${cap.id}`));
@@ -263,6 +266,7 @@ export default function BookDetailView({
   return (
     <motion.div
       key={`book-detail-${activeBook.id}`}
+      ref={editSwapRef}
       variants={transicaoConteudo}
       initial="escondido"
       animate="visivel"
@@ -656,7 +660,7 @@ export default function BookDetailView({
                   <span className="text-xs font-semibold text-[var(--text-muted)]">
                     {t('cover_color')}
                   </span>
-                  <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-2.5 py-3 rounded-2xl bg-card/60 backdrop-blur-md shadow-sm w-full">
+                  <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-2.5 py-3 rounded-2xl bg-card/60 shadow-sm w-full">
                     {GENERIC_COVER_COLORS.map((c: any) => {
                       const isSelected = !hasCustomCover && editCoverColor.toLowerCase() === c.hex.toLowerCase();
                       return (
@@ -701,7 +705,7 @@ export default function BookDetailView({
                       setEditBookCover(getGenericBookCover(val, editBookAuthor || activeBook.author, editCoverColor));
                     }
                   }}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('book_title_label')}
                 />
               </div>
@@ -720,7 +724,7 @@ export default function BookDetailView({
                       setEditBookCover(getGenericBookCover(editBookTitle || activeBook.title, val, editCoverColor));
                     }
                   }}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('author_label')}
                 />
               </div>
@@ -733,7 +737,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookCategory}
                   onChange={(e) => setEditBookCategory(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('genre_category_label')}
                 />
               </div>
@@ -746,7 +750,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookSubgenre}
                   onChange={(e) => setEditBookSubgenre(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('subgenre_label')}
                 />
               </div>
@@ -759,7 +763,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookNarrator}
                   onChange={(e) => setEditBookNarrator(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('narrator_label')}
                 />
               </div>
@@ -772,7 +776,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookLanguage}
                   onChange={(e) => setEditBookLanguage(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
+                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('language_label')}
                 />
               </div>
@@ -872,7 +876,7 @@ export default function BookDetailView({
               onChange={(e) => setEditBookDescription(e.target.value.slice(0, 1500))}
               maxLength={1500}
               rows={8}
-              className="w-full h-[232px] p-4 pb-7 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all resize-none custom-scrollbar"
+              className="w-full h-[232px] p-4 pb-7 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] resize-none custom-scrollbar"
               placeholder={t('synopsis')}
             />
             <span className="absolute bottom-2.5 right-3.5 text-[10px] text-[var(--text-muted)] pointer-events-none select-none">
@@ -925,11 +929,12 @@ export default function BookDetailView({
           {activeBook.chapters.map((cap, i) => {
             if (!isEditingBook && !shownChapters.includes(cap)) return null;
             if (isEditingBook) {
+              if (i >= editRowsShown) return null;
               const currentEditTitle = editBookChapters[i] ? editBookChapters[i].title : cap.title;
               return (
                 <div 
                   key={cap.id}
-                  className="flex items-center justify-between py-2 px-4 sm:px-5 rounded-full bg-card/40 mb-1.5 transition-all"
+                  className="flex items-center justify-between py-2 px-4 sm:px-5 rounded-full bg-card/40 mb-1.5"
                 >
                   <div className="flex items-center gap-3.5 flex-1 w-full">
                     <span className="w-6 text-center text-xs text-[var(--text-muted)] shrink-0">
@@ -948,7 +953,7 @@ export default function BookDetailView({
                           return base;
                         });
                       }}
-                      className="h-10 px-3.5 rounded-xl bg-card/75 text-[var(--text-main)] text-sm font-medium shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all flex-1"
+                      className="h-10 px-3.5 rounded-xl bg-card/75 text-[var(--text-main)] text-sm font-medium shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] flex-1"
                       placeholder={t('chapter_title_placeholder', { num: i + 1 })}
                     />
                   </div>

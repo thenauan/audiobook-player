@@ -11,11 +11,13 @@ import { Check, Star, Trash2, Upload } from 'lucide-react';
 import { Suspense } from 'react';
 import { BookCard } from '../../components/library/LibraryCards';
 import { ImageCropperSquare, transicaoConteudo } from '../../App';
+import { useEditSwap } from '../../app/useEditSwap';
 import { useScreenScope } from '../../app/AppScope';
 
 export function AuthorDetailScreen() {
   const { activeScreen, authorCropImage, authors, books, currentBook, editAuthorBio, editAuthorColor, editAuthorName, editAuthorNationality, editAuthorPicture, favoriteAuthorIds, favoriteBookIds, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleSelectAuthor, isBookCompleted, isBookStarted, isEditingAuthor, isPlaying, isSelectionMode, navigateTo, resolvedLanguage, selectedBooks, setAuthorCropImage, setCompletedChapters, setEditAuthorBio, setEditAuthorColor, setEditAuthorName, setEditAuthorNationality, setEditAuthorPicture, setEditingBook, setSelectedBooks, setStartedChapters, showToast, t, toggleFavoriteBook } = useScreenScope();
   const authorData: Author = authors.find(a => a.id === activeScreen.data.id) || activeScreen.data;
+  const editSwapRef = useEditSwap<HTMLDivElement>(isEditingAuthor);
   const authorBooks = books.filter(b => bookHasAuthor(b, authorData));
   const authorGenres: string[] = [];
   authorBooks.forEach(b => {
@@ -41,7 +43,7 @@ export function AuthorDetailScreen() {
     setAuthorCropImage(null);
   };
   return (
-  <motion.div key={`author-detail-${authorData.id}`} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="flex flex-col gap-8 mt-4 relative w-full">
+  <motion.div key={`author-detail-${authorData.id}`} ref={editSwapRef} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="flex flex-col gap-8 mt-4 relative w-full">
     {/* Celular em pé: foto de ponta a ponta no topo (como a capa nas páginas dos audiobooks) */}
     {!isEditingAuthor && (() => {
       const heroPic = getEffectiveAuthorAvatar(authorData.name, authorData.picture);
@@ -203,7 +205,7 @@ export function AuthorDetailScreen() {
                 <span className="text-xs font-semibold text-[var(--text-muted)]">
                   {t('profile_color')}
                 </span>
-                <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-3 py-3 rounded-2xl bg-card/60 backdrop-blur-md shadow-sm w-full">
+                <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-3 py-3 rounded-2xl bg-card/60 shadow-sm w-full">
                   {GENERIC_COVER_COLORS.map(c => {
                     const isSelected = !hasCustomAuthorPic && editAuthorColor.toLowerCase() === c.hex.toLowerCase();
                     return (
@@ -248,7 +250,7 @@ export function AuthorDetailScreen() {
                     setEditAuthorPicture(getAuthorAvatar(val.trim() || authorData.name, editAuthorColor));
                   }
                 }}
-                className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
+                className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                 placeholder={t('author_label')}
               />
             </div>
@@ -262,7 +264,7 @@ export function AuthorDetailScreen() {
                 list="author-nationalities-list"
                 value={editAuthorNationality}
                 onChange={(e) => setEditAuthorNationality(e.target.value)}
-                className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all"
+                className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                 placeholder={t('nationality_label')}
               />
               <datalist id="author-nationalities-list">
@@ -282,7 +284,7 @@ export function AuthorDetailScreen() {
                   onChange={(e) => setEditAuthorBio(e.target.value.slice(0, 350))}
                   maxLength={350}
                   rows={4}
-                  className="w-full h-[116px] p-3.5 pb-7 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm backdrop-blur-3xl focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-all resize-none custom-scrollbar"
+                  className="w-full h-[116px] p-3.5 pb-7 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] resize-none custom-scrollbar"
                   placeholder={t('author_bio')}
                 />
                 <span className="absolute bottom-2.5 right-3.5 text-[10px] text-[var(--text-muted)] pointer-events-none select-none">

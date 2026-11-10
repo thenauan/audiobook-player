@@ -44,6 +44,7 @@ export function MobileSheet({
   closeLabel,
   children,
   footer,
+  headerAction,
 }: {
   open: boolean;
   title: string;
@@ -53,6 +54,8 @@ export function MobileSheet({
   children: React.ReactNode;
   // Área fixa na base (ex.: botão de compartilhar)
   footer?: React.ReactNode;
+  // Botão no topo, do lado oposto ao de voltar (ex.: cancelar todos)
+  headerAction?: React.ReactNode;
 }) {
   const dragControls = useDragControls();
   const keyboard = useKeyboardInset(open);
@@ -219,6 +222,7 @@ export function MobileSheet({
                 <div className="px-14 text-center min-w-0">
                   <h2 className="text-[17px] font-semibold leading-tight truncate">{title}</h2>
                 </div>
+                {headerAction && <div className="absolute right-0 rtl:right-auto rtl:left-0">{headerAction}</div>}
               </div>
             </div>}
             <div ref={contentRef} className={`flex-1 min-h-0 overflow-y-auto overscroll-contain ${isDesktop ? '' : `px-[var(--page-margin)] ${footer ? 'pb-4' : 'pb-[max(20px,env(safe-area-inset-bottom))]'}`}`}>

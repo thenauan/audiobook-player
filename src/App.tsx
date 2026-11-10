@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback, useLayoutEffect, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, useLayoutEffect, useSyncExternalStore, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
@@ -18,7 +18,8 @@ import { parseSynchronizedTextFile } from './audio/transcripts';
 import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex } from './lib/coverArt';
 import { findActiveTranscriptIndex } from './audio/playbackTiming';
 import { storeAudioBlobChunked, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
-import { importStore } from './lib/importProgress';
+import { importStore, visibleImports } from './lib/importProgress';
+import { ImportCancelAllButton, ImportCancelAllConfirm, ImportList } from './components/library/ImportProgress';
 import { autoCropImageToSquare, autoCropImageToEbookCover } from './lib/imageProcessing';
 import Sidebar, { MobileBottomBar, tabBarStore } from './components/Sidebar';
 import { MenuOptionItem, clearButtonCoverAnchorCache, getButtonCoverPopupStyle, MorphPopup, morphTriggerAnimate, EMPTY_BOOK } from './components/popups/Popovers';
@@ -297,7 +298,8 @@ export type MobileSheetState =
   | { kind: 'bookmarks'; bookId: string; chapterId: any }
   | { kind: 'book-bookmarks'; bookId: string }
   | { kind: 'share-lyrics'; bookId: string }
-  | { kind: 'collection-form-items'; mode: 'authors' | 'books' };
+  | { kind: 'collection-form-items'; mode: 'authors' | 'books' }
+  | { kind: 'import-progress' };
 
 export interface HomeSection {
   id: string;
@@ -1582,7 +1584,13 @@ export default function App() {
       try {
         const meta = await parseAudioMetadata(file);
         if (importStore.isCanceled(importId)) continue;
-        importStore.update(importId, { progress: 0.06 });
+        // Capa, título e autor aparecem na lista assim que são lidos
+        importStore.update(importId, {
+          progress: 0.06,
+          title: meta.title || undefined,
+          author: meta.author && meta.author !== 'Autor Desconhecido' ? meta.author : undefined,
+          cover: meta.cover || undefined,
+        });
 
         // 2. Verificação pós-leitura de metadados (garante que mesmo arquivos renomeados do mesmo audiobook não dupliquem)
         const candidateBook: Partial<Audiobook> = {
@@ -3797,7 +3805,13 @@ export default function App() {
     setMobileSheet(sheet);
   };
   openMobileSheetRef.current = openMobileSheet;
-  const renderMobileSheetContent = (): { title: string; subtitle?: string; body: React.ReactNode; footer?: React.ReactNode } | null => {
+  // Folha de audiobooks sendo adicionados: o App só redesenha quando muda o singular/plural ou a lista esvazia
+  // (o progresso de cada um é lido pela própria lista)
+  const importCount = useSyncExternalStore(importStore.subscribe, () => Math.min(2, visibleImports(importStore.get().items).length));
+  useEffect(() => {
+    if (importCount === 0 && mobileSheet?.kind === 'import-progress') setMobileSheet(null);
+  }, [importCount, mobileSheet]);
+  const renderMobileSheetContent = (): { title: string; subtitle?: string; body: React.ReactNode; footer?: React.ReactNode; headerAction?: React.ReactNode } | null => {
     if (!mobileSheet) return null;
     if (mobileSheet.kind === 'collection-picker') {
       const { itemType, itemId } = mobileSheet;
@@ -3903,6 +3917,14 @@ export default function App() {
     }
     // Todas as marcações do audiobook, por capítulo; tocar numa abre as marcações daquele capítulo (onde se
     // edita e apaga)
+    if (mobileSheet.kind === 'import-progress') {
+      if (!importCount) return null;
+      return {
+        title: t(importCount > 1 ? 'import_adding_many' : 'import_adding_one'),
+        headerAction: <ImportCancelAllButton />,
+        body: <ImportList />,
+      };
+    }
     if (mobileSheet.kind === 'book-bookmarks') {
       const bk = books.find(b => b.id === mobileSheet.bookId);
       if (!bk) return null;
@@ -7723,6 +7745,9 @@ export default function App() {
           )}
         </AnimatePresence>
 
+        {/* Cancelar todos os audiobooks sendo adicionados (por cima da folha) */}
+        <ImportCancelAllConfirm />
+
         {/* Folha estilo iOS (fora da tela que recua) */}
         {(() => {
           const content = renderMobileSheetContent();
@@ -7735,6 +7760,7 @@ export default function App() {
               }}
               closeLabel={t('back')}
               footer={content?.footer}
+              headerAction={content?.headerAction}
             >
               {content?.body}
             </MobileSheet>

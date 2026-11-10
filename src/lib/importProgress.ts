@@ -9,6 +9,10 @@ export interface ImportItem {
   size: number;
   progress: number;
   status: ImportStatus;
+  // Lidos do arquivo assim que os metadados são processados (antes, a lista mostra o nome do arquivo)
+  title?: string;
+  author?: string;
+  cover?: string;
 }
 interface ImportState {
   items: ImportItem[];
@@ -46,10 +50,10 @@ export const importStore = {
     set({ items: [...state.items, ...added] });
     return added.map(a => a.id);
   },
-  update(id: string, patch: Partial<Pick<ImportItem, 'progress' | 'status'>>) {
+  update(id: string, patch: Partial<Pick<ImportItem, 'progress' | 'status' | 'title' | 'author' | 'cover'>>) {
     const cur = state.items.find(i => i.id === id);
     if (!cur || cur.status === 'canceled') return;
-    if (patch.progress !== undefined && patch.status === undefined && Math.abs(patch.progress - cur.progress) < 0.005) return;
+    if (patch.progress !== undefined && Object.keys(patch).length === 1 && Math.abs(patch.progress - cur.progress) < 0.005) return;
     set({ items: state.items.map(i => (i.id === id ? { ...i, ...patch } : i)) });
   },
   // Some da lista sem contar como cancelado (já estava na biblioteca, arquivo ilegível)

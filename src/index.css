@@ -1578,7 +1578,8 @@ html.standalone {
   }
   /* Ícones dos botões do cabeçalho (voltar, ações, três pontinhos) no tamanho dos símbolos do iOS */
   [data-app-header] :is(button, [role="button"]):not([data-popup-content] *) > svg,
-  [data-app-header] :is(button, [role="button"]):not([data-popup-content] *) > span > svg {
+  /* (o anel de "adicionando audiobooks" tem tamanhos próprios: anel em volta, ícone menor dentro) */
+  [data-app-header] :is(button, [role="button"]):not([data-popup-content] *) > span:not(.import-ring) > svg {
     width: 20px !important;
     height: 20px !important;
   }
@@ -2339,4 +2340,15 @@ html:not(.dark) .ambient-screen [class*="bg-white/"] {
    (uma camada escura translúcida mantém a cor do degradê e só muda o tom) */
 .card-tone-icon {
   color: rgb(0 0 0 / 0.26);
+}
+
+/* Celular: folhas de tela cheia (marcações, adicionando audiobooks, coleções…) quase opacas; o desfoque continua
+   por trás, mas o conteúdo da tela de baixo quase não aparece */
+@media (max-width: 1023px) {
+  [data-mobile-sheet]:not([data-popup-content]) {
+    background-color: rgb(255 255 255 / 0.94) !important;
+  }
+  html.dark [data-mobile-sheet]:not([data-popup-content]) {
+    background-color: rgb(28 28 32 / 0.94) !important;
+  }
 }
