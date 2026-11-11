@@ -11,7 +11,7 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro", "Inter", "Segoe UI", Roboto, sans-serif;
   --font-mono: -apple-system, BlinkMacSystemFont, "SF Pro", "Inter", "Segoe UI", Roboto, sans-serif;
 
-  --color-winblue: var(--winblue, #FF9500);
+  --color-winblue: var(--winblue, #007AFF);
   --shadow-2xs: 0 0 3px var(--shadow-soft);
   --shadow-xs: 0 0 4px var(--shadow-soft);
   --shadow-sm: 0 0 8px var(--shadow-soft);
@@ -164,10 +164,10 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
 @layer base {
   :root {
-    --app-winblue: #FF9500;
-    --app-winblue-rgb: 255, 149, 0;
-    --winblue: #FF9500;
-    --winblue-rgb: 255, 149, 0;
+    --app-winblue: #007AFF;
+    --app-winblue-rgb: 0, 122, 255;
+    --winblue: #007AFF;
+    --winblue-rgb: 0, 122, 255;
     --bg-mica: #FFFFFF;
     --button-outline: rgb(0 0 0 / 0.05);
     --surface-outline: rgb(0 0 0 / 0.03);
@@ -296,9 +296,9 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
 /* Pop-ups nunca devem ser afetados pela cor de destaque da capa nas páginas dos audiobooks */
 [data-popup-content="true"] {
-  --winblue: var(--app-winblue, #FF9500);
-  --winblue-rgb: var(--app-winblue-rgb, 255, 149, 0);
-  --color-winblue: var(--app-winblue, #FF9500);
+  --winblue: var(--app-winblue, #007AFF);
+  --winblue-rgb: var(--app-winblue-rgb, 0, 122, 255);
+  --color-winblue: var(--app-winblue, #007AFF);
 }
 
 /* Evita múltiplas camadas redundantes de backdrop-filter dentro de pop-ups e miniplayer que já possuem fundo desfocado */
@@ -324,6 +324,12 @@ kbd,
 samp,
 .font-mono {
   font-family: var(--font-sans) !important;
+}
+
+/* Ajustes → Fonte: serifada (a do sistema; nada a baixar) */
+html[data-font-family="serif"] {
+  --font-sans: ui-serif, "New York", "Iowan Old Style", Georgia, "Noto Serif", "Times New Roman", serif;
+  --font-mono: ui-serif, "New York", "Iowan Old Style", Georgia, "Noto Serif", "Times New Roman", serif;
 }
 
 body {
@@ -1912,6 +1918,8 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
   --dur-sheet: 600ms;
   --spring-morph: linear(0, 0.042, 0.143, 0.275, 0.415, 0.551, 0.672, 0.775, 0.858, 0.922, 0.969, 1.002, 1.022, 1.034, 1.038, 1.038, 1.035, 1.031, 1.025, 1.02, 1.015, 1.011, 1.007, 1.004, 1.002, 1, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 1);
   --dur-morph: 620ms;
+  --spring-settle: linear(0, 0.048, 0.171, 0.339, 0.526, 0.711, 0.876, 1.013, 1.114, 1.181, 1.214, 1.22, 1.205, 1.174, 1.135, 1.094, 1.054, 1.019, 0.99, 0.97, 0.957, 0.952, 0.952, 0.956, 0.964, 0.973, 0.982, 0.99, 0.998, 1.004, 1.008, 1.01, 1.011, 1.01, 1.009, 1.008, 1.006, 1.004, 1.002, 1, 1);
+  --dur-settle: 750ms;
   --ease-fade: cubic-bezier(0.2, 0, 0, 1);
   --dur-fade-in: 200ms;
   --dur-fade-out: 150ms;
@@ -1939,6 +1947,7 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
     --dur-press: 1ms; --dur-snappy: 200ms; --dur-sheet: 200ms;
     --spring-press: ease; --spring-snappy: ease; --spring-sheet: ease;
     --dur-morph: 200ms; --spring-morph: ease;
+    --dur-settle: 200ms; --spring-settle: ease;
   }
   *, *::before, *::after {
     animation-duration: 1ms !important;
@@ -1952,7 +1961,7 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
 @property --winblue {
   syntax: "<color>";
   inherits: true;
-  initial-value: #FF9500;
+  initial-value: #007AFF;
 }
 .accent-slide {
   transition: --winblue 300ms var(--ease-fade);
@@ -2376,7 +2385,7 @@ html.dark [data-player-sheet][data-queue-expanded] {
 
 /* Pesquisa dentro de pop-ups e folhas de tela cheia, parada: o cinza do destaque da barra de abas (o fundo de antes
    ficava quase da cor da folha e a barra sumia) */
-:is([data-mobile-sheet], [data-popup-content], [data-player-sheet]) [data-popup-search] {
+:is([data-mobile-sheet], [data-popup-content], [data-player-sheet]) :is([data-popup-search], [data-popup-search-clear]) {
   background-color: var(--ios-fill) !important;
 }
 /* Pesquisa dentro de pop-ups e folhas de tela cheia: ao digitar, o destaque aparece como na pesquisa do app (sobre a

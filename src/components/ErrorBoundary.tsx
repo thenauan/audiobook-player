@@ -206,9 +206,9 @@ ${error.stack || 'No stack trace available'}`;
           gap: 10px;
           padding: 12px 26px;
           border-radius: 9999px;
-          border: 1.5px solid var(--winblue, #FF9500);
-          background: rgba(255, 149, 0, 0.18);
-          color: var(--winblue, #FF9500);
+          border: 1.5px solid var(--winblue, #007AFF);
+          background: rgba(0, 122, 255, 0.18);
+          color: var(--winblue, #007AFF);
           font-weight: 600;
           font-size: 14px;
           cursor: pointer;
@@ -217,10 +217,10 @@ ${error.stack || 'No stack trace available'}`;
         }
         .error-reload-btn:hover {
           transform: scale(1.06);
-          border-color: var(--winblue, #FF9500);
-          color: var(--winblue, #FF9500);
-          background: rgba(255, 149, 0, 0.30);
-          box-shadow: 0 0 25px rgba(255, 149, 0, 0.85), 0 0 50px rgba(201, 52, 0, 0.45);
+          border-color: var(--winblue, #007AFF);
+          color: var(--winblue, #007AFF);
+          background: rgba(0, 122, 255, 0.30);
+          box-shadow: 0 0 25px rgba(0, 122, 255, 0.85), 0 0 50px rgba(0, 64, 221, 0.45);
         }
         .error-reload-btn:active {
           transform: scale(1.02);

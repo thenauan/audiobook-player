@@ -287,7 +287,7 @@ const MIN_ACCENT_CONTRAST = 3;
 // Destaque tirado da capa: sem croma suficiente (capa preta e branca) vale o laranja do player. A croma tem um teto,
 // para nenhuma capa gerar um destaque berrante, e a luminosidade muda até dar contraste com o fundo da tela
 export function getBookHighlightTheme(rawHex: string, isDark: boolean): { hex: string; rgb: string } {
-  const fallback = isDark ? '#FF9F0A' : '#FF9500';
+  const fallback = isDark ? '#0A84FF' : '#007AFF';
   const valid = /^#?[0-9a-f]{6}$/i.test(rawHex || '');
   const source = valid ? `#${rawHex.replace('#', '')}` : fallback;
   let [L, C, H] = hexToOklch(source);

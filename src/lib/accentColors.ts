@@ -1,9 +1,11 @@
-// Cores de sistema da Apple: tom do modo claro, do escuro e as versões sóbrias de "Aumentar contraste"
+// Cor de destaque. Azul e laranja: cores de sistema da Apple (tom do modo claro, do escuro e as versões de
+// "Aumentar contraste"). As demais em tons sóbrios: menos saturados e menos claros que as de sistema
+export const DEFAULT_ACCENT = 'blue';
 export const ACCENT_COLORS: Record<string, { name: string; hex: string; dark: string; soberLight: string; soberDark: string }> = {
-  orange: { name: 'Laranja', hex: '#FF9500', dark: '#FF9F0A', soberLight: '#C93400', soberDark: '#FFB340' },
   blue: { name: 'Azul', hex: '#007AFF', dark: '#0A84FF', soberLight: '#0040DD', soberDark: '#409CFF' },
-  purple: { name: 'Roxo', hex: '#AF52DE', dark: '#BF5AF2', soberLight: '#8944AB', soberDark: '#DA8FFF' },
-  green: { name: 'Verde', hex: '#34C759', dark: '#30D158', soberLight: '#248A3D', soberDark: '#30DB5B' },
-  red: { name: 'Vermelho', hex: '#FF3B30', dark: '#FF453A', soberLight: '#D70015', soberDark: '#FF6961' },
-  pink: { name: 'Rosa', hex: '#FF2D55', dark: '#FF375F', soberLight: '#D30F45', soberDark: '#FF6482' },
+  orange: { name: 'Laranja', hex: '#FF9500', dark: '#FF9F0A', soberLight: '#C93400', soberDark: '#FFB340' },
+  purple: { name: 'Roxo', hex: '#7E57A8', dark: '#9E7CC4', soberLight: '#5F3F85', soberDark: '#BBA0DA' },
+  green: { name: 'Verde', hex: '#3D8458', dark: '#56A473', soberLight: '#2A6340', soberDark: '#7DC496' },
+  red: { name: 'Vermelho', hex: '#B9473F', dark: '#CF6359', soberLight: '#93322B', soberDark: '#E48D85' },
+  pink: { name: 'Rosa', hex: '#B4506C', dark: '#CB6F88', soberLight: '#8E3A52', soberDark: '#E199AD' },
 };

@@ -5,6 +5,7 @@ import { getDiagText, clearDiag } from '../audio/playbackDiag';
 import { useLiteMode, setLiteMode, useSystemInfo } from '../lib/liteMode';
 import { useLyricsHighlight, setLyricsHighlight } from '../audio/lyricsPrefs';
 import { useShowExtraChapters, setShowExtraChapters } from '../audio/chapterPrefs';
+import { useFontFamilyPref, fontFamilyPref } from '../lib/fontFamilyPref';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -12,8 +13,7 @@ import {
   Sliders, Type, ALargeSmall, Globe, FolderOpen, RefreshCw, Clock, Download, Upload,
   Gauge, Play, FileText, Activity, CheckCircle2, ListPlus, Database, Trash2, Info,
   Turtle, Rabbit, Dog, Bird, Clock3, Clock6, Clock9, Clock12, Hand, Power, ChevronRight, Feather, Copy, Highlighter, WholeWord, AlignLeft,
-  Sparkles,
-} from 'lucide-react';
+  Sparkles, CaseSensitive } from 'lucide-react';
 import { BsPlayFill, BsArrowClockwise, BsArrowCounterclockwise } from 'react-icons/bs';
 import {
   SupportedLanguage,
@@ -439,6 +439,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   const lyricsHighlight = useLyricsHighlight();
+
+  const fontFamily = useFontFamilyPref();
   const showExtraChapters = useShowExtraChapters();
   const lyricsHighlightLabels = { both: t('lyrics_hl_both'), phrase: t('lyrics_hl_phrase'), word: t('lyrics_hl_word') };
   // Modo leve e configuração do aparelho (Sistema)
@@ -643,8 +645,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 }}
                 className="h-8 pl-3 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
-                <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#FF9500' }} />
-                <span>{t('color_' + accentColor) || ACCENT_COLORS[accentColor]?.name || 'Laranja'}</span>
+                <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#007AFF' }} />
+                <span>{t('color_' + accentColor) || ACCENT_COLORS[accentColor]?.name || 'Azul'}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
               </motion.button>
             </div>
@@ -686,6 +688,47 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
                 <span>{fontSize === 'large' ? t('font_large') : t('font_standard')}</span>
+                <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
+              </motion.button>
+            </div>
+
+            {/* 4. Fonte: a padrão ou uma serifada */}
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)] cursor-pointer flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                  <CaseSensitive size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-base text-[var(--text-main)]">{t('settings_font_family')}</span>
+                  <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('settings_font_family_sub')}</span>
+                </div>
+              </div>
+              <motion.button
+                data-press="true"
+                animate={morphTriggerAnimate(activeSettingSelector?.id === 'font-family')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (activeSettingSelector?.id === 'font-family') {
+                    setActiveSettingSelector(null);
+                    return;
+                  }
+                  closeAllPopups();
+                  setActiveSettingSelector({
+                    id: 'font-family',
+                    triggerEl: e.currentTarget,
+                    title: t('settings_font_family'),
+                    subtitle: t('settings_font_family_sub'),
+                    currentValue: fontFamily,
+                    options: [
+                      { value: 'standard', label: t('font_family_standard'), icon: <span aria-hidden="true" className="text-[13px] font-semibold leading-none" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", Roboto, sans-serif' }}>Aa</span> },
+                      { value: 'serif', label: t('font_family_serif'), icon: <span aria-hidden="true" className="text-[13px] font-semibold leading-none" style={{ fontFamily: 'ui-serif, "New York", "Iowan Old Style", Georgia, "Noto Serif", serif' }}>Aa</span> },
+                    ],
+                    onSelect: (val: any) => fontFamilyPref.set(val === 'serif' ? 'serif' : 'standard')
+                  });
+                }}
+                className="h-8 pl-3.5 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
+              >
+                <span>{fontFamily === 'serif' ? t('font_family_serif') : t('font_family_standard')}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
               </motion.button>
             </div>

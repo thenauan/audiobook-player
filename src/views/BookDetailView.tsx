@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { useShowExtraChapters, visibleChapters } from '../audio/chapterPrefs';
+import { requestSystemBarColor } from '../lib/systemBars';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Star,
@@ -259,6 +260,12 @@ export default function BookDetailView({
     ? ((isEditingBook && editCoverColor) ? editCoverColor : getGenericCoverColor(effectiveCover, activeBook.title, activeBook.author))
     : ((getCustomCoverColor?.(effectiveCover)) || getGenericCoverColor(effectiveCover, activeBook.title, activeBook.author));
   const bookHighlight = getBookHighlightTheme(rawCoverHex, resolvedTheme === 'dark');
+  // Android: as barras do sistema ficam na cor da capa enquanto a página do audiobook está aberta (fora do editor)
+  const barColor = /^#?[0-9a-f]{6}$/i.test(rawCoverHex || '') ? `#${rawCoverHex.replace('#', '')}` : bookHighlight.hex;
+  React.useEffect(() => {
+    if (isEditingBook) return;
+    return requestSystemBarColor(barColor);
+  }, [barColor, isEditingBook]);
 
   const handleRemoveBookCover = () => {
     setEditBookCover(getGenericBookCover(editBookTitle || activeBook.title, editBookAuthor || activeBook.author, editCoverColor));

@@ -1,11 +1,11 @@
 import React from 'react';
 // Conteúdo dos pop-ups do player, comum ao player em tela cheia ("fs") e ao miniplayer ("mini").
 // Cada controle decide onde o pop-up abre; aqui fica só o que aparece dentro dele.
-import { AnimatePresence, Reorder, motion } from 'motion/react';
+import { AnimatePresence, Reorder, animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
 import { PagedMenu, QueueItemRow, SmoothSubMorph } from '../popups/Popovers';
 import { Bookmark, CheckCircle2, ChevronUp, Headphones, ListX, Maximize2, Minimize2, Star, Pause, Play, Volume2, VolumeX, X } from 'lucide-react';
 import { useSessionHistory } from '../../lib/sessionHistory';
-import { SPRING } from '../../lib/motion';
+import { FADE_IN, FADE_OUT, SPRING } from '../../lib/motion';
 import { BsCheck2 } from 'react-icons/bs';
 import { getGenericBookCover } from '../../lib/coverArt';
 import { Chapter } from '../../data/catalog';
@@ -193,6 +193,14 @@ const QUEUE_MORPH = 'var(--dur-sheet) var(--spring-sheet)';
 const QueueMorphContext = React.createContext(false);
 const QUEUE_MORPH_MS = 600;
 const MORPH_PROPS = ['transition', 'height', 'maxHeight', 'left', 'right', 'bottom', 'borderRadius', 'clipPath', 'webkitClipPath'];
+// Título do cabeçalho: 14px no canto (fila pequena) e 17px no centro (tela cheia); a escala vai de um ao outro
+const TITLE_COMPACT_SCALE = 14 / 17;
+// Botões do cabeçalho: entram com fade e um leve crescimento, saem rápido
+const HEADER_BTN_MOTION = {
+  initial: { opacity: 0, scale: 0.82 },
+  animate: { opacity: 1, scale: 1, transition: { opacity: { ...FADE_IN, delay: 0.08 }, scale: { ...SPRING.snappy, delay: 0.08 } } },
+  exit: { opacity: 0, scale: 0.82, transition: { opacity: FADE_OUT, scale: SPRING.snappy } },
+};
 export function QueueContent({ variant }: { variant: PopupVariant }) {
   const { fsNowPlayingRef, fsQueueScrollRef, isMobile, miniNowPlayingRef, miniQueueScrollRef, playbackQueue, setMobileConfirm, setPlaybackQueue, showToast, t } = useAppScope();
   const rootRef = React.useRef<HTMLDivElement>(null);
@@ -203,22 +211,43 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
   const savedHeight = React.useRef(0);
   const savedStyle = React.useRef<Record<string, string>>({});
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const collapsing = React.useRef(false);
   React.useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  // Cabeçalho: muda junto com o cartão (no início da mudança, não ao fim). O título desliza do canto ao centro
+  // e muda de escala acompanhando um progresso de 0 a 1 com a mesma mola do cartão; reversível no meio do caminho
+  const [headerOpen, setHeaderOpen] = React.useState(false);
+  const reduceMotion = useReducedMotion();
+  const titleProgress = useMotionValue(0);
+  const rtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
+  // Posição em unidades do próprio cabeçalho (cqw): acompanha a largura do cartão enquanto ele cresce, sem medir nada
+  const titleTransform = useTransform(titleProgress, p =>
+    `translateY(-50%) translateX(calc(${(rtl ? -p : p).toFixed(4)} * (50cqw - 12px - 50%))) scale(${(TITLE_COMPACT_SCALE + (1 - TITLE_COMPACT_SCALE) * p).toFixed(4)})`);
+  const moveTitle = (to: number) => {
+    animate(titleProgress, to, reduceMotion ? { duration: 0.2, ease: 'easeOut' } : SPRING.sheet);
+  };
   const card = () => rootRef.current?.closest('[data-player-sheet]') as HTMLElement | null;
   const wrappers = (c: HTMLElement) => [c.firstElementChild as HTMLElement | null, c.firstElementChild?.firstElementChild as HTMLElement | null];
   const expand = () => {
     const c = card();
+    // Expandir no meio de uma diminuição: o cartão volta de onde está, sem reiniciar
+    const resuming = collapsing.current;
+    collapsing.current = false;
+    if (timer.current) { clearTimeout(timer.current); timer.current = null; }
     setMorphing(true);
     setExpanded(true);
+    setHeaderOpen(true);
+    moveTitle(1);
     if (!c) return;
-    savedHeight.current = c.getBoundingClientRect().height;
-    // Valores do próprio cartão (posição e cantos), devolvidos ao terminar de diminuir
-    savedStyle.current = Object.fromEntries(MORPH_PROPS.map(k => [k, (c.style as any)[k] as string]));
-    c.style.transition = 'none';
-    c.style.height = `${savedHeight.current}px`;
-    c.style.maxHeight = 'none';
-    void c.offsetHeight;
-    c.style.transition = ['height', 'left', 'right', 'bottom', 'border-radius', 'background-color'].map(prop => `${prop} ${QUEUE_MORPH}`).join(', ');
+    if (!resuming) {
+      savedHeight.current = c.getBoundingClientRect().height;
+      // Valores do próprio cartão (posição e cantos), devolvidos ao terminar de diminuir
+      savedStyle.current = Object.fromEntries(MORPH_PROPS.map(k => [k, (c.style as any)[k] as string]));
+      c.style.transition = 'none';
+      c.style.height = `${savedHeight.current}px`;
+      c.style.maxHeight = 'none';
+      void c.offsetHeight;
+      c.style.transition = ['height', 'left', 'right', 'bottom', 'border-radius', 'background-color'].map(prop => `${prop} ${QUEUE_MORPH}`).join(', ');
+    }
     // Em tela cheia, quase opaco (como as folhas de tela cheia)
     c.dataset.queueExpanded = 'true';
     c.style.left = '0px';
@@ -233,7 +262,10 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
   };
   const collapse = () => {
     const c = card();
+    setHeaderOpen(false);
+    moveTitle(0);
     if (!c) { setExpanded(false); setMorphing(false); return; }
+    collapsing.current = true;
     const o = savedStyle.current;
     delete c.dataset.queueExpanded;
     c.style.left = o.left || 'var(--mobile-bar-inset)';
@@ -245,6 +277,7 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
     (c.style as any).webkitClipPath = o.webkitClipPath || '';
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
+      collapsing.current = false;
       // Volta ao conteúdo do pop-up com a mesma altura que ele já tem na tela
       MORPH_PROPS.forEach(k => { (c.style as any)[k] = o[k] || ''; });
       wrappers(c).forEach(w => { if (w) { w.style.flex = ''; w.style.minHeight = ''; } });
@@ -263,46 +296,57 @@ export function QueueContent({ variant }: { variant: PopupVariant }) {
     <>
     <div ref={rootRef} className={`relative z-10 flex flex-col min-h-0 ${expanded ? 'flex-1' : variant === 'fs' ? 'max-h-[392px]' : 'max-h-[310px]'} overflow-hidden`}>
       {morphing && <span data-paged-morphing="true" hidden />}
-      {expanded ? (
-        <div className="relative px-1 pt-1 pb-2 flex items-center justify-center min-h-11 shrink-0">
-          <motion.button
-            data-press="true"
-            onClick={(e) => { e.stopPropagation(); collapse(); }}
-            aria-label={t('queue_collapse')}
-            title={t('queue_collapse')}
-            className={`${roundBtn} absolute left-1 rtl:left-auto rtl:right-1 text-[var(--text-main)]`}
-          >
-            <Minimize2 size={16} />
-          </motion.button>
-          <span className="text-[17px] font-semibold text-[var(--text-main)] truncate px-12">{t('queue')}</span>
-          <motion.button
-            data-press="true"
-            onClick={(e) => { e.stopPropagation(); clearQueue(); }}
-            disabled={playbackQueue.length === 0}
-            aria-label={t('clear_queue')}
-            title={t('clear_queue')}
-            className={`${roundBtn} absolute right-1 rtl:right-auto rtl:left-1 text-red-500 disabled:opacity-40`}
-          >
-            <ListX size={16} />
-          </motion.button>
-        </div>
-      ) : (
-        <div className="px-3 py-2 mb-1 flex items-center justify-between pb-2 shrink-0">
-          <span className="text-sm font-bold text-[var(--text-main)]">{t('queue')}</span>
-          {/* Celular: a fila inteira em tela cheia */}
-          {isMobile && (
+      {/* Um cabeçalho só nos dois tamanhos (mesma altura): o título se move e os botões trocam com fade */}
+      <div className="relative h-11 mb-1 shrink-0 [container-type:inline-size]">
+        <motion.span
+          style={{ transform: titleTransform }}
+          className="absolute top-1/2 left-3 rtl:left-auto rtl:right-3 origin-left rtl:origin-right text-[17px] font-bold leading-6 text-[var(--text-main)] truncate max-w-[calc(100cqw-104px)] will-change-transform pointer-events-none"
+        >
+          {t('queue')}
+        </motion.span>
+        <AnimatePresence initial={false}>
+          {headerOpen ? (
+            <React.Fragment key="open">
+              <motion.button
+                key="collapse"
+                {...HEADER_BTN_MOTION}
+                data-press="true"
+                onClick={(e) => { e.stopPropagation(); collapse(); }}
+                aria-label={t('queue_collapse')}
+                title={t('queue_collapse')}
+                className={`${roundBtn} absolute top-1 left-1 rtl:left-auto rtl:right-1 text-[var(--text-main)]`}
+              >
+                <Minimize2 size={16} />
+              </motion.button>
+              <motion.button
+                key="clear"
+                {...HEADER_BTN_MOTION}
+                data-press="true"
+                onClick={(e) => { e.stopPropagation(); clearQueue(); }}
+                disabled={playbackQueue.length === 0}
+                aria-label={t('clear_queue')}
+                title={t('clear_queue')}
+                className={`${roundBtn} absolute top-1 right-1 rtl:right-auto rtl:left-1 text-red-500 disabled:opacity-40`}
+              >
+                <ListX size={16} />
+              </motion.button>
+            </React.Fragment>
+          ) : isMobile ? (
+            /* Celular: a fila inteira em tela cheia */
             <motion.button
+              key="expand"
+              {...HEADER_BTN_MOTION}
               data-press="true"
               onClick={(e) => { e.stopPropagation(); expand(); }}
               aria-label={t('queue_expand')}
               title={t('queue_expand')}
-              className="w-8 h-8 -my-1 rounded-full bg-card/75 flex items-center justify-center text-[var(--text-main)] shrink-0"
+              className="absolute top-1.5 right-3 rtl:right-auto rtl:left-3 w-8 h-8 rounded-full bg-card/75 flex items-center justify-center text-[var(--text-main)] shrink-0"
             >
               <Maximize2 size={14} />
             </motion.button>
-          )}
-        </div>
-      )}
+          ) : null}
+        </AnimatePresence>
+      </div>
       {/* Aviso fora da lista: não fica atrás do esmaecimento do topo e, ao sumir, não deixa espaço a mais entre os
           capítulos anteriores e o que está tocando */}
       <AnimatePresence initial={false}>

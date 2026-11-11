@@ -1,4 +1,5 @@
 import React from 'react';
+import { queryWords, searchLyrics } from '../../lib/lyricSearch';
 
 import { MoreHorizontal } from 'lucide-react';
 
@@ -186,17 +187,24 @@ export function MatchedText({ text, query, matchClass = 'text-[var(--book-accent
     for (let k = 0; k < f.length; k++) map.push(i);
     folded += f;
   }
+  // Trechos a destacar (no texto sem acentos): a busca inteira; se ela não aparece junta, cada palavra buscada
+  const ranges: [number, number][] = [];
+  const collect = (needle: string) => {
+    if (!needle) return;
+    for (let at = folded.indexOf(needle); at !== -1; at = folded.indexOf(needle, at + needle.length)) ranges.push([at, at + needle.length]);
+  };
+  collect(query);
+  if (ranges.length === 0) queryWords(query).forEach(collect);
+  ranges.sort((a, b) => a[0] - b[0]);
   const parts: React.ReactNode[] = [];
   let from = 0;
-  let at = folded.indexOf(query);
-  while (at !== -1) {
-    const start = map[at];
-    const after = at + query.length;
-    const end = after < map.length ? map[after] : text.length;
+  for (const [a, b] of ranges) {
+    const start = map[a];
+    const end = b < map.length ? map[b] : text.length;
+    if (start < from) continue;
     if (start > from) parts.push(text.slice(from, start));
     parts.push(<span key={start} data-match="true" className={matchClass}>{text.slice(start, end)}</span>);
     from = end;
-    at = folded.indexOf(query, after);
   }
   if (from < text.length) parts.push(text.slice(from));
   return <>{parts}</>;
@@ -212,20 +220,24 @@ export function LyricSearchResults({ transcript, chapters, query, emptyText, mor
   // Computador: três pontinhos ao passar o mouse
   onOptions?: (line: TranscriptLine) => void;
 }) {
-  const found = React.useMemo(() => {
-    const list: { line: TranscriptLine; idx: number; text: string }[] = [];
-    for (let idx = 0; idx < transcript.length && list.length < 100; idx++) {
-      const line = transcript[idx];
-      const text = line.words?.length ? line.words.map(w => w.text).join(' ') : line.text;
-      if (foldText(text).includes(query)) list.push({ line, idx, text });
-    }
-    return list;
-  }, [transcript, query]);
+  // Em ordem de correspondência; empate: do início do audiobook para o fim. Por tempo: no capítulo (como aparece
+  // embaixo de cada frase) ou no audiobook
+  const lineText = (line: TranscriptLine) => (line.words?.length ? line.words.map(w => w.text).join(' ') : line.text);
+  const chapterOf = (line: TranscriptLine) => chapters.find(ch => line.start >= ch.startTime && line.start < ch.startTime + ch.duration);
+  const found = React.useMemo(() => searchLyrics(
+    transcript,
+    query,
+    lineText,
+    line => { const ch = chapterOf(line); return ch ? [line.start - ch.startTime, line.start] : [line.start]; },
+    formatTime,
+  ).map(h => ({ line: h.item, idx: h.index, text: lineText(h.item), byTime: h.byTime })),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [transcript, chapters, query]);
   if (found.length === 0) return <p className="text-sm text-[var(--text-muted)] text-center py-10">{emptyText}</p>;
   return (
     <>
-      {found.map(({ line, idx, text }) => {
-        const chapter = chapters.find(ch => line.start >= ch.startTime && line.start < ch.startTime + ch.duration);
+      {found.map(({ line, idx, text, byTime }) => {
+        const chapter = chapterOf(line);
         return (
           <p key={idx} data-transcript-idx={idx} onClick={() => onPick(line)} className="group/lyricres relative px-4 py-1 md:py-2.5 md:pr-12 md:rounded-3xl md:transition-colors md:hover:bg-[var(--hover-fill)] cursor-pointer text-lg font-bold leading-snug text-[var(--text-main)]">
             {onOptions && (
@@ -239,7 +251,7 @@ export function LyricSearchResults({ transcript, chapters, query, emptyText, mor
               </button>
             )}
             <MatchedText text={text} query={query} />
-            <span className="block mt-1 text-[10px] font-medium text-[var(--text-muted)] truncate">
+            <span className={`block mt-1 text-[10px] truncate ${byTime ? 'font-semibold text-[var(--book-accent)]' : 'font-medium text-[var(--text-muted)]'}`}>
               {chapter ? `${chapter.title} • ${formatTime(line.start - chapter.startTime)}` : formatTime(line.start)}
             </span>
           </p>

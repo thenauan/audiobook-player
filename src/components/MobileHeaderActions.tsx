@@ -226,7 +226,7 @@ export function MobileHeaderActions({
           {asPill && quick ? (
             <motion.div
               ref={pillRef}
-              animate={{ ...morphTriggerAnimate(open), width: pillBall ? 44 : 88, transition: { ...morphTriggerAnimate(open).transition, width: SPRING.snappy } }}
+              animate={{ ...morphTriggerAnimate(open), width: pillBall ? 44 : 88, transition: { ...morphTriggerAnimate(open).transition, width: SPRING.settle } }}
               initial={false}
               className={`${pillShell} overflow-hidden`}
             >
@@ -238,7 +238,7 @@ export function MobileHeaderActions({
                 initial={false}
                 // Some encolhendo num fade rápido; ao voltar, o inverso (cresce aparecendo, no mesmo ritmo)
                 animate={{ width: pillBall ? 0 : 44, opacity: pillBall ? 0 : 1, scale: pillBall ? 0.5 : 1 }}
-                transition={{ width: SPRING.snappy, scale: QUICK_SHRINK, opacity: QUICK_SHRINK }}
+                transition={{ width: SPRING.settle, scale: pillBall ? QUICK_SHRINK : SPRING.settle, opacity: QUICK_SHRINK }}
                 onClick={(e) => { e.stopPropagation(); runAction(quick, false); }}
                 className={`${pillBtn} shrink-0 overflow-hidden ${quick.active ? 'text-winblue' : ''} ${quick.danger ? 'text-red-500' : ''}`}
               >

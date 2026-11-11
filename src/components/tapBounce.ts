@@ -1,6 +1,6 @@
 // ===== Toque nos botões (Guia de movimento e layout) =====
-// O feedback começa ao encostar: o botão encolhe em 80 ms e, ao soltar, volta com a mola `press`. A ação nunca espera
-// pela animação. Usa a propriedade CSS `scale`, que se soma ao `transform` das animações (motion), então não briga
+// O feedback começa ao encostar: o botão encolhe em 80 ms e, ao soltar, volta com a mola `release`. A ação nunca espera
+// pela animação; a volta passa um pouco do tamanho e assenta. Usa a propriedade CSS `scale`, que se soma ao `transform` das animações (motion), então não briga
 // com as animações de entrada.
 import { CSS_SPRING } from '../lib/motion';
 
@@ -8,11 +8,14 @@ const SELECTOR = 'button, [role="button"], [data-press]';
 // Cards das listas (Mais, Ajuda, Ajustes): no toque o card inteiro responde, mesmo tocando num botão dentro dele
 const CARD = '.settings-list-row, [data-tap-card]';
 // Itens que têm efeito próprio (opções dos pop-ups, abas da barra, letra do player) ou que não são botões
-const EXCLUDE = '[data-popup-option], [role="tab"], [role="tablist"], .fullscreen-transcript, [data-no-press], input, textarea, select';
+// (Opções dentro de pop-ups nunca encolhem: no iPhone, um item mudando de escala dentro do vidro deixa o pop-up
+// transparente)
+const EXCLUDE = '[data-popup-option], [data-popup-content] button.group.w-full, [role="tab"], [role="tablist"], .fullscreen-transcript, [data-no-press], input, textarea, select';
 
 const EASE = 'cubic-bezier(0.2, 0, 0, 1)';
 const PRESS = [`scale 80ms ${EASE}`, `opacity 80ms ${EASE}`];
-const RELEASE = [`scale ${CSS_SPRING.press.ms}ms ${CSS_SPRING.press.curve}`, `opacity 200ms ${EASE}`];
+// Ao soltar, a mola passa um pouco do tamanho e assenta: o clique se vê mesmo depois do destaque
+const RELEASE = [`scale ${CSS_SPRING.release.ms}ms ${CSS_SPRING.release.curve}`, `opacity 200ms ${EASE}`];
 // Mesmo um toque rápido mostra o encolhimento
 const MIN_PRESS = 80;
 
@@ -54,7 +57,7 @@ export function installTapBounce(): () => void {
       if (current === el) return;
       el.style.transition = el.dataset.pressPrevTransition || '';
       delete el.dataset.pressPrevTransition;
-    }, CSS_SPRING.press.ms + 20);
+    }, CSS_SPRING.release.ms + 20);
   };
 
   const release = () => {

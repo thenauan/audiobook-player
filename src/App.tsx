@@ -43,8 +43,11 @@ import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInFiel
 import { installTouchMenus } from './components/popups/touchMenu';
 import { installScrollFades } from './components/scrollFade';
 import { MatchedText, foldText } from './components/player/LyricView';
+import { searchLyrics } from './lib/lyricSearch';
 import { withChunkReload } from './lib/chunkReload';
 import { audioBusy } from './audio/audioBusy';
+import { setSystemBarBase } from './lib/systemBars';
+import { fontFamilyPref } from './lib/fontFamilyPref';
 import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo, getZoomReturnRect } from './components/ZoomTransitionLayer';
 // Sem o arquivo (versão antiga aberta depois de uma publicação nova): recarrega para a versão atual
 const loadImageCropperSquare = withChunkReload(() => import('./components/ImageCropperSquare'));
@@ -91,8 +94,8 @@ import { isSyncTextFile, syncTextStem } from './audio/transcripts';
 import { extractCoverPalette } from './lib/coverArt';
 import { slimQueueForStorage } from './audio/queueUtils';
 import { cancelLyricCentering, centerLyricLine } from './components/player/lyricScroll';
-import { SPRING, FADE_IN, FADE_OUT } from './lib/motion';
-import { ACCENT_COLORS } from './lib/accentColors';
+import { SPRING, FADE_IN, FADE_OUT, HEADER_SWAP } from './lib/motion';
+import { ACCENT_COLORS, DEFAULT_ACCENT } from './lib/accentColors';
 import { EmojiIcon } from './components/EmojiIcon';
 import { canSendSuggestion, crossedBookMilestone, getSentSuggestions, markSuggestionSent, markSuggestionTime, pickContentSuggestion, takeWeeklySeconds } from './lib/contentNotifications';
 import { AmbientBackground } from './components/AmbientBackground';
@@ -1436,14 +1439,14 @@ export default function App() {
   // Ajustes: Interface
   const [accentColor, setAccentColor] = useState<string>(() => {
     const saved = localStorage.getItem('app_accent_color');
-    // O azul era o padrão e ficava gravado sem ninguém escolher: passa uma vez para o novo padrão
-    if (!localStorage.getItem('app_accent_v2')) {
-      localStorage.setItem('app_accent_v2', '1');
-      if (saved === 'blue') return 'orange';
+    // O laranja foi o padrão por um tempo e ficava gravado sem ninguém escolher: volta uma vez para o azul
+    if (!localStorage.getItem('app_accent_v3')) {
+      localStorage.setItem('app_accent_v3', '1');
+      if (saved === 'orange') return DEFAULT_ACCENT;
     }
-    return saved || 'orange';
+    return saved && ACCENT_COLORS[saved] ? saved : DEFAULT_ACCENT;
   });
-  const _currentAccentHex = ACCENT_COLORS[accentColor]?.hex || ACCENT_COLORS.orange.hex;
+  const _currentAccentHex = ACCENT_COLORS[accentColor]?.hex || ACCENT_COLORS[DEFAULT_ACCENT].hex;
   void _currentAccentHex;
   const [uiDensity, setUiDensity] = useState<'compact'>('compact');
   const [fontSize, setFontSize] = useState<'standard' | 'large'>(() => {
@@ -3370,8 +3373,9 @@ export default function App() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
     // Barra de status/navegação do sistema na mesma cor do fundo do app (claro ou escuro)
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', resolvedTheme === 'dark' ? '#000000' : '#F0F2F5');
+    // A cor do fundo do tema (a mesma do app), lida da variável depois de trocar a classe
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-mica').trim();
+    setSystemBarBase(bg || (resolvedTheme === 'dark' ? '#111113' : '#FFFFFF'));
   }, [resolvedTheme]);
 
   const [moreContrast, setMoreContrast] = useState(() => !!window.matchMedia?.('(prefers-contrast: more)').matches);
@@ -3383,7 +3387,7 @@ export default function App() {
     return () => query.removeEventListener('change', update);
   }, []);
   useEffect(() => {
-    const c = ACCENT_COLORS[accentColor] || ACCENT_COLORS.orange;
+    const c = ACCENT_COLORS[accentColor] || ACCENT_COLORS[DEFAULT_ACCENT];
     const dark = resolvedTheme === 'dark';
     const hex = moreContrast ? (dark ? c.soberDark : c.soberLight) : (dark ? c.dark : c.hex);
     const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(', ');
@@ -3524,7 +3528,7 @@ export default function App() {
   }, [currentCoverHex, resolvedTheme]);
 
   const fullscreenAmbientColors = useMemo(() => {
-    const hex = currentCoverHex || '#FF9500';
+    const hex = currentCoverHex || '#007AFF';
     const { h, s, l } = hexToHsl(hex);
     const isDark = resolvedTheme === 'dark';
 
@@ -3585,7 +3589,7 @@ export default function App() {
   }, [currentCoverHex, currentCoverSecondaryHex, resolvedTheme]);
 
   const miniplayerAmbientStyle = useMemo<React.CSSProperties>(() => {
-    const hex = currentCoverHex || '#FF9500';
+    const hex = currentCoverHex || '#007AFF';
     const { h, s } = hexToHsl(hex);
     const isDark = resolvedTheme === 'dark';
 
@@ -4110,17 +4114,21 @@ export default function App() {
             {/* Como a pesquisa na letra do player: as frases sem fundo, o trecho pesquisado destacado; dá para
                 pesquisar também por tempo ("1:2", "12:"). A frase escolhida ganha um destaque em volta */}
             <div className="flex flex-col gap-1">
-              {transcript.map((line, idx) => {
-                if (!inShareChapter(line)) return null;
+              {(() => {
+                // Com busca: em ordem de correspondência (empate: do início para o fim); um tempo traz a frase
+                // dita naquele momento. Sem busca: todas, na ordem
                 const rawQuery = lyricsSearch.trim();
                 const query = foldText(rawQuery);
-                const isTimeQuery = /^\d{1,2}(:\d{0,2}){1,2}$/.test(rawQuery);
+                const pool = transcript.map((line, idx) => ({ line, idx, start: line.start })).filter(e => inShareChapter(e.line));
+                const shown = query
+                  ? searchLyrics(pool, rawQuery, e => transcriptLineText(e.line), e => (shareChapter ? [e.start - shareChapter.startTime] : [e.start]), formatTime, 500)
+                      .map(h => ({ ...h.item, byTime: h.byTime }))
+                  : pool.map(e => ({ ...e, byTime: false }));
+                return shown;
+              })().map(({ line, idx, byTime }) => {
+                const query = foldText(lyricsSearch.trim());
+                const isTimeQuery = byTime;
                 const timeLabel = formatTime(shareChapter ? line.start - shareChapter.startTime : line.start);
-                if (query) {
-                  const textHit = foldText(transcriptLineText(line)).includes(query);
-                  const timeHit = isTimeQuery && (timeLabel.startsWith(rawQuery) || formatTime(line.start).startsWith(rawQuery));
-                  if (!textHit && !timeHit) return null;
-                }
                 const selected = lyricsSelection.includes(idx);
                 return (
                   <button
@@ -4442,9 +4450,10 @@ export default function App() {
 
   const handleResetSettings = () => {
     setThemeMode('dark');
-    setAccentColor('orange');
+    setAccentColor(DEFAULT_ACCENT);
     setUiDensity('compact');
     setFontSize('standard');
+    fontFamilyPref.set('standard');
     setAppLanguage('system');
     setLibraryFolder('C:\\Audiobooks');
     setDataFolder('%APPDATA%\\AudiobookPlayer');
@@ -5470,12 +5479,9 @@ export default function App() {
               <AnimatePresence mode="wait">
                 {historyStack.length > 0 && (!['home', 'library', 'other-apps', 'settings', 'help', 'search', 'more'].includes(activeScreen.id) || historyStack[0]?.id === 'more') && (
                   <motion.button 
-                    key="back-button"
+                    key={`back-button-${getScreenKey(activeScreen)}`}
                     data-instant="true"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.08 } }}
-                    transition={SPRING.snappy}
+                    {...HEADER_SWAP}
                     data-press="true"
                     onClick={goBack}
                     // Celular: ao rolar, a pílula encolhe suavemente até virar um círculo só com a seta
@@ -5483,7 +5489,7 @@ export default function App() {
                     style={{
                       paddingLeft: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
                       paddingRight: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
-                      transition: 'padding 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, 0.2s, box-shadow 0.2s',
+                      transition: 'padding var(--dur-settle) var(--spring-settle), background-color 0.2s, box-shadow 0.2s',
                     }}
                     className="h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] backdrop-blur-3xl"
                     aria-label={t('back') || undefined}
@@ -5494,7 +5500,7 @@ export default function App() {
                       animate={backCollapsed
                         ? { maxWidth: 0, opacity: 0, marginLeft: 0, marginRight: 0, filter: 'blur(4px)' }
                         : { maxWidth: backLabelMaxWidth, opacity: 1, marginLeft: 6, marginRight: 0, filter: 'blur(0px)' }}
-                      transition={{ maxWidth: SPRING.snappy, marginLeft: SPRING.snappy, opacity: { duration: backCollapsed ? 0.08 : 0.14, delay: backCollapsed ? 0 : 0.05 }, filter: FADE_OUT }}
+                      transition={{ maxWidth: SPRING.settle, marginLeft: SPRING.settle, opacity: { duration: backCollapsed ? 0.08 : 0.14, delay: backCollapsed ? 0 : 0.05 }, filter: FADE_OUT }}
                       className="block overflow-hidden whitespace-nowrap text-xs font-medium text-[var(--text-main)] truncate max-md:max-w-[40vw]"
                     >
                       {(() => {
@@ -5811,10 +5817,8 @@ export default function App() {
                   {!isSelectionMode && !isEditingBook && !isEditingAuthor && activeScreen.id !== 'create-collection' && activeScreen.id !== 'edit-collection' && (
                     <motion.div
                       key={headerActionsKey}
-                      initial={{ opacity: 0, scale: 0.85 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.85 }}
-                      transition={{ ...SPRING.snappy, opacity: FADE_IN }}
+                      {...HEADER_SWAP}
+                      style={{ transformOrigin: 'right center' }}
                       className="flex items-center"
                     >
                       {renderMobileHeaderActions()}
@@ -5827,10 +5831,7 @@ export default function App() {
             <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={headerActionsKey}
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.85 }}
-              transition={{ ...SPRING.snappy, opacity: FADE_IN }}
+              {...HEADER_SWAP}
               className={cn(
               "items-center gap-3 pointer-events-auto shrink-0 z-40",
               isMobile && !isSelectionMode && !isEditingBook && !isEditingAuthor && activeScreen.id !== 'create-collection' && activeScreen.id !== 'edit-collection' ? "hidden" : "flex"

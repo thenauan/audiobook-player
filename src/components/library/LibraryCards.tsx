@@ -388,6 +388,7 @@ export function PopupSearchField({
             transition={SPRING.snappy}
             whileHover={{ scale: 1.05 }}
             data-press="true"
+            data-popup-search-clear="true"
             onClick={(e) => {
               e.stopPropagation();
               onChange('');

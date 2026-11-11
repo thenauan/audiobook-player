@@ -348,8 +348,11 @@ export function MenuOptionItem({
 
   return (
     <motion.button
-      animate={clicked ? { scale: 1.03 } : { scale: 1 }}
+      // iPhone/iPad: a opção não muda de escala. Um item escalando dentro do pop-up de vidro faz o Safari parar de
+      // desenhar o vidro (o pop-up fica transparente); lá o clique aparece só no destaque
+      animate={IS_APPLE_TOUCH ? undefined : clicked ? { scale: 1.03 } : { scale: 1 }}
       transition={SPRING.snappy}
+      data-popup-option="true"
       onClick={handleClick}
       className={cn(
         "group w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium rounded-2xl transition-all duration-150 select-none text-left [&_svg]:transition-colors [&_svg]:shrink-0",
@@ -841,9 +844,9 @@ export function PopupMorphContainer({
   }, []);
 
   const outerStyle: React.CSSProperties = {
-    '--winblue': 'var(--app-winblue, #FF9500)',
+    '--winblue': 'var(--app-winblue, #007AFF)',
     '--winblue-rgb': 'var(--app-winblue-rgb, 255, 149, 0)',
-    '--color-winblue': 'var(--app-winblue, #FF9500)',
+    '--color-winblue': 'var(--app-winblue, #007AFF)',
     ...style,
   } as React.CSSProperties;
   delete outerStyle.width;
