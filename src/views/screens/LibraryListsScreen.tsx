@@ -419,7 +419,7 @@ export function LibraryListsScreen() {
                         navigateTo('library-idioma-' + lang.toLowerCase(), lang);
                       }
                     }}
-                    className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
+                    className={`relative isolate category-card aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
                       isSelectionMode && isSelected
                         ? ' '
                         : ' '
@@ -446,7 +446,7 @@ export function LibraryListsScreen() {
                     )}
 
                     <div className="relative z-10">
-                      <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{langData.name}</h3>
+                      <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight category-card-title origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{langData.name}</h3>
                     </div>
                   </motion.div>
                 );
@@ -751,7 +751,7 @@ export function LibraryListsScreen() {
                         navigateTo('library-genre-' + genreData.id);
                       }
                     }}
-                    className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
+                    className={`relative isolate category-card aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
                       isSelectionMode && isSelected 
                         ? ' ' 
                         : ' '
@@ -779,7 +779,7 @@ export function LibraryListsScreen() {
 
                     {/* Nome do Gênero com texto maior */}
                     <div className="relative z-10">
-                      <h3 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getGenreName(genreData.id, resolvedLanguage)}</h3>
+                      <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight category-card-title origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getGenreName(genreData.id, resolvedLanguage)}</h3>
                     </div>
                   </motion.div>
                 );
@@ -930,7 +930,7 @@ export function LibraryListsScreen() {
                       return (
                         <div className="mb-10">
                           <h2 className="text-xl font-bold text-[var(--text-main)]">{t('subgenres')}</h2>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-4 mobile-grid-3">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mobile-grid-2">
                             <AnimatePresence>
                               {activeSubgenres.slice().sort((a, b) => {
                                 if (a.toLowerCase() === 'outros' || a.toLowerCase() === 'outro') return 1;
@@ -961,7 +961,7 @@ export function LibraryListsScreen() {
                                         navigateTo(`library-subgenre-${genreData.id}-${subgenre}`, { genre: genreData, subgenre });
                                       }
                                     }}
-                                    className={`relative isolate h-28 rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-4 flex flex-col justify-end ${
+                                    className={`relative isolate category-card aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${
                                       isSelectionMode && isAllSelected
                                         ? ' '
                                         : ' '
@@ -972,7 +972,7 @@ export function LibraryListsScreen() {
                                       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} ${isSelectionMode && isAllSelected ? 'opacity-70' : ''}`} />
                                       <div className="absolute inset-0 bg-black/15" />
 
-                                      <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-6xl sm:text-7xl select-none pointer-events-none card-tone-icon">
+                                      <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl sm:text-8xl select-none pointer-events-none card-tone-icon">
                                         <EmojiIcon emoji={getSubgenreEmoji(subgenre)} />
                                       </span>
                                     </div>
@@ -989,7 +989,7 @@ export function LibraryListsScreen() {
 
                                     {/* Nome do Subgênero com texto maior */}
                                     <div className="relative z-10">
-                                      <h4 className="text-base sm:text-lg font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getSubgenreName(subgenre, resolvedLanguage)}</h4>
+                                      <h4 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight category-card-title origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getSubgenreName(subgenre, resolvedLanguage)}</h4>
                                     </div>
                                   </motion.div>
                                 );

@@ -273,7 +273,7 @@ export function LibraryScreen() {
                       exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
                       transition={FADE_IN}
                       onClick={() => navigateTo('library-genre-' + genreData.id)}
-                      className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
+                      className="relative isolate category-card aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
                     >
                       {/* Camada interna recortada com fundo e ícone com zoom */}
                       <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
@@ -286,7 +286,7 @@ export function LibraryScreen() {
                       </div>
 
                       <div className="relative z-10">
-                        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getGenreName(genreData.id, resolvedLanguage)}</h3>
+                        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight category-card-title origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{getGenreName(genreData.id, resolvedLanguage)}</h3>
                       </div>
                     </motion.div>
                   );
@@ -377,7 +377,7 @@ export function LibraryScreen() {
                       transition={FADE_IN}
                       // Como os outros cards: empilha a partir da tela atual (voltar retorna para cá, não para "Idiomas")
                       onClick={() => navigateTo('library-idioma-' + lang.toLowerCase(), lang)}
-                      className="relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
+                      className="relative isolate category-card aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end"
                     >
                       {/* Camada interna recortada com fundo e bandeira com zoom */}
                       <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none z-0">
@@ -390,7 +390,7 @@ export function LibraryScreen() {
                       </div>
 
                       <div className="relative z-10">
-                        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{langData.name}</h3>
+                        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight category-card-title origin-bottom-left rtl:origin-bottom-right transition-transform duration-500">{langData.name}</h3>
                       </div>
                     </motion.div>
                   );

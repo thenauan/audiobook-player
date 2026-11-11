@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { MenuOptionItem, PagedMenu, PopupMorphContainer, clearButtonCoverAnchorCache, getButtonCoverPopupStyle, morphTriggerAnimate } from '../../components/popups/Popovers';
 import { getAuthorAvatar, getEffectiveAuthorAvatar, getGenericBookCover } from '../../lib/coverArt';
 import { getGenreName, getSubgenreName } from '../../i18n/genreTranslations';
-import { BookOpen, Bookmark, CheckCircle2, FolderOpen, FolderPlus, Headphones, ListMusic, ListPlus, MoreHorizontal, Play, Star, StarOff, Trash2, User, X } from 'lucide-react';
+import { BookOpen, Bookmark, CheckCircle2, FolderOpen, FolderPlus, Headphones, ListMusic, ListPlus, MoreHorizontal, Play, Star, StarOff, Trash2, User, X, Pause } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { getBackdropProps } from '../../components/popups/popupUtils';
 import { CollectionPickerPopupContent } from '../../components/library/LibraryCards';
@@ -13,7 +13,7 @@ import { bookHasAuthor } from '../../lib/authorUtils';
 import { useAppScope } from '../../app/AppScope';
 
 export function SearchResultsList() {
-  const { activeSearchMenuId, addToSearchHistory, books, closeAllPopups, collections, computedSearchResults, confirmDeleteSearchId, favoriteAuthorIds, favoriteBookIds, handleAddBookToQueue, handleBookCoverError, handleDeleteBook, handlePlayBookFromStart, handleSelectAuthor, handleSelectSearchItem, handleToggleItemInCollection, isBookCompleted, isBookStarted, isMobile, navigateTo, resolvedLanguage, searchCollectionTarget, searchLongPressProps, searchMenuAnchor, searchQuery, searchSelectedIndex, setActiveSearchMenuId, setConfirmDeleteSearchId, setMobileConfirm, setSearchCollectionTarget, setSearchMenuAnchor, setSearchQuery, setSearchSelectedIndex, showToast, t, toggleFavoriteAuthor, toggleFavoriteBook } = useAppScope();
+  const { activeSearchMenuId, addToSearchHistory, books, currentBook, isPlaying, setIsPlaying, closeAllPopups, collections, computedSearchResults, confirmDeleteSearchId, favoriteAuthorIds, favoriteBookIds, handleAddBookToQueue, handleBookCoverError, handleDeleteBook, handlePlayBookFromStart, handleSelectAuthor, handleSelectSearchItem, handleToggleItemInCollection, isBookCompleted, isBookStarted, isMobile, navigateTo, resolvedLanguage, searchCollectionTarget, searchLongPressProps, searchMenuAnchor, searchQuery, searchSelectedIndex, setActiveSearchMenuId, setConfirmDeleteSearchId, setMobileConfirm, setSearchCollectionTarget, setSearchMenuAnchor, setSearchQuery, setSearchSelectedIndex, showToast, t, toggleFavoriteAuthor, toggleFavoriteBook } = useAppScope();
   if (computedSearchResults.length === 0) {
     return (
       <div className="py-12 flex flex-col items-center justify-center text-center">
@@ -180,17 +180,19 @@ export function SearchResultsList() {
                       ) : confirmDeleteSearchId !== item.id ? (
                         <PagedMenu className="flex flex-col p-2 text-left rtl:text-right">
                           <MenuOptionItem 
-                            icon={<Play size={14} />} 
+                            icon={currentBook?.id === book.id && isPlaying ? <Pause size={14} /> : <Play size={14} />} 
                             onClick={() => { 
                               addToSearchHistory(searchQuery);
-                              handlePlayBookFromStart(book); 
+                              // Tocando agora: pausa
+                              if (currentBook?.id === book.id && isPlaying) setIsPlaying(false);
+                              else handlePlayBookFromStart(book); 
                               setActiveSearchMenuId(null); 
                               clearButtonCoverAnchorCache(searchMenuAnchor);
                               setSearchMenuAnchor(null);
                               setSearchQuery(''); 
                             }}
                           >
-                            <span>{t('listen')}</span>
+                            <span>{currentBook?.id === book.id && isPlaying ? t('pause') : t('listen')}</span>
                           </MenuOptionItem>
                           <MenuOptionItem 
                             icon={<ListPlus size={14} />} 

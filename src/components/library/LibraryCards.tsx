@@ -11,7 +11,7 @@ import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar } from '
 import { MenuOptionItem, PagedMenu, useCompactPopups, PopupMorphContainer, checkChapterMenuShouldOpenUp, checkIsLeftEdgeCard, MorphPopup, morphTriggerAnimate, emitZoomOrigin } from '../popups/Popovers';
 import { getNationalityDisplayName } from '../../i18n/nationalityTranslations';
 import { useI18n } from '../../i18n/translations';
-import { Play, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star, StarOff, FolderPlus, FolderMinus, Plus, Bookmark, Share, Quote } from 'lucide-react';
+import { Play, Pause, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star, StarOff, FolderPlus, FolderMinus, Plus, Bookmark, Share, Quote } from 'lucide-react';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from '../popups/popupUtils';
 import { MobileConfirmCard } from '../popups/MobileConfirm';
 import { MobileContextMenu, useLongPress, isMobileViewport, useIsMobile } from '../popups/MobileContextMenu';
@@ -1507,8 +1507,9 @@ export function BookCard({
                   <PagedMenu className="flex flex-col p-2 text-left rtl:text-right">
                     {/* Ordem das opções (igual em todo o app): tocar, a seguir e final da fila; concluído; marcações;
                         coleção; favoritar; compartilhar; trecho; ir para o audiobook e o autor; detalhes; editar; excluir */}
-                    <MenuOptionItem variant="play" icon={<Play size={14} />} onClick={() => { onPlay(); handleClose(); }}>
-                      <span>{t('listen')}</span>
+                    {/* Tocando agora: a primeira opção pausa */}
+                    <MenuOptionItem variant="play" icon={isBookPlaying ? <Pause size={14} /> : <Play size={14} />} onClick={() => { onPlay(); handleClose(); }}>
+                      <span>{isBookPlaying ? t('pause') : t('listen')}</span>
                     </MenuOptionItem>
                     <MenuOptionItem icon={<ListPlus size={14} />} onClick={() => { onAddToQueue('next'); handleClose(); }}>
                       <span>{t('play_next')}</span>
@@ -1991,7 +1992,7 @@ export function CollectionCard({
         </span>
       </div>
       <div className="relative z-10">
-        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 truncate">{col.name}</h3>
+        <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md tracking-tight category-card-title origin-bottom-left rtl:origin-bottom-right transition-transform duration-500 truncate">{col.name}</h3>
         {col.description && (
           <p className="text-xs font-medium text-white/80 mt-0.5 line-clamp-1 truncate">{col.description}</p>
         )}
@@ -2020,7 +2021,7 @@ export function CollectionCard({
           window.dispatchEvent(new Event('close-all-popups'));
           setDesktopMenu(true);
         }}
-        className={`relative isolate aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${desktopMenu ? 'z-50' : ''} ${
+        className={`relative isolate category-card aspect-[16/9] rounded-3xl cursor-pointer group shadow-lg transition-[border-color,box-shadow] p-5 flex flex-col justify-end ${desktopMenu ? 'z-50' : ''} ${
           selectionMode && selected
             ? ' '
             : ' '
