@@ -142,7 +142,8 @@ export const MOBILE_BAR = {
   compact: 56,    // botões redondos e miniplayer
   gap: 8,         // espaço entre barra, botões e miniplayer
 };
-export const MOBILE_GLASS_SHADOW = '0 0 24px -12px rgba(0, 0, 0, 0.35)';
+// Sombra leve, como a dos botões do cabeçalho: um pouco para baixo e bem difusa
+export const MOBILE_GLASS_SHADOW = '0 6px 22px -6px rgba(0, 0, 0, 0.32), 0 1px 4px rgba(0, 0, 0, 0.10)';
 // Escala da barra/miniplayer "encolhidos" (sem miniplayer ou lado a lado)
 export const MOBILE_SHRINK_SCALE = 0.86;
 

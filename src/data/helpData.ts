@@ -582,8 +582,8 @@ export const HELP_THEMES: HelpTheme[] = [
   },
   {
     id: 'help-theme-capitulos',
-    title: 'Capítulos, Marcadores e Notas',
-    subtitle: 'Divisões de áudio, marcação de momentos e anotações',
+    title: 'Capítulos e Marcações',
+    subtitle: 'Divisões do áudio e marcação de momentos',
     emoji: '📑',
     gradient: 'from-violet-600 via-purple-600 to-indigo-600',
     subthemes: [
@@ -635,85 +635,23 @@ export const HELP_THEMES: HelpTheme[] = [
       },
       {
         id: 'sub-bookmarks',
-        title: 'Criar Marcadores (Bookmarks)',
-        subtitle: 'Salvar momentos marcantes para revisitar depois',
+        title: 'Marcações',
+        subtitle: 'Guardar frases e momentos do audiobook para voltar depois',
         emoji: '🔖',
         article: {
           id: 'art-bookmarks',
-          title: 'Criar Marcadores (Bookmarks)',
-          subtitle: 'Nunca mais perca aquela citação inspiradora ou passagem importante',
+          title: 'Marcações',
+          subtitle: 'Guarde o momento exato de uma frase ou passagem importante',
           emoji: '🔖',
-          overview: 'Com os marcadores, você salva o ponto exato (minutos e segundos) de qualquer capítulo. Você pode atribuir nomes ou notas a cada marcador para voltar a ele sempre que quiser.',
+          overview: 'Uma marcação guarda o ponto exato (minutos e segundos) de um capítulo, junto com a frase do texto daquele momento. Capítulos com marcação mostram o ícone de marcação na lista de capítulos e na fila.',
           steps: [
-            {
-              number: '1',
-              title: 'Clique no Ícone de Marcador',
-              desc: 'Durante a reprodução, clique no botão de marcador localizado nos controles do player.'
-            },
-            {
-              number: '2',
-              title: 'Dê um Título ao Trecho',
-              desc: 'Digite uma breve descrição (ex: "Conceito de foco profundo", "Final surpreendente").'
-            },
-            {
-              number: '3',
-              title: 'Acesse seus Marcadores',
-              desc: 'Na aba de marcadores do livro, veja todos os pontos salvos em ordem cronológica e clique para saltar o áudio até lá.'
-            }
+            { number: '1', title: 'Marque uma frase', desc: 'Com o texto aberto no player em tela cheia, segure uma frase (no celular) ou clique com o botão direito (no computador) e escolha "Adicionar como marcação".' },
+            { number: '2', title: 'Veja as marcações', desc: 'Nas opções do audiobook, toque em "Marcações do audiobook"; nas opções de um capítulo, em "Marcações" para ver só as dele.' },
+            { number: '3', title: 'Volte ao momento', desc: 'Toque numa marcação para o áudio ir até ela. Pelas opções da marcação, dá para editar ou excluir.' }
           ],
           highlights: [
-            {
-              emoji: '📍',
-              title: 'Precisão ao Segundo',
-              desc: 'O marcador guarda o instante exato sem atraso, perfeito para citações e estudos.'
-            },
-            {
-              emoji: '🗑️',
-              title: 'Gerenciamento Fácil',
-              desc: 'Exclua ou edite os marcadores antigos quando não precisar mais deles.'
-            }
-          ]
-        }
-      },
-      {
-        id: 'sub-notes-comments',
-        title: 'Anotações e Marcações',
-        subtitle: 'Registrar insights e reflexões pessoais durante a leitura',
-        emoji: '🔖',
-        article: {
-          id: 'art-notes-comments',
-          title: 'Anotações e Marcações',
-          subtitle: 'Transforme sua escuta em um caderno vivo de aprendizados',
-          emoji: '🔖',
-          overview: 'Enquanto ouve um livro, você pode fazer anotações pessoais vinculadas ao capítulo atual. As marcações ficam salvas para consulta futura e revisão de ideias.',
-          steps: [
-            {
-              number: '1',
-              title: 'Abra a Aba de Marcações',
-              desc: 'No player expandido ou na tela do livro, clique no botão de "Marcações / Notas".'
-            },
-            {
-              number: '2',
-              title: 'Escreva sua Marcação',
-              desc: 'Digite suas anotações no campo de texto e clique em "Concluir".'
-            },
-            {
-              number: '3',
-              title: 'Revise suas Marcações',
-              desc: 'Todas as marcações ficam organizadas por data e capítulo com carimbos de tempo interativos.'
-            }
-          ],
-          highlights: [
-            {
-              emoji: '💾',
-              title: 'Salvamento Instantâneo',
-              desc: 'Suas anotações são gravadas localmente sem risco de perda.'
-            },
-            {
-              emoji: '📚',
-              title: 'Ideal para Livros de Não-Ficção',
-              desc: 'Perfeito para livros de negócios, filosofia, biografia e desenvolvimento pessoal.'
-            }
+            { emoji: '📍', title: 'Precisão ao segundo', desc: 'A marcação começa exatamente no início da frase marcada.' },
+            { emoji: '🔔', title: 'Lembretes', desc: 'Com os avisos de conteúdo ligados em Ajustes, o app pode relembrar uma marcação sua.' }
           ]
         }
       },
@@ -1143,7 +1081,7 @@ export const HELP_THEMES: HelpTheme[] = [
           overview: "O app gera uma imagem pronta para o Story do Instagram e outros apps: a capa, o título e o autor sobre um destaque de vidro, com o fundo nas cores da capa — ou, no caso de um trecho, as frases entre aspas com a capa pequena ao lado do título.",
           steps: [
               { number: '1', title: "Abra as opções do audiobook", desc: "No celular, toque nos três pontinhos do cabeçalho da página do audiobook; no computador, use o botão de compartilhar do cabeçalho." },
-              { number: '2', title: "Escolha o que compartilhar", desc: "\"Compartilhar audiobook\" cria a imagem com a capa. \"Compartilhar trecho\" abre o texto para você marcar até 5 frases." },
+              { number: '2', title: "Escolha o que compartilhar", desc: "\"Compartilhar audiobook\" cria a imagem com a capa. Nas opções de um capítulo, \"Compartilhar capítulo\" destaca o nome dele. \"Compartilhar trecho\" (só com texto sincronizado) abre o texto para você marcar até 5 frases." },
               { number: '3', title: "Salve ou compartilhe", desc: "A imagem abre em tela cheia. Toque em \"Compartilhar\" para escolher o Instagram (Story), WhatsApp etc., ou em \"Salvar imagem\"." }
           ],
           tip: { title: "Dica", text: "A imagem segue o tema do app: destaque claro no tema claro e escuro no tema escuro." },
@@ -1227,6 +1165,86 @@ export const HELP_THEMES: HelpTheme[] = [
               { number: '3', title: "Toque para pular", desc: "Toque numa frase ou numa palavra para levar o áudio até ela." }
           ],
           tip: { title: "Importante", text: "Textos importados antes desta versão precisam ser enviados de novo para ganhar o destaque por palavra." },
+        },
+      },
+      {
+        id: 'sub-lyrics-search',
+        title: "Pesquisar no texto",
+        subtitle: "Ache uma frase pelo que foi dito ou pelo tempo",
+        emoji: '🔎',
+        gradient: 'from-sky-600 via-blue-600 to-indigo-600',
+        article: {
+          id: 'art-lyrics-search',
+          title: "Pesquisar no texto",
+          subtitle: "Ache uma frase pelo que foi dito ou pelo tempo",
+          emoji: '🔎',
+          overview: "Na tela do texto do player e em \"Compartilhar trecho\", a busca mostra as frases que combinam com o que você digitou, com o trecho encontrado destacado.",
+          steps: [
+              { number: '1', title: "Pesquise palavras", desc: "Os resultados vêm em ordem de correspondência: frase igual ao que foi digitado, depois frases que começam com isso, palavras inteiras, começo de palavras e, por último, frases com todas as palavras fora de ordem." },
+              { number: '2', title: "Pesquise um tempo", desc: "Digite um tempo como \"12:30\" ou \"1:02:05\" para ver a frase dita naquele momento. Só o começo (\"12:\") lista as frases daquele minuto." },
+              { number: '3', title: "Toque no resultado", desc: "No player, o áudio vai até a frase; em \"Compartilhar trecho\", a frase é marcada para a imagem." }
+          ],
+          tip: { title: "Empates", text: "Com a mesma correspondência, aparecem primeiro as frases mais perto do início do audiobook." },
+        },
+      },
+      {
+        id: 'sub-queue-mobile',
+        title: "Fila de reprodução no celular",
+        subtitle: "Expandir a fila, ver o que já tocou e limpar",
+        emoji: '📜',
+        gradient: 'from-orange-500 via-rose-600 to-fuchsia-600',
+        article: {
+          id: 'art-queue-mobile',
+          title: "Fila de reprodução no celular",
+          subtitle: "Expandir a fila, ver o que já tocou e limpar",
+          emoji: '📜',
+          overview: "A fila mostra o capítulo tocando, os próximos e, acima dele, os capítulos que já tocaram nesta sessão. Os capítulos favoritos e com marcação aparecem com os ícones.",
+          steps: [
+              { number: '1', title: "Expandir", desc: "Toque no botão de expandir no cabeçalho da fila para ela ocupar a tela inteira; o botão da esquerda diminui de novo." },
+              { number: '2', title: "O que já tocou", desc: "Role para cima para ver os capítulos anteriores e toque num deles para ouvir de novo. Depois de alguns segundos sem tocar na lista, ela volta sozinha ao capítulo atual." },
+              { number: '3', title: "Limpar", desc: "Com a fila expandida, o botão vermelho da direita limpa a fila (com confirmação)." }
+          ],
+          tip: { title: "Dica", text: "Deslize um item para a esquerda para removê-lo, ou segure para mudar a ordem." },
+        },
+      },
+      {
+        id: 'sub-import-progress',
+        title: "Adicionar audiobooks no celular",
+        subtitle: "Acompanhe e cancele os audiobooks sendo adicionados",
+        emoji: '📥',
+        gradient: 'from-teal-600 via-emerald-600 to-lime-600',
+        article: {
+          id: 'art-import-progress',
+          title: "Adicionar audiobooks no celular",
+          subtitle: "Acompanhe e cancele os audiobooks sendo adicionados",
+          emoji: '📥',
+          overview: "Ao escolher os arquivos, o app guarda o áudio no aparelho. Avisos mostram quando os audiobooks foram selecionados e adicionados, com o nome deles.",
+          steps: [
+              { number: '1', title: "Acompanhe", desc: "Na Biblioteca, enquanto há audiobooks sendo adicionados, o botão do cabeçalho mostra um anel de progresso. Toque nele para ver a lista com capa, autor e barra de cada um." },
+              { number: '2', title: "Cancele", desc: "Toque no X vermelho de um audiobook para cancelar só ele, ou no botão de cancelar todos (com confirmação)." },
+              { number: '3', title: "Se não der certo", desc: "Se o áudio não puder ser guardado no aparelho, aparece um aviso e o audiobook não é adicionado sem áudio." }
+          ],
+          tip: { title: "Espaço", text: "Audiobooks grandes ocupam bastante espaço; mantenha espaço livre no aparelho." },
+        },
+      },
+      {
+        id: 'sub-appearance',
+        title: "Cor de destaque e fonte",
+        subtitle: "Mude a cor dos destaques e escolha uma fonte serifada",
+        emoji: '🎨',
+        gradient: 'from-blue-600 via-sky-600 to-cyan-600',
+        article: {
+          id: 'art-appearance',
+          title: "Cor de destaque e fonte",
+          subtitle: "Mude a cor dos destaques e escolha uma fonte serifada",
+          emoji: '🎨',
+          overview: "Em Ajustes → Interface você escolhe a cor de destaque do app (azul é a padrão; laranja e tons sóbrios de roxo, verde, vermelho e rosa) e a fonte: a padrão do sistema ou uma serifada, mais parecida com a de livros.",
+          steps: [
+              { number: '1', title: "Cor de destaque", desc: "Muda botões, barras e seleções. Nas páginas de audiobook, o destaque segue a cor da capa." },
+              { number: '2', title: "Fonte", desc: "\"Serifada\" usa a fonte serifada do próprio aparelho (New York no iPhone), sem baixar nada." },
+              { number: '3', title: "Android", desc: "No Android, as barras do sistema acompanham o fundo do app e, na página de um audiobook, a cor da capa." }
+          ],
+          tip: { title: "Dica", text: "Em \"Restaurar ajustes\", a cor volta para o azul e a fonte para a padrão." },
         },
       }
     ],

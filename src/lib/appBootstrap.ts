@@ -108,6 +108,26 @@ if (typeof window !== 'undefined') {
 if (typeof window !== 'undefined') {
   const standalone = (navigator as any).standalone === true || !!window.matchMedia?.('(display-mode: standalone)').matches;
   if (standalone) document.documentElement.classList.add('standalone');
+
+  // iPhone/iPad instalado: o iOS às vezes informa uma área visível menor que a tela (100dvh e innerHeight curtos)
+  // e deixa uma faixa vazia embaixo até a página ser rolada. Sem barras do navegador, o app ocupa a tela inteira:
+  // a altura vem da própria tela do aparelho (screen não gira no iOS: deitado, a altura é a largura dela)
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  if (standalone && isIOS) {
+    const root = document.documentElement;
+    const update = () => {
+      const landscape = window.matchMedia?.('(orientation: landscape)').matches ?? window.innerWidth > window.innerHeight;
+      const screenH = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+      // iPad em janela dividida/Stage Manager: a janela é menor que a tela; aí vale a altura da janela
+      const windowed = Math.abs(window.innerWidth - (landscape ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height))) > 2;
+      const h = windowed ? window.innerHeight : Math.max(screenH, window.innerHeight);
+      if (h > 0) root.style.setProperty('--screen-h', `${h}px`);
+    };
+    update();
+    ['resize', 'orientationchange', 'pageshow', 'focus'].forEach(ev => window.addEventListener(ev, update));
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { update(); setTimeout(update, 300); } });
+  }
 }
 
 // iOS Safari só aplica o estado :active (destaque ao tocar) se houver um ouvinte de toque

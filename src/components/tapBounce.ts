@@ -18,6 +18,8 @@ const PRESS = [`scale 80ms ${EASE}`, `opacity 80ms ${EASE}`];
 const RELEASE = [`scale ${CSS_SPRING.release.ms}ms ${CSS_SPRING.release.curve}`, `opacity 200ms ${EASE}`];
 // Mesmo um toque rápido mostra o encolhimento
 const MIN_PRESS = 80;
+// Computador: tamanho dos botões pequenos com o mouse em cima
+const HOVER_SCALE = 1.08;
 
 function pressScale(el: HTMLElement): number {
   const r = el.getBoundingClientRect();
@@ -44,11 +46,41 @@ export function installTapBounce(): () => void {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return () => {};
   let current: HTMLElement | null = null;
   let pressedAt = 0;
+  // Computador (mouse): botões pequenos crescem um pouco com mola ao passar o mouse e voltam com mola ao sair
+  let hovered: HTMLElement | null = null;
+  const onOver = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    const el = (e.target as HTMLElement | null)?.closest?.(SELECTOR) as HTMLElement | null;
+    if (el === hovered) return;
+    if (hovered && current !== hovered) unhover(hovered);
+    hovered = null;
+    if (!el || el.closest(EXCLUDE) || (el as HTMLButtonElement).disabled || current === el) return;
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.width > 60 || r.height > 60) return;
+    hovered = el;
+    if (el.dataset.pressPrevTransition === undefined) el.dataset.pressPrevTransition = el.style.transition || '';
+    el.style.transition = appendTransition(el.dataset.pressPrevTransition, RELEASE);
+    el.style.scale = String(HOVER_SCALE);
+  };
+  const unhover = (el: HTMLElement) => {
+    el.style.transition = appendTransition(el.dataset.pressPrevTransition || '', RELEASE);
+    el.style.scale = '';
+  };
+  const onOut = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse' || !hovered) return;
+    const to = e.relatedTarget as Node | null;
+    if (to && hovered.contains(to)) return;
+    if (current !== hovered) unhover(hovered);
+    hovered = null;
+  };
+  document.addEventListener('pointerover', onOver, { capture: true, passive: true });
+  document.addEventListener('pointerout', onOut, { capture: true, passive: true });
 
   const finish = (el: HTMLElement) => {
     if (current === el) return;
     el.style.transition = appendTransition(el.dataset.pressPrevTransition || '', RELEASE);
-    el.style.scale = '';
+    // Computador: com o mouse ainda em cima, volta ao tamanho de "passando o mouse"
+    el.style.scale = hovered === el ? String(HOVER_SCALE) : '';
     if (el.dataset.pressPrevOpacity !== undefined) {
       el.style.opacity = el.dataset.pressPrevOpacity;
       delete el.dataset.pressPrevOpacity;
@@ -131,6 +163,8 @@ export function installTapBounce(): () => void {
   window.addEventListener('blur', release);
   return () => {
     document.removeEventListener('click', onSpin, { capture: true });
+    document.removeEventListener('pointerover', onOver, { capture: true });
+    document.removeEventListener('pointerout', onOut, { capture: true });
     document.removeEventListener('pointerdown', onScrubDown, { capture: true });
     document.removeEventListener('pointerup', onScrubEnd, { capture: true });
     document.removeEventListener('pointercancel', onScrubEnd, { capture: true });

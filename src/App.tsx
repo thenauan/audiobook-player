@@ -4364,8 +4364,9 @@ export default function App() {
       // Só a rolagem do usuário mexe na barra (não as do app durante a troca de telas, nem saltos)
       const frozen = Date.now() < navBarFreezeUntil || Math.abs(st - lastSt) > 240;
       if (!frozen) {
-        if (st < 24) tabBarStore.set(false);
-        else if (st > lastSt + 6) tabBarStore.set(true);
+        // Recolhe já no primeiro movimento para baixo
+        if (st < 8) tabBarStore.set(false);
+        else if (st > lastSt) tabBarStore.set(true);
       }
       // O desfoque surge desde o primeiro pixel e atinge a intensidade total aos 28px, como no iOS
       setHeaderBlurProgress(st);
@@ -5832,6 +5833,9 @@ export default function App() {
             <motion.div
               key={headerActionsKey}
               {...HEADER_SWAP}
+              // Celular: os botões que saem (Salvar/Cancelar da edição, seleção) deixam de ocupar lugar na hora,
+              // senão a pílula que entra nasce empurrada e pula para o lugar quando eles terminam de sair
+              exit={isMobile ? { ...HEADER_SWAP.exit, position: 'absolute', right: 16 } : HEADER_SWAP.exit}
               className={cn(
               "items-center gap-3 pointer-events-auto shrink-0 z-40",
               isMobile && !isSelectionMode && !isEditingBook && !isEditingAuthor && activeScreen.id !== 'create-collection' && activeScreen.id !== 'edit-collection' ? "hidden" : "flex"
