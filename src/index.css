@@ -2437,3 +2437,12 @@ html.lite .apple-header-blur > .apple-blur-tint { opacity: var(--header-blur, 0)
 
 /* Botões que viram pop-up: o ícone segue --icon-o (some antes do botão virar pop-up e volta depois dele) */
 :where(button, [role="button"]) > svg { opacity: var(--icon-o, 1); }
+
+/* Modo escuro com fundo preto: os botões do cabeçalho ganham um destaque um pouco mais claro para aparecerem */
+html.dark [data-app-header] :is(button, [role="button"], div)[class*="bg-card/75"]:not(:hover) {
+  background-color: rgb(120 120 128 / 0.26) !important;
+}
+/* Menu lateral (computador), modo escuro: o mesmo tom dos botões, para não sumir no fundo preto */
+html.dark aside.sidebar-safe {
+  background-color: rgb(120 120 128 / 0.26) !important;
+}
