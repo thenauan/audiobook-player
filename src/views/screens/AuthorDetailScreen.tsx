@@ -281,14 +281,14 @@ export function AuthorDetailScreen() {
               <div className="relative w-full">
                 <textarea 
                   value={editAuthorBio}
-                  onChange={(e) => setEditAuthorBio(e.target.value.slice(0, 350))}
-                  maxLength={350}
+                  onChange={(e) => setEditAuthorBio(e.target.value.slice(0, 500))}
+                  maxLength={500}
                   rows={4}
-                  className="w-full h-[116px] px-5 py-3.5 pb-7 rounded-[26px] bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] resize-none custom-scrollbar"
+                  className="w-full h-[156px] px-5 py-3.5 pb-7 rounded-[26px] bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] resize-none custom-scrollbar"
                   placeholder={t('author_bio')}
                 />
                 <span className="absolute bottom-2.5 right-3.5 text-[10px] text-[var(--text-muted)] pointer-events-none select-none">
-                  {editAuthorBio.length}/350
+                  {editAuthorBio.length}/500
                 </span>
               </div>
             </div>

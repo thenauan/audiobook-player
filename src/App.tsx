@@ -482,7 +482,7 @@ export default function App() {
         ? getGenericBookCover(target.title, target.author, initialCoverColor)
         : target.cover
     );
-    setEditBookDescription((target.description || '').slice(0, 1500));
+    setEditBookDescription((target.description || '').slice(0, 2000));
     setEditBookChapters(target.chapters ? target.chapters.map((c: Chapter) => ({ ...c })) : []);
     const existingTranscript = target.transcript || [];
     setEditBookTranscript(existingTranscript);
@@ -520,7 +520,7 @@ export default function App() {
       narrator: editBookNarrator.trim(),
       language: normalizeAudiobookLanguage(editBookLanguage) ?? '',
       cover: finalCover,
-      description: editBookDescription.trim().slice(0, 1500),
+      description: editBookDescription.trim().slice(0, 2000),
       chapters: updatedChapters,
       transcript: editBookTranscript,
       transcriptSource: editBookTranscript.length > 0 ? editBookTranscriptSource : undefined,
@@ -578,7 +578,7 @@ export default function App() {
     setEditAuthorName(target.name);
     setEditAuthorNationality(getNationalityDisplayName(target.nationality || 'Desconhecido', resolvedLanguage));
     setEditAuthorPicture(getEffectiveAuthorAvatar(target.name, target.picture));
-    setEditAuthorBio((target.bio || '').slice(0, 350));
+    setEditAuthorBio((target.bio || '').slice(0, 500));
     setAuthorCropImage(null);
     setIsEditingAuthor(true);
   };
@@ -597,7 +597,7 @@ export default function App() {
     if (!newPicture || newPicture.startsWith('data:image/svg')) {
       newPicture = getAuthorAvatar(newName, editAuthorColor);
     }
-    const newBio = editAuthorBio.trim().slice(0, 350);
+    const newBio = editAuthorBio.trim().slice(0, 500);
 
     const updated: Author = {
       ...target,

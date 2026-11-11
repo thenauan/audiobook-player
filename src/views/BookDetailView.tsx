@@ -942,14 +942,14 @@ export default function BookDetailView({
           <div className="relative w-full">
             <textarea 
               value={editBookDescription}
-              onChange={(e) => setEditBookDescription(e.target.value.slice(0, 1500))}
-              maxLength={1500}
+              onChange={(e) => setEditBookDescription(e.target.value.slice(0, 2000))}
+              maxLength={2000}
               rows={8}
               className="w-full h-[232px] px-5 py-4 pb-7 rounded-[26px] bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] resize-none custom-scrollbar"
               placeholder={t('synopsis')}
             />
             <span className="absolute bottom-2.5 right-3.5 text-[10px] text-[var(--text-muted)] pointer-events-none select-none">
-              {editBookDescription.length}/1500
+              {editBookDescription.length}/2000
             </span>
           </div>
         </div>
