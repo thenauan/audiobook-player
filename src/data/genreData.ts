@@ -1,3 +1,4 @@
+import { GENRE_TRANSLATIONS, SUBGENRE_TRANSLATIONS } from '../i18n/genreTranslations';
 export interface GenreItem {
   id: string;
   name: string;
@@ -85,6 +86,10 @@ export const GENRE_HIERARCHY: Record<string, GenreItem> = {
     subgenres: [
       'Clássicos',
       'Poesia',
+      'Poesia contemporânea',
+      'Poesia moderna',
+      'Poesia clássica',
+      'Poesia épica',
       'Teatro',
       'Contos',
       'Crônicas',
@@ -310,6 +315,10 @@ export const SUBGENRE_GRADIENTS: Record<string, string> = {
   'clássicos': 'from-amber-700 via-amber-800 to-yellow-900',
   'classicos': 'from-amber-700 via-amber-800 to-yellow-900',
   'poesia': 'from-pink-600 via-rose-500 to-amber-500',
+  'poesia contemporânea': 'from-fuchsia-600 via-pink-500 to-orange-400',
+  'poesia moderna': 'from-violet-600 via-fuchsia-500 to-rose-500',
+  'poesia clássica': 'from-amber-600 via-rose-600 to-pink-700',
+  'poesia épica': 'from-orange-600 via-red-600 to-rose-800',
   'teatro': 'from-purple-700 via-fuchsia-700 to-pink-700',
   'contos': 'from-indigo-700 via-violet-700 to-purple-800',
   'crônicas': 'from-rose-600 via-pink-700 to-purple-700',
@@ -493,6 +502,10 @@ export const SUBGENRE_EMOJIS: Record<string, string> = {
   'clássicos': '📜',
   'classicos': '📜',
   'poesia': '✒️',
+  'poesia contemporânea': '✒️',
+  'poesia moderna': '✒️',
+  'poesia clássica': '✒️',
+  'poesia épica': '✒️',
   'teatro': '🎭',
   'contos': '📚',
   'crônicas': '📰',
@@ -658,8 +671,38 @@ export function resolveGenreAndSubgenre(rawCategory?: string, rawSubgenre?: stri
   return result;
 }
 
+// Variações nos idiomas do app (inglês, espanhol, russo, árabe e sem acentos) viram o nome do app, para o mesmo
+// gênero não aparecer separado ("Poetry", "Poesía" e "Poesia" juntos), como já acontece com os idiomas
+const foldGenre = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, 'e').replace(/[^\p{L}\p{N}+]+/gu, ' ').trim();
+let genreVariants: Map<string, string> | null = null;
+function canonicalGenreValue(raw: string): string {
+  if (!raw) return raw;
+  if (!genreVariants) {
+    genreVariants = new Map();
+    const add = (variant: string, pt: string) => { const k = foldGenre(variant); if (k && !genreVariants!.has(k)) genreVariants!.set(k, pt); };
+    // Primeiro os nomes do app (em português), depois as traduções
+    Object.values(GENRE_TRANSLATIONS).forEach(tr => add(tr.pt, tr.pt));
+    Object.values(SUBGENRE_TRANSLATIONS).forEach(tr => add(tr.pt, tr.pt));
+    Object.values(GENRE_TRANSLATIONS).forEach(tr => Object.values(tr).forEach(v => add(v, tr.pt)));
+    Object.values(SUBGENRE_TRANSLATIONS).forEach(tr => Object.values(tr).forEach(v => add(v, tr.pt)));
+  }
+  const key = foldGenre(raw);
+  const hit = genreVariants.get(key);
+  if (hit) return hit;
+  // Poesia de qualquer tipo ("American Poetry", "Poesía latinoamericana", "Lyric poetry"): fica em Poesia ou num
+  // dos subgêneros de poesia do app
+  if (/(^| )(poetry|poesia|poemas?|poems?)( |$)|поэзи|стих|شعر/u.test(key)) {
+    if (/contempor|современ|معاصر/u.test(key)) return 'Poesia contemporânea';
+    if (/modern|модерн|حديث/u.test(key)) return 'Poesia moderna';
+    if (/classic|classica|clasica|классич|كلاسيك/u.test(key)) return 'Poesia clássica';
+    if (/epic|epica|эпич|ملحم/u.test(key)) return 'Poesia épica';
+    return 'Poesia';
+  }
+  return raw;
+}
+
 function computeGenre(rawCategory?: string, rawSubgenre?: string): { category: string; subgenre: string } {
-  const clean = (v?: string) => { const x = (v || '').trim(); return NOT_A_GENRE.has(x.toLowerCase()) ? '' : x; };
+  const clean = (v?: string) => { const x = canonicalGenreValue((v || '').trim()); return NOT_A_GENRE.has(x.toLowerCase()) ? '' : x; };
   const r = resolveRawGenre(clean(rawCategory), clean(rawSubgenre));
   const key = r.subgenre.toLowerCase();
   if (GENRE_NAMED_SUBS[key]) return { category: GENRE_NAMED_SUBS[key], subgenre: 'Outros' };
