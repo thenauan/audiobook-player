@@ -5502,7 +5502,7 @@ export default function App() {
                     style={{
                       paddingLeft: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
                       paddingRight: backCollapsed ? 'calc((var(--back-btn-h) - 22px) / 2)' : '1rem',
-                      transition: 'padding var(--dur-settle) var(--spring-settle), background-color 0.2s, box-shadow 0.2s',
+                      transition: 'padding var(--dur-morph) var(--spring-morph), background-color 0.2s, box-shadow 0.2s',
                     }}
                     className="h-9 flex items-center justify-center rounded-full bg-card/75 shadow-xl hover:bg-[var(--hover-fill)] text-[var(--text-main)] backdrop-blur-3xl"
                     aria-label={t('back') || undefined}
@@ -5513,7 +5513,7 @@ export default function App() {
                       animate={backCollapsed
                         ? { maxWidth: 0, opacity: 0, marginLeft: 0, marginRight: 0, filter: 'blur(4px)' }
                         : { maxWidth: backLabelMaxWidth, opacity: 1, marginLeft: 6, marginRight: 0, filter: 'blur(0px)' }}
-                      transition={{ maxWidth: SPRING.settle, marginLeft: SPRING.settle, opacity: { duration: backCollapsed ? 0.08 : 0.14, delay: backCollapsed ? 0 : 0.05 }, filter: FADE_OUT }}
+                      transition={{ maxWidth: SPRING.morph, marginLeft: SPRING.morph, opacity: { duration: backCollapsed ? 0.08 : 0.14, delay: backCollapsed ? 0 : 0.05 }, filter: FADE_OUT }}
                       className="block overflow-hidden whitespace-nowrap text-xs font-medium text-[var(--text-main)] truncate max-md:max-w-[40vw]"
                     >
                       {(() => {

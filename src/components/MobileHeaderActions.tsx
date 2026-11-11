@@ -212,7 +212,7 @@ export function MobileHeaderActions({
           setOpen(true);
         }
       }}
-      className={`${asPill ? pillBtn : circleBtn} shrink-0`}
+      className={`${asPill ? `${pillBtn} absolute top-0 right-0` : circleBtn} shrink-0`}
     >
       <MoreHorizontal size={19} />
     </motion.button>
@@ -228,7 +228,7 @@ export function MobileHeaderActions({
               ref={pillRef}
               animate={{ ...morphTriggerAnimate(open), width: pillBall ? 44 : 88, transition: { ...morphTriggerAnimate(open).transition, width: SPRING.settle } }}
               initial={false}
-              className={`${pillShell} overflow-hidden`}
+              className={`${pillShell} relative overflow-hidden min-w-[44px]`}
             >
               <motion.button
                 data-press="true"
@@ -237,10 +237,11 @@ export function MobileHeaderActions({
                 tabIndex={pillBall ? -1 : undefined}
                 initial={false}
                 // Some encolhendo num fade rápido; ao voltar, o inverso (cresce aparecendo, no mesmo ritmo)
-                animate={{ width: pillBall ? 0 : 44, opacity: pillBall ? 0 : 1, scale: pillBall ? 0.5 : 1 }}
-                transition={{ width: SPRING.settle, scale: pillBall ? QUICK_SHRINK : SPRING.settle, opacity: QUICK_SHRINK }}
+                animate={{ opacity: pillBall ? 0 : 1, scale: pillBall ? 0.5 : 1 }}
+                // Voltando: aparece depois de a pílula começar a abrir e se ajusta ao lugar com mola
+                transition={pillBall ? { scale: QUICK_SHRINK, opacity: QUICK_SHRINK } : { scale: { ...SPRING.settle, delay: 0.1 }, opacity: { duration: 0.16, delay: 0.1 } }}
                 onClick={(e) => { e.stopPropagation(); runAction(quick, false); }}
-                className={`${pillBtn} shrink-0 overflow-hidden ${quick.active ? 'text-winblue' : ''} ${quick.danger ? 'text-red-500' : ''}`}
+                className={`${pillBtn} absolute top-0 left-0 shrink-0 overflow-hidden ${quick.active ? 'text-winblue' : ''} ${quick.danger ? 'text-red-500' : ''}`}
               >
                 {quick.icon}
               </motion.button>

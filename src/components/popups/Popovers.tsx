@@ -616,14 +616,15 @@ export const TRIGGER_RETURN_SPRING = { ...SPRING.bouncy, stiffness: 600, damping
 export function morphTriggerAnimate(isOpen: boolean) {
   return isOpen
     ? {
-        opacity: 0, scale: TRIGGER_RETURN_SCALE, pointerEvents: 'none' as const,
-        transition: { opacity: FADE_OUT, scale: { duration: 0, delay: 0.1 } },
+        opacity: 0, scale: TRIGGER_RETURN_SCALE, pointerEvents: 'none' as const, '--icon-o': 0,
+        transition: { '--icon-o': { duration: 0.07 }, opacity: { ...FADE_OUT, delay: 0.05 }, scale: { duration: 0, delay: 0.15 } },
       }
     : {
-        opacity: 1, scale: 1, pointerEvents: 'auto' as const,
+        opacity: 1, scale: 1, pointerEvents: 'auto' as const, '--icon-o': 1,
         transition: {
           opacity: { duration: MORPH_HANDOFF.fade, delay: MORPH_HANDOFF.at - 0.05 },
           scale: { ...TRIGGER_RETURN_SPRING, delay: MORPH_HANDOFF.at - 0.05 },
+          '--icon-o': { duration: 0.18, delay: MORPH_HANDOFF.at + 0.07 },
         },
       };
 }

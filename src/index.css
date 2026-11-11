@@ -2434,3 +2434,6 @@ html.lite .apple-header-blur > .apple-blur-tint { opacity: var(--header-blur, 0)
   overflow-wrap: anywhere;
   hyphens: auto;
 }
+
+/* Botões que viram pop-up: o ícone segue --icon-o (some antes do botão virar pop-up e volta depois dele) */
+:where(button, [role="button"]) > svg { opacity: var(--icon-o, 1); }
