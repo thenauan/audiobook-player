@@ -47,6 +47,7 @@ import { searchLyrics } from './lib/lyricSearch';
 import { withChunkReload } from './lib/chunkReload';
 import { audioBusy } from './audio/audioBusy';
 import { setSystemBarBase } from './lib/systemBars';
+import { explicitEdit, useExplicitBlocked } from './lib/explicitContent';
 import { fontFamilyPref } from './lib/fontFamilyPref';
 import ZoomTransitionLayer, { requestZoomClose, canZoomCloseTo, getZoomReturnRect } from './components/ZoomTransitionLayer';
 // Sem o arquivo (versão antiga aberta depois de uma publicação nova): recarrega para a versão atual
@@ -466,6 +467,7 @@ export default function App() {
   const handleStartEditBook = () => {
     const target: Audiobook | undefined = books.find(b => b.id === (activeScreen.data?.id || selectedBook?.id)) || activeScreen.data || selectedBook;
     if (!target) return;
+    explicitEdit.set(Boolean(target.explicit));
     setEditBookTitle(target.title);
     setEditBookAuthor(target.author);
     setEditBookCategory(target.category);
@@ -523,6 +525,7 @@ export default function App() {
       transcript: editBookTranscript,
       transcriptSource: editBookTranscript.length > 0 ? editBookTranscriptSource : undefined,
       transcriptFileName: editBookTranscript.length > 0 ? editBookTranscriptFileName : undefined,
+      explicit: explicitEdit.get() || undefined,
     };
 
     setBooks(prev => prev.map(b => b.id === target.id ? updated : b));
@@ -542,6 +545,7 @@ export default function App() {
         transcript: updated.transcript,
         transcriptSource: updated.transcriptSource,
         transcriptFileName: updated.transcriptFileName,
+        explicit: updated.explicit,
       }));
     }
     // Atualiza itens na fila caso pertençam a este livro
@@ -1920,6 +1924,14 @@ export default function App() {
   }, []);
 
   useEffect(() => { audioBusy.setPlaying(isPlaying); }, [isPlaying]);
+  // Conteúdo explícito bloqueado: nada explícito toca (vale para a fila, o play do sistema e os atalhos)
+  const blockExplicit = useExplicitBlocked();
+  useEffect(() => {
+    if (!isPlaying || !blockExplicit || !currentBook?.explicit) return;
+    setIsPlaying(false);
+    showToast(t('toast_explicit_blocked', { title: currentBook.title }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, blockExplicit, currentBook?.explicit, currentBook?.id]);
   // Sempre que a reprodução iniciar, garante que o ID do último livro tocado seja registrado
   useEffect(() => {
     if (isPlaying && currentBook?.id && currentBook.id !== EMPTY_BOOK.id) {

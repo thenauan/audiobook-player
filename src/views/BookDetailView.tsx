@@ -2,6 +2,9 @@ import React, { Suspense } from 'react';
 import { useShowExtraChapters, visibleChapters } from '../audio/chapterPrefs';
 import { requestSystemBarColor } from '../lib/systemBars';
 import { isMobileViewport } from '../components/popups/MobileContextMenu';
+import { ExplicitBadge } from '../components/ExplicitBadge';
+import { useExplicitBlocked, useExplicitEdit, explicitEdit } from '../lib/explicitContent';
+import { Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Star,
@@ -261,6 +264,34 @@ export default function BookDetailView({
     ? ((isEditingBook && editCoverColor) ? editCoverColor : getGenericCoverColor(effectiveCover, activeBook.title, activeBook.author))
     : ((getCustomCoverColor?.(effectiveCover)) || getGenericCoverColor(effectiveCover, activeBook.title, activeBook.author));
   const bookHighlight = getBookHighlightTheme(rawCoverHex, resolvedTheme === 'dark');
+  // Conteúdo explícito: selo "E" nas informações; bloqueado nos Ajustes, o audiobook não toca e um aviso
+  // abaixo dos botões explica como liberar
+  const blockExplicit = useExplicitBlocked();
+  const explicitBlocked = blockExplicit && Boolean(activeBook.explicit);
+  const editExplicit = useExplicitEdit();
+  const explicitNotice = explicitBlocked ? (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.94, y: -6 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+      role="note"
+      className="mt-4 w-full max-w-[420px] mx-auto md:mx-0 flex items-start gap-3 p-4 rounded-3xl bg-card/75 backdrop-blur-3xl shadow-xl text-left rtl:text-right"
+    >
+      <span className="w-9 h-9 rounded-full bg-winblue/20 text-winblue flex items-center justify-center shrink-0"><Lock size={16} /></span>
+      <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <span className="text-sm font-bold text-[var(--text-main)]">{t('explicit_blocked_title')}</span>
+        <span className="text-xs text-[var(--text-muted)] leading-snug">{t('explicit_blocked_desc')}</span>
+        <button
+          type="button"
+          data-press="true"
+          onClick={() => navigateTo('settings-reproducao')}
+          className="self-start mt-2 h-8 px-3.5 rounded-full bg-winblue/20 text-winblue text-xs font-bold"
+        >
+          {t('explicit_open_settings')}
+        </button>
+      </span>
+    </motion.div>
+  ) : null;
   // Android: as barras do sistema ficam na cor da capa enquanto a página do audiobook está aberta (fora do editor)
   const barColor = /^#?[0-9a-f]{6}$/i.test(rawCoverHex || '') ? `#${rawCoverHex.replace('#', '')}` : bookHighlight.hex;
   React.useEffect(() => {
@@ -313,7 +344,8 @@ export default function BookDetailView({
           }
         };
         const heroButtons = (
-                <div className="mt-4 w-full flex items-center justify-center land:justify-start gap-5">
+                <>
+                <div className={`mt-4 w-full flex items-center justify-center land:justify-start gap-5 ${explicitBlocked ? '[&>button:nth-child(2)]:opacity-45' : ''}`}>
                   <motion.button
                     data-press="true"
                     onClick={toggleCompleted}
@@ -345,6 +377,8 @@ export default function BookDetailView({
                     <ListMusic size={18} />
                   </motion.button>
                 </div>
+                {explicitNotice}
+                </>
         );
         return (
           <>
@@ -368,7 +402,7 @@ export default function BookDetailView({
                   className="text-[14px] font-semibold text-[var(--text-muted)] mt-1 text-left rtl:text-right"
                 />
                 {heroMeta.length > 0 && (
-                  <p className="text-[11px] font-semibold text-[var(--text-main)]/70 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{heroMeta.join(' • ')}</p>
+                  <p className="text-[11px] font-semibold text-[var(--text-main)]/70 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)] flex flex-wrap items-center gap-x-1">{activeBook.explicit && <><ExplicitBadge label={t('explicit')} size={13} /><span>•</span></>}<span>{heroMeta.join(' • ')}</span></p>
                 )}
               </div>
             </div>
@@ -418,7 +452,7 @@ export default function BookDetailView({
                   className="text-[15px] font-semibold text-[var(--text-main)]/80 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]"
                 />
                 {heroMeta.length > 0 && (
-                  <p className="text-[11px] font-semibold text-[var(--text-main)]/70 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{heroMeta.join(' • ')}</p>
+                  <p className="text-[11px] font-semibold text-[var(--text-main)]/70 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)] flex flex-wrap items-center gap-x-1">{activeBook.explicit && <><ExplicitBadge label={t('explicit')} size={13} /><span>•</span></>}<span>{heroMeta.join(' • ')}</span></p>
                 )}
                 {heroButtons}
               </div>
@@ -481,6 +515,9 @@ export default function BookDetailView({
 
                   const metaItems: { key: string; node: React.ReactNode }[] = [];
 
+                  if (activeBook.explicit) {
+                    metaItems.push({ key: 'explicit', node: <ExplicitBadge label={t('explicit')} size={13} /> });
+                  }
                   if (genreDisplay) {
                     metaItems.push({ key: 'genre', node: <span>{genreDisplay}</span> });
                   }
@@ -524,7 +561,8 @@ export default function BookDetailView({
                 })()}
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 pt-2 max-md:flex-col max-md:w-full max-md:gap-3">
+              {explicitNotice && <div className="order-last w-full">{explicitNotice}</div>}
+              <div className={`flex flex-wrap items-center gap-3 pt-2 max-md:flex-col max-md:w-full max-md:gap-3 ${explicitBlocked ? '[&>button:first-child]:opacity-45' : ''}`}>
                 <motion.button
                   data-press="true"
                   onClick={() => {
@@ -778,6 +816,26 @@ export default function BookDetailView({
                   placeholder={t('narrator_label')}
                 />
               </div>
+
+              {/* Conteúdo explícito: aplicado ao salvar */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={editExplicit}
+                onClick={() => explicitEdit.set(!editExplicit)}
+                className="w-full min-h-11 px-4 py-2.5 rounded-2xl bg-card/75 shadow-sm flex items-center justify-between gap-3 text-left rtl:text-right"
+              >
+                <span className="flex items-center gap-2.5 min-w-0">
+                  <ExplicitBadge label={t('explicit')} size={16} />
+                  <span className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-[var(--text-main)]">{t('explicit_content')}</span>
+                    <span className="text-[11px] text-[var(--text-muted)]">{t('explicit_content_sub')}</span>
+                  </span>
+                </span>
+                <span className={`relative w-[48px] h-[28px] rounded-full p-[4px] shrink-0 flex items-center transition-colors duration-150 ${editExplicit ? 'bg-winblue/20' : 'bg-[var(--ios-fill-strong)]'}`}>
+                  <span className={`w-[20px] h-[20px] rounded-full shadow-md transition-transform duration-200 ${editExplicit ? 'translate-x-[20px] rtl:-translate-x-[20px] bg-winblue' : 'translate-x-0 bg-[var(--text-main)]/40'}`} />
+                </span>
+              </button>
 
               <div>
                 <label className="text-xs font-semibold text-[var(--text-muted)] block mb-1.5">

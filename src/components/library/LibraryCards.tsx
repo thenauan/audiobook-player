@@ -11,6 +11,8 @@ import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar } from '
 import { MenuOptionItem, PagedMenu, useCompactPopups, PopupMorphContainer, checkChapterMenuShouldOpenUp, checkIsLeftEdgeCard, MorphPopup, morphTriggerAnimate, emitZoomOrigin } from '../popups/Popovers';
 import { getNationalityDisplayName } from '../../i18n/nationalityTranslations';
 import { useI18n } from '../../i18n/translations';
+import { ExplicitBadge } from '../ExplicitBadge';
+import { useExplicitBlocked } from '../../lib/explicitContent';
 import { Play, Pause, ListPlus, Info, MoreHorizontal, BookOpen, User, Headphones, Star, StarOff, FolderPlus, FolderMinus, Plus, Bookmark, Share, Quote } from 'lucide-react';
 import { getBackdropProps, useCloseOnOutsideScrollOrDrag } from '../popups/popupUtils';
 import { MobileConfirmCard } from '../popups/MobileConfirm';
@@ -1435,6 +1437,8 @@ export function BookCard({
   onToggleItemInCollection?: (collectionId: string, itemType: 'book' | 'author', itemId: string) => void,
   currentCollectionId?: string,
 }) {
+  // Conteúdo explícito bloqueado (Ajustes → Reprodução): capa apagada
+  const explicitBlockedCard = useExplicitBlocked() && Boolean(book.explicit);
   const { t } = useI18n();
   // No celular, sem animação de layout (medir cada card a cada atualização deixa a rolagem pesada)
   const layoutAnim = useIsMobile() ? false : ('position' as const);
@@ -1714,7 +1718,7 @@ export function BookCard({
           src={book.cover || getGenericBookCover(book.title, book.author)} 
           onError={(e) => { e.currentTarget.src = getGenericBookCover(book.title, book.author); }} 
           alt={book.title} 
-          className={`w-full h-full aspect-[1/1.6] object-cover transition-transform duration-500 ${isSelectionMode ? (isSelected ? 'scale-95 opacity-50' : 'scale-100 opacity-80') : 'group-hover/bookcard:scale-105'}`} 
+          className={`w-full h-full aspect-[1/1.6] object-cover transition-transform duration-500 ${isSelectionMode ? (isSelected ? 'scale-95 opacity-50' : 'scale-100 opacity-80') : 'group-hover/bookcard:scale-105'} ${explicitBlockedCard ? 'grayscale opacity-40' : ''}`} 
         />
 
         {/* Destaque de favorito com a mesma altura do badge de status (ouvindo/concluído) */}
@@ -1767,8 +1771,8 @@ export function BookCard({
       <div className="flex items-start justify-between gap-1.5 mt-2 relative">
         <div className="flex-1 min-w-0 pr-1">
           {/* Título clicável que leva à página do livro */}
-          <h4 
-            className="text-sm font-bold text-[var(--text-main)] truncate cursor-pointer hover:text-winblue transition-colors" 
+          <h4
+            className="text-sm font-bold text-[var(--text-main)] cursor-pointer hover:text-winblue transition-colors flex items-center gap-1 min-w-0"
             title={book.title}
             onClick={(e) => {
               e.stopPropagation();
@@ -1779,7 +1783,8 @@ export function BookCard({
               }
             }}
           >
-            {book.title}
+            <span className="truncate">{book.title}</span>
+            {book.explicit && <ExplicitBadge label={t('explicit')} size={13} />}
           </h4>
 
           {/* Nome do Autor clicável que leva à página do autor */}

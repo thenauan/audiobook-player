@@ -1,4 +1,5 @@
 // Extraído do App.tsx (mesma ordem de antes: os efeitos rodam na mesma sequência)
+import { isExplicitBlocked } from '../lib/explicitContent';
 import { useCallback, useEffect, useRef } from 'react';
 import { EMPTY_BOOK } from '../components/popups/Popovers';
 import { getGenericBookCover } from '../lib/coverArt';
@@ -884,6 +885,8 @@ export function usePlaybackEngine({ accrueListeningSeconds, activeScreen, applyB
   // Tocar um audiobook. Com um capítulo escolhido, começa nele; sem capítulo (botão "Ouvir", play do card),
   // continua de onde parou: o livro atual só retoma (ou pausa) e outro livro volta à posição salva dele
   const handlePlayBookFromStart = (book: Audiobook, chapterIndex = -1) => {
+    // Conteúdo explícito bloqueado em Ajustes: não toca
+    if (isExplicitBlocked(book)) { showToast(t('toast_explicit_blocked', { title: book.title })); return; }
     if (chapterIndex >= 0) resumeCheckedBooksRef.current.add(book.id); // capítulo escolhido pela pessoa
     if (chapterIndex < 0 && currentBook?.id === book.id && book.id !== EMPTY_BOOK.id) {
       if (isPlaying) {

@@ -6,6 +6,7 @@ import { useLiteMode, setLiteMode, useSystemInfo } from '../lib/liteMode';
 import { useLyricsHighlight, setLyricsHighlight } from '../audio/lyricsPrefs';
 import { useShowExtraChapters, setShowExtraChapters } from '../audio/chapterPrefs';
 import { useFontFamilyPref, fontFamilyPref } from '../lib/fontFamilyPref';
+import { useExplicitBlocked, explicitBlock } from '../lib/explicitContent';
 import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -441,6 +442,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const lyricsHighlight = useLyricsHighlight();
 
   const fontFamily = useFontFamilyPref();
+
+  const blockExplicit = useExplicitBlocked();
   const showExtraChapters = useShowExtraChapters();
   const lyricsHighlightLabels = { both: t('lyrics_hl_both'), phrase: t('lyrics_hl_phrase'), word: t('lyrics_hl_word') };
   // Modo leve e configuração do aparelho (Sistema)
@@ -925,6 +928,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
 
           <div className="space-y-2.5">
+            {/* Bloquear conteúdo explícito */}
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)] cursor-pointer flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                  <span className="w-[18px] h-[18px] rounded-[4px] bg-current flex items-center justify-center"><span className="text-[12px] font-bold leading-none text-[var(--bg-mica)]">E</span></span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-base text-[var(--text-main)]">{t('block_explicit')}</span>
+                  <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('block_explicit_sub')}</span>
+                </div>
+              </div>
+              <SettingToggle checked={blockExplicit} onChange={(val) => explicitBlock.set(val)} />
+            </div>
+
             {/* 1. Velocidade padrão */}
             <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)] cursor-pointer flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">

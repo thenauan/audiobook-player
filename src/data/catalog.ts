@@ -36,6 +36,8 @@ export type Audiobook = {
   // Todos os autores, quando o campo de autor tem mais de um nome ("A & B", "A, B")
   authorIds?: string[];
   narrator: string;
+  // Conteúdo explícito (selo "E"; pode ser bloqueado em Ajustes → Reprodução)
+  explicit?: boolean;
   cover: string;
   category: string;
   subgenre?: string;
