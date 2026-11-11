@@ -61,7 +61,7 @@ export function LibraryScreen() {
         </div>
       </motion.div>
     ) : (
-      <motion.div key={activeScreen.id} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="space-y-12">
+      <motion.div key={activeScreen.id} variants={transicaoConteudo} initial="escondido" animate="visivel" exit="saindo" className="space-y-12 [&>h1+*]:!mt-0">
       <h1 className="text-4xl md:text-5xl font-semibold text-[var(--text-main)] capitalize mb-12 tracking-tight">
         {t('nav_library')}
       </h1>

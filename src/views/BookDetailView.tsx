@@ -709,7 +709,7 @@ export default function BookDetailView({
                   <span className="text-xs font-semibold text-[var(--text-muted)]">
                     {t('cover_color')}
                   </span>
-                  <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-2.5 py-3 rounded-2xl bg-card/60 shadow-sm w-full">
+                  <div className="grid grid-cols-6 gap-x-3 gap-y-3.5 justify-items-center px-2.5 py-3 rounded-[26px] bg-card/60 shadow-sm w-full">
                     {GENERIC_COVER_COLORS.map((c: any) => {
                       const isSelected = !hasCustomCover && editCoverColor.toLowerCase() === c.hex.toLowerCase();
                       return (
@@ -754,7 +754,7 @@ export default function BookDetailView({
                       setEditBookCover(getGenericBookCover(val, editBookAuthor || activeBook.author, editCoverColor));
                     }
                   }}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
+                  className="w-full h-11 px-5 rounded-full bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('book_title_label')}
                 />
               </div>
@@ -773,7 +773,7 @@ export default function BookDetailView({
                       setEditBookCover(getGenericBookCover(editBookTitle || activeBook.title, val, editCoverColor));
                     }
                   }}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
+                  className="w-full h-11 px-5 rounded-full bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('author_label')}
                 />
               </div>
@@ -786,7 +786,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookCategory}
                   onChange={(e) => setEditBookCategory(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
+                  className="w-full h-11 px-5 rounded-full bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('genre_category_label')}
                 />
               </div>
@@ -799,7 +799,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookSubgenre}
                   onChange={(e) => setEditBookSubgenre(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
+                  className="w-full h-11 px-5 rounded-full bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('subgenre_label')}
                 />
               </div>
@@ -812,7 +812,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookNarrator}
                   onChange={(e) => setEditBookNarrator(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
+                  className="w-full h-11 px-5 rounded-full bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('narrator_label')}
                 />
               </div>
@@ -823,7 +823,7 @@ export default function BookDetailView({
                 role="switch"
                 aria-checked={editExplicit}
                 onClick={() => explicitEdit.set(!editExplicit)}
-                className="w-full min-h-11 px-4 py-2.5 rounded-2xl bg-card/75 shadow-sm flex items-center justify-between gap-3 text-left rtl:text-right"
+                className="w-full min-h-11 px-5 py-2.5 rounded-full bg-card/75 shadow-sm flex items-center justify-between gap-3 text-left rtl:text-right"
               >
                 <span className="flex items-center gap-2.5 min-w-0">
                   <ExplicitBadge label={t('explicit')} size={16} />
@@ -845,7 +845,7 @@ export default function BookDetailView({
                   type="text"
                   value={editBookLanguage}
                   onChange={(e) => setEditBookLanguage(e.target.value)}
-                  className="w-full h-11 px-4 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
+                  className="w-full h-11 px-5 rounded-full bg-card/75 text-[var(--text-main)] text-sm font-semibold shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow]"
                   placeholder={t('language_label')}
                 />
               </div>
@@ -945,7 +945,7 @@ export default function BookDetailView({
               onChange={(e) => setEditBookDescription(e.target.value.slice(0, 1500))}
               maxLength={1500}
               rows={8}
-              className="w-full h-[232px] p-4 pb-7 rounded-2xl bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] resize-none custom-scrollbar"
+              className="w-full h-[232px] px-5 py-4 pb-7 rounded-[26px] bg-card/75 text-[var(--text-main)] text-sm leading-relaxed shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] resize-none custom-scrollbar"
               placeholder={t('synopsis')}
             />
             <span className="absolute bottom-2.5 right-3.5 text-[10px] text-[var(--text-muted)] pointer-events-none select-none">
@@ -1024,7 +1024,7 @@ export default function BookDetailView({
                           return base;
                         });
                       }}
-                      className="h-10 px-3.5 rounded-xl bg-card/75 text-[var(--text-main)] text-sm font-medium shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] flex-1"
+                      className="h-10 px-4 rounded-full bg-card/75 text-[var(--text-main)] text-sm font-medium shadow-sm focus:outline-none focus:bg-winblue/15 focus:ring-2 focus:ring-winblue/30 transition-[background-color,box-shadow] flex-1"
                       placeholder={t('chapter_title_placeholder', { num: i + 1 })}
                     />
                   </div>
