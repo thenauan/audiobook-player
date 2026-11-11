@@ -1,3 +1,4 @@
+import { ExplicitBadge } from '../../components/ExplicitBadge';
 // Extraído do App.tsx: lê do App, pelo contexto, só o que usa
 import { AnimatePresence, motion } from 'motion/react';
 import { MenuOptionItem, PagedMenu, PopupMorphContainer, clearButtonCoverAnchorCache, getButtonCoverPopupStyle, morphTriggerAnimate } from '../../components/popups/Popovers';
@@ -80,7 +81,7 @@ export function SearchResultsList() {
               setActiveSearchMenuId(null); 
             }}
           >
-            <p className="text-sm font-bold text-[var(--text-main)] truncate">{book.title}</p>
+            <p className="text-sm font-bold text-[var(--text-main)] flex items-center gap-1 min-w-0"><span className="truncate">{book.title}</span>{book.explicit && <ExplicitBadge label={t('explicit')} size={13} />}</p>
             <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
               Audiobook • {book.author} • {getGenreName(book.category, resolvedLanguage)}{book.subgenre && book.subgenre !== 'Desconhecido' && book.subgenre.toLowerCase() !== book.category.toLowerCase() ? `, ${getSubgenreName(book.subgenre, resolvedLanguage)}` : ''}
             </p>
