@@ -7,6 +7,7 @@ import type { Audiobook, Chapter, Author } from '../../data/catalog';
 import { AUTHORS_DATABASE } from '../../data/catalog';
 import { getGenericBookCover, getAuthorAvatar } from '../../lib/coverArt';
 import type { QueueItem } from '../../audio/queueUtils';
+import { AuthorLinks } from './AuthorLinks';
 import { useI18n } from '../../i18n/translations';
 import { useAudioBusy } from '../../audio/audioBusy';
 import { useTabBarCollapsed, useMobileBarSplit, tabBarStore, miniPresenceStore, MOBILE_BAR, MOBILE_GLASS_SHADOW, MOBILE_SHRINK_SCALE } from '../Sidebar';
@@ -282,17 +283,14 @@ export default function MiniPlayer({
               {currentBook.title}
             </span>
             <span className="mx-1.5 text-[9px] opacity-60">•</span>
-            <span 
-              className="hover:text-winblue cursor-pointer transition-colors"
-              title={currentBook.author}
-              onClick={(e) => {
-                e.stopPropagation();
-                const authorObj = authors.find(a => a.name.toLowerCase() === currentBook.author.toLowerCase()) || AUTHORS_DATABASE.find(a => a.name.toLowerCase() === currentBook.author.toLowerCase()) || { id: 'auth-temp', name: currentBook.author, picture: getAuthorAvatar(currentBook.author), bio: '', nationality: 'Desconhecido', totalBooks: 1 };
-                navigateTo('author-detail', authorObj);
-              }}
-            >
-              {currentBook.author}
-            </span>
+            <AuthorLinks
+                    authors={currentBook.author}
+                    className="hover:text-winblue cursor-pointer transition-colors"
+                    onPick={(name) => {
+                      const authorObj = authors.find(a => a.name.toLowerCase() === name.toLowerCase()) || AUTHORS_DATABASE.find(a => a.name.toLowerCase() === name.toLowerCase()) || { id: 'auth-temp', name, picture: getAuthorAvatar(name), bio: '', nationality: 'Desconhecido', totalBooks: 1 };
+                      navigateTo('author-detail', authorObj);
+                    }}
+                  />
             </MarqueeText>
           </motion.div>
 

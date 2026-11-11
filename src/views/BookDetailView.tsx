@@ -329,7 +329,8 @@ export default function BookDetailView({
                       if (isThisBookCurrent) setIsPlaying(!isPlaying);
                       else handlePlayBookFromStart(activeBook);
                     }}
-                    className="h-11 px-8 min-w-[132px] rounded-full bg-winblue shadow-md text-white text-sm font-bold flex items-center justify-center gap-2"
+                    // Vidro como os outros botões, tingido com a cor do audiobook (não opaco)
+                    className="h-11 px-8 min-w-[132px] rounded-full bg-winblue/25 backdrop-blur-3xl shadow-sm text-winblue text-sm font-bold flex items-center justify-center gap-2"
                   >
                     {isBookPlaying ? <BsPauseFill size={18} /> : <BsPlayFill size={18} />}
                     <span>{isBookPlaying ? t('pause') : t('listen')}</span>

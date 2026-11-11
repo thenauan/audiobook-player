@@ -10,6 +10,7 @@ import type { Audiobook, Chapter, Author, TranscriptLine } from '../../data/cata
 import { AUTHORS_DATABASE } from '../../data/catalog';
 import { getGenericBookCover, getAuthorAvatar } from '../../lib/coverArt';
 import type { QueueItem } from '../../audio/queueUtils';
+import { AuthorLinks } from './AuthorLinks';
 import { useI18n } from '../../i18n/translations';
 import { useAudioBusy } from '../../audio/audioBusy';
 import { useIsMobile, useIsLandscapePhone, MobileContextMenu } from '../popups/MobileContextMenu';
@@ -665,18 +666,15 @@ export default function FullscreenPlayer({
                     {currentBook.title}
                   </span>
                   <span className="mx-1.5 text-[10px] text-slate-600 dark:text-[var(--text-muted)] opacity-70">•</span>
-                  <span 
+                  <AuthorLinks
+                    authors={currentBook.author}
                     className="text-slate-800 dark:text-[var(--text-muted)] hover:text-winblue cursor-pointer transition-colors font-semibold dark:drop-shadow-sm"
-                    title={currentBook.author}
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onPick={(name) => {
                       setIsFullScreen(false);
-                      const authorObj = authors.find(a => a.name.toLowerCase() === currentBook.author.toLowerCase()) || AUTHORS_DATABASE.find(a => a.name.toLowerCase() === currentBook.author.toLowerCase()) || { id: 'auth-temp', name: currentBook.author, picture: getAuthorAvatar(currentBook.author), bio: '', nationality: 'Desconhecido', totalBooks: 1 };
+                      const authorObj = authors.find(a => a.name.toLowerCase() === name.toLowerCase()) || AUTHORS_DATABASE.find(a => a.name.toLowerCase() === name.toLowerCase()) || { id: 'auth-temp', name, picture: getAuthorAvatar(name), bio: '', nationality: 'Desconhecido', totalBooks: 1 };
                       navigateTo('author-detail', authorObj);
                     }}
-                  >
-                    {currentBook.author}
-                  </span>
+                  />
                   </MarqueeText>
                 </motion.div>
               </div>
