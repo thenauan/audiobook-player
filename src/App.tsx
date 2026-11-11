@@ -3375,7 +3375,7 @@ export default function App() {
     // Barra de status/navegação do sistema na mesma cor do fundo do app (claro ou escuro)
     // A cor do fundo do tema (a mesma do app), lida da variável depois de trocar a classe
     const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-mica').trim();
-    setSystemBarBase(bg || (resolvedTheme === 'dark' ? '#111113' : '#FFFFFF'));
+    setSystemBarBase(bg || (resolvedTheme === 'dark' ? '#000000' : '#FFFFFF'));
   }, [resolvedTheme]);
 
   const [moreContrast, setMoreContrast] = useState(() => !!window.matchMedia?.('(prefers-contrast: more)').matches);
@@ -6809,8 +6809,8 @@ export default function App() {
                               >
                                 <Edit3 size={13} />
                               </motion.button>
-                              {/* Compartilhar: imagem do audiobook ou de um trecho do texto (formato de story) */}
-                              <div className={`relative w-9 h-9 ${showShareBookMenu ? 'z-50' : 'z-10'}`}>
+                              {/* Compartilhar (imagem para stories): só no celular */}
+                              <div className={`relative w-9 h-9 ${showShareBookMenu ? 'z-50' : 'z-10'} ${isMobile ? '' : 'hidden'}`}>
                                 <motion.button
                                   key="btn"
                                   data-press="true"

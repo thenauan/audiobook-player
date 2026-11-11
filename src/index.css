@@ -209,7 +209,7 @@ html[data-density="comfortable"] [class*="gap-6"] {
   }
 
   .dark {
-    --bg-mica: #111113;
+    --bg-mica: #000000;
     --button-outline: rgb(255 255 255 / 0.07);
     --surface-outline: rgb(255 255 255 / 0.04);
     --shadow-soft: rgb(0 0 0 / 0.26);
@@ -2369,6 +2369,14 @@ html:not(.dark) .ambient-screen [class*="bg-white/"] {
 }
 html.dark [data-player-sheet][data-queue-expanded] {
   background-color: rgb(28 28 32 / 0.94) !important;
+}
+/* Em tela cheia, a base fica reta junto à borda da tela (em aparelhos de quina quadrada, nada é cortado); o
+   motion reaplicava o arredondamento do cartão por cima do estilo da expansão */
+[data-player-sheet][data-queue-expanded] {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
 }
 
 /* Segurar o dedo numa opção dos pop-ups: sem seleção de texto nem o menu de copiar do iPhone (ao começar a seleção, o

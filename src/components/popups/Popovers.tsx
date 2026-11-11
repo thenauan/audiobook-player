@@ -371,7 +371,7 @@ export function MenuOptionItem({
 }
 
 // ===== Pop-ups no celular: no máximo 6 opções por vez =====
-// Com mais opções, a 6ª vira "Mais opções", que troca a lista pelas seguintes; na última página,
+// Com mais opções, a 7ª vira "Mais opções", que troca a lista pelas seguintes; na última página,
 // "Mais opções" volta para as primeiras (ou para a lista anterior, quando há uma — onBackToParent).
 // No computador (ou com poucas opções) a lista aparece inteira.
 const COMPACT_POPUP_QUERY = '(max-width: 1023px)';
@@ -402,7 +402,8 @@ function flattenOptions(children: React.ReactNode): React.ReactNode[] {
   return out;
 }
 
-export const MAX_POPUP_OPTIONS = 6;
+// Até 6 opções por página e, quando há mais, a 7ª linha é "Mais opções"
+export const MAX_POPUP_OPTIONS = 7;
 
 export function PagedMenu({
   children,

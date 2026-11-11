@@ -1,6 +1,15 @@
 import React from 'react';
 import { motion, LayoutGroup } from 'motion/react';
-import { Search, Home, HelpCircle, Settings as SettingsIcon, LayoutList } from 'lucide-react';
+import { Search, HelpCircle, Settings as SettingsIcon, LayoutList } from 'lucide-react';
+
+// Início: uma casa sem porta (o contorno do telhado e das paredes), no mesmo traço dos ícones do app
+function Home({ size = 24, className }: { size?: number; className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={['lucide', className].filter(Boolean).join(' ')} aria-hidden="true">
+      <path d="M3.5 10.4 12 3.6l8.5 6.8v9.1a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z" />
+    </svg>
+  );
+}
 import { RiBookOpenLine, RiApps2Line } from 'react-icons/ri';
 import { AppLogo } from './AppLogo';
 import { clsx, type ClassValue } from 'clsx';

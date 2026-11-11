@@ -239,9 +239,11 @@ export default function FullscreenPlayer({
       <MenuOptionItem icon={<Bookmark size={14} />} onClick={() => { onAddLineBookmark?.(line); close(); }}>
         <span>{t('add_line_as_bookmark')}</span>
       </MenuOptionItem>
-      <MenuOptionItem icon={<Share size={14} />} onClick={() => { close(); onShareLine?.(line); }}>
-        <span>{t('share_excerpt')}</span>
-      </MenuOptionItem>
+      {isMobileFs && (
+        <MenuOptionItem icon={<Share size={14} />} onClick={() => { close(); onShareLine?.(line); }}>
+          <span>{t('share_excerpt')}</span>
+        </MenuOptionItem>
+      )}
       <MenuOptionItem
         icon={<Copy size={14} />}
         onClick={() => {

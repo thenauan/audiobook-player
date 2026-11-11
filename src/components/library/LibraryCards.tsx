@@ -1564,11 +1564,13 @@ export function BookCard({
                       <span>{isFavorite ? t('remove_from_favorites') : t('favorite')}</span>
                     </MenuOptionItem>
 
-                    {/* Compartilhar (imagem) e trecho do texto (só com texto sincronizado) */}
+                    {/* Compartilhar (imagem) e trecho do texto (só com texto sincronizado): só no celular */}
+                    {isMobileViewport() && (
                     <MenuOptionItem icon={<Share size={14} />} onClick={() => { handleClose(); window.dispatchEvent(new CustomEvent('share-book-image', { detail: { bookId: book.id } })); }}>
                       <span>{t('share_audiobook')}</span>
                     </MenuOptionItem>
-                    {(book.transcript || []).length > 0 && (
+                    )}
+                    {isMobileViewport() && (book.transcript || []).length > 0 && (
                       <MenuOptionItem icon={<Quote size={14} />} onClick={() => { handleClose(); window.dispatchEvent(new CustomEvent('share-book-lyrics', { detail: { bookId: book.id } })); }}>
                         <span>{t('share_excerpt')}</span>
                       </MenuOptionItem>

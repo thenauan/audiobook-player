@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { useShowExtraChapters, visibleChapters } from '../audio/chapterPrefs';
 import { requestSystemBarColor } from '../lib/systemBars';
+import { isMobileViewport } from '../components/popups/MobileContextMenu';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Star,
@@ -1283,11 +1284,13 @@ export default function BookDetailView({
                                 >
                                   <span>{favoriteChapters.includes(chapIdKey) ? t('remove_from_favorites') : t('favorite')}</span>
                                 </MenuOptionItem>
-                                {/* Compartilhar o capítulo (imagem) e um trecho dele (só com texto sincronizado no capítulo) */}
+                                {/* Compartilhar o capítulo (imagem) e um trecho dele (só com texto sincronizado no capítulo): só no celular */}
+                                {isMobileViewport() && (
                                 <MenuOptionItem icon={<Share size={14} />} onClick={() => { setActiveChapterMenuId(null); window.dispatchEvent(new CustomEvent('share-book-image', { detail: { bookId: activeBook.id, chapterId: cap.id } })); }}>
                                   <span>{t('share_chapter')}</span>
                                 </MenuOptionItem>
-                                {(activeBook.transcript || []).some(l => l.start >= cap.startTime && l.start < cap.startTime + (cap.duration || 0)) && (
+                                )}
+                                {isMobileViewport() && (activeBook.transcript || []).some(l => l.start >= cap.startTime && l.start < cap.startTime + (cap.duration || 0)) && (
                                   <MenuOptionItem icon={<Quote size={14} />} onClick={() => { setActiveChapterMenuId(null); window.dispatchEvent(new CustomEvent('share-book-lyrics', { detail: { bookId: activeBook.id, chapterId: cap.id } })); }}>
                                     <span>{t('share_excerpt')}</span>
                                   </MenuOptionItem>
