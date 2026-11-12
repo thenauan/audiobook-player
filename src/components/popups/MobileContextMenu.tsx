@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { PopupMorphContainer } from './Popovers';
@@ -199,13 +199,11 @@ export function MobileContextMenu({
   // o menu fica abaixo dela, sem cobrir o nome
   const [measuredPreviewH, setMeasuredPreviewH] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
+  // Medida uma vez ao abrir (sem observar continuamente: no Safari isso podia entrar em ciclo e travar o menu)
+  useLayoutEffect(() => {
     if (!open) { setMeasuredPreviewH(null); return; }
-    const el = previewRef.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => setMeasuredPreviewH(el.offsetHeight));
-    ro.observe(el);
-    return () => ro.disconnect();
+    const h = previewRef.current?.offsetHeight ?? 0;
+    setMeasuredPreviewH(prev => (prev !== null && Math.abs(prev - h) < 2 ? prev : h));
   }, [open]);
   // Posição do item em destaque e do menu: tudo dentro da tela (itens perto da borda direita
   // ou cortados numa linha com rolagem horizontal são trazidos para dentro, e o menu se alinha a eles)

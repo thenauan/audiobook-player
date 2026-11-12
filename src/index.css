@@ -2458,3 +2458,11 @@ html.dark aside.sidebar-safe {
     max-width: min(42%, calc(100vw - 2 * (max(var(--safe-left, env(safe-area-inset-left)), var(--safe-right, env(safe-area-inset-right))) + 140px))) !important;
   }
 }
+/* Valor inicial do ícone dos botões que viram pop-up (o motion anima a partir dele; sem valor declarado o Safari
+   podia não ter de onde partir) */
+@property --icon-o {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+:root { --icon-o: 1; }
