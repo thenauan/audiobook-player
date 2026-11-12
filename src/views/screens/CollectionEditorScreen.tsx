@@ -33,8 +33,9 @@ export function CollectionEditorScreen() {
         <div className="relative isolate shrink-0 rounded-3xl overflow-hidden shadow-2xl w-56 aspect-[16/9] p-4 flex flex-col justify-end">
           <div className={`absolute inset-0 bg-gradient-to-br ${colFormPalette.gradient}`} />
           <div className="absolute inset-0 bg-black/20" />
-          <span className="absolute -bottom-3 -right-2 text-6xl sm:text-7xl select-none pointer-events-none opacity-40 transform translate-x-2 translate-y-2">
-            {colFormEmoji}
+          {/* O mesmo ícone (e tom) que a coleção tem no resto do app */}
+          <span className="absolute bottom-2 right-2 rtl:right-auto rtl:left-2 text-7xl select-none pointer-events-none card-tone-icon">
+            <EmojiIcon emoji={colFormEmoji} />
           </span>
           <div className="relative z-10 min-w-0">
             <h3 className="text-xl font-bold text-white drop-shadow-md tracking-tight truncate">

@@ -2446,3 +2446,15 @@ html.dark [data-app-header] :is(button, [role="button"], div)[class*="bg-card/75
 html.dark aside.sidebar-safe {
   background-color: rgb(120 120 128 / 0.26) !important;
 }
+
+/* Celular deitado: o recorte da tela (notch/Dynamic Island) pode estar de qualquer lado; o nome grande da coleção
+   e o título do cabeçalho ficam sempre fora dele */
+@media (max-width: 1023px) and (orientation: landscape) and (max-height: 600px) {
+  .hero-safe-x {
+    padding-left: max(1.25rem, calc(var(--safe-left, env(safe-area-inset-left)) + 12px)) !important;
+    padding-right: max(1.25rem, calc(var(--safe-right, env(safe-area-inset-right)) + 12px)) !important;
+  }
+  .header-inline-title {
+    max-width: min(42%, calc(100vw - 2 * (max(var(--safe-left, env(safe-area-inset-left)), var(--safe-right, env(safe-area-inset-right))) + 140px))) !important;
+  }
+}

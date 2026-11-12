@@ -5612,14 +5612,20 @@ export default function App() {
 
             {/* TÍTULO CENTRALIZADO RESSURGINDO NO CABEÇALHO (APPLE-STYLE INLINE TITLE) */}
             <AnimatePresence>
-              {(isTitleScrolledPast || isLandscapePhone) && activeScreen.id !== 'search' && currentScreenTitle && (
+              {/* Celular deitado: o nome do autor e da coleção vai para o cabeçalho só depois que o nome grande sai da
+                  tela; o do audiobook nunca (fica sempre visível na coluna da esquerda); as outras telas sempre */}
+              {(isLandscapePhone
+                ? (activeScreen.id === 'book-detail' ? false
+                  : (activeScreen.id === 'author-detail' || activeScreen.id.startsWith('library-colecao-')) ? isTitleScrolledPast
+                  : true)
+                : isTitleScrolledPast) && activeScreen.id !== 'search' && currentScreenTitle && (
                 <motion.div
                   key={`header-title-${activeScreen.id}`}
                   initial={{ opacity: 0, y: 7, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -5, scale: 0.96 }}
                   transition={SPRING.snappy}
-                  className="absolute left-1/2 -translate-x-1/2 top-[var(--app-header-top)] h-9 flex items-center justify-center pointer-events-auto cursor-default z-30 max-w-[42%] sm:max-w-[50%] md:max-w-[58%]"
+                  className="header-inline-title absolute left-1/2 -translate-x-1/2 top-[var(--app-header-top)] h-9 flex items-center justify-center pointer-events-auto cursor-default z-30 max-w-[42%] sm:max-w-[50%] md:max-w-[58%]"
                   title={currentScreenTitle}
                 >
                   <div className="relative flex items-center justify-center max-w-full">
