@@ -40,5 +40,44 @@
   ],
   "scope": "./",
   "id": "./",
-  "lang": "pt-BR"
+  "lang": "pt-BR",
+  "share_target": {
+    "action": "./share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "audio/*",
+            ".mp3",
+            ".m4a",
+            ".m4b",
+            ".mp4",
+            ".aac",
+            ".ogg",
+            ".oga",
+            ".opus",
+            ".wav",
+            ".flac",
+            ".wma",
+            ".lrc",
+            ".srt",
+            ".vtt",
+            ".json",
+            ".smil",
+            ".epub",
+            "application/epub+zip",
+            "application/json",
+            "text/plain",
+            "text/vtt"
+          ]
+        }
+      ]
+    }
+  }
 }

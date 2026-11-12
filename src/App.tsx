@@ -1525,6 +1525,37 @@ export default function App() {
   };
   const importToast = (key: string, titles: string[]) => t(`${key}_${titles.length === 1 ? 'one' : 'many'}`, { titles: namesForToast(titles) });
 
+  // Compartilhado de outro app (menu de compartilhar do Android): os arquivos chegam pelo service worker
+  const processAudioFilesRef = useRef<(files: File[]) => void>(() => {});
+  useEffect(() => {
+    if (!isLibraryDataHydrated) return;
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('shared') || typeof caches === 'undefined') return;
+    params.delete('shared');
+    const clean = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash;
+    window.history.replaceState(window.history.state, '', clean);
+    (async () => {
+      try {
+        const cache = await caches.open('audiobook-shared');
+        const keys = await cache.keys();
+        const files: File[] = [];
+        for (const req of keys) {
+          const res = await cache.match(req);
+          if (!res) continue;
+          const blob = await res.blob();
+          const name = decodeURIComponent(res.headers.get('X-File-Name') || 'arquivo');
+          files.push(new File([blob], name, { type: blob.type || res.headers.get('Content-Type') || '' }));
+          await cache.delete(req);
+        }
+        if (files.length > 0) processAudioFilesRef.current(files);
+        else showToast(t('toast_share_nothing'));
+      } catch (err) {
+        console.warn('Could not read shared files:', err);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLibraryDataHydrated]);
+
   const processAudioFiles = async (fileList: FileList | File[], silentDuplicateToast = false) => {
     const rawFiles = Array.from(fileList);
     const isAudio = (f: File) => {
@@ -1820,6 +1851,7 @@ export default function App() {
       );
     }
   };
+  processAudioFilesRef.current = (files: File[]) => { void processAudioFiles(files); };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

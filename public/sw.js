@@ -1,5 +1,7 @@
 // Service Worker for Audiobook Player PWA
-const CACHE_NAME = 'audiobook-player-v13';
+const CACHE_NAME = 'audiobook-player-v14';
+// Arquivos recebidos pelo menu de compartilhar do sistema, até o app abrir e adicioná-los
+const SHARED_CACHE = 'audiobook-shared';
 // Caminhos relativos à pasta do service worker (funciona também numa subpasta, como no GitHub Pages)
 const ASSETS_TO_CACHE = [
   './',
@@ -26,7 +28,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (key !== CACHE_NAME && key !== SHARED_CACHE) {
             return caches.delete(key);
           }
         })
@@ -38,6 +40,25 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
+
+  // Compartilhado para o app (Android): guarda os arquivos e abre o app, que os adiciona à biblioteca
+  if (request.method === 'POST' && new URL(request.url).pathname.endsWith('/share-target')) {
+    event.respondWith((async () => {
+      try {
+        const form = await request.formData();
+        const files = form.getAll('files').filter((f) => f && typeof f === 'object' && 'name' in f);
+        const cache = await caches.open(SHARED_CACHE);
+        await Promise.all(files.map((file, i) => cache.put(
+          `./shared/${Date.now()}-${i}`,
+          new Response(file, { headers: { 'Content-Type': file.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(file.name || `arquivo-${i}`) } })
+        )));
+      } catch (err) {
+        console.warn('Share target error:', err);
+      }
+      return Response.redirect('./?shared=1', 303);
+    })());
+    return;
+  }
   
   // Never intercept or cache large audio files, blob URLs, or Vite development requests
   if (
