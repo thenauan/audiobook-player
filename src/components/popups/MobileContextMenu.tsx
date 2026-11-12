@@ -195,6 +195,18 @@ export function MobileContextMenu({
     ro.observe(el);
     return () => ro.disconnect();
   }, [open, activeKey]);
+  // Altura real da prévia: com o nome completo (em várias linhas) ela pode ser mais alta que o card original;
+  // o menu fica abaixo dela, sem cobrir o nome
+  const [measuredPreviewH, setMeasuredPreviewH] = useState<number | null>(null);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!open) { setMeasuredPreviewH(null); return; }
+    const el = previewRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setMeasuredPreviewH(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [open]);
   // Posição do item em destaque e do menu: tudo dentro da tela (itens perto da borda direita
   // ou cortados numa linha com rolagem horizontal são trazidos para dentro, e o menu se alinha a eles)
   let layout: { shiftX: number; shiftY: number; menuTop: number; menuLeft: number; alignRight: boolean; menuW: number; centered?: boolean } | null = null;
@@ -231,12 +243,13 @@ export function MobileContextMenu({
       const menuTop = Math.max(minY, Math.min(itemCenter - menuH / 2, maxY - Math.min(menuH, maxY - minY)));
       layout = { shiftX, shiftY, menuTop, menuLeft, alignRight: !fitsRight, menuW };
     } else {
-      const total = r.height + gap + menuH;
+      const itemH = Math.max(r.height, measuredPreviewH ?? 0);
+      const total = itemH + gap + menuH;
       let shiftY = 0;
       // Se o item + menu não cabem abaixo, o item sobe (como no iOS) até o conjunto caber na tela
       if (r.top + total > maxY) shiftY = (maxY - total) - r.top;
       if (r.top + shiftY < minY + 40) shiftY = minY + 40 - r.top;
-      const menuTop = Math.min(r.bottom + shiftY + gap, maxY - 120);
+      const menuTop = Math.min(r.top + itemH + shiftY + gap, maxY - 120);
       // Item na metade direita da tela: o menu se alinha pela direita do item (como no iOS)
       const alignRight = left + r.width / 2 > vw / 2;
       // Item fora dos cantos da tela: fica centralizado com o menu (nos cantos, alinha pela borda dele)
@@ -295,6 +308,7 @@ export function MobileContextMenu({
           {/* O item pressionado se destaca da interface */}
           <motion.div
             key="ctx-preview"
+            ref={previewRef}
             data-popup-content="true"
             // Só abre com um toque que comece no destaque (não com o "clique" de soltar o toque longo)
             onPointerDown={onPreviewClick ? () => { previewArmedRef.current = true; } : undefined}
