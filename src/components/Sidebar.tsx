@@ -14,7 +14,7 @@ import { RiBookOpenLine, RiApps2Line } from 'react-icons/ri';
 import { AppLogo } from './AppLogo';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { SPRING } from '../lib/motion';
+import { CSS_SPRING, SPRING } from '../lib/motion';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -381,13 +381,15 @@ const MobileBottomBarView = React.memo(function MobileBottomBarView({
       <LayoutGroup id="mobile-bottom-bar">
         <motion.div
           className={cn("relative", split && !hasMini && "mx-auto")}
-          initial={false}
-          animate={{ scale: shrunk ? MOBILE_SHRINK_SCALE : pressed ? 1.04 : 1 }}
-          transition={pressed ? PRESS_SPRING : BAR_SPRING}
+          // Diminuir e crescer ao rolar: transição de CSS (roda fora do JavaScript). Com a mola do motion, uma travada
+          // no começo da rolagem fazia a barra pular direto para o tamanho final, parecendo piscar
           style={{
             height: size,
             width: split && !hasMini ? 'min(100%, 440px)' : '100%',
             transformOrigin: split && hasMini ? 'bottom left' : 'bottom center',
+            transform: `scale(${shrunk ? MOBILE_SHRINK_SCALE : pressed ? 1.04 : 1})`,
+            transition: pressed ? `transform ${CSS_SPRING.bouncy.ms}ms ${CSS_SPRING.bouncy.curve}` : 'transform var(--dur-morph) var(--spring-morph)',
+            willChange: 'transform',
           }}
         >
           {/* Fundo de vidro: barra completa <-> botão redondo da aba atual (a mesma forma encolhendo para a esquerda) */}
