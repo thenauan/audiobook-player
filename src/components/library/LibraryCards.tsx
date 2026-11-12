@@ -809,9 +809,9 @@ export function AuthorCard({
         className="w-full aspect-square rounded-3xl object-cover shadow-2xl"
       />
       <div className="mt-2 px-0.5">
-        <p className="text-sm font-bold text-[var(--text-main)] truncate">{author.name}</p>
+        <p className="text-sm font-bold leading-snug text-[var(--text-main)] [overflow-wrap:anywhere]">{author.name}</p>
         {Boolean(author.nationality && author.nationality.trim()) && (
-          <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{getNationalityDisplayName(author.nationality, language)}</p>
+          <p className="text-xs leading-snug text-[var(--text-muted)] mt-0.5 [overflow-wrap:anywhere]">{getNationalityDisplayName(author.nationality, language)}</p>
         )}
       </div>
     </div>
@@ -1499,8 +1499,8 @@ export function BookCard({
         className="w-full aspect-[1/1.6] rounded-3xl object-cover shadow-2xl"
       />
       <div className="mt-2 px-0.5">
-        <p className="text-sm font-bold text-[var(--text-main)] truncate">{book.title}</p>
-        <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{book.author}</p>
+        <p className="text-sm font-bold leading-snug text-[var(--text-main)] [overflow-wrap:anywhere]">{book.title}{book.explicit && <ExplicitBadge label={t('explicit')} size={13} className="ml-1 -mt-0.5" />}</p>
+        <p className="text-xs leading-snug text-[var(--text-muted)] mt-0.5 [overflow-wrap:anywhere]">{book.author}</p>
       </div>
     </div>
   );
