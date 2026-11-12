@@ -7136,7 +7136,6 @@ export default function App() {
 
             {activeScreen.id === 'author-detail' && (() => {
               const currentAuthor: Author = authors.find(a => a.id === activeScreen.data?.id) || activeScreen.data;
-              const authorImage = (isEditingAuthor ? editAuthorPicture : null) || getEffectiveAuthorAvatar(currentAuthor?.name || '', currentAuthor?.picture);
               return (
                 <motion.div
                   key={`author-detail-bg-blur-${currentAuthor?.id || 'default'}`}
@@ -7146,12 +7145,8 @@ export default function App() {
                   transition={FADE_IN}
                   className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
                 >
-                  <img 
-                    src={authorImage} 
-                    onError={(e) => { e.currentTarget.src = getAuthorAvatar(currentAuthor?.name || ''); }}
-                    alt="blur" 
-                    className="w-full h-full object-cover blur-[140px] opacity-20 scale-125 dark:opacity-30 dark:mix-blend-screen"
-                  />
+                  {/* Como nas páginas dos audiobooks: cor sólida da foto (a mesma do cabeçalho), sem a foto desfocada */}
+                  <div className="absolute inset-0" style={{ backgroundColor: headerTintColor || 'var(--bg-mica)' }} />
                 </motion.div>
               );
             })()}
