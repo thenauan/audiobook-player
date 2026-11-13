@@ -36,7 +36,7 @@ import { shareOrDownload as shareStoryBlob, downloadBlob as downloadShareBlob } 
 import { MobileConfirmCard } from './components/popups/MobileConfirm';
 import { installTapBounce } from './components/tapBounce';
 import { getSystemInfo } from './lib/liteMode';
-import { WhatsNewScreen } from './components/WhatsNewScreen';
+import { WhatsNewScreen, OPEN_WHATS_NEW_EVENT } from './components/WhatsNewScreen';
 import { visibleChapters } from './audio/chapterPrefs';
 import { diag } from './audio/playbackDiag';
 import { splitAuthorNames, bookHasAuthor, getBookAuthorNames, renameAuthorInField } from './lib/authorUtils';
@@ -5783,6 +5783,10 @@ export default function App() {
                                     setOnboardingStep('welcome');
                                     setShowOnboarding(true);
                                     showToast('Modo Dev: Tela de primeira abertura exibida!');
+                                  }}
+                                  onShowWhatsNew={IS_INSTALLED_APP ? undefined : () => {
+                                    closeAllPopups();
+                                    window.dispatchEvent(new Event(OPEN_WHATS_NEW_EVENT));
                                   }}
                                   onSimulateFirstLaunch={handleSimulateFirstLaunch}
                                   onTestDevNotifications={handleTestDevNotifications}

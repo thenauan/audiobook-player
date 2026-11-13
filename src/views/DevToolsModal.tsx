@@ -6,6 +6,8 @@ export interface DevToolsModalProps {
   onSimulateDevProgress: () => void;
   onToggleDevZeroState: () => void;
   onShowWelcome: () => void;
+  /** Só no site (o app instalado ainda não tem esta opção) */
+  onShowWhatsNew?: () => void;
   onSimulateFirstLaunch: () => void;
   onTestDevNotifications: () => void;
   onSimulateDevError: () => void;
@@ -17,6 +19,7 @@ export const DevToolsModal: React.FC<DevToolsModalProps> = ({
   onSimulateDevProgress,
   onToggleDevZeroState,
   onShowWelcome,
+  onShowWhatsNew,
   onSimulateFirstLaunch,
   onTestDevNotifications,
   onSimulateDevError,
@@ -43,6 +46,11 @@ export const DevToolsModal: React.FC<DevToolsModalProps> = ({
       desc: 'Abre a tela de boas-vindas e primeiros ajustes para testes sem apagar seus audiobooks.',
       onClick: onShowWelcome,
     },
+    ...(onShowWhatsNew ? [{
+      title: 'Exibir Tela de Novidades',
+      desc: 'Abre a tela de novidades da versão mais recente, como aparece depois de uma atualização.',
+      onClick: onShowWhatsNew,
+    }] : []),
     {
       title: 'Simular Abertura Pela Primeira Vez',
       desc: 'Reseta todo o estado (biblioteca vazia, sem histórico, sem progresso e sem miniplayer), simulando exatamente o app recém-instalado.',

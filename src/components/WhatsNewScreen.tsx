@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppLogo } from './AppLogo';
 import { ArrowRight } from 'lucide-react';
@@ -154,9 +154,19 @@ function shouldShowOnStart(): boolean {
   }
 }
 
+// Modo de desenvolvedor: abre a tela a qualquer momento (com as novidades da versão mais recente cadastrada)
+export const OPEN_WHATS_NEW_EVENT = 'open-whats-new';
+const LATEST_NOTES_VERSION = Object.keys(RELEASE_NOTES).sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
+
 export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t: (key: string, vars?: Record<string, any>) => string }) {
   const [open, setOpen] = useState(shouldShowOnStart);
-  const notes = RELEASE_NOTES[APP_VERSION]?.[language] || RELEASE_NOTES[APP_VERSION]?.en || [];
+  useEffect(() => {
+    const show = () => setOpen(true);
+    window.addEventListener(OPEN_WHATS_NEW_EVENT, show);
+    return () => window.removeEventListener(OPEN_WHATS_NEW_EVENT, show);
+  }, []);
+  const notesVersion = RELEASE_NOTES[APP_VERSION] ? APP_VERSION : LATEST_NOTES_VERSION;
+  const notes = RELEASE_NOTES[notesVersion]?.[language] || RELEASE_NOTES[notesVersion]?.en || [];
   const close = () => {
     try { localStorage.setItem(KEY, APP_VERSION); } catch { /* sem armazenamento */ }
     setOpen(false);
