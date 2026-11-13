@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { X, Search, Settings as SettingsIcon, ChevronLeft, Trash2, CheckCircle2, Power, Languages} from 'lucide-react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, TextSearch } from 'lucide-react';
 import { BsCheck2 } from 'react-icons/bs';
 import { AppLogo } from './components/AppLogo';
 
@@ -4154,7 +4154,7 @@ export default function App() {
             <p className="text-[13px] text-[var(--text-muted)] text-center px-2">{t('share_lines_hint', { count: MAX_SHARE_LINES })}</p>
             {/* Buscar um trecho no texto, no mesmo padrão da pesquisa do app (brilho ao digitar e X fora da
                 barra); as linhas marcadas continuam marcadas ao filtrar */}
-            <PopupSearchField value={lyricsSearch} onChange={setLyricsSearch} placeholder={t('share_search_placeholder')} autoFocus={false} />
+            <PopupSearchField value={lyricsSearch} onChange={setLyricsSearch} placeholder={t('share_search_placeholder')} autoFocus={false} icon={TextSearch} />
             {/* Como a pesquisa na letra do player: as frases sem fundo, o trecho pesquisado destacado; dá para
                 pesquisar também por tempo ("1:2", "12:"). A frase escolhida ganha um destaque em volta */}
             <div className="flex flex-col gap-1">
