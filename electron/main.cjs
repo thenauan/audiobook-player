@@ -32,7 +32,8 @@ function createWindow() {
     minHeight: 600,
     backgroundColor: '#04070f',
     title: 'Audiobook Player',
-    icon: path.join(__dirname, '..', 'build', 'icon.png'),
+    // Ícone arredondado na janela e na barra de tarefas (o de dist vai junto com o app instalado; build/ só existe no código)
+    icon: [path.join(__dirname, '..', 'dist', 'icons', 'app-icon-512.png'), path.join(__dirname, '..', 'build', 'icon.png')].find((f) => fs.existsSync(f)),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),

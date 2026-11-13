@@ -7482,7 +7482,7 @@ export default function App() {
                       <motion.button
                         data-press="true"
                         onClick={completeOnboarding}
-                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
+                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-winblue text-white shadow-lg font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
                       >
                         <span>{t('go_to_app')}</span>
                         <ArrowRight size={18} className="shrink-0 text-winblue rtl:rotate-180" />

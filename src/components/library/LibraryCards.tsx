@@ -1126,7 +1126,7 @@ export function OtherAppCard({
   const longPress = useLongPress(openContextMenu);
   const contextPreview = (
     <div className="flex flex-col">
-      <div className="w-full aspect-square rounded-[23%] drop-shadow-2xl">
+      <div className="w-full aspect-square rounded-full overflow-hidden drop-shadow-2xl">
         {!iconFailed && <img src={app.iconSrc} alt="" className="w-full h-full object-cover" />}
       </div>
       <div className="mt-2 px-0.5">
@@ -1235,10 +1235,10 @@ export function OtherAppCard({
           }
           onOpenUrl(app.url);
         }}
-        // Ícone no formato dos ícones da Apple (o próprio arquivo tem os cantos contínuos)
-        className="relative aspect-square w-full mb-2 cursor-pointer rounded-[23%] drop-shadow-md group-hover/appcard:drop-shadow-xl transition-[filter]"
+        // Ícone redondo, como no Audiobook Generator
+        className="relative aspect-square w-full mb-2 cursor-pointer rounded-full drop-shadow-md group-hover/appcard:drop-shadow-xl transition-[filter]"
       >
-        <div className="relative w-full h-full ring-2 ring-transparent group-hover/appcard:ring-winblue/40 transition-all overflow-hidden rounded-[23%]">
+        <div className="relative w-full h-full transition-all overflow-hidden rounded-full">
           <div className="w-full h-full relative transition-transform duration-500 group-hover/appcard:scale-105">
             {!iconFailed && (
               <img
@@ -1253,7 +1253,7 @@ export function OtherAppCard({
         </div>
 
         {/* Botão de Ir para o App na Web no centro ao passar o mouse (estilo Play dos audiobooks) */}
-        <div className="absolute inset-0 rounded-[23%] bg-black/30 opacity-0 group-hover/appcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-20">
+        <div className="absolute inset-0 rounded-full bg-black/30 opacity-0 group-hover/appcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-20">
           <motion.button
             whileHover={{ scale: 1.05 }}
             data-press="true"

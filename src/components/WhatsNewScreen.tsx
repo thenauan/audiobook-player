@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.14': {
+    pt: ['Telas de boas-vindas e de novidades na cor de destaque escolhida', 'Botões dos Ajustes com destaque e sombra também no celular', 'Ícones redondos em Outros apps', 'Ícone arredondado na janela e na barra de tarefas'],
+    en: ["Welcome and what's new screens in your chosen accent color", 'Settings buttons with highlight and shadow on phones too', 'Round icons in Other apps', 'Rounded icon in the window and the taskbar'],
+    es: ['Pantallas de bienvenida y novedades en el color de acento elegido', 'Botones de Ajustes con resaltado y sombra también en el móvil', 'Iconos redondos en Otras apps', 'Icono redondeado en la ventana y en la barra de tareas'],
+    ru: ['Экраны приветствия и новинок в выбранном цвете акцента', 'Кнопки настроек с подсветкой и тенью и на телефоне', 'Круглые значки в разделе «Другие приложения»', 'Скруглённый значок в окне и на панели задач'],
+    ar: ['شاشتا الترحيب والجديد بلون التمييز المختار', 'أزرار الإعدادات بتمييز وظل على الهاتف أيضًا', 'أيقونات دائرية في التطبيقات الأخرى', 'أيقونة مستديرة في النافذة وشريط المهام'],
+  },
   '1.0.13': {
     pt: ['Animações com efeito de mola nos botões, no cabeçalho e nos pop-ups', 'Marcação de conteúdo explícito e opção para bloqueá-lo', 'Fonte serifada como opção e azul como cor padrão', 'Busca de trechos por relevância e pelo tempo do áudio', 'Compartilhe arquivos de outros apps para o app no Android', 'Ícone arredondado'],
     en: ['Spring animations on buttons, the header and pop-ups', 'Explicit content label and an option to block it', 'Serif font option and blue as the default color', 'Excerpt search by relevance and by audio time', 'Share files from other apps into the app on Android', 'Rounded icon'],
@@ -180,7 +187,7 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
               <span className="font-normal">Player</span>
             </motion.div>
             <h2 className="text-xl sm:text-2xl font-semibold text-white/95 tracking-tight mt-1">{t('whats_new_title', { ver: APP_VERSION })}</h2>
-            <ul className="w-full max-w-md mt-7 p-2 rounded-[26px] bg-white/[0.07] backdrop-blur-3xl shadow-xl text-left rtl:text-right">
+            <ul className="w-full max-w-md mt-7 p-2 rounded-[26px] bg-white/[0.08] text-left rtl:text-right" style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               {notes.map(note => (
                 <li key={note} className="flex items-start gap-3 px-3 py-2.5 text-sm sm:text-[15px] leading-snug text-white/90">
                   <span aria-hidden="true" className="mt-[0.45em] w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0" />
@@ -191,7 +198,7 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
             <motion.button
               data-press="true"
               onClick={close}
-              className="mt-8 h-12 px-6 rounded-full bg-winblue/25 hover:bg-winblue/35 text-winblue font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
+              className="mt-8 h-12 px-6 rounded-full bg-winblue text-white shadow-lg font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
             >
               <span>{t('whats_new_go')}</span>
               <ArrowRight size={18} className="shrink-0 rtl:rotate-180" />

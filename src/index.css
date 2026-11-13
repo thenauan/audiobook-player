@@ -1897,7 +1897,6 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
    brilho */
 @media (max-width: 1023px) {
   .settings-action-panel,
-  .settings-action-panel *,
   .settings-option-list,
   .settings-option-list *,
   .settings-list-row [role="switch"] {
@@ -2197,15 +2196,15 @@ html.dark :is(button, [role="button"]) {
 
 /* Botões com fundo: contorno bem discreto na cor do fundo do botão. A cor do ícone só aparece no destaque, ao passar o
    mouse e ao clicar. O foco por teclado tem prioridade */
-:is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *, .settings-list-row *) {
+:is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *) {
   outline: 0.5px solid var(--button-outline);
   outline-offset: -0.5px;
 }
-:is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *, .settings-list-row *):active {
+:is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *):active {
   outline-color: color-mix(in srgb, currentColor 20%, transparent);
 }
 @media (hover: hover) and (pointer: fine) {
-  :is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *, .settings-list-row *):hover {
+  :is(button, [role="button"]):is([class*="bg-card/"], [class*="bg-winblue"], [class*="bg-[var(--button"], [class*="bg-red-"], [class*="bg-yellow-"], [class*="bg-amber-"]):not([data-popup-option], [data-popup-content] button.group.w-full, .fullscreen-transcript *):hover {
     outline-color: color-mix(in srgb, currentColor 14%, transparent);
   }
 }
@@ -2264,14 +2263,7 @@ html.dark :is([data-popup-content], [data-mobile-sheet]) {
   backdrop-filter: none !important;
 }
 
-/* Ajustes: o valor ao lado da seta é só texto */
-.settings-list-row button.pl-3\.5 {
-  background-color: transparent !important;
-  box-shadow: none !important;
-  outline: none;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
+/* Ajustes: botões que abrem pop-ups ou executam ações têm destaque e sombra, no computador e no celular */
 
 /* Miniplayer, menu lateral, barra de navegação e pop-ups: o mesmo contorno discreto dos botões */
 [data-ui-outline],
@@ -2303,12 +2295,13 @@ html.dark .ambient-screen {
 .ambient-orb {
   will-change: transform;
 }
-.ambient-orb-1 { background-color: #FFC933; opacity: 0.8; animation: ambient-orb-1 16s ease-in-out infinite; }
-.ambient-orb-2 { background-color: #B98A5E; opacity: 0.7; animation: ambient-orb-2 19s ease-in-out infinite; }
-.ambient-orb-3 { background-color: #FF9A3D; opacity: 0.75; animation: ambient-orb-3 18s ease-in-out infinite; }
-html.dark .ambient-orb-1 { background-color: #D49A00; opacity: 0.9; }
-html.dark .ambient-orb-2 { background-color: #7A4518; opacity: 0.9; }
-html.dark .ambient-orb-3 { background-color: #E0650F; opacity: 0.9; }
+/* Manchas em tons da cor de destaque escolhida (azul por padrão): um tom claro, um suave e a própria cor */
+.ambient-orb-1 { background-color: color-mix(in oklch, var(--winblue) 55%, white); opacity: 0.8; animation: ambient-orb-1 16s ease-in-out infinite; }
+.ambient-orb-2 { background-color: color-mix(in oklch, var(--winblue) 45%, rgb(150 150 165)); opacity: 0.7; animation: ambient-orb-2 19s ease-in-out infinite; }
+.ambient-orb-3 { background-color: color-mix(in oklch, var(--winblue) 80%, white); opacity: 0.75; animation: ambient-orb-3 18s ease-in-out infinite; }
+html.dark .ambient-orb-1 { background-color: color-mix(in oklch, var(--winblue) 85%, black); opacity: 0.9; }
+html.dark .ambient-orb-2 { background-color: color-mix(in oklch, var(--winblue) 45%, black); opacity: 0.9; }
+html.dark .ambient-orb-3 { background-color: var(--winblue); opacity: 0.9; }
 .ambient-veil { background-color: rgb(255 255 255 / 0.12); }
 html.dark .ambient-veil { background-color: rgb(0 0 0 / 0.2); }
 @keyframes ambient-orb-1 {

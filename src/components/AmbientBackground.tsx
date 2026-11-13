@@ -1,4 +1,4 @@
-// Fundo animado das telas de ajustes iniciais, novidades e erro: manchas em amarelo, marrom e laranja sobre preto (tema
+// Fundo animado das telas de ajustes iniciais, novidades e erro: manchas em tons da cor de destaque sobre preto (tema
 // escuro) ou branco (tema claro). O movimento roda no CSS, sem custo de JavaScript a cada quadro.
 export function AmbientBackground() {
   return (

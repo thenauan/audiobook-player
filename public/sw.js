@@ -1,5 +1,5 @@
 // Service Worker for Audiobook Player PWA
-const CACHE_NAME = 'audiobook-player-v15';
+const CACHE_NAME = 'audiobook-player-v16';
 // Arquivos recebidos pelo menu de compartilhar do sistema, até o app abrir e adicioná-los
 const SHARED_CACHE = 'audiobook-shared';
 // Caminhos relativos à pasta do service worker (funciona também numa subpasta, como no GitHub Pages)
