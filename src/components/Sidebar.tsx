@@ -37,7 +37,7 @@ export function SidebarItem({ icon, label, active, onClick }: SidebarItemProps) 
       className={cn(
         "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-150 select-none ",
         active 
-          ? "bg-[var(--ios-fill)] text-winblue "
+          ? "bg-winblue/15 text-winblue"
           : " text-[var(--text-main)] hover:bg-[var(--hover-fill)]"
       )}
     >
