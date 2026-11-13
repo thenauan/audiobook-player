@@ -7482,10 +7482,10 @@ export default function App() {
                       <motion.button
                         data-press="true"
                         onClick={completeOnboarding}
-                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-winblue text-white shadow-lg font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
+                        className="hover-grow w-full sm:flex-1 h-12 px-6 rounded-full bg-winblue text-white shadow-lg font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
                       >
                         <span>{t('go_to_app')}</span>
-                        <ArrowRight size={18} className="shrink-0 text-winblue rtl:rotate-180" />
+                        <ArrowRight size={18} className="shrink-0 rtl:rotate-180" />
                       </motion.button>
 
                       <motion.button
@@ -7494,7 +7494,7 @@ export default function App() {
                           setActiveSettingSelector(null);
                           setOnboardingStep('settings');
                         }}
-                        className="w-full sm:flex-1 h-12 px-6 rounded-full bg-white/10 hover:bg-[var(--hover-fill)] backdrop-blur-3xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
+                        className="hover-grow w-full sm:flex-1 h-12 px-6 rounded-full bg-white/10 hover:bg-[var(--hover-fill)] backdrop-blur-3xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
                       >
                         <SettingsIcon size={16} />
                         <span>{t('configure_now')}</span>

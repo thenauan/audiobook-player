@@ -198,7 +198,7 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
             <motion.button
               data-press="true"
               onClick={close}
-              className="mt-8 h-12 px-6 rounded-full bg-winblue text-white shadow-lg font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
+              className="hover-grow mt-8 h-12 px-6 rounded-full bg-winblue text-white shadow-lg font-semibold text-sm flex items-center justify-center gap-2.5 transition-all backdrop-blur-3xl cursor-pointer"
             >
               <span>{t('whats_new_go')}</span>
               <ArrowRight size={18} className="shrink-0 rtl:rotate-180" />
