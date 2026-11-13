@@ -846,9 +846,9 @@ export function PopupMorphContainer({
   }, []);
 
   const outerStyle: React.CSSProperties = {
-    '--winblue': 'var(--app-winblue, #007AFF)',
+    '--winblue': 'var(--app-winblue, #0066CC)',
     '--winblue-rgb': 'var(--app-winblue-rgb, 255, 149, 0)',
-    '--color-winblue': 'var(--app-winblue, #007AFF)',
+    '--color-winblue': 'var(--app-winblue, #0066CC)',
     ...style,
   } as React.CSSProperties;
   delete outerStyle.width;

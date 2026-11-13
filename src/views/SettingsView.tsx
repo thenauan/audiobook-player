@@ -648,7 +648,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 }}
                 className="h-8 pl-3 pr-2.5 max-md:px-0 rounded-full bg-card/75 max-md:!bg-transparent backdrop-blur-3xl max-md:!backdrop-blur-none max-md:!shadow-none shadow-sm max-md:shadow-none max-md:text-[var(--text-muted)] text-[var(--text-main)] hover:bg-[var(--hover-fill)] flex items-center gap-1.5 text-xs font-semibold transition-all shrink-0 select-none cursor-pointer"
               >
-                <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#007AFF' }} />
+                <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: ACCENT_COLORS[accentColor]?.hex || '#0066CC' }} />
                 <span>{t('color_' + accentColor) || ACCENT_COLORS[accentColor]?.name || 'Azul'}</span>
                 <ChevronDown size={14} className="-mr-0.5 text-[var(--text-muted)] max-md:-rotate-90" />
               </motion.button>

@@ -11,7 +11,7 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro", "Inter", "Segoe UI", Roboto, sans-serif;
   --font-mono: -apple-system, BlinkMacSystemFont, "SF Pro", "Inter", "Segoe UI", Roboto, sans-serif;
 
-  --color-winblue: var(--winblue, #007AFF);
+  --color-winblue: var(--winblue, #0066CC);
   --shadow-2xs: 0 0 3px var(--shadow-soft);
   --shadow-xs: 0 0 4px var(--shadow-soft);
   --shadow-sm: 0 0 8px var(--shadow-soft);
@@ -164,10 +164,10 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
 @layer base {
   :root {
-    --app-winblue: #007AFF;
-    --app-winblue-rgb: 0, 122, 255;
-    --winblue: #007AFF;
-    --winblue-rgb: 0, 122, 255;
+    --app-winblue: #0066CC;
+    --app-winblue-rgb: 0, 102, 204;
+    --winblue: #0066CC;
+    --winblue-rgb: 0, 102, 204;
     --bg-mica: #FFFFFF;
     --button-outline: rgb(0 0 0 / 0.05);
     --surface-outline: rgb(0 0 0 / 0.03);
@@ -296,9 +296,9 @@ html[data-density="comfortable"] [class*="gap-6"] {
 
 /* Pop-ups nunca devem ser afetados pela cor de destaque da capa nas páginas dos audiobooks */
 [data-popup-content="true"] {
-  --winblue: var(--app-winblue, #007AFF);
-  --winblue-rgb: var(--app-winblue-rgb, 0, 122, 255);
-  --color-winblue: var(--app-winblue, #007AFF);
+  --winblue: var(--app-winblue, #0066CC);
+  --winblue-rgb: var(--app-winblue-rgb, 0, 102, 204);
+  --color-winblue: var(--app-winblue, #0066CC);
 }
 
 /* Evita múltiplas camadas redundantes de backdrop-filter dentro de pop-ups e miniplayer que já possuem fundo desfocado */
@@ -1962,7 +1962,7 @@ html.lite .fullscreen-transcript [data-transcript-idx] {
 @property --winblue {
   syntax: "<color>";
   inherits: true;
-  initial-value: #007AFF;
+  initial-value: #0066CC;
 }
 .accent-slide {
   transition: --winblue 300ms var(--ease-fade);
