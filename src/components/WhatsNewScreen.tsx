@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.13': {
+    pt: ['Animações com efeito de mola nos botões, no cabeçalho e nos pop-ups', 'Marcação de conteúdo explícito e opção para bloqueá-lo', 'Fonte serifada como opção e azul como cor padrão', 'Busca de trechos por relevância e pelo tempo do áudio', 'Compartilhe arquivos de outros apps para o app no Android', 'Ícone arredondado'],
+    en: ['Spring animations on buttons, the header and pop-ups', 'Explicit content label and an option to block it', 'Serif font option and blue as the default color', 'Excerpt search by relevance and by audio time', 'Share files from other apps into the app on Android', 'Rounded icon'],
+    es: ['Animaciones con efecto de muelle en botones, encabezado y ventanas', 'Marca de contenido explícito y opción para bloquearlo', 'Fuente con serifa como opción y azul como color predeterminado', 'Búsqueda de fragmentos por relevancia y por tiempo del audio', 'Comparte archivos de otras apps con la app en Android', 'Icono redondeado'],
+    ru: ['Пружинная анимация кнопок, заголовка и окон', 'Метка откровенного содержания и возможность его блокировать', 'Шрифт с засечками на выбор и синий цвет по умолчанию', 'Поиск фрагментов по релевантности и по времени аудио', 'Делитесь файлами из других приложений в приложение на Android', 'Скруглённый значок'],
+    ar: ['حركات نابضة في الأزرار والترويسة والنوافذ', 'وسم المحتوى الصريح وخيار لحظره', 'خط مذيَّل كخيار والأزرق كلون افتراضي', 'بحث المقاطع حسب الصلة وحسب وقت الصوت', 'شارك ملفات من تطبيقات أخرى إلى التطبيق على أندرويد', 'أيقونة مستديرة'],
+  },
   '1.0.12': {
     pt: ['Notificações do sistema para capítulos, audiobooks e novos títulos', 'Letra abre, fecha e busca com transições mais fluidas', 'Lista de capítulos alinhada em colunas', 'Ajustes mais limpos no celular, sem bordas'],
     en: ['System notifications for chapters, audiobooks and new titles', 'Smoother transitions when opening, closing and searching lyrics', 'Chapter list aligned in columns', 'Cleaner settings on phones, without borders'],

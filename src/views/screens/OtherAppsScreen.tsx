@@ -20,7 +20,7 @@ export function OtherAppsScreen() {
             title: t('other_app_ebook_converter'),
             author: 'thenauan',
             url: 'https://github.com/thenauan/audiobook-generator',
-            iconSrc: `${import.meta.env.BASE_URL}icons/audiobook-generator.svg`,
+            iconSrc: `${import.meta.env.BASE_URL}icons/audiobook-generator.png`,
             whatItDoes: t('other_app_ebook_converter_what'),
             howItWorks: t('other_app_ebook_converter_how'),
           },
