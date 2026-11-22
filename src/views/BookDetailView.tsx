@@ -246,6 +246,14 @@ export default function BookDetailView({
   const shownChapters = visibleChapters(activeBook.chapters, useShowExtraChapters());
   const editSwapRef = useEditSwap<HTMLDivElement>(isEditingBook);
   const editRowsShown = useProgressiveCount(isEditingBook, activeBook.chapters.length);
+  // Quando o menu de um capítulo fechou (o toque que o fecha não pode tocar o capítulo de baixo)
+  const chapterMenuClosedAtRef = React.useRef(0);
+  const chapterMenuWasOpenRef = React.useRef(false);
+  React.useEffect(() => {
+    const open = Boolean(activeChapterMenuId || activeChapterCommentsPopupId);
+    if (chapterMenuWasOpenRef.current && !open) chapterMenuClosedAtRef.current = Date.now();
+    chapterMenuWasOpenRef.current = open;
+  }, [activeChapterMenuId, activeChapterCommentsPopupId]);
   // Colunas da lista de capítulos: cada item tem largura fixa, para tudo ficar alinhado de cima a baixo. As opcionais
   // só existem se algum capítulo as usa, deixando mais espaço para o nome
   const chapterHasFavorites = shownChapters.some(cap => favoriteChapters.includes(`${activeBook.id}-${cap.id}`));
@@ -1044,7 +1052,14 @@ export default function BookDetailView({
                 key={cap.id} 
                 id={isCurrentChapter ? "active-playing-chapter" : undefined}
                 data-chapter-row={chapIdKey}
-                onClick={() => {
+                onClick={(e) => {
+                  // Toques no menu do capítulo (que fica dentro da linha), no fundo que fecha o menu ou logo depois de
+                  // ele fechar não tocam o capítulo: marcar como concluído não mexe na reprodução
+                  const target = e.target as HTMLElement;
+                  if (!e.currentTarget.contains(target)) return;
+                  if (target.closest?.('[data-popup-content], [data-morph-popup], [role="menu"], .fixed.inset-0')) return;
+                  if (activeChapterMenuId || activeChapterCommentsPopupId) return;
+                  if (Date.now() - chapterMenuClosedAtRef.current < 500) return;
                   if (isCurrentChapter) {
                     setIsPlaying(!isPlaying);
                   } else {
