@@ -34,10 +34,17 @@ const surname = (author?: string) => {
   const parts = fold(a.includes(',') ? a.split(',')[0] : a).split(' ').filter(w => w.length > 2);
   return parts[parts.length - 1] || '';
 };
+// Mesmo autor: todos os nomes do nome mais curto aparecem no mais longo ("Machado de Assis" e "Joaquim Maria
+// Machado de Assis" ou "Assis, Machado de"). Só o sobrenome igual não basta (Machado de Assis ≠ Gonçalves de Assis)
+const NAME_PARTICLES = new Set(['de', 'da', 'do', 'das', 'dos', 'e', 'y', 'van', 'von', 'der', 'den', 'del', 'la', 'le', 'di', 'du', 'and']);
+const nameTokens = (name?: string) => fold((name || '').split(/[&;]| and | e /)[0]).split(' ').filter(w => w.length > 1 && !NAME_PARTICLES.has(w));
 export const authorMatches = (a?: string, b?: string) => {
-  const sa = surname(a); const sb = surname(b);
-  if (!sa || !sb) return false;
-  return sa === sb || fold(a).includes(sb) || fold(b).includes(sa);
+  const ta = nameTokens(a); const tb = nameTokens(b);
+  if (!ta.length || !tb.length) return false;
+  const [short, long] = ta.length <= tb.length ? [ta, new Set(tb)] : [tb, new Set(ta)];
+  // Nome de uma palavra só (pseudônimo ou só o sobrenome): precisa ser igual
+  if (short.length === 1) return long.size === 1 && long.has(short[0]);
+  return short.every(w => long.has(w) || (w.length === 1 && [...long].some(x => x.startsWith(w))));
 };
 export const titleMatches = (a?: string, b?: string) => {
   const x = baseTitle(a); const y = baseTitle(b);
@@ -340,7 +347,7 @@ export async function getSuggestions(profile: TasteProfile): Promise<OnlineSecti
 
 export async function getAuthorSuggestions(author: string, profile: TasteProfile): Promise<OnlineItem[]> {
   if (!enabled || !author.trim()) return [];
-  const key = `author:${fold(author)}`;
+  const key = `author2:${fold(author)}`;
   let items = cacheGet<OnlineItem[]>(key, DAY);
   if (!items) {
     const sn = surname(author);
