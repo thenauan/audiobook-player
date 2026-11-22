@@ -219,7 +219,7 @@ async function drawAppBrand(ctx: CanvasRenderingContext2D, centerX: number, y: n
   const color = isDark ? '#ffffff' : '#141414';
   // Como no app: ícone com 0,72 da altura da letra, colado no texto e com a base na linha das letras
   const fontSize = 64;
-  const logoH = fontSize * 0.86;
+  const logoH = fontSize * 0.72;
   const logoW = logoH;
   const gap = fontSize * 0.05;
   ctx.font = `400 ${fontSize}px ${FONT}`;

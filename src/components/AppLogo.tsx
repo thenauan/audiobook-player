@@ -13,7 +13,7 @@ const GLYPH_MASK = '<path d="M964.0,548.0 L964.0,575.1 L964.0,588.7 L963.9,599.6
 export function AppLogo({ height, className }: { height?: number; className?: string }) {
   const id = `app-logo-${useId().replace(/:/g, '')}`;
   return (
-    <svg viewBox="26 36 972 972" style={{ height: height ?? '0.86em', width: 'auto' }} className={className} aria-hidden="true">
+    <svg viewBox="26 36 972 972" style={{ height: height ?? '0.72em', width: 'auto' }} className={className} aria-hidden="true">
       <defs>
         <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024" dangerouslySetInnerHTML={{ __html: GLYPH_MASK }} />
       </defs>
