@@ -105,6 +105,9 @@ import { AppScopeContext, type AppScope } from './app/AppScope';
 import { OtherAppsScreen } from './views/screens/OtherAppsScreen';
 import { MoreScreen } from './views/screens/MoreScreen';
 import { AppInfoScreen } from './views/screens/AppInfoScreen';
+import { OnlineItemScreen } from './views/screens/OnlineItemScreen';
+import { useMetadataProposal, confirmApplyMetadata } from './components/MetadataProposal';
+import { Wand2 } from 'lucide-react';
 import { BookInfoScreen } from './views/screens/BookInfoScreen';
 import { SearchScreen } from './views/screens/SearchScreen';
 import { HomeScreen } from './views/screens/HomeScreen';
@@ -342,6 +345,38 @@ export type SearchItem = {
   author?: Author;
 };
 
+// Degradê do topo da coleção na tela inteira (computador), na altura e posição do bloco do título
+function CollectionHeroBackdrop({ gradient, scrollRef }: { gradient: string; scrollRef: React.RefObject<HTMLDivElement | null> }) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let raf = 0;
+    const place = () => {
+      raf = 0;
+      const hero = document.querySelector('[data-zoom-hero-collection]') as HTMLElement | null;
+      const box = boxRef.current;
+      if (!hero || !box) return;
+      const r = hero.getBoundingClientRect();
+      box.style.transform = `translateY(${r.top}px)`;
+      box.style.height = `${r.height + 120}px`;
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(place); };
+    place();
+    const t = setTimeout(place, 120);
+    const el = scrollRef.current;
+    el?.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => { clearTimeout(t); if (raf) cancelAnimationFrame(raf); el?.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
+  }, [scrollRef, gradient]);
+  const fade = 'linear-gradient(to bottom, black 0%, black calc(100% - 120px), rgba(0,0,0,0.82) calc(100% - 96px), rgba(0,0,0,0.5) calc(100% - 64px), rgba(0,0,0,0.18) calc(100% - 32px), transparent 100%)';
+  return (
+    <div ref={boxRef} className="max-md:hidden absolute inset-x-0 top-0 will-change-transform" style={{ height: 0, WebkitMaskImage: fade, maskImage: fade }}>
+      <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
+      <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/35 to-transparent" />
+    </div>
+  );
+}
+
 export default function App() {
   const [activeScreen, setActiveScreen] = useState<ScreenState>({ id: 'home' });
   // Interface mobile abaixo do breakpoint md
@@ -571,6 +606,31 @@ export default function App() {
     showToast(t('toast_metadata_book_updated'));
     void writeTagsToFiles(updated);
   };
+
+  // "Aplicar metadados": dados encontrados na internet completam o audiobook (e vão para dentro do arquivo de áudio)
+  const applyMetadataRef = useRef<(bookId: string, p: { year?: string; category?: string; description?: string; cover?: string }) => void>(() => {});
+  applyMetadataRef.current = (bookId, p) => {
+    const target = books.find(b => b.id === bookId);
+    if (!target) return;
+    const updated: Audiobook = {
+      ...target,
+      ...(p.year ? { year: p.year } : {}),
+      ...(p.category ? { category: p.category } : {}),
+      ...(p.description ? { description: p.description.slice(0, 2000) } : {}),
+      ...(p.cover ? { cover: p.cover } : {}),
+    };
+    setBooks(prev => prev.map(b => b.id === bookId ? updated : b));
+    if (selectedBook?.id === bookId) setSelectedBook(updated);
+    if (currentBook?.id === bookId) setCurrentBook(prev => ({ ...prev, year: updated.year, category: updated.category, description: updated.description, cover: updated.cover }));
+    setActiveScreen(prev => (prev.data?.id === bookId ? { ...prev, data: updated } : prev));
+    showToast(t('toast_metadata_applied', { title: updated.title }));
+    void writeTagsToFiles(updated);
+  };
+  useEffect(() => {
+    const onApply = (e: Event) => { const d = (e as CustomEvent).detail; if (d?.bookId && d?.proposal) applyMetadataRef.current(d.bookId, d.proposal); };
+    window.addEventListener('apply-book-metadata', onApply);
+    return () => window.removeEventListener('apply-book-metadata', onApply);
+  }, []);
 
   // Os dados editados vão para dentro do arquivo de áudio, para aparecerem iguais em qualquer outro player:
   // no app instalado, o arquivo original no computador; em todo lugar, a cópia guardada no app
@@ -903,13 +963,22 @@ export default function App() {
         favoriteAuthorIds,
         recentlyListenedBookIds,
         userListeningStats,
+        // Andamento: capítulos ouvidos, começados e favoritos, onde cada capítulo parou e o último ouvido
+        completedChapters,
+        startedChapters,
+        favoriteChapters,
+        lastPlayedBookId,
         positions: (() => {
           try {
             return JSON.parse(localStorage.getItem('audiobook_playback_positions') || '{}');
           } catch {
             return {};
           }
-        })()
+        })(),
+        chapterPositions: (() => {
+          try { return JSON.parse(localStorage.getItem('audiobook_chapter_positions') || '{}'); } catch { return {}; }
+        })(),
+        lastPlayedTime: (() => { try { return localStorage.getItem('app_last_played_time'); } catch { return null; } })(),
       };
       // Arquivo de verdade: um endereço "data:" com a biblioteca inteira falha em bibliotecas grandes
       const backupUrl = URL.createObjectURL(new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' }));
@@ -976,7 +1045,28 @@ export default function App() {
         if (data.positions && typeof data.positions === 'object') {
           try { localStorage.setItem('audiobook_playback_positions', JSON.stringify(data.positions)); } catch {}
         }
+        if (data.chapterPositions && typeof data.chapterPositions === 'object') {
+          try { localStorage.setItem('audiobook_chapter_positions', JSON.stringify(data.chapterPositions)); } catch {}
+        }
+        if (Array.isArray(data.completedChapters)) setCompletedChapters(data.completedChapters);
+        if (Array.isArray(data.startedChapters)) setStartedChapters(data.startedChapters);
+        if (Array.isArray(data.favoriteChapters)) setFavoriteChapters(data.favoriteChapters);
+        if (typeof data.lastPlayedBookId === 'string') {
+          setLastPlayedBookId(data.lastPlayedBookId);
+          try { localStorage.setItem('app_last_played_book_id', data.lastPlayedBookId); } catch {}
+        }
+        if (typeof data.lastPlayedTime === 'string') { try { localStorage.setItem('app_last_played_time', data.lastPlayedTime); } catch {} }
         showToast(t('backup_imported_success'));
+        // O backup traz os dados, não os arquivos de áudio: avisa quais audiobooks precisam ser enviados de novo
+        if (Array.isArray(data.books) && data.books.length) {
+          void (async () => {
+            const keys = new Set(await getAllAudioBlobKeys().catch(() => [] as string[]));
+            const missing = (data.books as Audiobook[]).filter(b => !keys.has(b.id) && !(desktop && b.filePath));
+            if (missing.length) {
+              setTimeout(() => showToast(t('backup_audio_missing', { count: missing.length })), 2600);
+            }
+          })();
+        }
       } catch (err) {
         console.error('Erro ao processar backup:', err);
         showToast(t('backup_invalid_file'));
@@ -1375,7 +1465,21 @@ export default function App() {
     if (isCurrent) setIsAudioLoading(true);
 
     try {
-      const blob = await getAudioBlob(bookId);
+      let blob = await getAudioBlob(bookId);
+      const book = booksRef.current.find(b => b.id === bookId);
+      // App instalado: o áudio pode estar só na pasta da biblioteca (ou no arquivo de onde veio)
+      if (!blob && desktop && book) {
+        for (const path of [book.filePath, book.originalPath]) {
+          if (!path) continue;
+          const raw = await desktop.readAudioFile(path).catch(() => null);
+          if (raw) { blob = new Blob([raw as BlobPart]); break; }
+        }
+      }
+      // Sem o arquivo de áudio neste aparelho (ex.: biblioteca restaurada de um backup): avisa para enviar de novo,
+      // em vez de o play não fazer nada
+      if (!blob && isCurrent && book && !(book.chapters || []).some(c => c.audioUrl && !c.audioUrl.startsWith('blob:'))) {
+        showToast(t('audio_missing_reupload', { title: book.title }));
+      }
       if (blob) {
         // Revoga URL anterior caso exista para o mesmo ID
         const oldUrl = audioUrlsRef.current.get(bookId);
@@ -2572,8 +2676,17 @@ export default function App() {
   }, []);
   useEffect(() => {
     const onOpenAppInfo = (e: Event) => navigateToRef.current('app-info', (e as CustomEvent).detail);
+    const onOpenOnlineItem = (e: Event) => navigateToRef.current('online-item', (e as CustomEvent).detail);
+    // Audiobook baixado de uma sugestão (LibriVox): entra na biblioteca como qualquer arquivo adicionado
+    const onImportFiles = (e: Event) => { const files = (e as CustomEvent).detail as File[]; if (files?.length) processAudioFilesRef.current(files); };
     window.addEventListener('open-app-info', onOpenAppInfo);
-    return () => window.removeEventListener('open-app-info', onOpenAppInfo);
+    window.addEventListener('open-online-item', onOpenOnlineItem);
+    window.addEventListener('import-audio-files', onImportFiles);
+    return () => {
+      window.removeEventListener('open-app-info', onOpenAppInfo);
+      window.removeEventListener('open-online-item', onOpenOnlineItem);
+      window.removeEventListener('import-audio-files', onImportFiles);
+    };
   }, []);
 
   // Card (capa, foto ou coleção) de onde a tela atual foi aberta, se ele está na tela anterior
@@ -3105,6 +3218,10 @@ export default function App() {
   // Marcações feitas pela pessoa (concluído / não iniciado) nas telas e menus: valem como foram feitas. A reprodução não
   // as desfaz (antes, marcar o capítulo que estava tocando e a música seguir fazia ele voltar para "ouvindo")
   const userMarkedAtRef = useRef(new Map<string, number>());
+  // Dados da internet para o audiobook aberto (botão "Aplicar metadados" do cabeçalho no computador)
+  const proposalBook = activeScreen.id === 'book-detail' ? (books.find(b => b.id === (activeScreen.data?.id || selectedBook?.id)) || activeScreen.data || selectedBook || null) : null;
+  const metadataProposal = useMetadataProposal(proposalBook);
+
   const setCompletedChaptersByUser = useCallback<React.Dispatch<React.SetStateAction<string[]>>>((action) => {
     setCompletedChapters(prev => {
       const next = typeof action === 'function' ? (action as (p: string[]) => string[])(prev) : action;
@@ -3547,6 +3664,7 @@ export default function App() {
       : undefined;
     const candidateUrls = [
       detailBook?.cover,
+      activeScreen.id === 'online-item' ? (activeScreen.data as { cover?: string } | undefined)?.cover : undefined,
       isEditingBook ? editBookCover : undefined,
       currentBook?.cover,
       detailAuthor?.picture,
@@ -3836,6 +3954,12 @@ export default function App() {
         : (getCustomCoverColor(effectiveCover) || getGenericCoverColor(effectiveCover, targetBook.title, targetBook.author));
       return getBookHighlightTheme(rawHex, resolvedTheme === 'dark');
     }
+    // Sugestão da internet: a mesma cor da capa, como na página de um audiobook
+    if (activeScreen.id === 'online-item' && activeScreen.data) {
+      const it = activeScreen.data as { cover: string; title: string; author: string };
+      const rawHex = getCustomCoverColor(it.cover) || getGenericCoverColor(undefined, it.title, it.author);
+      return getBookHighlightTheme(rawHex, resolvedTheme === 'dark');
+    }
     if (activeScreen.id === 'author-detail') {
       const targetAuthor: Author | undefined = authors.find(a => a.id === activeScreen.data?.id || (a.name && activeScreen.data?.name && a.name.toLowerCase() === activeScreen.data.name.toLowerCase())) || activeScreen.data;
       if (!targetAuthor) return null;
@@ -3889,6 +4013,9 @@ export default function App() {
     preview?: React.ReactNode;
     confirmLabel: string;
     onConfirm: () => void;
+    // Ação que não apaga nada (ex.: aplicar dados): botão na cor de destaque e com o próprio ícone
+    tone?: 'accent';
+    icon?: React.ReactNode;
   } | null>(null);
   // Ordem da lista fixada na abertura (itens já adicionados primeiro), para não pular ao tocar
   const sheetOrderRef = useRef<Map<string, number>>(new Map());
@@ -4401,6 +4528,7 @@ export default function App() {
     if (id.startsWith('settings')) return t('settings_title');
     if (id === 'book-info') return t('more_details');
     if (id === 'app-info') return activeScreen.data?.title || t('details');
+    if (id === 'online-item') return activeScreen.data?.title || t('details');
     if (id === 'help') return t('nav_help');
     if (id === 'help-theme') {
       const currentThemeId = (typeof activeScreen.data === 'object' && activeScreen.data?.id) 
@@ -5669,6 +5797,7 @@ export default function App() {
                         if (id.startsWith('settings')) return t('settings_title');
                         if (id === 'book-info') return t('more_details');
                         if (id === 'app-info') return prev.data?.title || t('details');
+                        if (id === 'online-item') return prev.data?.title || t('details');
                         if (id === 'help-theme') {
                           const themeId = typeof prev.data === 'object' ? prev.data?.id : prev.data;
                           const th = helpThemes.find(t => t.id === themeId);
@@ -6910,6 +7039,24 @@ export default function App() {
                               >
                                 <Edit3 size={13} />
                               </motion.button>
+                              {/* Aplicar metadados: só aparece quando há dados da internet que completam o audiobook */}
+                              <AnimatePresence>
+                                {metadataProposal && proposalBook && (
+                                  <motion.button
+                                    key="apply-metadata"
+                                    initial={{ opacity: 0, scale: 0.7 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.7 }}
+                                    data-press="true"
+                                    title={t('apply_metadata')}
+                                    aria-label={t('apply_metadata')}
+                                    onClick={() => confirmApplyMetadata(setMobileConfirm, t, proposalBook, metadataProposal)}
+                                    className="w-9 h-9 flex items-center justify-center rounded-full bg-winblue/20 shadow-xl hover:bg-winblue/30 text-winblue transition-all backdrop-blur-3xl"
+                                  >
+                                    <Wand2 size={14} />
+                                  </motion.button>
+                                )}
+                              </AnimatePresence>
                               {/* Compartilhar (imagem para stories): só no celular */}
                               <div className={`relative w-9 h-9 ${showShareBookMenu ? 'z-50' : 'z-10'} ${isMobile ? '' : 'hidden'}`}>
                                 <motion.button
@@ -7200,6 +7347,18 @@ export default function App() {
 
           {/* Fundo Desfocado Ambiente para Detalhes do Audiobook e Detalhes do Autor (fora da animação de escala da página) */}
           <AnimatePresence>
+            {activeScreen.id === 'online-item' && activeScreen.data && (
+              <motion.div
+                key={`online-item-bg-${activeScreen.data.id}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={FADE_IN}
+                className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
+              >
+                <div className="absolute inset-0" style={{ backgroundColor: headerTintColor || 'var(--bg-mica)' }} />
+              </motion.div>
+            )}
             {(activeScreen.id === 'book-detail' || activeScreen.id === 'book-synopsis') && (() => {
               const currentTargetBook = books.find(b => b.id === (activeScreen.data?.id || selectedBook?.id)) || activeScreen.data || selectedBook;
               return (
@@ -7247,6 +7406,9 @@ export default function App() {
                   className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${col.gradient} opacity-[0.16] dark:opacity-[0.28] dark:mix-blend-screen`} />
+                  {/* Computador: o degradê forte do topo vai de uma borda à outra da janela (por baixo do menu lateral e da
+                      barra de rolagem) e acompanha a rolagem, preso ao bloco do título da coleção */}
+                  <CollectionHeroBackdrop gradient={col.gradient} scrollRef={mainScrollRef} />
                 </motion.div>
               );
             })()}
@@ -7290,6 +7452,9 @@ export default function App() {
           {activeScreen.id === 'book-info' && activeScreen.data && <BookInfoScreen key={"book-info"} />}
 
           {activeScreen.id === 'app-info' && activeScreen.data && <AppInfoScreen key={"app-info"} />}
+
+          {/* Sugestão da internet (audiobook da LibriVox ou ebook do Project Gutenberg) */}
+          {activeScreen.id === 'online-item' && activeScreen.data && <OnlineItemScreen key={`online-item-${activeScreen.data.id}`} />}
 
           {/* SCREEN: SETTINGS (LAZY-LOADED) */}
           {/* SCREEN: OPÇÕES DE UM AJUSTE (MOBILE) — tela cheia com as opções e suas explicações */}
@@ -7972,9 +8137,9 @@ export default function App() {
                   <motion.button
                     data-press="true"
                     onClick={(e) => { e.stopPropagation(); const c = mobileConfirm; setMobileConfirm(null); c.onConfirm(); }}
-                    className="h-8 px-4 rounded-full bg-card/75 shadow-md text-red-500 font-semibold text-xs flex items-center gap-1.5"
+                    className={`h-8 px-4 rounded-full bg-card/75 shadow-md font-semibold text-xs flex items-center gap-1.5 ${mobileConfirm.tone === 'accent' ? 'text-winblue' : 'text-red-500'}`}
                   >
-                    <Trash2 size={13} />
+                    {mobileConfirm.icon || <Trash2 size={13} />}
                     <span>{mobileConfirm.confirmLabel}</span>
                   </motion.button>
                   <motion.button

@@ -4,12 +4,45 @@ import { AnimatePresence, motion } from 'motion/react';
 import { RiBookOpenLine } from 'react-icons/ri';
 import { ChevronRight, Upload } from 'lucide-react';
 import { FADE_IN } from '../../lib/motion';
-import { BookCard } from '../../components/library/LibraryCards';
+import { useEffect, useMemo, useState } from 'react';
+import { BookCard, OnlineSuggestionCard } from '../../components/library/LibraryCards';
+import { getSuggestions, useOnlineData, type OnlineItem } from '../../lib/onlineCatalog';
+import { normalizeAudiobookLanguage } from '../../i18n/translations';
+import { splitGenreValues } from '../../data/genreData';
 import { transicaoConteudo } from '../../App';
 import { useScreenScope } from '../../app/AppScope';
 
 export function HomeScreen() {
-  const { activeScreen, books, currentBook, favoriteBookIds, fileInputRef, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleSelectAuthor, handleSelectBookDetail, homeSections, isBookCompleted, isBookStarted, isMobile, isPlaying, isSelectionMode, selectedBooks, setCompletedChapters, setEditingBook, setSelectedBooks, setStartedChapters, showToast, t, toggleFavoriteBook } = useScreenScope();
+  const { activeScreen, authors, books, currentBook, favoriteAuthorIds, favoriteBookIds, fileInputRef, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleSelectAuthor, handleSelectBookDetail, homeSections, isBookCompleted, isBookStarted, isMobile, isPlaying, isSelectionMode, selectedBooks, setCompletedChapters, setEditingBook, setSelectedBooks, setStartedChapters, showToast, t, toggleFavoriteBook } = useScreenScope();
+  // Sugestões gratuitas da internet (LibriVox e Project Gutenberg) pelos gostos da biblioteca: idiomas, gêneros,
+  // autores e favoritos. Desligáveis em Ajustes → Biblioteca
+  const onlineOn = useOnlineData();
+  const profile = useMemo(() => {
+    const rank = (values: string[]) => {
+      const n = new Map<string, number>();
+      values.filter(Boolean).forEach(v => n.set(v, (n.get(v) || 0) + 1));
+      return [...n.entries()].sort((a, b) => b[1] - a[1]).map(([v]) => v);
+    };
+    const favBooks = books.filter(b => favoriteBookIds.includes(b.id));
+    const weighted = [...books, ...favBooks, ...favBooks];
+    const favAuthorNames = authors.filter(a => favoriteAuthorIds.includes(a.id)).map(a => a.name);
+    return {
+      languages: rank(weighted.map(b => normalizeAudiobookLanguage(b.language) || '').filter(l => l && l !== 'Outro')),
+      genres: rank(weighted.flatMap(b => splitGenreValues(b.category)).filter(g => g && !/desconhecid/i.test(g))),
+      authors: [...favAuthorNames, ...rank(weighted.map(b => b.author || ''))].filter((a, i, arr) => a && arr.indexOf(a) === i),
+      owned: books.map(b => ({ title: b.title, author: b.author })),
+    };
+  }, [books, authors, favoriteBookIds, favoriteAuthorIds]);
+  const profileKey = JSON.stringify([profile.languages.slice(0, 2), profile.genres.slice(0, 3), profile.authors.slice(0, 6), profile.owned.length]);
+  const [suggestions, setSuggestions] = useState<OnlineItem[]>([]);
+  useEffect(() => {
+    if (!onlineOn || books.length === 0) { setSuggestions([]); return; }
+    let alive = true;
+    getSuggestions(profile, 12).then(items => { if (alive) setSuggestions(items); }).catch(() => {});
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onlineOn, profileKey]);
+
   return (
     books.length === 0 ? (
       <motion.div 
@@ -116,6 +149,16 @@ export function HomeScreen() {
               </div>
             </motion.section>
           ))}
+          {suggestions.length > 0 && (
+            <motion.section key="online-suggestions" layout={isMobile ? false : "position"} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={FADE_IN}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-[var(--text-main)]">{t('section_online_suggestions')}</h2>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-4 mobile-row">
+                {suggestions.slice(0, 6).map(item => <OnlineSuggestionCard key={`online-${item.id}`} item={item} />)}
+              </div>
+            </motion.section>
+          )}
         </AnimatePresence>
         </div>
       </motion.div>

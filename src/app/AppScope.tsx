@@ -277,7 +277,7 @@ export type AppScope = {
   setMiniSleepBtnAnchor: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   setMiniSpeedBtnAnchor: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   setMiniVolumeBtnAnchor: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  setMobileConfirm: React.Dispatch<React.SetStateAction<{ title: string; description?: string; preview?: React.ReactNode; confirmLabel: string; onConfirm: () => void; } | null>>;
+  setMobileConfirm: React.Dispatch<React.SetStateAction<{ title: string; description?: string; preview?: React.ReactNode; confirmLabel: string; onConfirm: () => void; tone?: 'accent'; icon?: React.ReactNode; } | null>>;
   setMobileSearchSlot: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>;
   setNotifyBookAdded: React.Dispatch<React.SetStateAction<boolean>>;
   setNotifyBookCompleted: React.Dispatch<React.SetStateAction<boolean>>;

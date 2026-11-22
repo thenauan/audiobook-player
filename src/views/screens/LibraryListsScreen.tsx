@@ -197,7 +197,7 @@ export function LibraryListsScreen() {
                 <div className="collection-hero relative mb-6 md:mb-10">
                   <div data-zoom-hero-collection="true" className="relative w-full h-[min(92vw,50dvh)] md:h-[min(52vh,440px)]">
                     {/* O degradê continua 120px abaixo do bloco, dissolvendo na tela */}
-                    <div className="absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 120px)', WebkitMaskImage: fade, maskImage: fade }}>
+                    <div className="md:hidden absolute inset-x-0 top-0 -z-10 overflow-hidden pointer-events-none" style={{ height: 'calc(100% + 120px)', WebkitMaskImage: fade, maskImage: fade }}>
                       <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient}`} />
                       <div className="absolute inset-0 bg-black/20" />
                       <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/35 to-transparent" />

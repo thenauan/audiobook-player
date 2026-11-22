@@ -1,7 +1,9 @@
 // Extraído do App.tsx (conteúdo sem alterações)
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink } from 'lucide-react';
+import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink, Download, Globe } from 'lucide-react';
+import type { OnlineItem } from '../../lib/onlineCatalog';
+import { getLanguageDisplayName } from '../../i18n/translations';
 import { 
   BsPlayFill, BsPauseFill, BsCheck2
 } from 'react-icons/bs';
@@ -1361,6 +1363,218 @@ export function OtherAppCard({
         targetWidth={showDetails ? 256 : 168}
         targetRadius={showDetails ? 26 : 24}
         estimatedMenuHeight={140}
+      >
+        {menuBody}
+      </MobileContextMenu>
+    </motion.div>
+  );
+}
+
+// ===== Sugestão da internet (Início) =====
+// Audiobook da LibriVox (dá para baixar para a biblioteca) ou ebook do Project Gutenberg (só para ler online).
+// O selo na capa diz isso: download = ainda não está na biblioteca e pode ser baixado; online = só no site.
+// Tocar abre a página do item no app (sinopse e opções), nunca reproduz.
+export const openOnlineItem = (item: OnlineItem) => window.dispatchEvent(new CustomEvent('open-online-item', { detail: item }));
+
+export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
+  const { t } = useI18n();
+  const layoutAnim = useIsMobile() ? false : ('position' as const);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [openUp, setOpenUp] = useState(false);
+  const [alignLeft, setAlignLeft] = useState(false);
+  const [coverFailed, setCoverFailed] = useState(false);
+  const downloadable = item.kind === 'audiobook';
+  const cover = coverFailed ? getGenericBookCover(item.title, item.author) : item.cover;
+
+  const handleClose = () => { setShowOptions(false); setShowDetails(false); };
+  useEffect(() => {
+    if (!showOptions) return;
+    const onCloseAll = () => { setShowOptions(false); setShowDetails(false); };
+    window.addEventListener('close-all-popups', onCloseAll);
+    return () => window.removeEventListener('close-all-popups', onCloseAll);
+  }, [showOptions]);
+  useCloseOnOutsideScrollOrDrag(showOptions, handleClose);
+
+  const [contextRect, setContextRect] = React.useState<DOMRect | null>(null);
+  const contextElRef = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => { if (!showOptions) setContextRect(null); }, [showOptions]);
+  const openContextMenu = (el: HTMLElement) => {
+    window.dispatchEvent(new Event('close-all-popups'));
+    contextElRef.current = el;
+    setContextRect(el.getBoundingClientRect());
+    setShowDetails(false);
+    setShowOptions(true);
+  };
+  const longPress = useLongPress(openContextMenu);
+  const open = () => { handleClose(); openOnlineItem(item); };
+
+  const badgeLabel = downloadable ? t('online_badge_download') : t('online_badge_online');
+  const badge = (
+    <div aria-label={badgeLabel} className="absolute top-2.5 left-2.5 z-10 h-6 max-md:w-6 md:px-2.5 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold">
+      {downloadable ? <Download size={12} /> : <Globe size={12} />}
+      <span className="max-md:hidden">{badgeLabel}</span>
+    </div>
+  );
+  const detailRows = [
+    { label: t('online_type'), value: downloadable ? t('online_type_audiobook') : t('online_type_ebook') },
+    { label: t('author_label'), value: item.author },
+    { label: t('language_label'), value: item.language ? getLanguageDisplayName(item.language) : '' },
+    { label: t('year'), value: item.year || '' },
+    { label: t('online_source'), value: downloadable ? 'LibriVox' : 'Project Gutenberg' },
+  ].filter(r => r.value);
+
+  const contextPreview = (
+    <div className="flex flex-col">
+      <div className="relative w-full aspect-[1/1.6] rounded-3xl overflow-hidden drop-shadow-2xl">
+        <img src={cover} alt="" className="w-full h-full object-cover" />
+        {badge}
+      </div>
+      <div className="mt-2 px-0.5">
+        <p className="text-sm font-bold text-[var(--text-main)] leading-snug [overflow-wrap:anywhere]">{item.title}</p>
+        <p className="text-xs text-[var(--text-muted)] leading-snug [overflow-wrap:anywhere] mt-0.5">{item.author}</p>
+      </div>
+    </div>
+  );
+  const menuBody = !showDetails ? (
+    <PagedMenu className="flex flex-col p-2">
+      <MenuOptionItem icon={<Info size={14} />} onClick={open}>
+        <span>{t('online_go_to_info')}</span>
+      </MenuOptionItem>
+      <MenuOptionItem
+        immediate
+        icon={<BookOpen size={14} />}
+        onClick={() => {
+          if (isMobileViewport()) { open(); return; }
+          setShowDetails(true);
+        }}
+      >
+        <span>{t('details')}</span>
+      </MenuOptionItem>
+    </PagedMenu>
+  ) : (
+    <div className="flex flex-col gap-3 p-4 text-left rtl:text-right">
+      <div className="flex items-center gap-2.5 pb-0.5">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          data-press="true"
+          onClick={(e) => { e.stopPropagation(); setShowDetails(false); }}
+          className="h-7 px-2.5 rounded-full bg-card/75 flex items-center gap-1.5 text-[var(--text-main)] hover:bg-[var(--hover-fill)] transition-all shrink-0 cursor-pointer text-xs font-semibold"
+          title={t('more_options')}
+        >
+          <ChevronLeft size={14} className="rtl:rotate-180" />
+          <span>{t('more_options')}</span>
+        </motion.button>
+        <h4 className="text-sm font-bold text-[var(--text-main)] truncate">{t('details')}</h4>
+      </div>
+      <div className="space-y-2 text-xs leading-relaxed">
+        {detailRows.map(r => (
+          <div key={r.label}>
+            <span className="font-bold text-[var(--text-main)] block">{r.label}</span>
+            <p className="text-[var(--text-muted)] text-[11px] leading-snug [overflow-wrap:anywhere]">{r.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <motion.div
+      {...longPress}
+      style={{ WebkitTouchCallout: 'none' }}
+      layout={layoutAnim}
+      initial={{ opacity: 0, scale: 0.94 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.92 }}
+      transition={FADE_IN}
+      className={`group group/bookcard relative flex flex-col ${showOptions ? 'z-50' : ''}`}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isMobileViewport()) { openContextMenu(e.currentTarget as HTMLElement); return; }
+        window.dispatchEvent(new Event('close-all-popups'));
+        setOpenUp(checkChapterMenuShouldOpenUp(e.clientY, 220));
+        setAlignLeft(checkIsLeftEdgeCard(e.currentTarget));
+        setShowDetails(false);
+        setShowOptions(true);
+      }}
+    >
+      <div
+        className="relative aspect-[1/1.6] w-full rounded-3xl overflow-hidden mb-2 cursor-pointer shadow-md group-hover/bookcard:shadow-xl transition-shadow"
+        onClick={() => (showOptions ? handleClose() : open())}
+      >
+        <img src={cover} onError={() => setCoverFailed(true)} alt={item.title} loading="lazy" className="w-full h-full aspect-[1/1.6] object-cover transition-transform duration-500 group-hover/bookcard:scale-105" />
+        {badge}
+        {/* No lugar do "tocar": abrir as informações */}
+        <div className="max-md:hidden absolute inset-0 bg-black/30 opacity-0 group-hover/bookcard:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            data-press="true"
+            onClick={(e) => { e.stopPropagation(); open(); }}
+            className="w-13 h-13 rounded-full bg-white/20 hover:bg-[var(--hover-fill)] backdrop-blur-2xl shadow-2xl flex items-center justify-center text-white hover:text-white transition-all pointer-events-auto cursor-pointer"
+            title={t('online_go_to_info')}
+          >
+            <Info size={24} />
+          </motion.button>
+        </div>
+      </div>
+      <div className="flex items-start justify-between gap-1.5 mt-2 relative">
+        <div className="flex-1 min-w-0 pr-1">
+          <h4 onClick={open} title={item.title} className="text-sm font-bold text-[var(--text-main)] cursor-pointer hover:text-winblue transition-colors truncate">{item.title}</h4>
+          <p onClick={open} title={item.author} className="text-xs text-[var(--text-muted)] truncate cursor-pointer hover:text-winblue transition-colors mt-0.5">{item.author}</p>
+        </div>
+        <div className={`relative w-8 h-8 shrink-0 transition-opacity duration-200 max-md:hidden ${showOptions ? 'opacity-100 z-50' : 'opacity-0 group-hover/bookcard:opacity-100'}`}>
+          {showOptions && <div className="fixed inset-0 z-40 cursor-default" {...getBackdropProps(handleClose)} />}
+          <motion.button
+            key="btn"
+            whileHover={{ scale: 1.05 }}
+            data-press="true"
+            animate={morphTriggerAnimate(showOptions)}
+            onClick={(e) => {
+              e.stopPropagation();
+              const next = !showOptions;
+              window.dispatchEvent(new Event('close-all-popups'));
+              if (next) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setOpenUp(checkChapterMenuShouldOpenUp(rect.bottom, 220));
+                setAlignLeft(checkIsLeftEdgeCard(e.currentTarget));
+                setShowDetails(false);
+                setShowOptions(true);
+              } else handleClose();
+            }}
+            className="w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-3xl text-[var(--text-main)] bg-card/75 hover:bg-[var(--hover-fill)] transition-all cursor-pointer"
+            title={t('more_options')}
+          >
+            <MoreHorizontal size={16} />
+          </motion.button>
+          <AnimatePresence>
+            {showOptions && !contextRect && (
+              <PopupMorphContainer
+                key="menu"
+                activeKey={showDetails ? 'online-details' : 'online-options'}
+                direction={showDetails ? 1 : -1}
+                targetWidth={showDetails ? 240 : 196}
+                targetRadius={showDetails ? 26 : 24}
+                openUp={openUp}
+                style={{ transformOrigin: `${openUp ? 'bottom' : 'top'} ${alignLeft ? 'left' : 'right'}` }}
+                className={`absolute ${openUp ? 'bottom-0' : 'top-0'} ${alignLeft ? 'left-0' : 'right-0'} z-50`}
+              >{menuBody}</PopupMorphContainer>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+      <MobileContextMenu
+        onPreviewClick={open}
+        open={showOptions && Boolean(contextRect)}
+        rect={contextRect}
+        sourceEl={contextElRef.current}
+        preview={contextPreview}
+        onClose={handleClose}
+        activeKey={showDetails ? 'online-details' : 'online-options'}
+        direction={showDetails ? 1 : -1}
+        targetWidth={showDetails ? 240 : 196}
+        targetRadius={showDetails ? 26 : 24}
+        estimatedMenuHeight={110}
       >
         {menuBody}
       </MobileContextMenu>

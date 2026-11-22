@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.20': {
+    pt: ['Audiobooks e ebooks gratuitos sugeridos pelos seus gostos, com audiobooks da LibriVox para baixar direto no app', '"Aplicar metadados": capa, ano, gênero e sinopse encontrados na internet, depois de confirmar', 'O backup da biblioteca agora guarda o andamento, os capítulos concluídos e os favoritos', 'Aviso quando o áudio de um audiobook precisa ser adicionado de novo'],
+    en: ['Free audiobooks and ebooks suggested by your taste, with LibriVox audiobooks to download right in the app', '"Apply metadata": cover, year, genre and synopsis found online, after you confirm', 'Library backups now keep your progress, completed chapters and favorites', 'A notice when the audio of an audiobook needs to be added again'],
+    es: ['Audiolibros y libros gratuitos sugeridos según tus gustos, con audiolibros de LibriVox para descargar en la app', '"Aplicar metadatos": portada, año, género y sinopsis de internet, tras confirmar', 'La copia de la biblioteca ahora guarda el progreso, los capítulos completados y los favoritos', 'Aviso cuando hay que volver a añadir el audio de un audiolibro'],
+    ru: ['Бесплатные аудиокниги и книги по вашим вкусам, аудиокниги LibriVox можно скачать прямо в приложении', '«Применить данные»: обложка, год, жанр и описание из интернета после подтверждения', 'Резервная копия библиотеки теперь сохраняет прогресс, завершённые главы и избранное', 'Уведомление, когда аудио книги нужно добавить снова'],
+    ar: ['كتب صوتية وإلكترونية مجانية حسب ذوقك، مع كتب LibriVox الصوتية للتنزيل داخل التطبيق', '"تطبيق البيانات": الغلاف والسنة والنوع والملخص من الإنترنت بعد التأكيد', 'النسخة الاحتياطية للمكتبة تحفظ الآن التقدم والفصول المكتملة والمفضلة', 'تنبيه عندما يلزم إضافة صوت كتاب صوتي مرة أخرى'],
+  },
   '1.0.17': {
     pt: ['Ícone novo, com versões em branco e preto', 'Os dados editados de um audiobook são gravados dentro do arquivo de áudio (MP3 e M4B), para aparecerem em outros players'],
     en: ['New icon, with white and black versions', 'Edited audiobook details are saved inside the audio file (MP3 and M4B), so they show up in other players'],

@@ -39,6 +39,7 @@ export function MobileConfirmCard({
         key="mobile-confirm-card"
         data-popup-content="true"
         data-mobile-confirm="true"
+        data-confirm-desktop={place ? "true" : undefined}
         role="alertdialog"
         aria-modal="true"
         initial={place ? place.motion.initial : { y: '110%' }}

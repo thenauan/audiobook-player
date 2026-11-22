@@ -25,7 +25,8 @@ export interface MobileHeaderAction {
   active?: boolean;
   // Recebe o botão de origem (para pop-ups globais nascerem dele)
   onClick?: (anchor: HTMLElement) => void;
-  confirm?: { title: string; description?: string; confirmLabel: string; onConfirm: () => void; icon?: React.ReactNode; danger?: boolean };
+  // body: conteúdo extra (ex.: a lista dos dados a aplicar); danger: false deixa o botão na cor de destaque
+  confirm?: { title: string; description?: string; body?: React.ReactNode; confirmLabel: string; onConfirm: () => void; icon?: React.ReactNode; danger?: boolean };
   panel?: React.ReactNode;
   panelWidth?: number;
 }
@@ -42,11 +43,12 @@ function ConfirmView({ action, onCancel }: { action: MobileHeaderAction; onCance
     <div className="flex flex-col p-4 text-left rtl:text-right">
       <h4 className="text-sm font-bold text-[var(--text-main)] px-1 mb-1.5">{c.title}</h4>
       {c.description && <p className="text-xs text-[var(--text-muted)] px-1 mb-4">{c.description}</p>}
+      {c.body && <div className="mb-4">{c.body}</div>}
       <div className="flex items-center justify-end gap-2.5 pt-1">
         <motion.button
           data-press="true"
           onClick={(e) => { e.stopPropagation(); c.onConfirm(); onCancel(); }}
-          className="h-8 px-4 rounded-full bg-card/75 shadow-md text-red-500 font-semibold text-xs flex items-center gap-1.5"
+          className={`h-8 px-4 rounded-full bg-card/75 shadow-md font-semibold text-xs flex items-center gap-1.5 ${c.danger === false ? 'text-winblue' : 'text-red-500'}`}
         >
           {c.icon || <Trash2 size={13} />}
           <span>{c.confirmLabel}</span>

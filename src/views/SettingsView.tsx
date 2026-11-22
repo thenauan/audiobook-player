@@ -1,3 +1,4 @@
+import { useOnlineData, onlineData } from '../lib/onlineCatalog';
 import { IS_INSTALLED_APP, IS_APPLE_TOUCH } from '../lib/desktopBridge';
 import { morphTriggerAnimate } from '../components/popups/Popovers';
 import { APP_VERSION } from '../version';
@@ -444,6 +445,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const fontFamily = useFontFamilyPref();
 
   const blockExplicit = useExplicitBlocked();
+  const onlineDataOn = useOnlineData();
   const showExtraChapters = useShowExtraChapters();
   const lyricsHighlightLabels = { both: t('lyrics_hl_both'), phrase: t('lyrics_hl_phrase'), word: t('lyrics_hl_word') };
   // Modo leve e configuração do aparelho (Sistema)
@@ -805,6 +807,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
 
           <div className="space-y-2.5">
+            {/* Dados e sugestões da internet (Open Library e Internet Archive): completa os audiobooks e sugere gratuitos */}
+            <div onClick={handleSettingRowClick} className="settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)] cursor-pointer flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-winblue/10 text-winblue flex items-center justify-center shrink-0">
+                  <Globe size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-base text-[var(--text-main)]">{t('settings_online_data')}</span>
+                  <span className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5">{t('settings_online_data_sub')}</span>
+                </div>
+              </div>
+              <SettingToggle checked={onlineDataOn} onChange={(val) => onlineData.set(val)} />
+            </div>
+
             {/* 1. Pasta da biblioteca — só no computador: navegadores de celular/tablet (iPhone, iPad e Android)
                 não deixam o app escolher nem lembrar uma pasta do aparelho */}
             <div data-setting-action="settings_lib_folder" data-setting-title={t('settings_lib_folder')} data-setting-subtitle={t('settings_lib_folder_sub')} onClick={handleSettingRowClick} className="max-md:hidden [@media(pointer:coarse)]:hidden settings-list-row py-3 sm:py-3.5 px-4 sm:px-5 rounded-[32px] bg-card/60 backdrop-blur-xl transition-colors hover:bg-[var(--hover-fill)] flex flex-row items-center justify-between gap-4"><div className="flex items-center gap-4">

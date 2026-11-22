@@ -2459,3 +2459,32 @@ html.dark aside.sidebar-safe {
   initial-value: 1;
 }
 :root { --icon-o: 1; }
+
+/* Computador: a confirmação abre como os outros pop-ups (perto do botão), então segue o padrão deles: título à
+   esquerda no mesmo tamanho, texto menor e botões pequenos à direita (o estilo grande e centralizado é do celular) */
+[data-mobile-confirm][data-confirm-desktop] :is(h3, h4) {
+  text-align: start;
+  font-size: 0.875rem !important;
+  margin-bottom: 0.375rem !important;
+}
+[data-mobile-confirm][data-confirm-desktop] :is(h3, h4) + p {
+  text-align: start;
+  font-size: 0.75rem !important;
+}
+[data-mobile-confirm][data-confirm-desktop] .justify-end {
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  padding-top: 4px;
+}
+[data-mobile-confirm][data-confirm-desktop] .justify-end > button,
+[data-mobile-confirm][data-confirm-desktop] .justify-end > * > button {
+  height: 2rem !important;
+  min-width: 0;
+  padding-inline: 1rem !important;
+  font-size: 0.75rem !important;
+  gap: 6px !important;
+}
+[data-mobile-confirm][data-confirm-desktop] .justify-end > button svg {
+  width: 13px;
+  height: 13px;
+}
