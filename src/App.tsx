@@ -3306,6 +3306,15 @@ export default function App() {
   }, [books.length, isLibraryDataHydrated]);
   const proposalAuthor = activeScreen.id === 'author-detail' ? (authors.find(a => a.id === activeScreen.data?.id) || activeScreen.data || null) : null;
   const authorProposal = useAuthorProposal(proposalAuthor);
+  const askApplyAuthorRef = useRef<(id: string) => void>(() => {});
+  askApplyAuthorRef.current = (id) => {
+    if (authorProposal && proposalAuthor && proposalAuthor.id === id) confirmApplyAuthorData(setMobileConfirm, t, proposalAuthor, authorProposal);
+  };
+  useEffect(() => {
+    const onAsk = (e: Event) => askApplyAuthorRef.current(String((e as CustomEvent).detail || ''));
+    window.addEventListener('ask-apply-author', onAsk);
+    return () => window.removeEventListener('ask-apply-author', onAsk);
+  }, []);
 
   const setCompletedChaptersByUser = useCallback<React.Dispatch<React.SetStateAction<string[]>>>((action) => {
     setCompletedChapters(prev => {

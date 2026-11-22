@@ -11,6 +11,7 @@ import { Check, Star, Trash2, Upload } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { getAuthorSuggestions, useOnlineAvailable, type OnlineItem } from '../../lib/onlineCatalog';
+import { useAuthorProposal, OnlineDataNotice } from '../../components/MetadataProposal';
 import { normalizeAudiobookLanguage } from '../../i18n/translations';
 import { BookCard, OnlineSuggestionCard } from '../../components/library/LibraryCards';
 import { ImageCropperSquare, transicaoConteudo } from '../../App';
@@ -57,6 +58,16 @@ export function AuthorDetailScreen() {
   const authorData: Author = authors.find(a => a.id === activeScreen.data.id) || activeScreen.data;
   const editSwapRef = useEditSwap<HTMLDivElement>(isEditingAuthor);
   const authorBooks = books.filter(b => bookHasAuthor(b, authorData));
+  // Dados da internet que completam o autor (biografia, foto, nacionalidade): o mesmo aviso dos audiobooks
+  const authorProposal = useAuthorProposal(isEditingAuthor ? null : authorData);
+  const authorMissing = authorProposal ? [
+    authorProposal.bio && t('apply_field_bio').toLowerCase(),
+    authorProposal.picture && t('apply_field_photo').toLowerCase(),
+    authorProposal.nationality && t('apply_field_nationality').toLowerCase(),
+  ].filter(Boolean).join(', ') : '';
+  const authorNotice = authorProposal ? (
+    <OnlineDataNotice kind="author" fields={authorMissing} onApply={() => window.dispatchEvent(new CustomEvent('ask-apply-author', { detail: authorData.id }))} />
+  ) : null;
   // Duas linhas de títulos e de sugestões; "Ver mais" mostra todos
   const cols = useGridColumns();
   const limit = cols * 2;
@@ -147,6 +158,7 @@ export function AuthorDetailScreen() {
               {authorData.bio}
             </p>
           )}
+          {authorNotice && <div className="px-4">{authorNotice}</div>}
         </div>
       );
     })()}
@@ -181,6 +193,7 @@ export function AuthorDetailScreen() {
                   {authorData.bio}
                 </p>
               )}
+              {authorNotice}
             </div>
           </div>
         </>

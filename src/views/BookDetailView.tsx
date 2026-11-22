@@ -4,8 +4,8 @@ import { requestSystemBarColor } from '../lib/systemBars';
 import { isMobileViewport } from '../components/popups/MobileContextMenu';
 import { ExplicitBadge } from '../components/ExplicitBadge';
 import { useExplicitBlocked, useExplicitEdit, explicitEdit } from '../lib/explicitContent';
-import { Lock, Wand2 } from 'lucide-react';
-import { useMetadataProposal } from '../components/MetadataProposal';
+import { Lock } from 'lucide-react';
+import { useMetadataProposal, OnlineDataNotice } from '../components/MetadataProposal';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Star,
@@ -310,27 +310,7 @@ export default function BookDetailView({
     metadataProposal.category && t('genres').toLowerCase(),
   ].filter(Boolean).join(', ') : '';
   const metadataNotice = metadataProposal ? (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.94, y: -6 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-      role="note"
-      className="mt-4 w-full max-w-[420px] mx-auto md:mx-0 flex items-start gap-3 p-4 rounded-3xl bg-card/75 backdrop-blur-3xl shadow-xl text-left rtl:text-right"
-    >
-      <span className="w-9 h-9 rounded-full bg-winblue/20 text-winblue flex items-center justify-center shrink-0"><Wand2 size={16} /></span>
-      <span className="flex-1 min-w-0 flex flex-col gap-0.5">
-        <span className="text-sm font-bold text-[var(--text-main)]">{t('metadata_found_title')}</span>
-        <span className="text-xs text-[var(--text-muted)] leading-snug">{t('metadata_found_desc', { fields: missingFields })}</span>
-        <button
-          type="button"
-          data-press="true"
-          onClick={() => window.dispatchEvent(new CustomEvent('ask-apply-metadata', { detail: activeBook.id }))}
-          className="self-start mt-2 h-8 px-3.5 rounded-full bg-winblue/20 text-winblue text-xs font-bold"
-        >
-          {t('metadata_found_button')}
-        </button>
-      </span>
-    </motion.div>
+    <OnlineDataNotice fields={missingFields} onApply={() => window.dispatchEvent(new CustomEvent('ask-apply-metadata', { detail: activeBook.id }))} />
   ) : null;
   // Android: as barras do sistema ficam na cor da capa enquanto a página do audiobook está aberta (fora do editor)
   const barColor = /^#?[0-9a-f]{6}$/i.test(rawCoverHex || '') ? `#${rawCoverHex.replace('#', '')}` : bookHighlight.hex;
