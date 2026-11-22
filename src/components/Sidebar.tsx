@@ -77,7 +77,7 @@ export function Sidebar({
         {/* Alinhado aos ícones das opções do menu */}
         <div className="flex items-baseline gap-[2px] pl-[18px] text-[var(--text-main)] text-[42px] leading-none tracking-tight mb-6">
           <AppLogo className="text-[var(--text-main)] shrink-0" />
-          <span className="font-normal">Player</span>
+          <span className="brand-wordmark">Player</span>
         </div>
 
         <div className="flex flex-col gap-1.5 px-1">

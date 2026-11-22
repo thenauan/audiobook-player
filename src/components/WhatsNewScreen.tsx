@@ -222,7 +222,7 @@ export function WhatsNewScreen({ language, t }: { language: SupportedLanguage; t
               className="flex items-baseline tracking-tight mb-2 gap-[2px] text-[42px] leading-none"
             >
               <AppLogo className="shrink-0" />
-              <span className="font-normal">Player</span>
+              <span className="brand-wordmark">Player</span>
             </motion.div>
             <h2 className="text-xl sm:text-2xl font-semibold text-white/95 tracking-tight mt-1">{t('whats_new_title', { ver: APP_VERSION })}</h2>
             <ul className="w-full max-w-md mt-7 p-2 rounded-[26px] bg-white/[0.08] text-left rtl:text-right" style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>

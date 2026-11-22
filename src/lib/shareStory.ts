@@ -222,7 +222,10 @@ async function drawAppBrand(ctx: CanvasRenderingContext2D, centerX: number, y: n
   const logoH = fontSize * 0.72;
   const logoW = logoH;
   const gap = fontSize * 0.05;
-  ctx.font = `400 ${fontSize}px ${FONT}`;
+  // Mesma letra arredondada do nome no app
+  const brandFont = `900 ${fontSize}px 'Player Brand', ${FONT}`;
+  try { await document.fonts.load(brandFont, 'Player'); } catch { /* usa a fonte do sistema */ }
+  ctx.font = brandFont;
   const wText = ctx.measureText('Player').width;
   const baseline = y + logoH / 2;
   let x = centerX - (logoW + gap + wText) / 2;

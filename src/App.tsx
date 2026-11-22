@@ -7642,7 +7642,7 @@ export default function App() {
                       className="flex items-baseline text-white md: tracking-tight mb-2 gap-[2px] text-[42px] leading-none"
                     >
                       <AppLogo className="text-white shrink-0" />
-                      <span className="font-normal">Player</span>
+                      <span className="brand-wordmark">Player</span>
                     </motion.div>
 
                     {/* Subtítulo: 'Bem-vindo!' e descrição breve do app */}

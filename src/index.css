@@ -2488,3 +2488,18 @@ html.dark aside.sidebar-safe {
   width: 13px;
   height: 13px;
 }
+
+/* Nome "Player" ao lado do ícone: letra arredondada e encorpada (Nunito Black, só as letras do nome, 1 KB). Só no
+   título do app; o resto da interface continua com a fonte do sistema */
+@font-face {
+  font-family: 'Player Brand';
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url('./assets/brand-player.woff2') format('woff2');
+}
+.brand-wordmark {
+  font-family: 'Player Brand', ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em;
+}
