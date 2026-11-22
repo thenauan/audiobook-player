@@ -1,7 +1,7 @@
 // Extraído do App.tsx (conteúdo sem alterações)
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink, Download, Globe } from 'lucide-react';
+import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink, Download, Globe, Languages, Calendar } from 'lucide-react';
 import type { OnlineItem } from '../../lib/onlineCatalog';
 import { getLanguageDisplayName } from '../../i18n/translations';
 import { 
@@ -1416,12 +1416,13 @@ export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
       <span className="max-md:hidden">{badgeLabel}</span>
     </div>
   );
+  // Mesmo formato das informações dos audiobooks da biblioteca: ícone e nome à esquerda, valor à direita
   const detailRows = [
-    { label: t('online_type'), value: downloadable ? t('online_type_audiobook') : t('online_type_ebook') },
-    { label: t('author_label'), value: item.author },
-    { label: t('language_label'), value: item.language ? getLanguageDisplayName(item.language) : '' },
-    { label: t('year'), value: item.year || '' },
-    { label: t('online_source'), value: downloadable ? 'LibriVox' : 'Project Gutenberg' },
+    { icon: downloadable ? <Headphones size={13} /> : <BookOpen size={13} />, label: t('online_type'), value: downloadable ? t('online_type_audiobook') : t('online_type_ebook') },
+    { icon: <User size={13} />, label: t('author_label'), value: item.author },
+    { icon: <Languages size={13} />, label: t('language_label'), value: item.language ? getLanguageDisplayName(item.language) : '' },
+    { icon: <Calendar size={13} />, label: t('year'), value: item.year || '' },
+    { icon: <Globe size={13} />, label: t('online_source'), value: downloadable ? 'LibriVox' : 'Project Gutenberg' },
   ].filter(r => r.value);
 
   const contextPreview = (
@@ -1467,11 +1468,14 @@ export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
         </motion.button>
         <h4 className="text-sm font-bold text-[var(--text-main)] truncate">{t('details')}</h4>
       </div>
-      <div className="space-y-2 text-xs leading-relaxed">
+      <div className="space-y-3 px-1 py-1">
         {detailRows.map(r => (
-          <div key={r.label}>
-            <span className="font-bold text-[var(--text-main)] block">{r.label}</span>
-            <p className="text-[var(--text-muted)] text-[11px] leading-snug [overflow-wrap:anywhere]">{r.value}</p>
+          <div key={r.label} className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-[var(--text-muted)] shrink-0 flex">{r.icon}</span>
+              <span className="text-xs text-[var(--text-muted)] font-medium">{r.label}</span>
+            </div>
+            <span className="text-xs font-semibold text-[var(--text-main)] text-right truncate min-w-0" title={r.value}>{r.value}</span>
           </div>
         ))}
       </div>
@@ -1553,7 +1557,7 @@ export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
                 key="menu"
                 activeKey={showDetails ? 'online-details' : 'online-options'}
                 direction={showDetails ? 1 : -1}
-                targetWidth={showDetails ? 240 : 196}
+                targetWidth={showDetails ? 280 : 196}
                 targetRadius={showDetails ? 26 : 24}
                 openUp={openUp}
                 style={{ transformOrigin: `${openUp ? 'bottom' : 'top'} ${alignLeft ? 'left' : 'right'}` }}
@@ -1572,7 +1576,7 @@ export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
         onClose={handleClose}
         activeKey={showDetails ? 'online-details' : 'online-options'}
         direction={showDetails ? 1 : -1}
-        targetWidth={showDetails ? 240 : 196}
+        targetWidth={showDetails ? 280 : 196}
         targetRadius={showDetails ? 26 : 24}
         estimatedMenuHeight={110}
       >
