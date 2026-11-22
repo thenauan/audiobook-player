@@ -11,6 +11,7 @@ import { getGenericBookCover } from '../../lib/coverArt';
 import { getLanguageDisplayName } from '../../i18n/translations';
 import { getItemDetails, downloadAudiobook, titleMatches, authorMatches, type OnlineItem, type OnlineItemDetails } from '../../lib/onlineCatalog';
 import { IS_INSTALLED_APP } from '../../lib/desktopBridge';
+import { GeneratorGlyph } from '../../components/GeneratorGlyph';
 
 const GENERATOR_URL = 'https://github.com/thenauan/audiobook-generator/releases/latest';
 const formatSize = (bytes: number) => bytes >= 1e9 ? `${(bytes / 1e9).toFixed(1)} GB` : `${Math.max(1, Math.round(bytes / 1e6))} MB`;
@@ -152,7 +153,7 @@ export function OnlineItemScreen() {
               )}
               {!isAudio && (
                 <motion.button data-press="true" onClick={() => handleOpenExternalUrl(GENERATOR_URL)} className={secondaryBtn} title={t('online_convert_title')} aria-label={t('online_convert_title')}>
-                  <img src={`${import.meta.env.BASE_URL}icons/audiobook-generator.png`} alt="" className="w-[18px] h-[18px] rounded-full shrink-0" />
+                  <GeneratorGlyph size={14} className="shrink-0" />
                   <span className="max-md:hidden">{t('online_convert_title')}</span>
                 </motion.button>
               )}
