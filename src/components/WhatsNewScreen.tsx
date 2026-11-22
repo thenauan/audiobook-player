@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.31': {
+    pt: ['Audiobooks sem sinopse, capa, ano ou gênero: o app procura na internet e mostra um aviso na página para ver e aplicar', 'Ao adicionar audiobooks novos, um aviso diz quantos têm dados para completar'],
+    en: ['Audiobooks missing a synopsis, cover, year or genre: the app looks online and shows a notice on the page to review and apply', 'When you add new audiobooks, a notice says how many have details to complete'],
+    es: ['Audiolibros sin sinopsis, portada, año o género: la app busca en internet y muestra un aviso en la página para ver y aplicar', 'Al añadir audiolibros nuevos, un aviso indica cuántos tienen datos para completar'],
+    ru: ['Если у аудиокниги нет описания, обложки, года или жанра, приложение ищет их в интернете и показывает уведомление на странице', 'При добавлении новых аудиокниг уведомление сообщает, сколько из них можно дополнить'],
+    ar: ['الكتب الصوتية بلا ملخص أو غلاف أو سنة أو نوع: يبحث التطبيق عبر الإنترنت ويعرض تنبيهًا في الصفحة للعرض والتطبيق', 'عند إضافة كتب صوتية جديدة، يخبرك تنبيه بعدد الكتب التي يمكن إكمال بياناتها'],
+  },
   '1.0.30': {
     pt: ['Autores ganham biografia, foto e nacionalidade da Wikipédia, depois de confirmar', 'Sem internet, o app funciona normalmente e o que é online some (com um aviso)', 'Filtros em tela cheia no celular, com título e botões sempre à vista', 'Audiobooks que você está ouvindo saem das recomendações e voltam em "Esquecidos" quando ficam parados'],
     en: ['Authors get biography, photo and nationality from Wikipedia, after you confirm', 'Offline, the app works normally and online items disappear (with a notice)', 'Full-screen filters on phones, with the title and buttons always visible', 'Audiobooks you are listening to leave the recommendations and come back in "Forgotten" when left aside'],

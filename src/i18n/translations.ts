@@ -1320,6 +1320,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     apply_field_nationality: 'Nacionalidade',
     apply_field_bio: 'Biografia',
     toast_offline: 'Você está sem internet. O app funciona normalmente; só os dados e as sugestões da internet ficam indisponíveis',
+    metadata_found_title: 'Dados encontrados na internet',
+    metadata_found_desc: 'Dá para completar este audiobook com: {fields}.',
+    metadata_found_button: 'Ver e aplicar',
+    toast_metadata_found: 'Encontramos dados na internet para {count} audiobook(s) novo(s). Abra cada um para ver e aplicar',
     toast_metadata_author_updated: 'Metadados do autor atualizados!',
 
     // Credits & About
@@ -2167,6 +2171,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     apply_field_nationality: 'Nationality',
     apply_field_bio: 'Biography',
     toast_offline: 'You are offline. The app works normally; only online data and suggestions are unavailable',
+    metadata_found_title: 'Details found online',
+    metadata_found_desc: 'This audiobook can be completed with: {fields}.',
+    metadata_found_button: 'Review and apply',
+    toast_metadata_found: 'We found online details for {count} new audiobook(s). Open each one to review and apply',
     toast_metadata_author_updated: 'Author metadata updated!',
 
     // Credits & About
@@ -3014,6 +3022,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     apply_field_nationality: 'Nacionalidad',
     apply_field_bio: 'Biografía',
     toast_offline: 'Estás sin internet. La app funciona con normalidad; solo los datos y las sugerencias de internet no están disponibles',
+    metadata_found_title: 'Datos encontrados en internet',
+    metadata_found_desc: 'Puedes completar este audiolibro con: {fields}.',
+    metadata_found_button: 'Ver y aplicar',
+    toast_metadata_found: 'Encontramos datos en internet para {count} audiolibro(s) nuevo(s). Ábrelos para ver y aplicar',
     toast_metadata_author_updated: '¡Metadatos del autor actualizados!',
 
     // Credits & About
@@ -3861,6 +3873,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     apply_field_nationality: 'Национальность',
     apply_field_bio: 'Биография',
     toast_offline: 'Нет подключения к интернету. Приложение работает как обычно; недоступны только онлайн-данные и рекомендации',
+    metadata_found_title: 'Найдены данные в интернете',
+    metadata_found_desc: 'Эту аудиокнигу можно дополнить: {fields}.',
+    metadata_found_button: 'Посмотреть и применить',
+    toast_metadata_found: 'Найдены данные для новых аудиокниг: {count}. Откройте каждую, чтобы применить',
     toast_metadata_author_updated: 'Метаданные автора обновлены!',
 
     // Credits & About
@@ -4708,6 +4724,10 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     apply_field_nationality: 'الجنسية',
     apply_field_bio: 'السيرة الذاتية',
     toast_offline: 'أنت غير متصل بالإنترنت. يعمل التطبيق بشكل طبيعي؛ فقط البيانات والاقتراحات عبر الإنترنت غير متاحة',
+    metadata_found_title: 'تم العثور على بيانات عبر الإنترنت',
+    metadata_found_desc: 'يمكن إكمال هذا الكتاب الصوتي بـ: {fields}.',
+    metadata_found_button: 'عرض وتطبيق',
+    toast_metadata_found: 'وجدنا بيانات عبر الإنترنت لـ {count} كتاب صوتي جديد. افتح كل واحد لعرضها وتطبيقها',
     toast_metadata_author_updated: 'تم تحديث البيانات الوصفية للمؤلف!',
 
     // Credits & About

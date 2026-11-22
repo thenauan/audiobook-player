@@ -108,7 +108,7 @@ import { AppInfoScreen } from './views/screens/AppInfoScreen';
 import { OnlineItemScreen } from './views/screens/OnlineItemScreen';
 import { OnlineListScreen } from './views/screens/OnlineListScreen';
 import { OnlineFilterButton } from './components/OnlineFilters';
-import { authorMatches, onlineData } from './lib/onlineCatalog';
+import { authorMatches, onlineData, findMetadataProposal } from './lib/onlineCatalog';
 import { useMetadataProposal, confirmApplyMetadata, useAuthorProposal, confirmApplyAuthorData } from './components/MetadataProposal';
 import { Wand2 } from 'lucide-react';
 import { BookInfoScreen } from './views/screens/BookInfoScreen';
@@ -3268,6 +3268,42 @@ export default function App() {
   // Dados da internet para o audiobook aberto (botão "Aplicar metadados" do cabeçalho no computador)
   const proposalBook = activeScreen.id === 'book-detail' ? (books.find(b => b.id === (activeScreen.data?.id || selectedBook?.id)) || activeScreen.data || selectedBook || null) : null;
   const metadataProposal = useMetadataProposal(proposalBook);
+  const askApplyRef = useRef<(bookId: string) => void>(() => {});
+  askApplyRef.current = (bookId) => {
+    if (metadataProposal && proposalBook && proposalBook.id === bookId) confirmApplyMetadata(setMobileConfirm, t, proposalBook, metadataProposal);
+  };
+  useEffect(() => {
+    const onAsk = (e: Event) => askApplyRef.current(String((e as CustomEvent).detail || ''));
+    window.addEventListener('ask-apply-metadata', onAsk);
+    return () => window.removeEventListener('ask-apply-metadata', onAsk);
+  }, []);
+  // Audiobooks novos sem algum dado: busca na internet em segundo plano e avisa quantos dá para completar
+  const checkedForDataRef = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (!isLibraryDataHydrated || !onlineData.get() || (typeof navigator !== 'undefined' && navigator.onLine === false)) return;
+    if (!checkedForDataRef.current) {
+      try { checkedForDataRef.current = new Set(JSON.parse(localStorage.getItem('app_online_checked_books') || '[]')); } catch { checkedForDataRef.current = new Set(); }
+      // Primeira vez com o recurso: o que já estava na biblioteca conta como visto (o aviso é para os novos)
+      if (!localStorage.getItem('app_online_checked_books')) books.forEach(b => checkedForDataRef.current!.add(b.id));
+    }
+    const seen = checkedForDataRef.current;
+    const fresh = books.filter(b => !seen.has(b.id));
+    if (fresh.length === 0) { try { localStorage.setItem('app_online_checked_books', JSON.stringify([...seen])); } catch {} return; }
+    let alive = true;
+    (async () => {
+      let found = 0;
+      for (const b of fresh.slice(0, 20)) {
+        if (!alive) return;
+        seen.add(b.id);
+        const p = await findMetadataProposal(b).catch(() => null);
+        if (p) found++;
+      }
+      try { localStorage.setItem('app_online_checked_books', JSON.stringify([...seen])); } catch {}
+      if (alive && found > 0) showToast(t('toast_metadata_found', { count: found }));
+    })();
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [books.length, isLibraryDataHydrated]);
   const proposalAuthor = activeScreen.id === 'author-detail' ? (authors.find(a => a.id === activeScreen.data?.id) || activeScreen.data || null) : null;
   const authorProposal = useAuthorProposal(proposalAuthor);
 
