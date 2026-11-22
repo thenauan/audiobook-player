@@ -310,7 +310,7 @@ export default function BookDetailView({
     metadataProposal.category && t('genres').toLowerCase(),
   ].filter(Boolean).join(', ') : '';
   const metadataNotice = metadataProposal ? (
-    <OnlineDataNotice fields={missingFields} onApply={() => window.dispatchEvent(new CustomEvent('ask-apply-metadata', { detail: activeBook.id }))} />
+    <OnlineDataNotice id={activeBook.id} fields={missingFields} onApply={() => window.dispatchEvent(new CustomEvent('ask-apply-metadata', { detail: activeBook.id }))} />
   ) : null;
   // Android: as barras do sistema ficam na cor da capa enquanto a página do audiobook está aberta (fora do editor)
   const barColor = /^#?[0-9a-f]{6}$/i.test(rawCoverHex || '') ? `#${rawCoverHex.replace('#', '')}` : bookHighlight.hex;

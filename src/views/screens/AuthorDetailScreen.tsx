@@ -66,7 +66,7 @@ export function AuthorDetailScreen() {
     authorProposal.nationality && t('apply_field_nationality').toLowerCase(),
   ].filter(Boolean).join(', ') : '';
   const authorNotice = authorProposal ? (
-    <OnlineDataNotice kind="author" fields={authorMissing} onApply={() => window.dispatchEvent(new CustomEvent('ask-apply-author', { detail: authorData.id }))} />
+    <OnlineDataNotice kind="author" id={authorData.id} fields={authorMissing} onApply={() => window.dispatchEvent(new CustomEvent('ask-apply-author', { detail: authorData.id }))} />
   ) : null;
   // Duas linhas de títulos e de sugestões; "Ver mais" mostra todos
   const cols = useGridColumns();

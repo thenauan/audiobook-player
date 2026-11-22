@@ -1324,6 +1324,7 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     metadata_found_desc: 'Dá para completar este audiobook com: {fields}.',
     metadata_found_desc_author: 'Dá para completar este autor com: {fields}.',
     metadata_found_button: 'Ver e aplicar',
+    metadata_found_hide: 'Ocultar',
     toast_metadata_found: 'Encontramos dados na internet para {count} audiobook(s) novo(s). Abra cada um para ver e aplicar',
     toast_metadata_author_updated: 'Metadados do autor atualizados!',
 
@@ -2176,6 +2177,7 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     metadata_found_desc: 'This audiobook can be completed with: {fields}.',
     metadata_found_desc_author: 'This author can be completed with: {fields}.',
     metadata_found_button: 'Review and apply',
+    metadata_found_hide: 'Hide',
     toast_metadata_found: 'We found online details for {count} new audiobook(s). Open each one to review and apply',
     toast_metadata_author_updated: 'Author metadata updated!',
 
@@ -3028,6 +3030,7 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     metadata_found_desc: 'Puedes completar este audiolibro con: {fields}.',
     metadata_found_desc_author: 'Puedes completar este autor con: {fields}.',
     metadata_found_button: 'Ver y aplicar',
+    metadata_found_hide: 'Ocultar',
     toast_metadata_found: 'Encontramos datos en internet para {count} audiolibro(s) nuevo(s). Ábrelos para ver y aplicar',
     toast_metadata_author_updated: '¡Metadatos del autor actualizados!',
 
@@ -3880,6 +3883,7 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     metadata_found_desc: 'Эту аудиокнигу можно дополнить: {fields}.',
     metadata_found_desc_author: 'Этого автора можно дополнить: {fields}.',
     metadata_found_button: 'Посмотреть и применить',
+    metadata_found_hide: 'Скрыть',
     toast_metadata_found: 'Найдены данные для новых аудиокниг: {count}. Откройте каждую, чтобы применить',
     toast_metadata_author_updated: 'Метаданные автора обновлены!',
 
@@ -4732,6 +4736,7 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     metadata_found_desc: 'يمكن إكمال هذا الكتاب الصوتي بـ: {fields}.',
     metadata_found_desc_author: 'يمكن إكمال هذا المؤلف بـ: {fields}.',
     metadata_found_button: 'عرض وتطبيق',
+    metadata_found_hide: 'إخفاء',
     toast_metadata_found: 'وجدنا بيانات عبر الإنترنت لـ {count} كتاب صوتي جديد. افتح كل واحد لعرضها وتطبيقها',
     toast_metadata_author_updated: 'تم تحديث البيانات الوصفية للمؤلف!',
 

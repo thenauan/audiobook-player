@@ -1,7 +1,8 @@
 // Dados encontrados na internet (Open Library) para completar um audiobook: o botão "Aplicar metadados" só aparece
 // quando há algo a acrescentar, e o pop-up de confirmação lista exatamente o que muda
 import React, { useEffect, useState } from 'react';
-import { Wand2 } from 'lucide-react';
+import { Wand2, EyeOff } from 'lucide-react';
+import { isMobileViewport } from './popups/MobileContextMenu';
 import { motion } from 'motion/react';
 import { findMetadataProposal, findAuthorProposal, useOnlineAvailable, type MetadataProposal, type AuthorProposal } from '../lib/onlineCatalog';
 import { NATIONALITIES_LIST, getNationalityDisplayName } from '../i18n/nationalityTranslations';
@@ -144,9 +145,21 @@ export function confirmApplyAuthorData(
   });
 }
 
-// Aviso "Dados encontrados na internet" (o mesmo nas páginas de audiobook e de autor), com o botão para ver e aplicar
-export function OnlineDataNotice({ fields, onApply, kind = 'book' }: { fields: string; onApply: () => void; kind?: 'book' | 'author' }) {
+// Avisos ocultados pelo usuário (por audiobook/autor): não voltam a aparecer na página
+const HIDDEN_KEY = 'app_online_notice_hidden';
+const readHidden = (): string[] => { try { return JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'); } catch { return []; } };
+
+// Aviso "Dados encontrados na internet" (o mesmo nas páginas de audiobook e de autor). Só no celular:
+// no computador a sugestão fica apenas no botão do cabeçalho. Botões à direita: ver e aplicar, ocultar.
+export function OnlineDataNotice({ id, fields, onApply, kind = 'book' }: { id: string; fields: string; onApply: () => void; kind?: 'book' | 'author' }) {
   const { t } = useI18n();
+  const key = `${kind}:${id}`;
+  const [hidden, setHidden] = useState(() => readHidden().includes(key));
+  if (hidden || !isMobileViewport()) return null;
+  const hide = () => {
+    try { localStorage.setItem(HIDDEN_KEY, JSON.stringify([...new Set([...readHidden(), key])].slice(-500))); } catch {}
+    setHidden(true);
+  };
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.94, y: -6 }}
@@ -155,13 +168,17 @@ export function OnlineDataNotice({ fields, onApply, kind = 'book' }: { fields: s
       role="note"
       className="mt-4 w-full max-w-[420px] mx-auto md:mx-0 flex items-start gap-3 p-4 rounded-3xl bg-card/75 backdrop-blur-3xl shadow-xl text-left rtl:text-right"
     >
-      <span className="w-9 h-9 rounded-full bg-winblue/20 text-winblue flex items-center justify-center shrink-0"><Wand2 size={16} /></span>
       <span className="flex-1 min-w-0 flex flex-col gap-0.5">
         <span className="text-sm font-bold text-[var(--text-main)]">{t('metadata_found_title')}</span>
         <span className="text-xs text-[var(--text-muted)] leading-snug">{t(kind === 'author' ? 'metadata_found_desc_author' : 'metadata_found_desc', { fields })}</span>
-        <button type="button" data-press="true" onClick={onApply} className="self-start mt-2 h-8 px-3.5 rounded-full bg-winblue/20 text-winblue text-xs font-bold">
-          {t('metadata_found_button')}
-        </button>
+        <span className="flex items-center justify-end gap-2 mt-2.5">
+          <button type="button" data-press="true" onClick={hide} className="h-8 px-3.5 rounded-full bg-card/75 shadow-sm text-[var(--text-main)] text-xs font-bold flex items-center gap-1.5">
+            <EyeOff size={13} /><span>{t('metadata_found_hide')}</span>
+          </button>
+          <button type="button" data-press="true" onClick={onApply} className="h-8 px-3.5 rounded-full bg-winblue/20 text-winblue text-xs font-bold flex items-center gap-1.5">
+            <Wand2 size={13} /><span>{t('metadata_found_button')}</span>
+          </button>
+        </span>
       </span>
     </motion.div>
   );
