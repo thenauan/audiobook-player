@@ -6,7 +6,7 @@ import { ChevronRight, Upload } from 'lucide-react';
 import { FADE_IN } from '../../lib/motion';
 import { useEffect, useMemo, useState } from 'react';
 import { BookCard, OnlineSuggestionCard } from '../../components/library/LibraryCards';
-import { getSuggestions, useOnlineData, type OnlineSection } from '../../lib/onlineCatalog';
+import { getSuggestions, useOnlineAvailable, type OnlineSection } from '../../lib/onlineCatalog';
 import { getGenreName } from '../../i18n/genreTranslations';
 import { getLanguageCardName } from '../../i18n/translations';
 import { normalizeAudiobookLanguage } from '../../i18n/translations';
@@ -18,7 +18,7 @@ export function HomeScreen() {
   const { activeScreen, authors, books, resolvedLanguage, currentBook, favoriteAuthorIds, favoriteBookIds, fileInputRef, handleAddToQueue, handleDeleteBook, handlePlayBookFromStart, handleSelectAuthor, handleSelectBookDetail, homeSections, isBookCompleted, isBookStarted, isMobile, isPlaying, isSelectionMode, selectedBooks, setCompletedChapters, setEditingBook, setSelectedBooks, setStartedChapters, showToast, t, toggleFavoriteBook } = useScreenScope();
   // Sugestões gratuitas da internet (LibriVox e Project Gutenberg) pelos gostos da biblioteca: idiomas, gêneros,
   // autores e favoritos. Desligáveis em Ajustes → Biblioteca
-  const onlineOn = useOnlineData();
+  const onlineOn = useOnlineAvailable();
   const profile = useMemo(() => {
     const rank = (values: string[]) => {
       const n = new Map<string, number>();
@@ -29,7 +29,11 @@ export function HomeScreen() {
     const weighted = [...books, ...favBooks, ...favBooks];
     const favAuthorNames = authors.filter(a => favoriteAuthorIds.includes(a.id)).map(a => a.name);
     return {
-      languages: rank(weighted.map(b => normalizeAudiobookLanguage(b.language) || '').filter(l => l && l !== 'Outro')),
+      languages: (() => {
+        const ranked = rank(weighted.map(b => normalizeAudiobookLanguage(b.language) || '').filter(l => l && l !== 'Outro'));
+        const ui = ({ pt: 'Português', en: 'Inglês', es: 'Espanhol', ru: 'Russo', ar: 'Árabe' } as Record<string, string>)[resolvedLanguage];
+        return ranked.length ? ranked : ui ? [ui] : [];
+      })(),
       genres: rank(weighted.flatMap(b => splitGenreValues(b.category)).filter(g => g && !/desconhecid/i.test(g))),
       subgenres: rank(weighted.flatMap(b => splitGenreValues(b.subgenre)).filter(g => g && !/desconhecid/i.test(g))),
       authors: rank(weighted.map(b => b.author || '')).filter(Boolean),
@@ -37,7 +41,7 @@ export function HomeScreen() {
       favoriteTitles: favBooks.map(b => b.title),
       owned: books.map(b => ({ title: b.title, author: b.author })),
     };
-  }, [books, authors, favoriteBookIds, favoriteAuthorIds]);
+  }, [books, authors, favoriteBookIds, favoriteAuthorIds, resolvedLanguage]);
   const profileKey = JSON.stringify([profile.languages.slice(0, 2), profile.genres.slice(0, 3), profile.authors.slice(0, 6), profile.owned.length]);
   const [suggestions, setSuggestions] = useState<OnlineSection[]>([]);
   useEffect(() => {

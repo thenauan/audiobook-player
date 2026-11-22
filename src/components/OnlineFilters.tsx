@@ -2,7 +2,8 @@
 // tamanho do download, ano e ordem. O botão fica no cabeçalho e abre o pop-up (o mesmo cartão das confirmações).
 import { useState, useSyncExternalStore } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SlidersHorizontal, X, Check } from 'lucide-react';
+import { ListFilter, X, Check } from 'lucide-react';
+import { MobileSheet } from './popups/MobileSheet';
 import { MobileConfirmCard } from './popups/MobileConfirm';
 import { genreFromSubjects, type OnlineItem } from '../lib/onlineCatalog';
 import { getLanguageDisplayName, useI18n } from '../i18n/translations';
@@ -87,61 +88,75 @@ export function OnlineFilterButton({ items, mobile }: { items: OnlineItem[]; mob
     </div>
   );
 
+  // Conteúdo: só ele rola (com o esmaecimento das bordas); título e botões ficam sempre à vista
+  const body = (
+    <div className="flex flex-col gap-4 text-left rtl:text-right">
+      {hasAudio && hasEbook && group(t('filter_type'), (['all', 'audiobook', 'ebook'] as const).map(k => (
+        <button key={k} className={chip(draft.kind === k)} onClick={() => setDraft({ ...draft, kind: k })}>{k === 'all' ? t('filter_all') : k === 'audiobook' ? 'Audiobooks' : 'Ebooks'}</button>
+      )))}
+      {hasPaid && hasFree && group(t('filter_price'), (['all', 'free', 'paid'] as const).map(k => (
+        <button key={k} className={chip(draft.pay === k)} onClick={() => setDraft({ ...draft, pay: k })}>{k === 'all' ? t('filter_all') : k === 'free' ? t('filter_free') : t('filter_paid')}</button>
+      )))}
+      {genres.length > 1 && group(t('genres'), genres.map(g => (
+        <button key={g} className={chip(draft.genres.includes(g))} onClick={() => setDraft({ ...draft, genres: toggle(draft.genres, g) })}>{getGenreName(g, resolvedLanguage)}</button>
+      )))}
+      {languages.length > 1 && group(t('language_label'), languages.map(l => (
+        <button key={l} className={chip(draft.languages.includes(l))} onClick={() => setDraft({ ...draft, languages: toggle(draft.languages, l) })}>{getLanguageDisplayName(l, resolvedLanguage)}</button>
+      )))}
+      {hasPaid && range(t('filter_price'), draft.priceMin, draft.priceMax, (a, b) => setDraft({ ...draft, priceMin: a, priceMax: b }))}
+      {hasSize && range(t('filter_size'), draft.sizeMin, draft.sizeMax, (a, b) => setDraft({ ...draft, sizeMin: a, sizeMax: b }))}
+      {hasYear && range(t('filter_year'), draft.yearMin, draft.yearMax, (a, b) => setDraft({ ...draft, yearMin: a, yearMax: b }))}
+      {group(t('filter_sort'), ([...(['affinity', 'recent', 'title'] as const), ...(hasPaid ? (['price'] as const) : [])]).map(k => (
+        <button key={k} className={chip(draft.sort === k)} onClick={() => setDraft({ ...draft, sort: k })}>{t(`filter_sort_${k}`)}</button>
+      )))}
+    </div>
+  );
+  const close = () => setOpen(false);
+  // Quantos itens ficam com estes filtros, à esquerda; limpar e aplicar à direita
+  const footer = (
+    <div className="flex items-center gap-2.5">
+      <span className="flex-1 min-w-0 px-1 text-xs text-[var(--text-muted)] text-left rtl:text-right">{t('filter_results', { count })}</span>
+      <motion.button data-press="true" onClick={() => { onlineFilters.reset(); close(); }} className={`${mobile ? 'h-11 px-5 text-sm' : 'h-8 px-4 text-xs'} rounded-full bg-card/75 shadow-sm text-[var(--text-main)] font-semibold flex items-center gap-1.5`}>
+        <X size={13} /><span>{t('filter_clear')}</span>
+      </motion.button>
+      <motion.button data-press="true" onClick={() => { onlineFilters.set(draft); close(); }} className={`${mobile ? 'h-11 px-5 text-sm' : 'h-8 px-4 text-xs'} rounded-full bg-winblue/20 shadow-md text-winblue font-semibold flex items-center gap-1.5`}>
+        <Check size={13} /><span>{t('apply_metadata_confirm')}</span>
+      </motion.button>
+    </div>
+  );
+
   return (
     <>
+      {/* Botão do cabeçalho: só o ícone de filtro (na cor de destaque com filtros ativos) */}
       <motion.button
         data-press="true"
         onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new Event('close-all-popups')); setDraft(f); setOpen(true); }}
         title={t('filter')}
         aria-label={t('filter')}
-        className={`${mobile ? 'w-11 h-11' : 'h-9 px-3.5 gap-1.5'} flex items-center justify-center rounded-full shadow-xl backdrop-blur-3xl transition-all text-xs font-semibold ${filtersActive(f) ? 'bg-winblue/20 text-winblue hover:bg-winblue/30' : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)]'}`}
+        className={`${mobile ? 'w-11 h-11' : 'w-9 h-9'} flex items-center justify-center rounded-full shadow-xl backdrop-blur-3xl transition-all ${filtersActive(f) ? 'bg-winblue/20 text-winblue hover:bg-winblue/30' : 'bg-card/75 text-[var(--text-main)] hover:bg-[var(--hover-fill)]'}`}
       >
-        <SlidersHorizontal size={mobile ? 18 : 14} />
-        {!mobile && <span>{t('filter')}</span>}
+        <ListFilter size={mobile ? 19 : 15} />
       </motion.button>
-      <AnimatePresence>
-        {open && (
-          <MobileConfirmCard key="online-filters" onClose={() => setOpen(false)} menuWidth={340}>
-            <div className="flex flex-col p-4 gap-4 text-left rtl:text-right max-h-[70vh] overflow-y-auto custom-scrollbar">
-              <div className="px-1">
-                <span className="text-sm font-bold text-[var(--text-main)]">{t('filter_title')}</span>
+      {/* Celular: tela cheia, como a das marcações; computador: pop-up junto do botão */}
+      {mobile ? (
+        <MobileSheet open={open} title={t('filter_title')} onClose={close} closeLabel={t('back')} footer={footer}>
+          <div className="pt-1 pb-2">{body}</div>
+        </MobileSheet>
+      ) : (
+        <AnimatePresence>
+          {open && (
+            <MobileConfirmCard key="online-filters" onClose={close} menuWidth={340}>
+              <div className="flex flex-col max-h-[min(70vh,620px)]">
+                <div className="shrink-0 px-5 pt-4 pb-3">
+                  <span className="text-sm font-bold text-[var(--text-main)]">{t('filter_title')}</span>
+                </div>
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-4 py-1">{body}</div>
+                <div className="shrink-0 px-4 pt-3 pb-4">{footer}</div>
               </div>
-              {hasAudio && hasEbook && group(t('filter_type'), (['all', 'audiobook', 'ebook'] as const).map(k => (
-                <button key={k} className={chip(draft.kind === k)} onClick={() => setDraft({ ...draft, kind: k })}>{k === 'all' ? t('filter_all') : k === 'audiobook' ? 'Audiobooks' : 'Ebooks'}</button>
-              )))}
-              {hasPaid && hasFree && group(t('filter_price'), (['all', 'free', 'paid'] as const).map(k => (
-                <button key={k} className={chip(draft.pay === k)} onClick={() => setDraft({ ...draft, pay: k })}>{k === 'all' ? t('filter_all') : k === 'free' ? t('filter_free') : t('filter_paid')}</button>
-              )))}
-              {genres.length > 1 && group(t('genres'), genres.map(g => (
-                <button key={g} className={chip(draft.genres.includes(g))} onClick={() => setDraft({ ...draft, genres: toggle(draft.genres, g) })}>
-                  {draft.genres.includes(g) && <Check size={12} />}{getGenreName(g, resolvedLanguage)}
-                </button>
-              )))}
-              {languages.length > 1 && group(t('language_label'), languages.map(l => (
-                <button key={l} className={chip(draft.languages.includes(l))} onClick={() => setDraft({ ...draft, languages: toggle(draft.languages, l) })}>
-                  {draft.languages.includes(l) && <Check size={12} />}{getLanguageDisplayName(l, resolvedLanguage)}
-                </button>
-              )))}
-              {hasPaid && range(t('filter_price'), draft.priceMin, draft.priceMax, (a, b) => setDraft({ ...draft, priceMin: a, priceMax: b }))}
-              {hasSize && range(t('filter_size'), draft.sizeMin, draft.sizeMax, (a, b) => setDraft({ ...draft, sizeMin: a, sizeMax: b }))}
-              {hasYear && range(t('filter_year'), draft.yearMin, draft.yearMax, (a, b) => setDraft({ ...draft, yearMin: a, yearMax: b }))}
-              {group(t('filter_sort'), ([...(['affinity', 'recent', 'title'] as const), ...(hasPaid ? (['price'] as const) : [])]).map(k => (
-                <button key={k} className={chip(draft.sort === k)} onClick={() => setDraft({ ...draft, sort: k })}>{t(`filter_sort_${k}`)}</button>
-              )))}
-              {/* Quantos itens ficam com estes filtros, à esquerda; limpar e aplicar à direita */}
-              <div className="flex items-center gap-2.5 pt-1">
-                <span className="flex-1 min-w-0 px-1 text-xs text-[var(--text-muted)] text-left rtl:text-right">{t('filter_results', { count })}</span>
-                <motion.button data-press="true" onClick={() => { onlineFilters.reset(); setOpen(false); }} className="h-8 px-4 rounded-full bg-card/75 shadow-sm text-[var(--text-main)] font-semibold text-xs flex items-center gap-1.5">
-                  <X size={13} /><span>{t('filter_clear')}</span>
-                </motion.button>
-                <motion.button data-press="true" onClick={() => { onlineFilters.set(draft); setOpen(false); }} className="h-8 px-4 rounded-full bg-winblue/20 shadow-md text-winblue font-semibold text-xs flex items-center gap-1.5">
-                  <Check size={13} /><span>{t('apply_metadata_confirm')}</span>
-                </motion.button>
-              </div>
-            </div>
-          </MobileConfirmCard>
-        )}
-      </AnimatePresence>
+            </MobileConfirmCard>
+          )}
+        </AnimatePresence>
+      )}
     </>
   );
 }

@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.30': {
+    pt: ['Autores ganham biografia, foto e nacionalidade da Wikipédia, depois de confirmar', 'Sem internet, o app funciona normalmente e o que é online some (com um aviso)', 'Filtros em tela cheia no celular, com título e botões sempre à vista', 'Audiobooks que você está ouvindo saem das recomendações e voltam em "Esquecidos" quando ficam parados'],
+    en: ['Authors get biography, photo and nationality from Wikipedia, after you confirm', 'Offline, the app works normally and online items disappear (with a notice)', 'Full-screen filters on phones, with the title and buttons always visible', 'Audiobooks you are listening to leave the recommendations and come back in "Forgotten" when left aside'],
+    es: ['Los autores reciben biografía, foto y nacionalidad de Wikipedia, tras confirmar', 'Sin internet, la app funciona con normalidad y lo que es en línea desaparece (con aviso)', 'Filtros a pantalla completa en el móvil, con título y botones siempre visibles', 'Los audiolibros que escuchas salen de las recomendaciones y vuelven en "Olvidados" cuando quedan parados'],
+    ru: ['Авторы получают биографию, фото и национальность из Википедии после подтверждения', 'Без интернета приложение работает как обычно, а онлайн-разделы скрываются (с уведомлением)', 'Фильтры на весь экран на телефоне, заголовок и кнопки всегда видны', 'Книги, которые вы слушаете, убраны из рекомендаций и возвращаются в «Забытые», если давно не продолжались'],
+    ar: ['يحصل المؤلفون على السيرة والصورة والجنسية من ويكيبيديا بعد التأكيد', 'بدون إنترنت يعمل التطبيق بشكل طبيعي وتختفي العناصر عبر الإنترنت (مع تنبيه)', 'مرشحات بملء الشاشة على الهاتف مع بقاء العنوان والأزرار ظاهرة', 'الكتب التي تستمع إليها تخرج من التوصيات وتعود في "المنسية" عند التوقف عنها'],
+  },
   '1.0.27': {
     pt: ['Seções do Início dizem se são ebooks ou audiobooks, gratuitos ou à venda, com 6 itens e "Ver todos"', 'Filtros nas listas: tipo, preço, gênero, idioma, tamanho do download, ano e ordem', 'Página do autor com as sugestões online dele e "Ver mais" nos títulos', 'Autor das sugestões abre a página dele, e os itens à venda têm links para as lojas'],
     en: ['Home sections say whether they are ebooks or audiobooks, free or for sale, with 6 items and "See all"', 'Filters in lists: type, price, genre, language, download size, year and order', 'Author pages with their online suggestions and "See more" for titles', 'Suggestion authors open their page, and items for sale link to the stores'],

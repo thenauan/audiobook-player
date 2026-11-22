@@ -211,7 +211,7 @@ export interface TasteProfile {
 
 const quoteTerm = (s: string) => `"${s.replace(/"/g, '')}"`;
 // ---------- Apple Books (à venda) ----------
-const COUNTRY: Record<string, string> = { 'Português': 'br', 'Inglês': 'us', 'Espanhol': 'es', 'Francês': 'fr', 'Alemão': 'de', 'Italiano': 'it', 'Russo': 'ru', 'Japonês': 'jp', 'Holandês': 'nl' };
+const COUNTRY: Record<string, string> = { 'Português': 'br', 'Inglês': 'us', 'Espanhol': 'es', 'Francês': 'fr', 'Alemão': 'de', 'Italiano': 'it', 'Russo': 'ru', 'Árabe': 'sa', 'Japonês': 'jp', 'Holandês': 'nl', 'Chinês': 'cn' };
 const appleGenre = (g?: string) => g && !/^(books|livros|audiobooks)$/i.test(g) ? g : undefined;
 async function searchApple(term: string, media: 'ebook' | 'audiobook', country: string, limit = 20): Promise<OnlineItem[]> {
   if (!term.trim()) return [];
@@ -564,4 +564,70 @@ export async function findMetadataProposal(book: { id: string; title: string; au
     if (cover) proposal.cover = cover;
   }
   return proposal.year || proposal.category || proposal.description || proposal.cover ? proposal : null;
+}
+
+// ---------- Sem internet: o que é online some, como se não existisse ----------
+const netListeners = new Set<() => void>();
+let isOnline = typeof navigator === 'undefined' ? true : navigator.onLine !== false;
+if (typeof window !== 'undefined') {
+  const update = () => { isOnline = navigator.onLine !== false; netListeners.forEach(l => l()); };
+  window.addEventListener('online', update);
+  window.addEventListener('offline', update);
+}
+const subscribeNet = (l: () => void) => { netListeners.add(l); return () => { netListeners.delete(l); }; };
+export const useIsOnline = () => useSyncExternalStore(subscribeNet, () => isOnline, () => true);
+// Ligado em Ajustes e com internet
+export const useOnlineAvailable = () => useOnlineData() && useIsOnline();
+
+// ---------- Autores: biografia, foto e nacionalidade (Wikipédia) ----------
+export interface AuthorProposal { source: 'Wikipedia'; bio?: string; picture?: string; nationality?: string }
+const WRITER = /escrit|writer|author|autor|poet|novel|romanc|dramat|playwright|philosoph|fil[oó]sof|jornalist|journalist|essay|ensa[ií]st|historian|historiador|cronista|contista|translator|tradutor|narrador|писател|поэт|драматург|كاتب|شاعر|روائي/i;
+// Até 500 letras, terminando numa frase completa
+const trimBio = (text: string) => {
+  const t = text.trim();
+  if (t.length <= 500) return t;
+  const cut = t.slice(0, 500);
+  const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('.\n'));
+  return (end > 200 ? cut.slice(0, end + 1) : cut.replace(/\s+\S*$/, '') + '…').trim();
+};
+
+export async function findAuthorProposal(
+  author: { name: string; bio?: string; picture?: string; nationality?: string },
+  lang: string,
+  nationalities: { pt: string; en: string; es: string; ru: string; ar: string; aliases?: string[] }[],
+): Promise<AuthorProposal | null> {
+  if (!enabled || !author.name?.trim()) return null;
+  const key = `wiki:${lang}:${fold(author.name)}`;
+  let page = cacheGet<any>(key, 7 * DAY);
+  if (page === undefined) {
+    const wiki = ['pt', 'en', 'es', 'ru', 'ar'].includes(lang) ? lang : 'en';
+    const title = encodeURIComponent(author.name.trim().replace(/\s+/g, '_'));
+    let data = await getJson<any>(`https://${wiki}.wikipedia.org/api/rest_v1/page/summary/${title}`);
+    if ((!data || data.type !== 'standard') && wiki !== 'en') data = await getJson<any>(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`);
+    if (!data && typeof navigator !== 'undefined' && navigator.onLine === false) return null;
+    // Precisa ser a página de um escritor com esse nome: na dúvida, nada
+    page = data && data.type === 'standard' && authorMatches(data.title, author.name) && WRITER.test(`${data.description || ''} ${data.extract || ''}`.slice(0, 400))
+      ? { extract: data.extract || '', description: data.description || '', image: data.thumbnail?.source || data.originalimage?.source || '' }
+      : null;
+    cacheSet(key, page);
+  }
+  if (!page) return null;
+  const proposal: AuthorProposal = { source: 'Wikipedia' };
+  const bio = (author.bio || '').trim();
+  if ((!bio || /^(Obras de|Autor de) .+\.$/.test(bio)) && page.extract) proposal.bio = trimBio(page.extract);
+  const generic = !author.picture || author.picture.startsWith('data:image/svg');
+  if (generic && page.image) {
+    const pic = await imageAsDataUrl(page.image);
+    if (pic) proposal.picture = pic;
+  }
+  const nat = (author.nationality || '').trim();
+  if (!nat || /^desconhecid/i.test(nat)) {
+    const desc = fold(page.description);
+    const hit = nationalities.find(n => [n.pt, n.en, n.es, ...(n.aliases || [])].some(w => {
+      const f = fold(w);
+      return f.length > 3 && new RegExp(`(^| )${f}( |$)`).test(desc);
+    }));
+    if (hit) proposal.nationality = hit.pt;
+  }
+  return proposal.bio || proposal.picture || proposal.nationality ? proposal : null;
 }

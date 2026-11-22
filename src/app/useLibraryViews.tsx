@@ -278,7 +278,8 @@ export function useLibraryViews({ activeAllBooksNavId, activeScreen, authors, bo
       if (genreRecs.length === 0) {
         genreRecs = books.filter(b => 
           (b.category?.toLowerCase() === topGenre || b.subgenre?.toLowerCase() === topGenre) && 
-          currentBook.id !== b.id
+          currentBook.id !== b.id &&
+          !inProgressBooks.some(ip => ip.id === b.id)
         );
       }
       if (genreRecs.length > 0) {
@@ -498,8 +499,16 @@ export function useLibraryViews({ activeAllBooksNavId, activeScreen, authors, bo
     }
 
     // 10. Esquecidos na biblioteca (adicionados há mais tempo e ainda não ouvidos)
-    if (unstartedBooks.length > 0 && books.length >= 3) {
-      const forgottenList = unstartedBooks.slice(0, 6);
+    const FORGOTTEN_AFTER = 30 * 24 * 60 * 60 * 1000;
+    const stalledBooks = inProgressBooks
+      .filter(b => {
+        const last = userListeningStats.bookLastPlayed?.[b.id];
+        return Boolean(last) && Date.now() - last > FORGOTTEN_AFTER && currentBook.id !== b.id;
+      })
+      .sort((a, b) => (userListeningStats.bookLastPlayed[a.id] || 0) - (userListeningStats.bookLastPlayed[b.id] || 0));
+    const forgottenPool = [...stalledBooks, ...unstartedBooks];
+    if (forgottenPool.length > 0 && books.length >= 3) {
+      const forgottenList = forgottenPool.slice(0, 6);
       sections.push({
         id: 'forgotten-library',
         title: t('section_forgotten'),
@@ -523,7 +532,7 @@ export function useLibraryViews({ activeAllBooksNavId, activeScreen, authors, bo
       const { language } = resolveNarratorAndLanguage(b);
       if (!language) return false;
       const l = language.toLowerCase();
-      return l !== primaryLang && !isBookCompleted(b);
+      return l !== primaryLang && !isBookCompleted(b) && !inProgressBooks.some(ip => ip.id === b.id);
     });
 
     if (otherLangBooks.length > 0) {

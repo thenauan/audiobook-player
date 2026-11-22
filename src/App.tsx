@@ -108,8 +108,8 @@ import { AppInfoScreen } from './views/screens/AppInfoScreen';
 import { OnlineItemScreen } from './views/screens/OnlineItemScreen';
 import { OnlineListScreen } from './views/screens/OnlineListScreen';
 import { OnlineFilterButton } from './components/OnlineFilters';
-import { authorMatches } from './lib/onlineCatalog';
-import { useMetadataProposal, confirmApplyMetadata } from './components/MetadataProposal';
+import { authorMatches, onlineData } from './lib/onlineCatalog';
+import { useMetadataProposal, confirmApplyMetadata, useAuthorProposal, confirmApplyAuthorData } from './components/MetadataProposal';
 import { Wand2 } from 'lucide-react';
 import { BookInfoScreen } from './views/screens/BookInfoScreen';
 import { SearchScreen } from './views/screens/SearchScreen';
@@ -119,7 +119,7 @@ import { LibraryListsScreen } from './views/screens/LibraryListsScreen';
 import { CollectionEditorScreen } from './views/screens/CollectionEditorScreen';
 import { BookDetailScreen } from './views/screens/BookDetailScreen';
 import { BookSynopsisScreen } from './views/screens/BookSynopsisScreen';
-import { AuthorDetailScreen } from './views/screens/AuthorDetailScreen';
+import { AuthorDetailScreen, AuthorTitlesScreen } from './views/screens/AuthorDetailScreen';
 import { SettingsOptionScreen } from './views/screens/SettingsOptionScreen';
 import { SettingsScreen } from './views/screens/SettingsScreen';
 import { HelpScreen } from './views/screens/HelpScreen';
@@ -629,6 +629,28 @@ export default function App() {
     showToast(t('toast_metadata_applied', { title: updated.title }));
     void writeTagsToFiles(updated);
   };
+  useEffect(() => {
+    const warn = () => { if (onlineData.get()) showToast(t('toast_offline')); };
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) setTimeout(warn, 1800);
+    window.addEventListener('offline', warn);
+    return () => window.removeEventListener('offline', warn);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Dados de autor (Wikipédia): biografia, foto e nacionalidade
+  const applyAuthorRef = useRef<(id: string, name: string, p: { bio?: string; picture?: string; nationality?: string }) => void>(() => {});
+  applyAuthorRef.current = (id, name, p) => {
+    const patch = (a: Author): Author => ({ ...a, ...(p.bio ? { bio: p.bio.slice(0, 500) } : {}), ...(p.picture ? { picture: p.picture } : {}), ...(p.nationality ? { nationality: p.nationality } : {}) });
+    const exists = authors.some(a => a.id === id);
+    setAuthors(prev => exists ? prev.map(a => a.id === id ? patch(a) : a) : [...prev, patch({ id, name, nationality: 'Desconhecido', picture: '', bio: '' } as Author)]);
+    setActiveScreen(prev => (prev.id === 'author-detail' && prev.data?.id === id ? { ...prev, data: patch(prev.data) } : prev));
+    showToast(t('toast_metadata_applied', { title: name }));
+  };
+  useEffect(() => {
+    const onApplyAuthor = (e: Event) => { const d = (e as CustomEvent).detail; if (d?.authorId && d?.proposal) applyAuthorRef.current(d.authorId, d.name, d.proposal); };
+    window.addEventListener('apply-author-metadata', onApplyAuthor);
+    return () => window.removeEventListener('apply-author-metadata', onApplyAuthor);
+  }, []);
   useEffect(() => {
     const onApply = (e: Event) => { const d = (e as CustomEvent).detail; if (d?.bookId && d?.proposal) applyMetadataRef.current(d.bookId, d.proposal); };
     window.addEventListener('apply-book-metadata', onApply);
@@ -3246,6 +3268,8 @@ export default function App() {
   // Dados da internet para o audiobook aberto (botão "Aplicar metadados" do cabeçalho no computador)
   const proposalBook = activeScreen.id === 'book-detail' ? (books.find(b => b.id === (activeScreen.data?.id || selectedBook?.id)) || activeScreen.data || selectedBook || null) : null;
   const metadataProposal = useMetadataProposal(proposalBook);
+  const proposalAuthor = activeScreen.id === 'author-detail' ? (authors.find(a => a.id === activeScreen.data?.id) || activeScreen.data || null) : null;
+  const authorProposal = useAuthorProposal(proposalAuthor);
 
   const setCompletedChaptersByUser = useCallback<React.Dispatch<React.SetStateAction<string[]>>>((action) => {
     setCompletedChapters(prev => {
@@ -4564,7 +4588,7 @@ export default function App() {
     if (id.startsWith('settings')) return t('settings_title');
     if (id === 'book-info') return t('more_details');
     if (id === 'app-info') return activeScreen.data?.title || t('details');
-    if (id === 'online-item' || id === 'online-list') return activeScreen.data?.title || t('details');
+    if (id === 'online-item' || id === 'online-list' || id === 'author-titles') return activeScreen.data?.title || t('details');
     if (id === 'help') return t('nav_help');
     if (id === 'help-theme') {
       const currentThemeId = (typeof activeScreen.data === 'object' && activeScreen.data?.id) 
@@ -5833,7 +5857,7 @@ export default function App() {
                         if (id.startsWith('settings')) return t('settings_title');
                         if (id === 'book-info') return t('more_details');
                         if (id === 'app-info') return prev.data?.title || t('details');
-                        if (id === 'online-item' || id === 'online-list') return prev.data?.title || t('details');
+                        if (id === 'online-item' || id === 'online-list' || id === 'author-titles') return prev.data?.title || t('details');
                         if (id === 'help-theme') {
                           const themeId = typeof prev.data === 'object' ? prev.data?.id : prev.data;
                           const th = helpThemes.find(t => t.id === themeId);
@@ -6981,6 +7005,24 @@ export default function App() {
                               >
                                 <Edit3 size={13} />
                               </motion.button>
+                              {/* Aplicar dados do autor (Wikipédia): só aparece quando há o que completar */}
+                              <AnimatePresence>
+                                {authorProposal && proposalAuthor && (
+                                  <motion.button
+                                    key="apply-author"
+                                    initial={{ opacity: 0, scale: 0.7 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.7 }}
+                                    data-press="true"
+                                    title={t('apply_metadata')}
+                                    aria-label={t('apply_metadata')}
+                                    onClick={() => confirmApplyAuthorData(setMobileConfirm, t, proposalAuthor, authorProposal)}
+                                    className="w-9 h-9 flex items-center justify-center rounded-full bg-winblue/20 shadow-xl hover:bg-winblue/30 text-winblue transition-all backdrop-blur-3xl"
+                                  >
+                                    <Wand2 size={14} />
+                                  </motion.button>
+                                )}
+                              </AnimatePresence>
                               <motion.button 
                                 data-press="true" 
                                 title={t('delete_multiple')}
@@ -7494,6 +7536,7 @@ export default function App() {
           {/* Sugestão da internet (audiobook da LibriVox ou ebook do Project Gutenberg) */}
           {activeScreen.id === 'online-item' && activeScreen.data && <OnlineItemScreen key={`online-item-${activeScreen.data.id}`} />}
           {activeScreen.id === 'online-list' && activeScreen.data && <OnlineListScreen key={`online-list-${activeScreen.data.title}`} />}
+          {activeScreen.id === 'author-titles' && activeScreen.data && <AuthorTitlesScreen key={`author-titles-${activeScreen.data.id}`} />}
 
           {/* SCREEN: SETTINGS (LAZY-LOADED) */}
           {/* SCREEN: OPÇÕES DE UM AJUSTE (MOBILE) — tela cheia com as opções e suas explicações */}

@@ -4,7 +4,7 @@ import { ArrowUpDown, Bookmark, Code2, Edit3, FolderPlus, Info, ListPlus, Plus, 
 import { Collection } from '../data/catalog';
 import { useAppScope } from '../app/AppScope';
 import { ImportRingIcon, useImportTitle } from './library/ImportProgress';
-import { useMetadataProposal, confirmApplyMetadata } from './MetadataProposal';
+import { useMetadataProposal, confirmApplyMetadata, useAuthorProposal, confirmApplyAuthorData } from './MetadataProposal';
 import { OnlineFilterButton } from './OnlineFilters';
 import { Wand2 } from 'lucide-react';
 
@@ -29,6 +29,8 @@ export function HeaderActions() {
   // Dados da internet que completam o audiobook aberto (o hook roda sempre, mesmo fora da página do audiobook)
   const proposalBook = id === 'book-detail' ? (books.find(b => b.id === (activeScreen.data || selectedBook)?.id) || activeScreen.data || selectedBook) : null;
   const metadataProposal = useMetadataProposal(proposalBook);
+  const proposalAuthor = id === 'author-detail' ? (activeScreen.data || null) : null;
+  const authorProposal = useAuthorProposal(proposalAuthor);
   if (id === 'online-list' && activeScreen.data?.items) return <OnlineFilterButton items={activeScreen.data.items} mobile />;
   if (id === 'book-detail') {
     const target = activeScreen.data || selectedBook;
@@ -77,6 +79,7 @@ export function HeaderActions() {
         menu={[
           { id: 'collection', icon: <FolderPlus size={14} />, label: t('add_to_collection'), onClick: () => openMobileSheet({ kind: 'collection-picker', itemType: 'author', itemId: authorId }) },
           { id: 'edit', icon: <Edit3 size={14} />, label: t('edit_author'), onClick: () => handleStartEditAuthor() },
+          ...(authorProposal && proposalAuthor ? [{ id: 'apply-author', icon: <Wand2 size={14} />, label: t('apply_metadata'), onClick: () => confirmApplyAuthorData(setMobileConfirm, t, proposalAuthor, authorProposal) }] : []),
           { id: 'delete-multiple', icon: <Trash2 size={14} />, label: t('delete_multiple'), danger: true, onClick: () => setIsSelectionMode(true) },
         ]}
       />
