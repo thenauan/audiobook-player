@@ -103,9 +103,8 @@ export function OnlineFilterButton({ items, mobile }: { items: OnlineItem[]; mob
         {open && (
           <MobileConfirmCard key="online-filters" onClose={() => setOpen(false)} menuWidth={340}>
             <div className="flex flex-col p-4 gap-4 text-left rtl:text-right max-h-[70vh] overflow-y-auto custom-scrollbar">
-              <div className="flex items-center justify-between px-1">
+              <div className="px-1">
                 <span className="text-sm font-bold text-[var(--text-main)]">{t('filter_title')}</span>
-                <span className="text-xs text-[var(--text-muted)]">{t('filter_results', { count })}</span>
               </div>
               {hasAudio && hasEbook && group(t('filter_type'), (['all', 'audiobook', 'ebook'] as const).map(k => (
                 <button key={k} className={chip(draft.kind === k)} onClick={() => setDraft({ ...draft, kind: k })}>{k === 'all' ? t('filter_all') : k === 'audiobook' ? 'Audiobooks' : 'Ebooks'}</button>
@@ -129,7 +128,9 @@ export function OnlineFilterButton({ items, mobile }: { items: OnlineItem[]; mob
               {group(t('filter_sort'), ([...(['affinity', 'recent', 'title'] as const), ...(hasPaid ? (['price'] as const) : [])]).map(k => (
                 <button key={k} className={chip(draft.sort === k)} onClick={() => setDraft({ ...draft, sort: k })}>{t(`filter_sort_${k}`)}</button>
               )))}
-              <div className="flex items-center justify-end gap-2.5 pt-1">
+              {/* Quantos itens ficam com estes filtros, à esquerda; limpar e aplicar à direita */}
+              <div className="flex items-center gap-2.5 pt-1">
+                <span className="flex-1 min-w-0 px-1 text-xs text-[var(--text-muted)] text-left rtl:text-right">{t('filter_results', { count })}</span>
                 <motion.button data-press="true" onClick={() => { onlineFilters.reset(); setOpen(false); }} className="h-8 px-4 rounded-full bg-card/75 shadow-sm text-[var(--text-main)] font-semibold text-xs flex items-center gap-1.5">
                   <X size={13} /><span>{t('filter_clear')}</span>
                 </motion.button>
