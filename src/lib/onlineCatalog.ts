@@ -140,6 +140,9 @@ export interface OnlineItem {
   // De onde vem: Internet Archive (gratuito) ou Apple Books (à venda, com preço e link da loja)
   source?: 'archive' | 'apple';
   price?: string;
+  priceValue?: number;
+  // Tamanho aproximado do download (MP3 dos capítulos, cerca de 1/3 do item inteiro no Internet Archive)
+  sizeBytes?: number;
   description?: string;
   genre?: string;
 }
@@ -175,13 +178,14 @@ function toItem(doc: any, kind: OnlineItem['kind']): OnlineItem | null {
     language: iaToApp(doc.language),
     cover: coverOf(String(doc.identifier)),
     year: doc.year ? String(doc.year).slice(0, 4) : undefined,
+    sizeBytes: kind === 'audiobook' && doc.item_size ? Math.round(Number(doc.item_size) / 3) : undefined,
     subjects,
     url: `https://archive.org/details/${encodeURIComponent(String(doc.identifier))}`,
   };
 }
 
 async function searchArchive(query: string, kind: OnlineItem['kind'], rows = 24, sort: 'downloads' | 'addeddate' = 'downloads'): Promise<OnlineItem[]> {
-  const fl = ['identifier', 'title', 'creator', 'language', 'subject', 'year'].map(f => `fl[]=${f}`).join('&');
+  const fl = ['identifier', 'title', 'creator', 'language', 'subject', 'year', 'item_size'].map(f => `fl[]=${f}`).join('&');
   const url = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&${fl}&sort[]=${sort}+desc&rows=${rows}&output=json`;
   const data = await getJson<any>(url);
   return (data?.response?.docs || []).map((d: any) => toItem(d, kind)).filter(Boolean) as OnlineItem[];
@@ -224,6 +228,7 @@ async function searchApple(term: string, media: 'ebook' | 'audiobook', country: 
       url: String(r.trackViewUrl || r.collectionViewUrl || ''),
       source: 'apple',
       price: price && Number(r.price ?? r.collectionPrice) > 0 ? price : undefined,
+      priceValue: Number(r.price ?? r.collectionPrice) > 0 ? Number(r.price ?? r.collectionPrice) : undefined,
       description: stripHtml(r.description || r.longDescription || ''),
       language: undefined,
     };
@@ -285,7 +290,7 @@ export async function getSuggestions(profile: TasteProfile): Promise<OnlineSecti
   const genreQ = genreWords.length ? ` AND subject:(${genreWords.map(quoteTerm).join(' OR ')})` : '';
   const topGenreQ = topGenreWords.length ? ` AND subject:(${topGenreWords.map(quoteTerm).join(' OR ')})` : '';
   const country = COUNTRY[mainLang || ''] || 'us';
-  const key = `sugg3:${fold(langQ + authorQ + genreQ + country)}`.slice(0, 200);
+  const key = `sugg4:${fold(langQ + authorQ + genreQ + country)}`.slice(0, 200);
   let raw = cacheGet<Record<string, OnlineItem[]>>(key, DAY);
   if (!raw) {
     const A = 'collection:librivoxaudio AND format:"64Kbps MP3"';
@@ -317,7 +322,8 @@ export async function getSuggestions(profile: TasteProfile): Promise<OnlineSecti
   const clean = (items: OnlineItem[] = []) => rank(profile, items.filter(it => !isOwned(it)));
   const sections: OnlineSection[] = [
     { id: 'audiobooks', titleKey: 'section_online_suggestions', items: clean(raw.audiobooks) },
-    { id: 'store', titleKey: 'section_online_store', items: clean(raw.store) },
+    { id: 'store-ebooks', titleKey: 'section_online_store_ebooks', items: clean(raw.store).filter(it => it.kind === 'ebook') },
+    { id: 'store-audiobooks', titleKey: 'section_online_store_audiobooks', items: clean(raw.store).filter(it => it.kind === 'audiobook') },
     { id: 'ebooks', titleKey: 'section_online_ebooks', items: clean(raw.ebooks) },
     ...(mainLang ? [{ id: 'lang', titleKey: 'section_online_lang', titleVars: { lang: mainLang }, items: clean(raw.lang) }] : []),
     ...(topGenre ? [{ id: 'genre-ebooks', titleKey: 'section_online_genre_read', titleVars: { genre: topGenre }, items: clean(raw.genreEbooks) }] : []),
@@ -327,9 +333,42 @@ export async function getSuggestions(profile: TasteProfile): Promise<OnlineSecti
   const used = new Set<string>();
   return sections.map(sec => {
     const items = sec.items.filter(it => !used.has(it.id));
-    items.slice(0, 12).forEach(it => used.add(it.id));
+    items.slice(0, 6).forEach(it => used.add(it.id));
     return { ...sec, items };
   }).filter(sec => sec.items.length >= 3);
+}
+
+export async function getAuthorSuggestions(author: string, profile: TasteProfile): Promise<OnlineItem[]> {
+  if (!enabled || !author.trim()) return [];
+  const key = `author:${fold(author)}`;
+  let items = cacheGet<OnlineItem[]>(key, DAY);
+  if (!items) {
+    const sn = surname(author);
+    const country = COUNTRY[profile.languages[0] || ''] || 'us';
+    const lists = await Promise.all([
+      sn ? searchArchive(`collection:librivoxaudio AND format:"64Kbps MP3" AND creator:(${quoteTerm(sn)})`, 'audiobook', 40) : Promise.resolve([]),
+      sn ? searchArchive(`collection:gutenberg AND mediatype:texts AND creator:(${quoteTerm(sn)})`, 'ebook', 40) : Promise.resolve([]),
+      searchApple(author, 'ebook', country, 25),
+      searchApple(author, 'audiobook', country, 15),
+    ]);
+    // Só o que é mesmo desse autor
+    items = mergeUnique(lists).filter(it => authorMatches(it.author, author));
+    if (items.length) cacheSet(key, items);
+  }
+  const isOwned = (it: OnlineItem) => profile.owned.some(o => titleMatches(o.title, it.title) && (!o.author || !it.author || authorMatches(o.author, it.author)));
+  return rank(profile, items.filter(it => !isOwned(it)));
+}
+
+// Lojas para um item à venda: a página na Apple Books e a busca do título nas outras (elas não oferecem os dados)
+export function storeLinks(item: OnlineItem): { id: 'apple' | 'amazon' | 'google' | 'audible'; name: string; url: string }[] {
+  const q = encodeURIComponent(`${item.title} ${item.author}`.trim());
+  const audio = item.kind === 'audiobook';
+  return [
+    ...(item.source === 'apple' && item.url ? [{ id: 'apple' as const, name: 'Apple Books', url: item.url }] : []),
+    { id: 'amazon' as const, name: 'Amazon', url: `https://www.amazon.com.br/s?k=${q}${audio ? '&i=audible' : '&i=digital-text'}` },
+    { id: 'google' as const, name: 'Google Play', url: `https://play.google.com/store/search?q=${q}&c=books` },
+    ...(audio ? [{ id: 'audible' as const, name: 'Audible', url: `https://www.audible.com/search?keywords=${q}` }] : []),
+  ];
 }
 
 // ---------- Página de um item (sinopse, narrador, arquivo para baixar) ----------

@@ -163,7 +163,7 @@ export function HomeScreen() {
               <motion.section key={`online-${sec.id}`} layout={isMobile ? false : "position"} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={FADE_IN}>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-[var(--text-main)]">{title}</h2>
-                  {sec.items.length > 12 && (
+                  {sec.items.length > 6 && (
                     <motion.button
                       data-press="true"
                       onClick={() => window.dispatchEvent(new CustomEvent('open-online-list', { detail: { title, items: sec.items } }))}
@@ -175,7 +175,7 @@ export function HomeScreen() {
                   )}
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-4 mobile-row">
-                  {sec.items.slice(0, 12).map(item => <OnlineSuggestionCard key={`online-${sec.id}-${item.id}`} item={item} />)}
+                  {sec.items.slice(0, 6).map(item => <OnlineSuggestionCard key={`online-${sec.id}-${item.id}`} item={item} />)}
                 </div>
               </motion.section>
             );

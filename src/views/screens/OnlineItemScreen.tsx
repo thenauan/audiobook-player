@@ -147,6 +147,15 @@ export function OnlineItemScreen() {
     </>
   );
 
+  // Cada autor abre a própria página (a da biblioteca, se já houver)
+  const authorNames = item.author.split(/\s*,\s*/).filter(Boolean);
+  const authorLinks = authorNames.map((name, i) => (
+    <React.Fragment key={name}>
+      {i > 0 && ', '}
+      <span role="link" tabIndex={0} onClick={() => window.dispatchEvent(new CustomEvent('open-online-author', { detail: name }))} className="hover:text-winblue transition-colors cursor-pointer">{name}</span>
+    </React.Fragment>
+  ));
+
   const metaRow = (center: boolean) => (
     <div className={`flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs font-medium text-[var(--text-muted)] tracking-wide mt-2 ${center ? 'justify-center' : ''}`}>
       {meta.map((m, i) => (
@@ -234,7 +243,7 @@ export function OnlineItemScreen() {
           <div className="absolute inset-x-0 bottom-0 px-5 pb-4 flex flex-col items-center text-center text-[var(--text-main)]">
             <div className="h-7 px-3 mb-2 rounded-full bg-black/60 backdrop-blur-md flex items-center gap-1.5 shadow-lg text-white text-xs font-bold">{badge}</div>
             <h2 data-screen-title="true" className="text-[28px] font-bold leading-tight tracking-tight line-clamp-3">{item.title}</h2>
-            {item.author && <p className="text-[15px] font-semibold text-[var(--text-main)]/80 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{item.author}</p>}
+            {item.author && <p className="text-[15px] font-semibold text-[var(--text-main)]/80 mt-1 [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">{authorLinks}</p>}
             {metaRow(true)}
             <div className="mt-4 w-full">{buttons}</div>
           </div>
@@ -251,7 +260,7 @@ export function OnlineItemScreen() {
         <div className="flex flex-col justify-center space-y-4 flex-1 min-w-0">
           <div>
             <h2 className="text-4xl md:text-5xl font-semibold text-[var(--text-main)] tracking-tight [overflow-wrap:anywhere]">{item.title}</h2>
-            {item.author && <h3 className="text-xl font-semibold text-[var(--text-muted)] mt-1">{item.author}</h3>}
+            {item.author && <h3 className="text-xl font-semibold text-[var(--text-muted)] mt-1">{authorLinks}</h3>}
             {metaRow(false)}
           </div>
           {buttons}

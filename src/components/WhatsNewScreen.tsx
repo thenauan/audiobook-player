@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.27': {
+    pt: ['Seções do Início dizem se são ebooks ou audiobooks, gratuitos ou à venda, com 6 itens e "Ver todos"', 'Filtros nas listas: tipo, preço, gênero, idioma, tamanho do download, ano e ordem', 'Página do autor com as sugestões online dele e "Ver mais" nos títulos', 'Autor das sugestões abre a página dele, e os itens à venda têm links para as lojas'],
+    en: ['Home sections say whether they are ebooks or audiobooks, free or for sale, with 6 items and "See all"', 'Filters in lists: type, price, genre, language, download size, year and order', 'Author pages with their online suggestions and "See more" for titles', 'Suggestion authors open their page, and items for sale link to the stores'],
+    es: ['Las secciones de Inicio indican si son libros o audiolibros, gratis o en venta, con 6 elementos y "Ver todos"', 'Filtros en las listas: tipo, precio, género, idioma, tamaño, año y orden', 'Página del autor con sus sugerencias en línea y "Ver más" en los títulos', 'El autor de las sugerencias abre su página, y lo que está en venta enlaza a las tiendas'],
+    ru: ['Разделы «Главной» показывают, книги это или аудиокниги, бесплатные или платные: 6 элементов и «Смотреть все»', 'Фильтры в списках: тип, цена, жанр, язык, размер, год и порядок', 'Страница автора с его онлайн-рекомендациями и «Показать больше»', 'Автор рекомендации открывает свою страницу, а платные книги ведут в магазины'],
+    ar: ['أقسام الرئيسية توضح هل هي كتب إلكترونية أم صوتية، مجانية أم للبيع، مع 6 عناصر و"عرض الكل"', 'مرشحات في القوائم: النوع والسعر والنوع الأدبي واللغة والحجم والسنة والترتيب', 'صفحة المؤلف مع اقتراحاته عبر الإنترنت و"عرض المزيد"', 'مؤلف الاقتراح يفتح صفحته، والعناصر المعروضة للبيع لها روابط للمتاجر'],
+  },
   '1.0.25': {
     pt: ['Ebooks e audiobooks à venda (Apple Books), com preço e links para Amazon, Google Play e Audible', 'Mais sugestões, do que você mais deve gostar para o menos, por autores, favoritos, gêneros, subgêneros e idiomas', 'Novas seções, como "Para baixar em Português", e "Ver todos" em cada uma', 'Páginas das sugestões com a cor da capa e, no celular, a capa no fundo como nos audiobooks da biblioteca'],
     en: ['Ebooks and audiobooks for sale (Apple Books), with prices and links to Amazon, Google Play and Audible', 'More suggestions, from what you will most likely enjoy to least, by authors, favorites, genres, subgenres and languages', 'New sections, like "To download in English", and "See all" in each one', 'Suggestion pages in the cover color and, on phones, the cover in the background like library audiobooks'],

@@ -2,12 +2,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink, Download, Globe, Languages, Calendar, ShoppingBag } from 'lucide-react';
-import type { OnlineItem } from '../../lib/onlineCatalog';
+import { storeLinks, type OnlineItem } from '../../lib/onlineCatalog';
 import { getLanguageDisplayName } from '../../i18n/translations';
 import { 
   BsPlayFill, BsPauseFill, BsCheck2
 } from 'react-icons/bs';
-import { FaGithub, FaApple } from 'react-icons/fa';
+import { FaGithub, FaApple, FaAmazon, FaGooglePlay } from 'react-icons/fa';
+import { SiAudible } from 'react-icons/si';
 import { Audiobook, Author, Chapter, Collection } from '../../data/catalog';
 import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar } from '../../lib/coverArt';
 import { MenuOptionItem, PagedMenu, useCompactPopups, PopupMorphContainer, checkChapterMenuShouldOpenUp, checkIsLeftEdgeCard, MorphPopup, morphTriggerAnimate, emitZoomOrigin } from '../popups/Popovers';
@@ -1446,6 +1447,16 @@ export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
       <MenuOptionItem icon={<Info size={14} />} onClick={open}>
         <span>{t('online_go_to_info')}</span>
       </MenuOptionItem>
+      {/* À venda: as páginas das lojas */}
+      {store && storeLinks(item).map(link => (
+        <MenuOptionItem
+          key={link.id}
+          icon={link.id === 'apple' ? <FaApple size={14} /> : link.id === 'amazon' ? <FaAmazon size={14} /> : link.id === 'google' ? <FaGooglePlay size={13} /> : <SiAudible size={15} />}
+          onClick={() => { handleClose(); window.dispatchEvent(new CustomEvent('open-external-url', { detail: link.url })); }}
+        >
+          <span>{link.id === 'apple' ? t('online_view_store') : t('online_search_store', { store: link.name })}</span>
+        </MenuOptionItem>
+      ))}
       <MenuOptionItem
         immediate
         icon={<BookOpen size={14} />}
@@ -1529,7 +1540,7 @@ export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
       <div className="flex items-start justify-between gap-1.5 mt-2 relative">
         <div className="flex-1 min-w-0 pr-1">
           <h4 onClick={open} title={item.title} className="text-sm font-bold text-[var(--text-main)] cursor-pointer hover:text-winblue transition-colors truncate">{item.title}</h4>
-          <p onClick={open} title={item.author} className="text-xs text-[var(--text-muted)] truncate cursor-pointer hover:text-winblue transition-colors mt-0.5">{item.author}</p>
+          <p onClick={(e) => { e.stopPropagation(); handleClose(); window.dispatchEvent(new CustomEvent('open-online-author', { detail: item.author.split(',')[0] })); }} title={item.author} className="text-xs text-[var(--text-muted)] truncate cursor-pointer hover:text-winblue transition-colors mt-0.5">{item.author}</p>
         </div>
         <div className={`relative w-8 h-8 shrink-0 transition-opacity duration-200 max-md:hidden ${showOptions ? 'opacity-100 z-50' : 'opacity-0 group-hover/bookcard:opacity-100'}`}>
           {showOptions && <div className="fixed inset-0 z-40 cursor-default" {...getBackdropProps(handleClose)} />}

@@ -107,6 +107,8 @@ import { MoreScreen } from './views/screens/MoreScreen';
 import { AppInfoScreen } from './views/screens/AppInfoScreen';
 import { OnlineItemScreen } from './views/screens/OnlineItemScreen';
 import { OnlineListScreen } from './views/screens/OnlineListScreen';
+import { OnlineFilterButton } from './components/OnlineFilters';
+import { authorMatches } from './lib/onlineCatalog';
 import { useMetadataProposal, confirmApplyMetadata } from './components/MetadataProposal';
 import { Wand2 } from 'lucide-react';
 import { BookInfoScreen } from './views/screens/BookInfoScreen';
@@ -2570,6 +2572,9 @@ export default function App() {
 
 
 
+  const handleSelectAuthorRef = useRef<(id?: string, name?: string) => void>(() => {});
+  const authorsRef = useRef(authors);
+  authorsRef.current = authors;
   const handleSelectAuthor = (authorId?: string, authorName?: string) => {
     // Campo com vários autores: abre o primeiro (cada nome tem o próprio link na página do audiobook)
     const names = splitAuthorNames(authorName);
@@ -2588,6 +2593,7 @@ export default function App() {
       navigateTo('author-detail', tempAuthor);
     }
   };
+  handleSelectAuthorRef.current = handleSelectAuthor;
 
   // Helper de navegação
   // Momento da última expansão a partir de uma capa/foto (a tela aberta assim não desliza)
@@ -2651,6 +2657,8 @@ export default function App() {
     }
     window.open(url, '_blank', 'noopener,noreferrer');
   }, []);
+  const handleOpenExternalUrlRef = useRef(handleOpenExternalUrl);
+  handleOpenExternalUrlRef.current = handleOpenExternalUrl;
 
   const currentRoot = historyStack.length > 0 ? historyStack[0].id : activeScreen.id;
 
@@ -2679,6 +2687,17 @@ export default function App() {
     const onOpenAppInfo = (e: Event) => navigateToRef.current('app-info', (e as CustomEvent).detail);
     const onOpenOnlineItem = (e: Event) => navigateToRef.current('online-item', (e as CustomEvent).detail);
     const onOpenOnlineList = (e: Event) => navigateToRef.current('online-list', (e as CustomEvent).detail);
+    // Autor de uma sugestão: abre a página dele (a da biblioteca, se já houver; o nome pode vir completo, "Joaquim
+    // Maria Machado de Assis", e a biblioteca ter "Machado de Assis")
+    const onOpenOnlineAuthor = (e: Event) => {
+      const name = String((e as CustomEvent).detail || '').trim();
+      if (!name) return;
+      const found = authorsRef.current.find(a => authorMatches(a.name, name));
+      handleSelectAuthorRef.current(found?.id, found?.name || name);
+    };
+    window.addEventListener('open-online-author', onOpenOnlineAuthor);
+    const onOpenExternal = (e: Event) => { const url = String((e as CustomEvent).detail || ''); if (url) void handleOpenExternalUrlRef.current(url); };
+    window.addEventListener('open-external-url', onOpenExternal);
     window.addEventListener('open-online-list', onOpenOnlineList);
     // Audiobook baixado de uma sugestão (LibriVox): entra na biblioteca como qualquer arquivo adicionado
     const onImportFiles = (e: Event) => { const files = (e as CustomEvent).detail as File[]; if (files?.length) processAudioFilesRef.current(files); };
@@ -2689,6 +2708,8 @@ export default function App() {
       window.removeEventListener('open-app-info', onOpenAppInfo);
       window.removeEventListener('open-online-item', onOpenOnlineItem);
       window.removeEventListener('open-online-list', onOpenOnlineList);
+      window.removeEventListener('open-online-author', onOpenOnlineAuthor);
+      window.removeEventListener('open-external-url', onOpenExternal);
       window.removeEventListener('import-audio-files', onImportFiles);
     };
   }, []);
@@ -6085,6 +6106,8 @@ export default function App() {
               "items-center gap-3 pointer-events-auto shrink-0 z-40",
               isMobile && !isSelectionMode && !isEditingBook && !isEditingAuthor && activeScreen.id !== 'create-collection' && activeScreen.id !== 'edit-collection' ? "hidden" : "flex"
             )}>
+              {/* Lista de sugestões da internet: filtros */}
+              {activeScreen.id === 'online-list' && activeScreen.data && !isMobile && <OnlineFilterButton items={activeScreen.data.items} />}
               {/* Botão de Encerrar Modo de Desenvolvedor no cabeçalho em todas as telas e menus */}
               <AnimatePresence>
                 {isDevModeActive && (

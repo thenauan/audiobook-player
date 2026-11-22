@@ -5,6 +5,7 @@ import { Collection } from '../data/catalog';
 import { useAppScope } from '../app/AppScope';
 import { ImportRingIcon, useImportTitle } from './library/ImportProgress';
 import { useMetadataProposal, confirmApplyMetadata } from './MetadataProposal';
+import { OnlineFilterButton } from './OnlineFilters';
 import { Wand2 } from 'lucide-react';
 
 export function HeaderActions() {
@@ -28,6 +29,7 @@ export function HeaderActions() {
   // Dados da internet que completam o audiobook aberto (o hook roda sempre, mesmo fora da página do audiobook)
   const proposalBook = id === 'book-detail' ? (books.find(b => b.id === (activeScreen.data || selectedBook)?.id) || activeScreen.data || selectedBook) : null;
   const metadataProposal = useMetadataProposal(proposalBook);
+  if (id === 'online-list' && activeScreen.data?.items) return <OnlineFilterButton items={activeScreen.data.items} mobile />;
   if (id === 'book-detail') {
     const target = activeScreen.data || selectedBook;
     if (!target) return null;
