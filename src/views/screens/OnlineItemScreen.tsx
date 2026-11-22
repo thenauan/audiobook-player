@@ -4,7 +4,7 @@
 // - ebook (Project Gutenberg): "Ler online", "Abrir no site" e a sugestão de virar audiobook no Audiobook Generator.
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { Download, Globe, ExternalLink, Wand2, Loader2, X, Check } from 'lucide-react';
+import { Download, Globe, ExternalLink, Loader2, X, Check } from 'lucide-react';
 import { transicaoConteudo } from '../../App';
 import { useScreenScope } from '../../app/AppScope';
 import { getGenericBookCover } from '../../lib/coverArt';
@@ -143,13 +143,16 @@ export function OnlineItemScreen() {
               </motion.button>
             )}
             <div className="flex items-center justify-center gap-3 md:contents">
-              <motion.button data-press="true" onClick={() => handleOpenExternalUrl(item.url)} className={secondaryBtn} title={t('online_open_site')} aria-label={t('online_open_site')}>
-                <ExternalLink size={14} />
-                <span className="max-md:hidden">{t('online_open_site')}</span>
-              </motion.button>
+              {/* Ebook: "Ler online" já abre o site; o botão extra fica só nos audiobooks */}
+              {isAudio && (
+                <motion.button data-press="true" onClick={() => handleOpenExternalUrl(item.url)} className={secondaryBtn} title={t('online_open_site')} aria-label={t('online_open_site')}>
+                  <ExternalLink size={14} />
+                  <span className="max-md:hidden">{t('online_open_site')}</span>
+                </motion.button>
+              )}
               {!isAudio && (
                 <motion.button data-press="true" onClick={() => handleOpenExternalUrl(GENERATOR_URL)} className={secondaryBtn} title={t('online_convert_title')} aria-label={t('online_convert_title')}>
-                  <Wand2 size={14} />
+                  <img src={`${import.meta.env.BASE_URL}icons/audiobook-generator.png`} alt="" className="w-[18px] h-[18px] rounded-full shrink-0" />
                   <span className="max-md:hidden">{t('online_convert_title')}</span>
                 </motion.button>
               )}
