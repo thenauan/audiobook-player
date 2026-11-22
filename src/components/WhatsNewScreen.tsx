@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.21': {
+    pt: ['Baixar audiobooks gratuitos da LibriVox agora funciona: eles entram na biblioteca com capítulos, capa e sinopse', 'Seções separadas de audiobooks e de ebooks sugeridos, pelos seus autores, gêneros e idiomas, incluindo gravações recentes', 'Sinopses de arquivos MP3 lidas corretamente'],
+    en: ['Downloading free LibriVox audiobooks now works: they join your library with chapters, cover and synopsis', 'Separate sections for suggested audiobooks and ebooks, by your authors, genres and languages, including recent recordings', 'Synopses in MP3 files are read correctly'],
+    es: ['Descargar audiolibros gratuitos de LibriVox ya funciona: entran en la biblioteca con capítulos, portada y sinopsis', 'Secciones separadas de audiolibros y libros sugeridos, por tus autores, géneros e idiomas, con grabaciones recientes', 'Las sinopsis de archivos MP3 se leen correctamente'],
+    ru: ['Скачивание бесплатных аудиокниг LibriVox теперь работает: они попадают в библиотеку с главами, обложкой и описанием', 'Отдельные разделы рекомендуемых аудиокниг и книг по вашим авторам, жанрам и языкам, включая новые записи', 'Описания из файлов MP3 читаются правильно'],
+    ar: ['تنزيل كتب LibriVox الصوتية المجانية يعمل الآن: تُضاف إلى المكتبة بالفصول والغلاف والملخص', 'أقسام منفصلة للكتب الصوتية والإلكترونية المقترحة حسب مؤلفيك وأنواعك ولغاتك، مع تسجيلات حديثة', 'تُقرأ ملخصات ملفات MP3 بشكل صحيح'],
+  },
   '1.0.20': {
     pt: ['Audiobooks e ebooks gratuitos sugeridos pelos seus gostos, com audiobooks da LibriVox para baixar direto no app', '"Aplicar metadados": capa, ano, gênero e sinopse encontrados na internet, depois de confirmar', 'O backup da biblioteca agora guarda o andamento, os capítulos concluídos e os favoritos', 'Aviso quando o áudio de um audiobook precisa ser adicionado de novo'],
     en: ['Free audiobooks and ebooks suggested by your taste, with LibriVox audiobooks to download right in the app', '"Apply metadata": cover, year, genre and synopsis found online, after you confirm', 'Library backups now keep your progress, completed chapters and favorites', 'A notice when the audio of an audiobook needs to be added again'],

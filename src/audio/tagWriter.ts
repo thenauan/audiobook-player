@@ -45,10 +45,11 @@ const be32 = (n: number) => new Uint8Array([(n >>> 24) & 0xff, (n >>> 16) & 0xff
 function id3Text(version: number, text: string): Uint8Array {
   if (version === 4) return concat([new Uint8Array([3]), enc.encode(text), new Uint8Array([0])]);
   // v2.3: UTF-16 com BOM
-  const u = new Uint8Array(2 + text.length * 2 + 2);
+  // codificação (1) + BOM (2) + texto + fim (00 00)
+  const u = new Uint8Array(3 + text.length * 2 + 2);
   u[0] = 1; u.set([0xff, 0xfe], 1);
   for (let i = 0; i < text.length; i++) { const c = text.charCodeAt(i); u[3 + i * 2] = c & 0xff; u[4 + i * 2] = c >> 8; }
-  return u.subarray(0, 3 + text.length * 2 + 2);
+  return u;
 }
 
 function id3Frame(version: number, id: string, body: Uint8Array): Uint8Array {
@@ -219,4 +220,75 @@ export async function writeAudioTags(blob: Blob, fileName: string, v: TagValues)
     console.warn('Could not write tags:', err);
   }
   return null;
+}
+
+// ---------- Juntar MP3s de capítulos num audiobook só (audiobooks da LibriVox) ----------
+// Os arquivos de cada capítulo viram um MP3 único com os capítulos marcados (quadros CHAP/CTOC do ID3), a capa e os
+// dados. O áudio não é recodificado: os quadros MP3 de cada parte são colados na ordem.
+const BR1 = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
+const BR2 = [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160];
+const SR = { 3: [44100, 48000, 32000], 2: [22050, 24000, 16000], 0: [11025, 12000, 8000] } as Record<number, number[]>;
+
+export interface Mp3Part { bytes: Uint8Array; durationMs: number }
+
+// Só os quadros de áudio da parte (sem ID3, sem ID3v1 e sem o quadro Xing/Info, que diria a duração errada no meio)
+export function mp3AudioFrames(b: Uint8Array): Mp3Part {
+  let o = 0;
+  if (b[0] === 0x49 && b[1] === 0x44 && b[2] === 0x33) o = 10 + readSyncsafe(b, 6) + (b[5] & 0x10 ? 10 : 0);
+  let end = b.length;
+  if (end - o > 128 && b[end - 128] === 0x54 && b[end - 127] === 0x41 && b[end - 126] === 0x47) end -= 128;
+  // Primeiro quadro válido
+  while (o + 4 < end && !(b[o] === 0xff && (b[o + 1] & 0xe0) === 0xe0)) o++;
+  const chunks: Uint8Array[] = [];
+  let samples = 0; let rate = 0; let first = true; let runStart = o;
+  while (o + 4 <= end) {
+    if (b[o] !== 0xff || (b[o + 1] & 0xe0) !== 0xe0) break;
+    const ver = (b[o + 1] >> 3) & 3; const layer = (b[o + 1] >> 1) & 3;
+    const brIdx = b[o + 2] >> 4; const srIdx = (b[o + 2] >> 2) & 3; const pad = (b[o + 2] >> 1) & 1;
+    if (layer !== 1 || ver === 1 || brIdx === 0 || brIdx === 15 || srIdx === 3) break;
+    const sr = SR[ver][srIdx]; const br = (ver === 3 ? BR1 : BR2)[brIdx];
+    const len = Math.floor((ver === 3 ? 144000 : 72000) * br / sr) + pad;
+    if (len < 24 || o + len > end) break;
+    if (first) {
+      first = false;
+      const mono = (b[o + 3] >> 6) === 3;
+      const x = o + (ver === 3 ? (mono ? 21 : 36) : (mono ? 13 : 21));
+      const tag = String.fromCharCode(b[x], b[x + 1], b[x + 2], b[x + 3]);
+      if (tag === 'Xing' || tag === 'Info') { o += len; runStart = o; continue; }
+    }
+    samples += ver === 3 ? 1152 : 576; rate = sr;
+    o += len;
+  }
+  chunks.push(b.subarray(runStart, o));
+  return { bytes: chunks[0], durationMs: rate ? Math.round(samples / rate * 1000) : 0 };
+}
+
+export function buildChapteredMp3(parts: Mp3Part[], titles: string[], v: TagValues): Blob {
+  const version = 3;
+  const frames: Uint8Array[] = [];
+  const text = (id: string, value?: string) => { if (value && value.trim()) frames.push(id3Frame(version, id, id3Text(version, value.trim()))); };
+  text('TIT2', v.title); text('TALB', v.title); text('TPE1', v.author); text('TPE2', v.author);
+  text('TCOM', v.narrator); text('TCON', v.genre); text('TYER', v.year); text('TLAN', v.language);
+  if (v.description && v.description.trim()) {
+    const t = id3Text(version, v.description.trim());
+    frames.push(id3Frame(version, 'COMM', concat([t.subarray(0, 1), latin1('und'), new Uint8Array([0xff, 0xfe, 0, 0]), t.subarray(1)])));
+  }
+  const cover = coverBytes(v.cover);
+  if (cover) frames.push(id3Frame(version, 'APIC', concat([new Uint8Array([0]), latin1(cover.mime), new Uint8Array([0, 3, 0]), cover.data])));
+  // Capítulos: um CHAP por parte e o índice (CTOC) com todos, na ordem
+  const ids: string[] = [];
+  let start = 0;
+  parts.slice(0, 255).forEach((p, i) => {
+    const id = `ch${i}`; ids.push(id);
+    const endMs = start + p.durationMs;
+    frames.push(id3Frame(version, 'CHAP', concat([
+      latin1(id), new Uint8Array([0]), be32(start), be32(endMs), be32(0xffffffff), be32(0xffffffff),
+      id3Frame(version, 'TIT2', id3Text(version, titles[i] || `${i + 1}`)),
+    ])));
+    start = endMs;
+  });
+  if (ids.length) frames.push(id3Frame(version, 'CTOC', concat([latin1('toc'), new Uint8Array([0, 0x03, ids.length]), ...ids.map(id => concat([latin1(id), new Uint8Array([0])]))])));
+  const body = concat([...frames, new Uint8Array(2048)]);
+  const header = concat([latin1('ID3'), new Uint8Array([version, 0, 0]), syncsafe(body.length)]);
+  return new Blob([header as BlobPart, body as BlobPart, ...parts.map(p => p.bytes as BlobPart)], { type: 'audio/mpeg' });
 }

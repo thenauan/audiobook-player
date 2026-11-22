@@ -3664,7 +3664,6 @@ export default function App() {
       : undefined;
     const candidateUrls = [
       detailBook?.cover,
-      activeScreen.id === 'online-item' ? (activeScreen.data as { cover?: string } | undefined)?.cover : undefined,
       isEditingBook ? editBookCover : undefined,
       currentBook?.cover,
       detailAuthor?.picture,
@@ -3957,7 +3956,8 @@ export default function App() {
     // Sugestão da internet: a mesma cor da capa, como na página de um audiobook
     if (activeScreen.id === 'online-item' && activeScreen.data) {
       const it = activeScreen.data as { cover: string; title: string; author: string };
-      const rawHex = getCustomCoverColor(it.cover) || getGenericCoverColor(undefined, it.title, it.author);
+      // A miniatura do site não libera a leitura das cores: cor estável pelo título, como nas capas geradas
+      const rawHex = getGenericCoverColor(undefined, it.title, it.author);
       return getBookHighlightTheme(rawHex, resolvedTheme === 'dark');
     }
     if (activeScreen.id === 'author-detail') {

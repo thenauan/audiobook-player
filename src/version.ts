@@ -1,2 +1,2 @@
 // Versão do app (a mesma do package.json, usada pelos instaladores)
-export const APP_VERSION = '1.0.20';
+export const APP_VERSION = '1.0.21';

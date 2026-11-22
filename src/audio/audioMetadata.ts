@@ -794,8 +794,16 @@ export async function parseAudioMetadata(file: File): Promise<{
         } else if (frameId === 'COMM') {
           try {
             if (frameData.length > 4) {
-              const commBytes = frameData.subarray(4);
-              const text = decodeId3Text(commBytes);
+              // codificação, idioma (3 letras), descrição curta (termina em 00, ou 00 00 em UTF-16) e o texto
+              const enc = frameData[0];
+              const rest = frameData.subarray(4);
+              let p = 0;
+              if (enc === 1 || enc === 2) { while (p + 1 < rest.length && !(rest[p] === 0 && rest[p + 1] === 0)) p += 2; p += 2; }
+              else { while (p < rest.length && rest[p] !== 0) p++; p += 1; }
+              const textBytes = new Uint8Array(1 + Math.max(0, rest.length - p));
+              textBytes[0] = enc;
+              textBytes.set(rest.subarray(p), 1);
+              const text = decodeId3Text(textBytes);
               if (text) description = text.trim();
             }
           } catch(e) {}
