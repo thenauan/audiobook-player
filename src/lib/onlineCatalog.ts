@@ -137,6 +137,11 @@ export interface OnlineItem {
   year?: string;
   subjects: string[];
   url: string;
+  // De onde vem: Internet Archive (gratuito) ou Apple Books (à venda, com preço e link da loja)
+  source?: 'archive' | 'apple';
+  price?: string;
+  description?: string;
+  genre?: string;
 }
 export interface OnlineItemDetails extends OnlineItem {
   description: string;
@@ -186,14 +191,69 @@ async function searchArchive(query: string, kind: OnlineItem['kind'], rows = 24,
 export interface TasteProfile {
   languages: string[]; // nomes do app, por ordem de uso
   genres: string[];    // gêneros do app, por ordem de uso
-  authors: string[];   // autores da biblioteca e favoritos
+  subgenres: string[];
+  authors: string[];   // autores da biblioteca, por ordem de uso
+  favoriteAuthors: string[];
+  favoriteTitles: string[];
   owned: { title: string; author: string }[];
 }
 
 const quoteTerm = (s: string) => `"${s.replace(/"/g, '')}"`;
-export interface Suggestions { audiobooks: OnlineItem[]; ebooks: OnlineItem[] }
+// ---------- Apple Books (à venda) ----------
+const COUNTRY: Record<string, string> = { 'Português': 'br', 'Inglês': 'us', 'Espanhol': 'es', 'Francês': 'fr', 'Alemão': 'de', 'Italiano': 'it', 'Russo': 'ru', 'Japonês': 'jp', 'Holandês': 'nl' };
+const appleGenre = (g?: string) => g && !/^(books|livros|audiobooks)$/i.test(g) ? g : undefined;
+async function searchApple(term: string, media: 'ebook' | 'audiobook', country: string, limit = 20): Promise<OnlineItem[]> {
+  if (!term.trim()) return [];
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=${media}&country=${country}&limit=${limit}`;
+  const data = await getJson<any>(url);
+  return (data?.results || []).map((r: any): OnlineItem | null => {
+    const title = String(r.trackName || r.collectionName || '').trim();
+    const id = String(r.trackId || r.collectionId || '');
+    if (!title || !id) return null;
+    const price = r.formattedPrice || (typeof (r.price ?? r.collectionPrice) === 'number'
+      ? new Intl.NumberFormat(undefined, { style: 'currency', currency: r.currency || 'USD' }).format(r.price ?? r.collectionPrice) : undefined);
+    return {
+      id: `apple-${id}`,
+      kind: media === 'audiobook' ? 'audiobook' : 'ebook',
+      title,
+      author: String(r.artistName || '').replace(/\s*&\s*/g, ', '),
+      cover: String(r.artworkUrl100 || r.artworkUrl60 || '').replace(/\/\d+x\d+(bb)?\.(jpg|png)$/, '/600x600bb.$2'),
+      year: r.releaseDate ? String(r.releaseDate).slice(0, 4) : undefined,
+      subjects: (r.genres || [r.primaryGenreName]).filter(Boolean),
+      genre: appleGenre(r.primaryGenreName) || appleGenre((r.genres || [])[0]),
+      url: String(r.trackViewUrl || r.collectionViewUrl || ''),
+      source: 'apple',
+      price: price && Number(r.price ?? r.collectionPrice) > 0 ? price : undefined,
+      description: stripHtml(r.description || r.longDescription || ''),
+      language: undefined,
+    };
+  }).filter(Boolean) as OnlineItem[];
+}
 
-// Mistura os mais ouvidos com os mais recentes (gravações novas da LibriVox, livros novos no Gutenberg), sem repetir
+// ---------- Afinidade: do mais provável de gostar para o menos ----------
+function affinity(profile: TasteProfile, it: OnlineItem): number {
+  let score = 0;
+  const author = it.author;
+  if (profile.favoriteAuthors.some(a => authorMatches(a, author))) score += 8;
+  else if (profile.authors.some(a => authorMatches(a, author))) score += 5;
+  const subj = it.subjects.map(fold).join(' | ') + ' | ' + fold(it.genre);
+  profile.genres.slice(0, 4).forEach((g, idx) => {
+    if ((GENRE_KEYWORDS[g] || [g]).some(k => subj.includes(fold(k)))) score += 4 - idx * 0.7;
+  });
+  profile.subgenres.slice(0, 4).forEach(sg => { if (subj.includes(fold(sg))) score += 2; });
+  if (it.language && profile.languages[0] === it.language) score += 3;
+  else if (it.language && profile.languages.includes(it.language)) score += 1.5;
+  // Títulos parecidos com os favoritos (palavras em comum)
+  const words = new Set(fold(it.title).split(' ').filter(w => w.length > 3));
+  if (profile.favoriteTitles.some(t => fold(t).split(' ').some(w => w.length > 3 && words.has(w)))) score += 1.5;
+  return score;
+}
+const rank = (profile: TasteProfile, items: OnlineItem[]) =>
+  items.map((it, i) => ({ it, s: affinity(profile, it) - i * 0.01 })).sort((a, b) => b.s - a.s).map(x => x.it);
+
+export interface OnlineSection { id: string; titleKey: string; titleVars?: Record<string, string>; items: OnlineItem[] }
+
+// Mistura listas sem repetir (mesmo título e autor)
 function mergeUnique(lists: OnlineItem[][]): OnlineItem[] {
   const out: OnlineItem[] = [];
   const seen = new Set<string>();
@@ -211,45 +271,70 @@ function mergeUnique(lists: OnlineItem[][]): OnlineItem[] {
   return out;
 }
 
-export async function getSuggestions(profile: TasteProfile, limit = 12): Promise<Suggestions> {
-  if (!enabled) return { audiobooks: [], ebooks: [] };
+export async function getSuggestions(profile: TasteProfile): Promise<OnlineSection[]> {
+  if (!enabled) return [];
+  const mainLang = profile.languages[0];
   const langs = profile.languages.map(l => LANGS.find(x => x.app === l)).filter(Boolean).slice(0, 2) as typeof LANGS;
   const langQ = langs.length ? ` AND language:(${langs.flatMap(l => l.ia).join(' OR ')})` : '';
+  const mainLangQ = langs.length ? ` AND language:(${langs[0].ia.join(' OR ')})` : '';
+  const topGenre = profile.genres[0];
   const genreWords = profile.genres.slice(0, 3).flatMap(g => GENRE_KEYWORDS[g] || []).slice(0, 8);
-  const authorWords = profile.authors.map(surname).filter(Boolean).slice(0, 6);
+  const topGenreWords = topGenre ? (GENRE_KEYWORDS[topGenre] || [topGenre]) : [];
+  const authorWords = [...profile.favoriteAuthors, ...profile.authors].map(surname).filter((w, i, a) => w && a.indexOf(w) === i).slice(0, 8);
   const authorQ = authorWords.length ? ` AND creator:(${authorWords.map(quoteTerm).join(' OR ')})` : '';
   const genreQ = genreWords.length ? ` AND subject:(${genreWords.map(quoteTerm).join(' OR ')})` : '';
-  const key = `sugg2:${fold(langQ + authorQ + genreQ)}`.slice(0, 180);
-  let cached = cacheGet<Suggestions>(key, DAY);
-  if (!cached) {
+  const topGenreQ = topGenreWords.length ? ` AND subject:(${topGenreWords.map(quoteTerm).join(' OR ')})` : '';
+  const country = COUNTRY[mainLang || ''] || 'us';
+  const key = `sugg3:${fold(langQ + authorQ + genreQ + country)}`.slice(0, 200);
+  let raw = cacheGet<Record<string, OnlineItem[]>>(key, DAY);
+  if (!raw) {
     const A = 'collection:librivoxaudio AND format:"64Kbps MP3"';
     const E = 'collection:gutenberg AND mediatype:texts';
-    const [aAuthors, aGenres, aRecent, eAuthors, eGenres, eRecent] = await Promise.all([
-      authorQ ? searchArchive(`${A}${langQ}${authorQ}`, 'audiobook', 16) : Promise.resolve([]),
-      genreQ ? searchArchive(`${A}${langQ}${genreQ}`, 'audiobook', 16) : Promise.resolve([]),
-      searchArchive(`${A}${langQ}${genreQ}`, 'audiobook', 12, 'addeddate'),
-      authorQ ? searchArchive(`${E}${langQ}${authorQ}`, 'ebook', 16) : Promise.resolve([]),
-      genreQ ? searchArchive(`${E}${langQ}${genreQ}`, 'ebook', 16) : Promise.resolve([]),
-      searchArchive(`${E}${langQ}${genreQ}`, 'ebook', 12, 'addeddate'),
+    const storeAuthors = [...profile.favoriteAuthors, ...profile.authors].filter((a, i, arr) => a && arr.indexOf(a) === i).slice(0, 3);
+    const [aAuthors, aGenres, aRecent, aLang, eAuthors, eGenres, eRecent, eTopGenre, ...store] = await Promise.all([
+      authorQ ? searchArchive(`${A}${langQ}${authorQ}`, 'audiobook', 30) : Promise.resolve([]),
+      genreQ ? searchArchive(`${A}${langQ}${genreQ}`, 'audiobook', 30) : Promise.resolve([]),
+      searchArchive(`${A}${langQ}${genreQ}`, 'audiobook', 24, 'addeddate'),
+      searchArchive(`${A}${mainLangQ}`, 'audiobook', 30),
+      authorQ ? searchArchive(`${E}${langQ}${authorQ}`, 'ebook', 30) : Promise.resolve([]),
+      genreQ ? searchArchive(`${E}${langQ}${genreQ}`, 'ebook', 30) : Promise.resolve([]),
+      searchArchive(`${E}${langQ}${genreQ}`, 'ebook', 24, 'addeddate'),
+      topGenreQ ? searchArchive(`${E}${langQ}${topGenreQ}`, 'ebook', 30) : Promise.resolve([]),
+      ...storeAuthors.flatMap(a => [searchApple(a, 'ebook', country, 15), searchApple(a, 'audiobook', country, 10)]),
+      ...(topGenre ? [searchApple(topGenre, 'ebook', country, 20)] : []),
     ]);
-    let audiobooks = mergeUnique([aAuthors, aGenres, aRecent]);
-    let ebooks = mergeUnique([eAuthors, eGenres, eRecent]);
-    // Poucos resultados pelos gostos: completa só pelo idioma
-    if (audiobooks.length < 6) audiobooks = mergeUnique([audiobooks, await searchArchive(`${A}${langQ}`, 'audiobook', 24)]);
-    if (ebooks.length < 6) ebooks = mergeUnique([ebooks, await searchArchive(`${E}${langQ}`, 'ebook', 24)]);
-    cached = { audiobooks, ebooks };
-    if (audiobooks.length || ebooks.length) cacheSet(key, cached);
+    raw = {
+      audiobooks: mergeUnique([aAuthors, aGenres, aRecent, aLang]),
+      ebooks: mergeUnique([eAuthors, eGenres, eRecent]),
+      lang: aLang,
+      recent: aRecent,
+      genreEbooks: eTopGenre,
+      store: mergeUnique(store as OnlineItem[][]),
+    };
+    if (Object.values(raw).some(l => l.length)) cacheSet(key, raw);
   }
-  // Nada que já esteja na biblioteca
   const isOwned = (it: OnlineItem) => profile.owned.some(o => titleMatches(o.title, it.title) && (!o.author || !it.author || authorMatches(o.author, it.author)));
-  return {
-    audiobooks: cached.audiobooks.filter(it => !isOwned(it)).slice(0, limit),
-    ebooks: cached.ebooks.filter(it => !isOwned(it)).slice(0, limit),
-  };
+  const clean = (items: OnlineItem[] = []) => rank(profile, items.filter(it => !isOwned(it)));
+  const sections: OnlineSection[] = [
+    { id: 'audiobooks', titleKey: 'section_online_suggestions', items: clean(raw.audiobooks) },
+    { id: 'store', titleKey: 'section_online_store', items: clean(raw.store) },
+    { id: 'ebooks', titleKey: 'section_online_ebooks', items: clean(raw.ebooks) },
+    ...(mainLang ? [{ id: 'lang', titleKey: 'section_online_lang', titleVars: { lang: mainLang }, items: clean(raw.lang) }] : []),
+    ...(topGenre ? [{ id: 'genre-ebooks', titleKey: 'section_online_genre_read', titleVars: { genre: topGenre }, items: clean(raw.genreEbooks) }] : []),
+    { id: 'recent', titleKey: 'section_online_recent', items: clean(raw.recent) },
+  ];
+  // Cada item aparece em uma seção só (a primeira em que entra), para as listas não se repetirem
+  const used = new Set<string>();
+  return sections.map(sec => {
+    const items = sec.items.filter(it => !used.has(it.id));
+    items.slice(0, 12).forEach(it => used.add(it.id));
+    return { ...sec, items };
+  }).filter(sec => sec.items.length >= 3);
 }
 
 // ---------- Página de um item (sinopse, narrador, arquivo para baixar) ----------
 export async function getItemDetails(item: OnlineItem): Promise<OnlineItemDetails> {
+  if (item.source === 'apple') return { ...item, description: item.description || '' };
   const cacheKey = `item:${item.id}`;
   const cached = cacheGet<OnlineItemDetails>(cacheKey, 7 * DAY);
   if (cached) return cached;

@@ -1,13 +1,13 @@
 // Extraído do App.tsx (conteúdo sem alterações)
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink, Download, Globe, Languages, Calendar } from 'lucide-react';
+import { X, Search, ChevronLeft, Trash2, CheckCircle2, ExternalLink, Download, Globe, Languages, Calendar, ShoppingBag } from 'lucide-react';
 import type { OnlineItem } from '../../lib/onlineCatalog';
 import { getLanguageDisplayName } from '../../i18n/translations';
 import { 
   BsPlayFill, BsPauseFill, BsCheck2
 } from 'react-icons/bs';
-import { FaGithub } from 'react-icons/fa';
+import { FaGithub, FaApple } from 'react-icons/fa';
 import { Audiobook, Author, Chapter, Collection } from '../../data/catalog';
 import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar } from '../../lib/coverArt';
 import { MenuOptionItem, PagedMenu, useCompactPopups, PopupMorphContainer, checkChapterMenuShouldOpenUp, checkIsLeftEdgeCard, MorphPopup, morphTriggerAnimate, emitZoomOrigin } from '../popups/Popovers';
@@ -1384,7 +1384,8 @@ export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
   const [openUp, setOpenUp] = useState(false);
   const [alignLeft, setAlignLeft] = useState(false);
   const [coverFailed, setCoverFailed] = useState(false);
-  const downloadable = item.kind === 'audiobook';
+  const store = item.source === 'apple';
+  const downloadable = item.kind === 'audiobook' && !store;
   const cover = coverFailed ? getGenericBookCover(item.title, item.author) : item.cover;
 
   const handleClose = () => { setShowOptions(false); setShowDetails(false); };
@@ -1409,20 +1410,23 @@ export function OnlineSuggestionCard({ item }: { item: OnlineItem }) {
   const longPress = useLongPress(openContextMenu);
   const open = () => { handleClose(); openOnlineItem(item); };
 
-  const badgeLabel = downloadable ? t('online_badge_download') : t('online_badge_online');
+  // Selo: baixar (gratuito), online (ebook gratuito) ou à venda (com o preço)
+  const badgeLabel = store ? (item.price || t('online_badge_store')) : downloadable ? t('online_badge_download') : t('online_badge_online');
   const badge = (
-    <div aria-label={badgeLabel} className="absolute top-2.5 left-2.5 z-10 h-6 max-md:w-6 md:px-2.5 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold">
-      {downloadable ? <Download size={12} /> : <Globe size={12} />}
-      <span className="max-md:hidden">{badgeLabel}</span>
+    <div aria-label={badgeLabel} className={`absolute top-2.5 left-2.5 z-10 h-6 ${store ? 'px-2.5' : 'max-md:w-6 md:px-2.5'} rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center gap-1 shadow-lg text-white pointer-events-none text-[10px] font-bold`}>
+      {store ? <FaApple size={12} /> : downloadable ? <Download size={12} /> : <Globe size={12} />}
+      <span className={store ? '' : 'max-md:hidden'}>{badgeLabel}</span>
     </div>
   );
   // Mesmo formato das informações dos audiobooks da biblioteca: ícone e nome à esquerda, valor à direita
   const detailRows = [
-    { icon: downloadable ? <Headphones size={13} /> : <BookOpen size={13} />, label: t('online_type'), value: downloadable ? t('online_type_audiobook') : t('online_type_ebook') },
+    { icon: item.kind === 'audiobook' ? <Headphones size={13} /> : <BookOpen size={13} />, label: t('online_type'), value: store ? (item.kind === 'audiobook' ? t('online_type_store_audiobook') : t('online_type_store_ebook')) : downloadable ? t('online_type_audiobook') : t('online_type_ebook') },
+    ...(store ? [{ icon: <ShoppingBag size={13} />, label: t('online_price'), value: item.price || t('online_badge_store') }] : []),
+    ...(item.genre ? [{ icon: <BookOpen size={13} />, label: t('genres'), value: item.genre }] : []),
     { icon: <User size={13} />, label: t('author_label'), value: item.author },
     { icon: <Languages size={13} />, label: t('language_label'), value: item.language ? getLanguageDisplayName(item.language) : '' },
     { icon: <Calendar size={13} />, label: t('year'), value: item.year || '' },
-    { icon: <Globe size={13} />, label: t('online_source'), value: downloadable ? 'LibriVox' : 'Project Gutenberg' },
+    { icon: <Globe size={13} />, label: t('online_source'), value: store ? 'Apple Books' : downloadable ? 'LibriVox' : 'Project Gutenberg' },
   ].filter(r => r.value);
 
   const contextPreview = (

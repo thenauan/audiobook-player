@@ -106,6 +106,7 @@ import { OtherAppsScreen } from './views/screens/OtherAppsScreen';
 import { MoreScreen } from './views/screens/MoreScreen';
 import { AppInfoScreen } from './views/screens/AppInfoScreen';
 import { OnlineItemScreen } from './views/screens/OnlineItemScreen';
+import { OnlineListScreen } from './views/screens/OnlineListScreen';
 import { useMetadataProposal, confirmApplyMetadata } from './components/MetadataProposal';
 import { Wand2 } from 'lucide-react';
 import { BookInfoScreen } from './views/screens/BookInfoScreen';
@@ -2677,6 +2678,8 @@ export default function App() {
   useEffect(() => {
     const onOpenAppInfo = (e: Event) => navigateToRef.current('app-info', (e as CustomEvent).detail);
     const onOpenOnlineItem = (e: Event) => navigateToRef.current('online-item', (e as CustomEvent).detail);
+    const onOpenOnlineList = (e: Event) => navigateToRef.current('online-list', (e as CustomEvent).detail);
+    window.addEventListener('open-online-list', onOpenOnlineList);
     // Audiobook baixado de uma sugestão (LibriVox): entra na biblioteca como qualquer arquivo adicionado
     const onImportFiles = (e: Event) => { const files = (e as CustomEvent).detail as File[]; if (files?.length) processAudioFilesRef.current(files); };
     window.addEventListener('open-app-info', onOpenAppInfo);
@@ -2685,6 +2688,7 @@ export default function App() {
     return () => {
       window.removeEventListener('open-app-info', onOpenAppInfo);
       window.removeEventListener('open-online-item', onOpenOnlineItem);
+      window.removeEventListener('open-online-list', onOpenOnlineList);
       window.removeEventListener('import-audio-files', onImportFiles);
     };
   }, []);
@@ -3943,6 +3947,18 @@ export default function App() {
     }
   }, [showTranscript, isFullScreen]);
 
+  const activeScreenRef = useRef(activeScreen);
+  activeScreenRef.current = activeScreen;
+  const [onlineItemColor, setOnlineItemColor] = useState<{ id: string; hex: string } | null>(null);
+  useEffect(() => {
+    const onColor = (e: Event) => {
+      const id = activeScreenRef.current?.data?.id;
+      const hex = (e as CustomEvent).detail as string;
+      if (id && hex) setOnlineItemColor({ id, hex });
+    };
+    window.addEventListener('online-item-color', onColor);
+    return () => window.removeEventListener('online-item-color', onColor);
+  }, []);
   const sidebarHighlight = useMemo(() => {
     if (activeScreen.id === 'book-detail' || activeScreen.id === 'book-synopsis') {
       const targetBook: Audiobook | undefined = books.find(b => b.id === (activeScreen.data?.id || selectedBook?.id)) || activeScreen.data || selectedBook;
@@ -3953,11 +3969,10 @@ export default function App() {
         : (getCustomCoverColor(effectiveCover) || getGenericCoverColor(effectiveCover, targetBook.title, targetBook.author));
       return getBookHighlightTheme(rawHex, resolvedTheme === 'dark');
     }
-    // Sugestão da internet: a mesma cor da capa, como na página de um audiobook
+    // Sugestão da internet: a cor da capa (lida pela página, na imagem grande do item), como na página de um audiobook
     if (activeScreen.id === 'online-item' && activeScreen.data) {
-      const it = activeScreen.data as { cover: string; title: string; author: string };
-      // A miniatura do site não libera a leitura das cores: cor estável pelo título, como nas capas geradas
-      const rawHex = getGenericCoverColor(undefined, it.title, it.author);
+      const it = activeScreen.data as { id: string; title: string; author: string };
+      const rawHex = (onlineItemColor && onlineItemColor.id === it.id ? onlineItemColor.hex : '') || getGenericCoverColor(undefined, it.title, it.author);
       return getBookHighlightTheme(rawHex, resolvedTheme === 'dark');
     }
     if (activeScreen.id === 'author-detail') {
@@ -3975,7 +3990,7 @@ export default function App() {
       return col?.color ? getBookHighlightTheme(col.color, resolvedTheme === 'dark') : null;
     }
     return null;
-  }, [activeScreen.id, activeScreen.data, selectedBook, books, authors, collections, isEditingBook, editBookCover, editCoverColor, isEditingAuthor, editAuthorPicture, editAuthorColor, getCustomCoverColor, resolvedTheme]);
+  }, [onlineItemColor, activeScreen.id, activeScreen.data, selectedBook, books, authors, collections, isEditingBook, editBookCover, editCoverColor, isEditingAuthor, editAuthorPicture, editAuthorColor, getCustomCoverColor, resolvedTheme]);
 
   const headerTintColor = useMemo(() => {
     if (!sidebarHighlight) return '';
@@ -4528,7 +4543,7 @@ export default function App() {
     if (id.startsWith('settings')) return t('settings_title');
     if (id === 'book-info') return t('more_details');
     if (id === 'app-info') return activeScreen.data?.title || t('details');
-    if (id === 'online-item') return activeScreen.data?.title || t('details');
+    if (id === 'online-item' || id === 'online-list') return activeScreen.data?.title || t('details');
     if (id === 'help') return t('nav_help');
     if (id === 'help-theme') {
       const currentThemeId = (typeof activeScreen.data === 'object' && activeScreen.data?.id) 
@@ -5797,7 +5812,7 @@ export default function App() {
                         if (id.startsWith('settings')) return t('settings_title');
                         if (id === 'book-info') return t('more_details');
                         if (id === 'app-info') return prev.data?.title || t('details');
-                        if (id === 'online-item') return prev.data?.title || t('details');
+                        if (id === 'online-item' || id === 'online-list') return prev.data?.title || t('details');
                         if (id === 'help-theme') {
                           const themeId = typeof prev.data === 'object' ? prev.data?.id : prev.data;
                           const th = helpThemes.find(t => t.id === themeId);
@@ -7455,6 +7470,7 @@ export default function App() {
 
           {/* Sugestão da internet (audiobook da LibriVox ou ebook do Project Gutenberg) */}
           {activeScreen.id === 'online-item' && activeScreen.data && <OnlineItemScreen key={`online-item-${activeScreen.data.id}`} />}
+          {activeScreen.id === 'online-list' && activeScreen.data && <OnlineListScreen key={`online-list-${activeScreen.data.title}`} />}
 
           {/* SCREEN: SETTINGS (LAZY-LOADED) */}
           {/* SCREEN: OPÇÕES DE UM AJUSTE (MOBILE) — tela cheia com as opções e suas explicações */}

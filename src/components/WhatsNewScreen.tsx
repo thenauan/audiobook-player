@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.25': {
+    pt: ['Ebooks e audiobooks à venda (Apple Books), com preço e links para Amazon, Google Play e Audible', 'Mais sugestões, do que você mais deve gostar para o menos, por autores, favoritos, gêneros, subgêneros e idiomas', 'Novas seções, como "Para baixar em Português", e "Ver todos" em cada uma', 'Páginas das sugestões com a cor da capa e, no celular, a capa no fundo como nos audiobooks da biblioteca'],
+    en: ['Ebooks and audiobooks for sale (Apple Books), with prices and links to Amazon, Google Play and Audible', 'More suggestions, from what you will most likely enjoy to least, by authors, favorites, genres, subgenres and languages', 'New sections, like "To download in English", and "See all" in each one', 'Suggestion pages in the cover color and, on phones, the cover in the background like library audiobooks'],
+    es: ['Libros y audiolibros en venta (Apple Books), con precio y enlaces a Amazon, Google Play y Audible', 'Más sugerencias, de lo que más te puede gustar a lo que menos, por autores, favoritos, géneros, subgéneros e idiomas', 'Nuevas secciones, como "Para descargar en Español", y "Ver todos" en cada una', 'Páginas de sugerencias con el color de la portada y, en el móvil, la portada de fondo como en la biblioteca'],
+    ru: ['Книги и аудиокниги в продаже (Apple Books) с ценой и ссылками на Amazon, Google Play и Audible', 'Больше рекомендаций — от самых подходящих к менее — по авторам, избранному, жанрам, поджанрам и языкам', 'Новые разделы, например «Скачать: Русский», и «Смотреть все» в каждом', 'Страницы рекомендаций в цвете обложки, а на телефоне — обложка на фоне, как в библиотеке'],
+    ar: ['كتب إلكترونية وصوتية للبيع (Apple Books) مع السعر وروابط Amazon وGoogle Play وAudible', 'اقتراحات أكثر، من الأرجح أن تعجبك إلى الأقل، حسب المؤلفين والمفضلة والأنواع واللغات', 'أقسام جديدة مثل "للتنزيل بالعربية" و"عرض الكل" في كل قسم', 'صفحات الاقتراحات بلون الغلاف، وعلى الهاتف الغلاف في الخلفية كما في المكتبة'],
+  },
   '1.0.21': {
     pt: ['Baixar audiobooks gratuitos da LibriVox agora funciona: eles entram na biblioteca com capítulos, capa e sinopse', 'Seções separadas de audiobooks e de ebooks sugeridos, pelos seus autores, gêneros e idiomas, incluindo gravações recentes', 'Sinopses de arquivos MP3 lidas corretamente'],
     en: ['Downloading free LibriVox audiobooks now works: they join your library with chapters, cover and synopsis', 'Separate sections for suggested audiobooks and ebooks, by your authors, genres and languages, including recent recordings', 'Synopses in MP3 files are read correctly'],
