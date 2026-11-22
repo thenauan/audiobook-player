@@ -17,7 +17,8 @@ import { parseAudioMetadata } from './audio/audioMetadata';
 import { parseSynchronizedTextFile } from './audio/transcripts';
 import { getGenericBookCover, getAuthorAvatar, getEffectiveAuthorAvatar, getGenericCoverColor, getGenericAuthorColor, getBookHighlightTheme, hexToHsl, hslToHex } from './lib/coverArt';
 import { findActiveTranscriptIndex } from './audio/playbackTiming';
-import { storeAudioBlobChunked, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
+import { storeAudioBlobChunked, storeAudioBlob, ImportCanceledError, getAudioBlob, deleteAudioBlob, getAllAudioBlobKeys } from './audio/audioStorage';
+import { writeAudioTags, canWriteTags, type TagValues } from './audio/tagWriter';
 import { importStore, visibleImports } from './lib/importProgress';
 import { ImportCancelAllButton, ImportCancelAllConfirm, ImportList } from './components/library/ImportProgress';
 import { sessionHistory } from './lib/sessionHistory';
@@ -568,6 +569,36 @@ export default function App() {
     setBookCropImage(null);
     setIsEditingBook(false);
     showToast(t('toast_metadata_book_updated'));
+    void writeTagsToFiles(updated);
+  };
+
+  // Os dados editados vão para dentro do arquivo de áudio, para aparecerem iguais em qualquer outro player:
+  // no app instalado, o arquivo original no computador; em todo lugar, a cópia guardada no app
+  const writeTagsToFiles = async (book: Audiobook) => {
+    const name = book.fileName || book.filePath?.split(/[\\/]/).pop() || '';
+    if (!canWriteTags(name)) return;
+    const values: TagValues = {
+      title: book.title, author: book.author, narrator: book.narrator, genre: book.category,
+      year: book.year, description: book.description, language: book.language, cover: book.cover,
+    };
+    let wroteOriginal = false;
+    let wroteCopy = false;
+    try {
+      // App instalado: a cópia da biblioteca e o arquivo de onde ele veio
+      for (const path of [book.filePath, book.originalPath]) {
+        if (!desktop?.writeAudioFile || !path) continue;
+        const raw = await desktop.readAudioFile(path);
+        const out = raw ? await writeAudioTags(new Blob([raw as BlobPart]), name, values) : null;
+        if (out && await desktop.writeAudioFile(path, await out.arrayBuffer())) wroteOriginal = true;
+      }
+      const stored = await getAudioBlob(book.id);
+      const out = stored ? await writeAudioTags(stored, name, values) : null;
+      if (out) wroteCopy = await storeAudioBlob(book.id, out);
+    } catch (err) {
+      console.warn('Could not write metadata to the audio file:', err);
+    }
+    if (wroteOriginal) showToast(t('toast_tags_written_file'));
+    else if (wroteCopy) showToast(t('toast_tags_written_copy'));
   };
 
   const handleStartEditAuthor = () => {
@@ -1796,6 +1827,7 @@ export default function App() {
           language: meta.language,
           audioUrl: objectUrl,
           filePath: realDiskPath,
+          ...(desktop?.getPathForFile && desktop.getPathForFile(file) && desktop.getPathForFile(file) !== realDiskPath ? { originalPath: desktop.getPathForFile(file) } : {}),
           fileName: file.name,
           addedDate: now + (rawFiles.length - i)
         };

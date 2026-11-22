@@ -1241,6 +1241,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     import_cancel_one: 'Cancelar {title}',
     toast_books_added_success: '{count} audiobook(s) adicionado(s) com sucesso!',
     toast_metadata_book_updated: 'Metadados do audiobook atualizados!',
+    toast_tags_written_file: 'Dados gravados também no arquivo de áudio',
+    toast_tags_written_copy: 'Dados gravados no arquivo guardado no app',
     toast_metadata_author_updated: 'Metadados do autor atualizados!',
 
     // Credits & About
@@ -2009,6 +2011,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     import_cancel_one: 'Cancel {title}',
     toast_books_added_success: '{count} audiobook(s) added successfully!',
     toast_metadata_book_updated: 'Audiobook metadata updated!',
+    toast_tags_written_file: 'Details also saved in the audio file',
+    toast_tags_written_copy: 'Details saved in the file stored in the app',
     toast_metadata_author_updated: 'Author metadata updated!',
 
     // Credits & About
@@ -2777,6 +2781,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     import_cancel_one: 'Cancelar {title}',
     toast_books_added_success: '¡{count} audiolibro(s) añadido(s) con éxito!',
     toast_metadata_book_updated: '¡Metadatos del audiolibro actualizados!',
+    toast_tags_written_file: 'Datos guardados también en el archivo de audio',
+    toast_tags_written_copy: 'Datos guardados en el archivo guardado en la app',
     toast_metadata_author_updated: '¡Metadatos del autor actualizados!',
 
     // Credits & About
@@ -3545,6 +3551,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     import_cancel_one: 'Отменить {title}',
     toast_books_added_success: 'Успешно добавлено аудиокниг: {count}!',
     toast_metadata_book_updated: 'Метаданные аудиокниги обновлены!',
+    toast_tags_written_file: 'Данные также сохранены в аудиофайле',
+    toast_tags_written_copy: 'Данные сохранены в файле внутри приложения',
     toast_metadata_author_updated: 'Метаданные автора обновлены!',
 
     // Credits & About
@@ -4313,6 +4321,8 @@ const translations: Record<SupportedLanguage, Record<string, string>> = {
     import_cancel_one: 'إلغاء {title}',
     toast_books_added_success: 'تمت إضافة {count} كتاب(كتب) صوتي بنجاح!',
     toast_metadata_book_updated: 'تم تحديث البيانات الوصفية للكتاب الصوتي!',
+    toast_tags_written_file: 'حُفظت البيانات في الملف الصوتي أيضًا',
+    toast_tags_written_copy: 'حُفظت البيانات في الملف المحفوظ في التطبيق',
     toast_metadata_author_updated: 'تم تحديث البيانات الوصفية للمؤلف!',
 
     // Credits & About

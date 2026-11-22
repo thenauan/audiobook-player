@@ -12,6 +12,9 @@ export interface DesktopBridge {
   saveAudiobook: (fileName: string, folder: string, data: ArrayBuffer) => Promise<string>;
   scanLibraryFolder: (folder: string) => Promise<{ folder: string; exists: boolean; files: { name: string; path: string; size: number }[] }>;
   readAudioFile: (filePath: string) => Promise<Uint8Array | null>;
+  /** Grava o arquivo no lugar (metadados editados). Versões antigas do app instalado não têm */
+  writeAudioFile?: (filePath: string, data: ArrayBuffer) => Promise<boolean>;
+  getPathForFile?: (file: File) => string;
   closeApp: () => Promise<void>;
   /** Versões antigas do app instalado não têm */
   getSystemInfo?: () => Promise<{ cores: number; cpuModel: string; ramGB: number }>;

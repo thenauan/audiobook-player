@@ -1,4 +1,3 @@
-import { LOGO_PATH, LOGO_W, LOGO_H } from '../components/AppLogo';
 // ===== Imagens para compartilhar (formato de story, 1080×1920) =====
 // Inspiradas no compartilhamento do Apple Music: fundo como o do player em tela cheia (cores da capa,
 // desfocadas), um destaque branco ou preto (conforme o tema do app) com a capa, o título e o autor, e
@@ -220,19 +219,21 @@ async function drawAppBrand(ctx: CanvasRenderingContext2D, centerX: number, y: n
   const color = isDark ? '#ffffff' : '#141414';
   // Como no app: ícone com 0,72 da altura da letra, colado no texto e com a base na linha das letras
   const fontSize = 64;
-  const logoH = fontSize * 0.72;
-  const logoW = logoH * LOGO_W / LOGO_H;
+  const logoH = fontSize * 0.86;
+  const logoW = logoH;
   const gap = fontSize * 0.05;
   ctx.font = `400 ${fontSize}px ${FONT}`;
   const wText = ctx.measureText('Player').width;
   const baseline = y + logoH / 2;
   let x = centerX - (logoW + gap + wText) / 2;
-  ctx.save();
-  ctx.translate(x, baseline - logoH);
-  ctx.scale(logoW / LOGO_W, logoH / LOGO_H);
-  ctx.fillStyle = color;
-  ctx.fill(new Path2D(LOGO_PATH), 'evenodd');
-  ctx.restore();
+  // Glifo do ícone (livro aberto com a onda de som), na versão branca ou preta
+  const glyph = await new Promise<HTMLImageElement | null>(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = `${import.meta.env.BASE_URL}icons/${isDark ? 'logo-white' : 'logo-black'}.png`;
+  });
+  if (glyph) ctx.drawImage(glyph, x, baseline - logoH, logoW, logoH);
   x += logoW + gap;
   ctx.fillStyle = color;
   ctx.textBaseline = 'alphabetic';

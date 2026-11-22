@@ -1,5 +1,5 @@
 // Ponte segura entre o app (página) e o Electron
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 // Idioma escolhido no instalador (Windows); undefined quando não há
 let installerLanguage;
@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('electron', {
   saveAudiobook: (fileName, folder, data) => ipcRenderer.invoke('save-audiobook', fileName, folder, data),
   scanLibraryFolder: (folder) => ipcRenderer.invoke('scan-library-folder', folder),
   readAudioFile: (filePath) => ipcRenderer.invoke('read-audio-file', filePath),
+  writeAudioFile: (filePath, data) => ipcRenderer.invoke('write-audio-file', filePath, data),
+  // Caminho do arquivo escolhido (para gravar os metadados editados também no original)
+  getPathForFile: (file) => { try { return webUtils.getPathForFile(file) || ''; } catch { return ''; } },
   closeApp: () => ipcRenderer.invoke('close-app'),
   getSystemInfo: () => ipcRenderer.invoke('get-system-info'),
 });

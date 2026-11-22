@@ -134,6 +134,22 @@ app.whenReady().then(() => {
     return fs.promises.readFile(target);
   });
 
+  // Grava de volta um arquivo de áudio (metadados editados no app). Escreve ao lado e troca, para nunca deixar o
+  // arquivo pela metade se algo falhar no meio
+  ipcMain.handle('write-audio-file', async (_e, filePath, data) => {
+    const target = String(filePath || '');
+    if (!isAudio(target) || !fs.existsSync(target)) return false;
+    const tmp = `${target}.tmp-${process.pid}`;
+    try {
+      await fs.promises.writeFile(tmp, Buffer.from(data));
+      await fs.promises.rename(tmp, target);
+      return true;
+    } catch {
+      try { await fs.promises.unlink(tmp); } catch {}
+      return false;
+    }
+  });
+
   if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
   createWindow();
   app.on('activate', () => {

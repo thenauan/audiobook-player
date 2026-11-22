@@ -52,6 +52,8 @@ export type Audiobook = {
   language?: string;
   audioUrl?: string;
   filePath?: string;
+  // App instalado: de onde o arquivo foi adicionado (recebe os metadados editados, como a cópia da biblioteca)
+  originalPath?: string;
   fileName?: string;
   addedDate?: number;
 };

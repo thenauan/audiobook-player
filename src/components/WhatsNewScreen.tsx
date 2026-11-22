@@ -13,6 +13,13 @@ import { AmbientBackground } from './AmbientBackground';
 type Notes = Record<SupportedLanguage, string[]>;
 
 const RELEASE_NOTES: Record<string, Notes> = {
+  '1.0.17': {
+    pt: ['Ícone novo, com versões em branco e preto', 'Os dados editados de um audiobook são gravados dentro do arquivo de áudio (MP3 e M4B), para aparecerem em outros players'],
+    en: ['New icon, with white and black versions', 'Edited audiobook details are saved inside the audio file (MP3 and M4B), so they show up in other players'],
+    es: ['Icono nuevo, con versiones en blanco y negro', 'Los datos editados de un audiolibro se guardan dentro del archivo de audio (MP3 y M4B) para verse en otros reproductores'],
+    ru: ['Новый значок с белой и чёрной версиями', 'Изменённые данные аудиокниги сохраняются в самом аудиофайле (MP3 и M4B) и видны в других плеерах'],
+    ar: ['أيقونة جديدة بنسختين بيضاء وسوداء', 'تُحفظ بيانات الكتاب الصوتي المعدّلة داخل الملف الصوتي (MP3 وM4B) لتظهر في المشغلات الأخرى'],
+  },
   '1.0.14': {
     pt: ['Telas de boas-vindas e de novidades na cor de destaque escolhida', 'Botões dos Ajustes com destaque e sombra também no celular', 'Ícones redondos em Outros apps', 'Ícone arredondado na janela e na barra de tarefas'],
     en: ["Welcome and what's new screens in your chosen accent color", 'Settings buttons with highlight and shadow on phones too', 'Round icons in Other apps', 'Rounded icon in the window and the taskbar'],
