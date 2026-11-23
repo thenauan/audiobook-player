@@ -4,12 +4,12 @@ import { ArrowUpDown, Bookmark, Code2, Edit3, FolderPlus, Info, ListPlus, Plus, 
 import { Collection } from '../data/catalog';
 import { useAppScope } from '../app/AppScope';
 import { ImportRingIcon, useImportTitle } from './library/ImportProgress';
-import { useMetadataProposal, confirmApplyMetadata, useAuthorProposal, confirmApplyAuthorData } from './MetadataProposal';
+import { useMetadataProposal, useAuthorProposal, metadataMenuConfirm, authorMenuConfirm } from './MetadataProposal';
 import { OnlineFilterButton } from './OnlineFilters';
 import { Wand2 } from 'lucide-react';
 
 export function HeaderActions() {
-  const { activeScreen, books, setMobileConfirm, cleanupDeletedBooks, closeAllPopups, collections, favoriteAuthorIds, favoriteBookIds, fileInputRef, goBack, handleAddToQueue, handleDeleteCollection, handleExitDevMode, handleResetSettings, handleStartCreateCollection, handleStartEditAuthor, handleStartEditBook, handleStartEditCurrentCollection, isDevModeActive, navigateTo, openMobileSheet, openShareImage, openShareLyrics, renderSortOptions, selectedBook, setBooks, setIsSelectionMode, setSelectedCollectionIds, showToast, t, toggleFavoriteAuthor, toggleFavoriteBook } = useAppScope();
+  const { activeScreen, books, cleanupDeletedBooks, closeAllPopups, collections, favoriteAuthorIds, favoriteBookIds, fileInputRef, goBack, handleAddToQueue, handleDeleteCollection, handleExitDevMode, handleResetSettings, handleStartCreateCollection, handleStartEditAuthor, handleStartEditBook, handleStartEditCurrentCollection, isDevModeActive, navigateTo, openMobileSheet, openShareImage, openShareLyrics, renderSortOptions, selectedBook, setBooks, setIsSelectionMode, setSelectedCollectionIds, showToast, t, toggleFavoriteAuthor, toggleFavoriteBook } = useAppScope();
   const id = activeScreen.id;
   // Audiobooks sendo adicionados: o botão de enviar vira o progresso (abre a lista)
   const importTitle = useImportTitle();
@@ -50,7 +50,7 @@ export function HeaderActions() {
           ...((books.find(b => b.id === target.id) || target).transcript?.length ? [{ id: 'share-lyrics', icon: <Quote size={14} />, label: t('share_excerpt'), onClick: () => openShareLyrics(books.find(b => b.id === target.id) || target) }] : []),
           { id: 'details', icon: <Info size={14} />, label: t('more_details'), onClick: () => { closeAllPopups(); navigateTo('book-info', target); } },
           { id: 'edit', icon: <Edit3 size={14} />, label: t('edit_audiobook'), onClick: () => handleStartEditBook() },
-          ...(metadataProposal ? [{ id: 'apply-metadata', icon: <Wand2 size={14} />, label: t('apply_metadata'), onClick: () => confirmApplyMetadata(setMobileConfirm, t, proposalBook || target, metadataProposal) }] : []),
+          ...(metadataProposal ? [{ id: 'apply-metadata', icon: <Wand2 size={14} />, label: t('apply_metadata'), confirm: metadataMenuConfirm(t, proposalBook || target, metadataProposal) }] : []),
           {
             id: 'delete', icon: <Trash2 size={14} />, label: t('delete'), danger: true,
             confirm: {
@@ -79,7 +79,7 @@ export function HeaderActions() {
         menu={[
           { id: 'collection', icon: <FolderPlus size={14} />, label: t('add_to_collection'), onClick: () => openMobileSheet({ kind: 'collection-picker', itemType: 'author', itemId: authorId }) },
           { id: 'edit', icon: <Edit3 size={14} />, label: t('edit_author'), onClick: () => handleStartEditAuthor() },
-          ...(authorProposal && proposalAuthor ? [{ id: 'apply-author', icon: <Wand2 size={14} />, label: t('apply_metadata'), onClick: () => confirmApplyAuthorData(setMobileConfirm, t, proposalAuthor, authorProposal) }] : []),
+          ...(authorProposal && proposalAuthor ? [{ id: 'apply-author', icon: <Wand2 size={14} />, label: t('apply_metadata'), confirm: authorMenuConfirm(t, proposalAuthor, authorProposal) }] : []),
           { id: 'delete-multiple', icon: <Trash2 size={14} />, label: t('delete_multiple'), danger: true, onClick: () => setIsSelectionMode(true) },
         ]}
       />

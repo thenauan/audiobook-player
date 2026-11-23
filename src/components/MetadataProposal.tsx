@@ -99,7 +99,7 @@ export function useAuthorProposal(author: AuthorLike | null | undefined): Author
   return proposal;
 }
 
-function AuthorProposalList({ proposal }: { proposal: AuthorProposal }) {
+export function AuthorProposalList({ proposal }: { proposal: AuthorProposal }) {
   const { t, language } = useI18n();
   return (
     <div className="flex gap-3 items-start px-1">
@@ -183,3 +183,24 @@ export function OnlineDataNotice({ id, fields, onApply, kind = 'book' }: { id: s
     </motion.div>
   );
 }
+
+// Confirmação dentro do menu de opções do celular (o mesmo formato do "Excluir"), com a lista do que muda
+type T = (key: string, vars?: Record<string, any>) => string;
+export const metadataMenuConfirm = (t: T, book: { id: string; title: string }, proposal: MetadataProposal) => ({
+  title: t('apply_metadata_title'),
+  description: t('apply_metadata_desc', { title: book.title }),
+  body: <MetadataProposalList proposal={proposal} />,
+  confirmLabel: t('apply_metadata_confirm'),
+  icon: <Wand2 size={13} />,
+  danger: false,
+  onConfirm: () => applyMetadataProposal(book.id, proposal),
+});
+export const authorMenuConfirm = (t: T, author: { id: string; name: string }, proposal: AuthorProposal) => ({
+  title: t('apply_metadata_title'),
+  description: t('apply_author_desc', { name: author.name }),
+  body: <AuthorProposalList proposal={proposal} />,
+  confirmLabel: t('apply_metadata_confirm'),
+  icon: <Wand2 size={13} />,
+  danger: false,
+  onConfirm: () => window.dispatchEvent(new CustomEvent('apply-author-metadata', { detail: { authorId: author.id, name: author.name, proposal } })),
+});
